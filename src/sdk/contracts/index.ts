@@ -1,4 +1,3 @@
-export * from './abstract.contract';
 export * from './account-owner-registry.contract';
 export * from './account-proof-registry.contract';
 export * from './ens-controller.contract';

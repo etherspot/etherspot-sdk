@@ -1,3 +1,6 @@
+import { ApiService } from '../api';
+import { AuthService } from '../auth';
+
 import {
   AccountOwnerRegistryContract,
   AccountProofRegistryContract,
@@ -18,4 +21,9 @@ export interface Contracts {
   gatewayContract: GatewayContract;
   paymentRegistryContract: PaymentRegistryContract;
   personalAccountRegistryContract: PersonalAccountRegistryContract;
+}
+
+export interface Services {
+  apiService: ApiService;
+  authService: AuthService;
 }
