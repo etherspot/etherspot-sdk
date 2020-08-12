@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "target": "es2017",
+    "sourceMap": false,
+    "baseUrl": "./",
+    "rootDir": "./",
+    "strict": false,
+    "downlevelIteration": true,
+    "lib": [
+      "DOM",
+      "ES5",
+      "es2015.collection",
+      "es2015.iterable"
+    ]
+  },
+  "include": [
+    "./examples/**/*.ts",
+    "./src/**/*.ts",
+    "./test/**/*.ts"
+  ]
+}

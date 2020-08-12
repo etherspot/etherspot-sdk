@@ -1,0 +1,19 @@
+{
+  "inputFiles": [
+    "./src/index.ts"
+  ],
+  "readme": "./.github-pages/README.md",
+  "out": "./docs",
+  "mode": "file",
+  "exclude": [
+    "**/__mocks__/*.*",
+    "**/*+(index|.spec|.e2e).ts"
+  ],
+  "theme": "./.github-pages/theme",
+  "name": "ETHERspot documentation",
+  "hideGenerator": true,
+  "disableSources": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "stripInternal": true
+}
