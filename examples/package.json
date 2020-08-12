@@ -1,0 +1,10 @@
+{
+  "name": "@etherspot/sdk-examples",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "exit 1",
+    "01-create-session": "ts-node ./src/01-create-session.ts"
+  },
+  "dependencies": {}
+}
