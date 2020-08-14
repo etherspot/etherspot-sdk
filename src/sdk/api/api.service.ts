@@ -6,17 +6,18 @@ import {
   HttpLink,
   split,
   ApolloLink,
+  Observable,
 } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { plainToClass } from 'class-transformer';
 import { Service } from '../common';
-import { ApiOptions, ApiQueryOptions, ApiMutateOptions } from './interfaces';
+import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri } from './utils';
 
 export class ApiService extends Service {
   private readonly options: ApiOptions;
-  private apolloClient: ApolloClient<NormalizedCacheObject>;
+  apolloClient: ApolloClient<NormalizedCacheObject>;
 
   constructor(options: ApiOptions) {
     super();
@@ -36,7 +37,10 @@ export class ApiService extends Service {
 
     const wsLink = new WebSocketLink({
       webSocketImpl: WebSocket,
-      uri: buildApiUri(this.options, 'ws'),
+      uri: buildApiUri(this.options, 'ws', 'graphql'),
+      options: {
+        reconnect: true,
+      },
     });
 
     const authLink = new ApolloLink((operation, forward) => {
@@ -53,22 +57,21 @@ export class ApiService extends Service {
       // split based on operation type
       ({ query }) => {
         const definition = getMainDefinition(query);
-
         return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
       },
       wsLink,
-      httpLink,
+      authLink.concat(httpLink),
     );
 
     this.apolloClient = new ApolloClient({
-      link: authLink.concat(link),
+      link,
       cache: new InMemoryCache({
         resultCaching: false,
       }),
     });
   }
 
-  query<T>(query: DocumentNode, options?: ApiQueryOptions<T>): Promise<T> {
+  query<T>(query: DocumentNode, options?: ApiRequestQueryOptions<T>): Promise<T> {
     options = {
       variables: {},
       fetchPolicy: 'no-cache',
@@ -92,7 +95,7 @@ export class ApiService extends Service {
       .then(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
   }
 
-  mutate<T>(mutation: DocumentNode, options?: ApiMutateOptions<T>): Promise<T> {
+  mutate<T>(mutation: DocumentNode, options?: ApiRequestOptions<T>): Promise<T> {
     options = {
       variables: {},
       ...options,
@@ -111,5 +114,21 @@ export class ApiService extends Service {
         variables,
       })
       .then(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
+  }
+
+  subscribe<T = any>(query: DocumentNode, options?: ApiRequestOptions<T>): Observable<T> {
+    const {
+      variables, //
+      Model,
+    } = options;
+
+    return this.apolloClient
+      .subscribe<{
+        output: T;
+      }>({
+        query,
+        variables,
+      })
+      .map(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
   }
 }

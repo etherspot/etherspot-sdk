@@ -15,4 +15,6 @@ async function main(): Promise<void> {
   logger.log('session', session);
 }
 
-main().catch(logger.error);
+main()
+  .catch(logger.error)
+  .finally(() => process.exit());

@@ -6,11 +6,11 @@ export interface ApiOptions {
   useSsl?: boolean;
 }
 
-export interface ApiMutateOptions<T> {
+export interface ApiRequestOptions<T> {
   variables?: { [key: string]: any };
   Model?: { new (...args: any[]): T };
 }
 
-export interface ApiQueryOptions<T> extends ApiMutateOptions<T> {
+export interface ApiRequestQueryOptions<T> extends ApiRequestOptions<T> {
   fetchPolicy?: FetchPolicy;
 }

@@ -1,9 +1,13 @@
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client/core';
 import { Wallet } from 'ethers';
+import { Subject } from 'rxjs';
 import { AccountService } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { Context } from './context';
 import { ENSNode, ENSService } from './ens';
+import { createNetwork, Network } from './network';
+import { NotificationService, Notification } from './notification';
 import { State } from './state';
 import { WalletService } from './wallet';
 import {
@@ -16,7 +20,6 @@ import {
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contracts';
-import { createNetwork, Network } from './network';
 import { DEFAULT_NETWORK_NAME, DEFAULT_NETWORK_API_OPTIONS } from './defaults';
 import { SdkOptions } from './interfaces';
 
@@ -56,11 +59,16 @@ export class Sdk {
       apiService: new ApiService(options.apiOptions),
       authService: new AuthService(),
       ensService: new ENSService(),
+      notificationService: new NotificationService(),
       walletService: new WalletService(wallet),
     };
 
     this.context = new Context(this.network, this.contracts, this.services);
     this.state = new State(this.services);
+  }
+
+  get apolloClient(): ApolloClient<NormalizedCacheObject> {
+    return this.services.apiService.apolloClient;
   }
 
   async createSession(): Promise<Session> {
@@ -81,5 +89,9 @@ export class Sdk {
     }
 
     return result;
+  }
+
+  subscribeNotifications(): Subject<Notification> {
+    return this.services.notificationService.subscribeNotifications();
   }
 }

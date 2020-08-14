@@ -3,6 +3,7 @@ import { ApiService } from './api';
 import { AuthService } from './auth';
 import { ENSService } from './ens';
 import { Network } from './network';
+import { NotificationService } from './notification';
 import { Service } from './common';
 import { WalletService } from './wallet';
 import {
@@ -34,6 +35,7 @@ export class Context {
       apiService: ApiService;
       authService: AuthService;
       ensService: ENSService;
+      notificationService: NotificationService;
       walletService: WalletService;
     },
   ) {
