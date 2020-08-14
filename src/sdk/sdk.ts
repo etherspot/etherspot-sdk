@@ -5,7 +5,7 @@ import { AuthService, Session } from './auth';
 import { Context } from './context';
 import { ENSNode, ENSService } from './ens';
 import { State } from './state';
-import { CreateWalletOptions, WalletService } from './wallet';
+import { WalletService } from './wallet';
 import {
   AccountOwnerRegistryContract,
   AccountProofRegistryContract,
@@ -27,7 +27,7 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(options: SdkOptions = {}) {
+  constructor(wallet: Wallet, options?: SdkOptions) {
     options = {
       networkName: DEFAULT_NETWORK_NAME,
       ...options,
@@ -56,19 +56,11 @@ export class Sdk {
       apiService: new ApiService(options.apiOptions),
       authService: new AuthService(),
       ensService: new ENSService(),
-      walletService: new WalletService(),
+      walletService: new WalletService(wallet),
     };
 
     this.context = new Context(this.network, this.contracts, this.services);
     this.state = new State(this.services);
-  }
-
-  attachWallet(wallet: Wallet): void {
-    this.services.walletService.attachWallet(wallet);
-  }
-
-  createWallet(options: CreateWalletOptions = {}): Wallet {
-    return this.services.walletService.createWallet(options);
   }
 
   async createSession(): Promise<Session> {
