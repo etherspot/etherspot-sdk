@@ -9,9 +9,9 @@ async function main(): Promise<void> {
 
   logger.log('wallet', wallet.address);
 
-  const session = await sdk.createSession();
+  const ensNode = await sdk.reserveENSName(`random${Date.now().toString(16)}.pillar.dev`);
 
-  logger.log('session', session);
+  logger.log('ensNode', ensNode);
 }
 
 main().catch(logger.error);

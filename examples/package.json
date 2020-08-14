@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "exit 1",
-    "01-create-session": "ts-node ./src/01-create-session.ts"
+    "01-create-session": "ts-node ./src/01-create-session.ts",
+    "02-reserve-ens-name": "ts-node ./src/02-reserve-ens-name.ts"
   },
   "dependencies": {}
 }
