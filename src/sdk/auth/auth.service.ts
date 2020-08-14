@@ -1,18 +1,35 @@
-import { gql } from 'apollo-boost';
-import { plainToClass } from 'class-transformer';
-import { AbstractService } from '../common';
+import { gql } from '@apollo/client/core';
+import { Service, SynchronizedSubject } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
 
-export class AuthService extends AbstractService {
-  async createSessionCode(): Promise<Session> {
-    const {
-      wallet,
-      services: { apiService },
-    } = this.context;
+export class AuthService extends Service {
+  static TOKEN_HEADER_NAME = 'x-auth-token';
 
-    const account = wallet.address;
+  readonly session$ = new SynchronizedSubject<Session>();
 
+  get session(): Session {
+    return this.session$.value;
+  }
+
+  get headers(): { [key: string]: any } {
+    return this.session
+      ? {
+          [AuthService.TOKEN_HEADER_NAME]: this.session.token,
+        }
+      : {};
+  }
+
+  async verifySession(): Promise<void> {
+    if (!this.session || !this.session.valid) {
+      await this.createSession();
+    }
+  }
+
+  async createSession(): Promise<Session> {
+    const { apiService, walletService } = this.services;
+
+    const account = walletService.address;
     const code = await apiService.mutate<string>(
       gql`
         mutation($account: String!) {
@@ -20,14 +37,16 @@ export class AuthService extends AbstractService {
         }
       `,
       {
-        account,
+        variables: {
+          account,
+        },
       },
     );
 
     const message = createSessionMessage(code);
-    const signature = await wallet.signMessage(message);
+    const signature = await walletService.personalSignMessage(message);
 
-    const session = await apiService.mutate<Session>(
+    const session = await apiService.mutate(
       gql`
         mutation($account: String!, $code: String!, $signature: String!) {
           output: createSession(account: $account, code: $code, signature: $signature) {
@@ -37,12 +56,17 @@ export class AuthService extends AbstractService {
         }
       `,
       {
-        account,
-        code,
-        signature,
+        variables: {
+          account,
+          code,
+          signature,
+        },
+        Model: Session,
       },
     );
 
-    return plainToClass(Session, session);
+    this.session$.next(session);
+
+    return session;
   }
 }

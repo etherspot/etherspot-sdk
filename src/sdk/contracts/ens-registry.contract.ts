@@ -1,7 +1,7 @@
 import { ContractNames } from '@etherspot/contracts';
-import { AbstractContract } from './abstract.contract';
+import { Contract } from './contract';
 
-export class ENSRegistryContract extends AbstractContract {
+export class ENSRegistryContract extends Contract {
   constructor() {
     super(ContractNames.ENSRegistry);
   }

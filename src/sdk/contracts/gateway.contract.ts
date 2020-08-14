@@ -1,7 +1,7 @@
 import { ContractNames } from '@etherspot/contracts';
-import { AbstractContract } from './abstract.contract';
+import { Contract } from './contract';
 
-export class GatewayContract extends AbstractContract {
+export class GatewayContract extends Contract {
   constructor() {
     super(ContractNames.Gateway);
   }
