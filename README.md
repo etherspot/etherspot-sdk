@@ -12,7 +12,7 @@ $ npm i etherspot -S
 install `peerDependencies`:
 
 ```bash
-$ npm i apollo-boost apollo-link apollo-link-http apollo-link-ws apollo-utilities ethers reflect-metadata rxjs -S
+$ npm i @apollo/client ethers reflect-metadata rxjs subscriptions-transport-ws -S
 ```
 
 install `ws` (node.js only):
