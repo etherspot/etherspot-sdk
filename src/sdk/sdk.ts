@@ -63,6 +63,10 @@ export class Sdk {
     this.state = new State(this.services);
   }
 
+  attachWallet(wallet: Wallet): void {
+    this.services.walletService.attachWallet(wallet);
+  }
+
   createWallet(options: CreateWalletOptions = {}): Wallet {
     return this.services.walletService.createWallet(options);
   }

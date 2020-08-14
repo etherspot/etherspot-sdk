@@ -10,6 +10,13 @@ export class WalletService extends Service {
     return this.wallet ? this.wallet.address : null;
   }
 
+  attachWallet(wallet: Wallet): void {
+    const { accountService } = this.services;
+
+    accountService.createAccountFromWallet(wallet);
+    this.wallet = wallet;
+  }
+
   createWallet(options: CreateWalletOptions = {}): Wallet {
     let wallet: Wallet;
 
@@ -23,11 +30,7 @@ export class WalletService extends Service {
       wallet = Wallet.createRandom();
     }
 
-    this.wallet = wallet;
-
-    const { accountService } = this.services;
-
-    accountService.createAccountFromWallet(wallet);
+    this.attachWallet(wallet);
 
     return wallet;
   }
