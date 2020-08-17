@@ -41,6 +41,10 @@ export class Sdk {
       ...options,
     };
 
+    if (!options.apiOptions) {
+      throw new Error('Unsupported network');
+    }
+
     this.network = createNetwork(options.networkName);
 
     this.contracts = {
