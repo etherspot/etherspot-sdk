@@ -2,17 +2,13 @@ import { utils, Wallet, BytesLike } from 'ethers';
 import { Service } from '../common';
 
 export class WalletService extends Service {
+  private wallet: Wallet;
   private signer: utils.SigningKey;
 
-  constructor(private wallet: Wallet) {
-    super();
-
+  attachWallet(wallet: Wallet): void {
+    this.wallet = wallet;
     this.signer = new utils.SigningKey(wallet.privateKey);
-  }
-  protected onInit(): void {
-    const { accountService } = this.services;
-
-    accountService.createAccountFromWallet(this.wallet);
+    this.services.accountService.createAccountFromWallet(wallet);
   }
 
   get address(): string {

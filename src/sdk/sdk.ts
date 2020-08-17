@@ -30,7 +30,25 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(wallet: Wallet, options?: SdkOptions) {
+  constructor(wallet: Wallet, options?: SdkOptions);
+  constructor(options?: SdkOptions);
+  constructor(...args: any[]) {
+    let wallet: Wallet = null;
+    let options: SdkOptions = {};
+
+    if (args.length > 0) {
+      let optionsIndex = 0;
+
+      if (args[0] instanceof Wallet) {
+        wallet = args[0];
+        ++optionsIndex;
+      }
+
+      if (args[optionsIndex] && typeof args[optionsIndex] === 'object') {
+        options = args[optionsIndex];
+      }
+    }
+
     options = {
       networkName: DEFAULT_NETWORK_NAME,
       ...options,
@@ -64,15 +82,23 @@ export class Sdk {
       authService: new AuthService(),
       ensService: new ENSService(),
       notificationService: new NotificationService(),
-      walletService: new WalletService(wallet),
+      walletService: new WalletService(),
     };
 
     this.context = new Context(this.network, this.contracts, this.services);
     this.state = new State(this.services);
+
+    if (wallet) {
+      this.attachWallet(wallet);
+    }
   }
 
   get apolloClient(): ApolloClient<NormalizedCacheObject> {
     return this.services.apiService.apolloClient;
+  }
+
+  attachWallet(wallet: Wallet): void {
+    this.services.walletService.attachWallet(wallet);
   }
 
   async createSession(): Promise<Session> {
