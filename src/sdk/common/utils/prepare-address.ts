@@ -1,5 +1,4 @@
-import { constants } from 'ethers';
-import { isAddress } from './is-address';
+import { constants, utils } from 'ethers';
 
 /**
  * @ignore
@@ -7,8 +6,14 @@ import { isAddress } from './is-address';
 export function prepareAddress(value: string, zeroAddressAsNull = false): string {
   let result: string = null;
 
-  if (isAddress(value) && value !== constants.AddressZero) {
-    result = value;
+  try {
+    result = utils.getAddress(value);
+
+    if (result === constants.AddressZero) {
+      result = null;
+    }
+  } catch (err) {
+    //
   }
 
   if (!result && zeroAddressAsNull) {
