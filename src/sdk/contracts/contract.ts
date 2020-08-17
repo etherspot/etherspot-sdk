@@ -8,12 +8,12 @@ import {
 } from '@etherspot/contracts';
 import { TypedData, buildTypedData } from 'ethers-typed-data';
 import { utils } from 'ethers';
-import { AbstractService } from '../common';
+import { Service } from '../common';
 
 /**
  * @ignore
  */
-export abstract class AbstractContract extends AbstractService {
+export abstract class Contract extends Service {
   protected interface: utils.Interface;
 
   private typedDataDomain: {

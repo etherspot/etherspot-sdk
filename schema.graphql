@@ -1,0 +1,270 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Account {
+  address: String!
+  createdAt: DateTime!
+  member(address: String!): AccountMember
+  members(limit: Int = 10, page: Int = 1): AccountMembers!
+  proof(hash: String!): AccountProof
+  proofs(limit: Int = 10, page: Int = 1): AccountProofs!
+  state: AccountStates
+  store: AccountStores
+  type: AccountTypes
+  updatedAt: DateTime!
+}
+
+type AccountMember {
+  account: Account!
+  createdAt: DateTime!
+  member: Account!
+  state: AccountMemberStates!
+  store: AccountMemberStores
+  type: AccountMemberTypes
+  updatedAt: DateTime!
+}
+
+type AccountMembers {
+  currentPage: Int!
+  items: [AccountMember!]!
+  nextPage: Int
+}
+
+type AccountProof {
+  createdAt: DateTime!
+  hash: String!
+  state: AccountProofStates!
+  updatedAt: DateTime!
+}
+
+type AccountProofs {
+  currentPage: Int!
+  items: [AccountProof!]!
+  nextPage: Int
+}
+
+type Accounts {
+  currentPage: Int!
+  items: [Account!]!
+  nextPage: Int
+}
+
+type BlockStats {
+  currentOnchainBlockNumber: Int
+  lastProcessedBlockNumber: Int
+}
+
+type ENSNode {
+  address: String!
+  createdAt: DateTime
+  guardianSignature: String
+  hash: String!
+  label: String
+  name: String
+  state: ENSNodeStates
+  type: ENSNodeTypes
+  updatedAt: DateTime
+}
+
+type EstimatedRelayedTransaction {
+  gasLimit: Int!
+  gasPrice: BigNumber!
+  refundAmount: BigNumber!
+  refundToken: String!
+  totalCost: BigNumber!
+}
+
+type Mutation {
+  createENSSubNode(address: String!, name: String!): ENSNode!
+  createSession(account: String!, code: String!, signature: String!, ttl: Int): Session!
+  createSessionCode(account: String!): String!
+  destroySession: Boolean!
+  estimateRelayedTransaction(account: String!, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
+  sendRelayedTransaction(account: String!, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
+  syncAccount: Account!
+  syncAccountMember(account: String!): AccountMember!
+  syncPaymentDeposit(owner: String!, token: String): PaymentDeposit!
+  touchSession: Boolean!
+  updatePaymentChannel(blockNumber: Int!, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
+}
+
+type Network {
+  chainId: Int!
+  name: NetworkNames!
+}
+
+type Notification {
+  payload: String
+  recipient: String!
+  type: NotificationTypes!
+}
+
+type Payment {
+  blockNumber: Int!
+  createdAt: DateTime!
+  guardianSignature: String
+  senderSignature: String
+  state: PaymentStates!
+  totalAmount: BigNumber!
+  updatedAt: DateTime!
+  value: BigNumber!
+}
+
+type PaymentChannel {
+  committedAmount: BigNumber!
+  createdAt: DateTime!
+  hash: String!
+  latestPayment: Payment
+  payments: [Payment!]
+  recipient: String!
+  sender: String!
+  state: PaymentChannelStates!
+  token: String!
+  totalAmount: BigNumber!
+  uid: String!
+  updatedAt: DateTime!
+}
+
+type PaymentDeposit {
+  address: String!
+  availableAmount: BigNumber!
+  createdAt: DateTime!
+  lockedAmount: BigNumber!
+  owner: String!
+  state: PaymentDepositStates!
+  token: String
+  totalAmount: BigNumber!
+  updatedAt: DateTime!
+}
+
+type Query {
+  account(address: String!): Account
+  accounts(limit: Int = 10, page: Int = 1): Accounts!
+  blockStats: BlockStats!
+  ensNode(nameOrHashOrAddress: String!): ENSNode
+  network: Network!
+  paymentChannel(hash: String!): PaymentChannel
+  relayedTransaction(key: String!): RelayedTransaction
+}
+
+type RelayedTransaction {
+  account: String!
+  createdAt: DateTime!
+  encodedData: String!
+  gasLimit: Int!
+  gasPrice: BigNumber!
+  hash: String
+  key: String!
+  refundAmount: BigNumber!
+  refundToken: String
+  sender: String
+  state: RelayedTransactionStates!
+  updatedAt: DateTime!
+}
+
+type Session {
+  account: Account!
+  token: String!
+  ttl: Int!
+}
+
+type Subscription {
+  newNotification(address: String!): Notification
+}
+
+enum AccountMemberStates {
+  Added
+  Removed
+}
+
+enum AccountMemberStores {
+  AccountOwnerRegistry
+  PersonalAccountRegistry
+}
+
+enum AccountMemberTypes {
+  Owner
+}
+
+enum AccountProofStates {
+  Added
+  Removed
+}
+
+enum AccountStates {
+  Deployed
+  UnDeployed
+}
+
+enum AccountStores {
+  PersonalAccountRegistry
+}
+
+enum AccountTypes {
+  Contract
+  Key
+}
+
+enum ENSNodeStates {
+  Claimed
+  Reserved
+}
+
+enum ENSNodeTypes {
+  Root
+  Sub
+}
+
+enum NetworkNames {
+  Goerli
+  Local
+  Mainnet
+}
+
+enum NotificationTypes {
+  AccountMemberCreated
+  AccountMemberUpdated
+  AccountUpdated
+  ENSSubNodeCreated
+  ENSSubNodeUpdated
+  PaymentChannelCreated
+  PaymentChannelUpdated
+  RelayedTransactionCreated
+  RelayedTransactionUpdated
+}
+
+enum PaymentChannelStates {
+  Endangered
+  Opened
+}
+
+enum PaymentDepositStates {
+  Locked
+  Unlocked
+}
+
+enum PaymentStates {
+  Committed
+  Created
+  Expired
+}
+
+enum RelayedTransactionStates {
+  Canceled
+  Pending
+  Queued
+  Reverted
+  Sent
+}
+
+
+"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
+scalar DateTime
+
+"BigNumber.js"
+scalar BigNumber

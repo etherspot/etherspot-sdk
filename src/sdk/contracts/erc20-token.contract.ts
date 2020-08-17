@@ -1,7 +1,7 @@
 import { ContractNames } from '@etherspot/contracts';
-import { AbstractContract } from './abstract.contract';
+import { Contract } from './contract';
 
-export class ERC20TokenContract extends AbstractContract {
+export class ERC20TokenContract extends Contract {
   constructor() {
     super(ContractNames.ERC20Token);
   }

@@ -1,10 +1,11 @@
-import { Exclude } from 'class-transformer';
+import { Synchronized } from '../../common';
 
-export class Session {
+export class Session extends Synchronized {
   token: string;
 
   ttl: number;
 
-  @Exclude()
-  __typename: any;
+  get valid(): boolean {
+    return this.synchronizedAt.getTime() + (this.ttl - 5) * 1000 > Date.now();
+  }
 }

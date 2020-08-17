@@ -1,7 +1,7 @@
 import { ContractNames } from '@etherspot/contracts';
-import { AbstractContract } from './abstract.contract';
+import { Contract } from './contract';
 
-export class AccountOwnerRegistryContract extends AbstractContract {
+export class AccountOwnerRegistryContract extends Contract {
   constructor() {
     super(ContractNames.AccountOwnerRegistry);
   }
