@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client/core';
-import { Service, SynchronizedSubject } from '../common';
+import { plainToClass } from 'class-transformer';
+import { Service, ObjectSubject } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
 
 export class AuthService extends Service {
   static TOKEN_HEADER_NAME = 'x-auth-token';
 
-  readonly session$ = new SynchronizedSubject<Session>();
+  readonly session$ = new ObjectSubject<Session>();
 
   get session(): Session {
     return this.session$.value;
@@ -21,19 +22,40 @@ export class AuthService extends Service {
   }
 
   async verifySession(): Promise<void> {
-    if (!this.session || !this.session.valid) {
+    if (this.session && !this.session.verify()) {
+      this.session$.next(null);
+    }
+
+    if (!this.session) {
       await this.createSession();
+    } else {
+      this.session.refresh();
     }
   }
 
-  async createSession(): Promise<Session> {
+  restoreSession(session: Session): Session {
+    session = plainToClass(Session, session);
+
+    if (!session.verify()) {
+      session = null;
+    }
+
+    this.session$.next(session);
+
+    return session;
+  }
+
+  async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
     const account = walletService.address;
-    const code = await apiService.mutate<string>(
+
+    const { code } = await apiService.mutate<{
+      code: string;
+    }>(
       gql`
         mutation($account: String!) {
-          output: createSessionCode(account: $account)
+          code: createSessionCode(account: $account)
         }
       `,
       {
@@ -46,10 +68,12 @@ export class AuthService extends Service {
     const message = createSessionMessage(code);
     const signature = await walletService.personalSignMessage(message);
 
-    const session = await apiService.mutate(
+    const { session } = await apiService.mutate<{
+      session: Session;
+    }>(
       gql`
-        mutation($account: String!, $code: String!, $signature: String!) {
-          output: createSession(account: $account, code: $code, signature: $signature) {
+        mutation($account: String!, $code: String!, $signature: String!, $ttl: Int) {
+          session: createSession(account: $account, code: $code, signature: $signature, ttl: $ttl) {
             token
             ttl
           }
@@ -60,10 +84,15 @@ export class AuthService extends Service {
           account,
           code,
           signature,
+          ttl,
         },
-        Model: Session,
+        models: {
+          session: Session,
+        },
       },
     );
+
+    session.refresh();
 
     this.session$.next(session);
 

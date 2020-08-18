@@ -21,6 +21,16 @@ install `ws` (node.js only):
 $ npm i ws -S
 ```
 
+## Usage
+
+```typescript
+import { Sdk } from 'etherspot';
+import { Wallet } from 'ethers';
+
+const sdk = new Sdk(Wallet.createRandom());
+
+```
+
 ## License
 
 MIT

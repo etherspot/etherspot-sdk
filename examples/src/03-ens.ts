@@ -4,7 +4,6 @@ import { Sdk } from '../../src';
 import { logger } from './common';
 
 async function main(): Promise<void> {
-  // random wallet
   const wallet = Wallet.createRandom();
 
   logger.log('wallet', wallet.address);
@@ -17,7 +16,7 @@ async function main(): Promise<void> {
 
   logger.log('ensNode', ensNode);
 
-  logger.log('notification', await notification);
+  logger.log('last notification', await notification);
 }
 
 main()

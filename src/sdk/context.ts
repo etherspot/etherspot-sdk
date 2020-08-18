@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs';
 import { AccountService } from './account';
 import { ApiService } from './api';
 import { AuthService } from './auth';
@@ -18,6 +19,8 @@ import {
 } from './contracts';
 
 export class Context {
+  private subscriptions: Subscription[] = [];
+
   constructor(
     readonly network: Network, //
     readonly contracts: {
@@ -41,6 +44,16 @@ export class Context {
   ) {
     this.initServices(Object.values(contracts));
     this.initServices(Object.values(services));
+  }
+
+  addSubscription(subscription: Subscription): void {
+    this.subscriptions.push(subscription);
+  }
+
+  destroy(): void {
+    for (const subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
   }
 
   private initServices(services: Service[]): void {

@@ -6,9 +6,11 @@ export interface ApiOptions {
   useSsl?: boolean;
 }
 
-export interface ApiRequestOptions<T> {
+export interface ApiRequestOptions<T extends {}, K extends keyof T = keyof T> {
   variables?: { [key: string]: any };
-  Model?: { new (...args: any[]): T };
+  models?: {
+    [key in K]: { new (...args: any): T[K] };
+  };
 }
 
 export interface ApiRequestQueryOptions<T> extends ApiRequestOptions<T> {

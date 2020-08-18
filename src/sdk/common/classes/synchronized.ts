@@ -1,11 +1,8 @@
-import { Exclude } from 'class-transformer';
+import { WithTypename } from './with-typename';
 
 /**
  * @ignore
  */
-export class Synchronized {
+export abstract class Synchronized extends WithTypename {
   synchronizedAt?: Date;
-
-  @Exclude()
-  __typename: any;
 }
