@@ -1,9 +1,6 @@
-# ETHERspot sdk
+## Installation
 
 [![NPM version][npm-image]][npm-url]
-![MIT licensed][license-image]
-
-## Installation
 
 ```bash
 $ npm i etherspot -S
@@ -31,11 +28,6 @@ const sdk = new Sdk(Wallet.createRandom());
 
 ```
 
-## License
-
-MIT
-
 [npm-image]: https://badge.fury.io/js/etherspot.svg
 [npm-url]: https://npmjs.org/package/etherspot
-[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 

@@ -22,8 +22,14 @@ import { Notification, NotificationService } from './notification';
 import { State } from './state';
 import { WalletService } from './wallet';
 
+/**
+ * Sdk
+ *
+ * @category Sdk
+ */
 export class Sdk {
   readonly state: State;
+
   private readonly context: Context;
   private readonly network: Network;
   private readonly contracts: Context['contracts'];
