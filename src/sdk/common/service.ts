@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs';
 import { Context } from '../context';
 
 export abstract class Service {
@@ -23,5 +24,9 @@ export abstract class Service {
 
   protected get services(): Context['services'] {
     return this.context.services;
+  }
+
+  protected addSubscription(subscription: Subscription): void {
+    return this.context.addSubscription(subscription);
   }
 }

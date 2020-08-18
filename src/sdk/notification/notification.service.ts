@@ -1,18 +1,21 @@
-import { Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { gql } from '@apollo/client/core';
+import { map } from 'rxjs/operators';
 import { Service, GraphGLSubject } from '../common';
 import { Notification } from './classes';
 
 export class NotificationService extends Service {
-  subscribeNotifications(): Subject<Notification> {
+  subscribeNotifications(): Observable<Notification> {
     const { apiService, accountService } = this.services;
 
     const address = accountService.accountAddress;
 
-    const observable = apiService.subscribe(
+    const observable = apiService.subscribe<{
+      notification: Notification;
+    }>(
       gql`
         subscription($address: String!) {
-          output: newNotification(address: $address) {
+          notification: newNotification(address: $address) {
             type
             recipient
             payload
@@ -23,10 +26,12 @@ export class NotificationService extends Service {
         variables: {
           address,
         },
-        Model: Notification,
+        models: {
+          notification: Notification,
+        },
       },
     );
 
-    return new GraphGLSubject(observable);
+    return new GraphGLSubject(observable).pipe(map(({ notification }) => notification));
   }
 }

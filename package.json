@@ -36,7 +36,7 @@
     "docs:serve": "serve ./docs"
   },
   "dependencies": {
-    "@etherspot/contracts": "1.0.0-alpha.24",
+    "@etherspot/contracts": "1.0.0-alpha.25",
     "ethers-typed-data": "0.0.4",
     "class-transformer": "0.2.3",
     "cross-fetch": "3.0.4"

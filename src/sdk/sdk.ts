@@ -1,15 +1,9 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client/core';
 import { Wallet } from 'ethers';
-import { Subject } from 'rxjs';
-import { AccountService } from './account';
+import { Observable } from 'rxjs';
+import { Account, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { Context } from './context';
-import { ENSNode, ENSService } from './ens';
-import { createNetwork, Network } from './network';
-import { NotificationService, Notification } from './notification';
-import { State } from './state';
-import { WalletService } from './wallet';
 import {
   AccountOwnerRegistryContract,
   AccountProofRegistryContract,
@@ -20,8 +14,13 @@ import {
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contracts';
-import { DEFAULT_NETWORK_NAME, DEFAULT_NETWORK_API_OPTIONS } from './defaults';
+import { DEFAULT_NETWORK_API_OPTIONS, DEFAULT_NETWORK_NAME } from './defaults';
+import { ENSNode, ENSService } from './ens';
 import { SdkOptions } from './interfaces';
+import { createNetwork, Network } from './network';
+import { Notification, NotificationService } from './notification';
+import { State } from './state';
+import { WalletService } from './wallet';
 
 export class Sdk {
   readonly state: State;
@@ -93,35 +92,132 @@ export class Sdk {
     }
   }
 
-  get apolloClient(): ApolloClient<NormalizedCacheObject> {
-    return this.services.apiService.apolloClient;
+  get api(): ApiService {
+    return this.services.apiService;
   }
 
+  destroy(): void {
+    this.context.destroy();
+  }
+
+  // wallet
+
   attachWallet(wallet: Wallet): void {
+    if (!(wallet instanceof Wallet)) {
+      throw new Error('Invalid Wallet object');
+    }
+
     this.services.walletService.attachWallet(wallet);
   }
 
-  async createSession(): Promise<Session> {
-    return this.services.authService.createSession();
+  // session
+
+  async createSession(ttl: number = null): Promise<Session> {
+    await this.require();
+
+    return this.services.authService.createSession(ttl);
   }
 
-  async reserveENSName(name: string): Promise<ENSNode> {
-    const { authService, ensService } = this.services;
+  async restoreSession(session: Session): Promise<Session> {
+    await this.require();
 
-    await authService.verifySession();
+    return this.services.authService.restoreSession(session);
+  }
 
-    let result: ENSNode;
+  // account
 
-    try {
-      result = await ensService.createENSSubNode(name);
-    } catch (err) {
-      console.log(err.graphQLErrors[0].extensions);
+  async syncAccount(): Promise<void> {
+    await this.require({
+      session: true,
+    });
+
+    await this.services.accountService.syncAccount();
+  }
+
+  async computeContractAccount(sync = true): Promise<Account> {
+    await this.require({
+      session: sync,
+    });
+
+    const { accountService } = this.services;
+
+    accountService.computeContractAccount();
+
+    if (sync) {
+      await accountService.syncAccount();
     }
 
-    return result;
+    return this.state.account;
   }
 
-  subscribeNotifications(): Subject<Notification> {
+  async joinContractAccount(address: string, sync = true): Promise<Account> {
+    await this.require({
+      session: sync,
+    });
+
+    const { accountService } = this.services;
+
+    accountService.joinContractAccount(address);
+
+    if (sync) {
+      await accountService.syncAccount();
+    }
+
+    return this.state.account;
+  }
+
+  async getConnectedAccounts(page = 1): Promise<Accounts> {
+    await this.require({
+      session: true,
+    });
+
+    return this.services.accountService.getConnectedAccounts(page);
+  }
+
+  // ens
+
+  async reserveENSName(name: string): Promise<ENSNode> {
+    await this.require({
+      session: true,
+    });
+
+    return this.services.ensService.createENSSubNode(name);
+  }
+
+  async getENSNode(nameOrHashOrAddress: string): Promise<ENSNode> {
+    return this.services.ensService.getENSNode(nameOrHashOrAddress);
+  }
+
+  // subscriptions
+
+  subscribeNotifications(): Observable<Notification> {
     return this.services.notificationService.subscribeNotifications();
+  }
+
+  private async require(
+    options: {
+      wallet?: boolean;
+      session?: boolean;
+      contractAccount?: boolean;
+    } = {},
+  ): Promise<void> {
+    options = {
+      wallet: true, // require wallet by default
+      ...options,
+    };
+
+    const { accountService, authService, walletService } = this.services;
+
+    if (options.wallet && !walletService.address) {
+      throw new Error('Require wallet');
+    }
+
+    if (options.session) {
+      await authService.verifySession();
+    }
+
+    if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {
+      throw new Error('Require contract account');
+    }
   }
 }

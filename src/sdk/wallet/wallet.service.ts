@@ -5,14 +5,14 @@ export class WalletService extends Service {
   private wallet: Wallet;
   private signer: utils.SigningKey;
 
+  get address(): string {
+    return this.wallet ? this.wallet.address : null;
+  }
+
   attachWallet(wallet: Wallet): void {
     this.wallet = wallet;
     this.signer = new utils.SigningKey(wallet.privateKey);
     this.services.accountService.createAccountFromWallet(wallet);
-  }
-
-  get address(): string {
-    return this.wallet ? this.wallet.address : null;
   }
 
   personalSignMessage(message: BytesLike): Promise<string> {

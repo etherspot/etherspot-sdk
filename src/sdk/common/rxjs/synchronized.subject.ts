@@ -12,7 +12,10 @@ export class SynchronizedSubject<T extends Synchronized, K extends keyof T = key
   }
 
   prepareForNext(value: T): T {
-    value.synchronizedAt = new Date();
+    if (value !== null && value.synchronizedAt !== null) {
+      value.synchronizedAt = new Date();
+    }
+
     return value;
   }
 }

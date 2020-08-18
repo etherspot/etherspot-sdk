@@ -8,10 +8,12 @@ export class ENSService extends Service {
 
     const address = accountService.accountAddress;
 
-    return apiService.mutate(
+    const { result } = await apiService.mutate<{
+      result: ENSNode;
+    }>(
       gql`
         mutation($address: String!, $name: String!) {
-          output: createENSSubNode(address: $address, name: $name) {
+          result: createENSSubNode(address: $address, name: $name) {
             hash
             name
             address
@@ -29,8 +31,46 @@ export class ENSService extends Service {
           name,
           address,
         },
-        Model: ENSNode,
+        models: {
+          result: ENSNode,
+        },
       },
     );
+
+    return result;
+  }
+
+  async getENSNode(nameOrHashOrAddress: string): Promise<ENSNode> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: ENSNode;
+    }>(
+      gql`
+        query($nameOrHashOrAddress: String!) {
+          result: ensNode(nameOrHashOrAddress: $nameOrHashOrAddress) {
+            hash
+            name
+            address
+            label
+            type
+            state
+            guardianSignature
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        variables: {
+          nameOrHashOrAddress,
+        },
+        models: {
+          result: ENSNode,
+        },
+      },
+    );
+
+    return result;
   }
 }
