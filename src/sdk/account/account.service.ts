@@ -3,7 +3,7 @@ import { Wallet } from 'ethers';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, SynchronizedSubject } from '../common';
-import { Account, AccountMember, Accounts } from './classes';
+import { Account, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
 export class AccountService extends Service {
@@ -188,5 +188,80 @@ export class AccountService extends Service {
     );
 
     return result;
+  }
+
+  async getAccount(address: string): Promise<Account> {
+    const { apiService } = this.services;
+
+    const { account } = await apiService.query<{
+      account: Account;
+    }>(
+      gql`
+        query($address: String!) {
+          account(address: $address) {
+            address
+            type
+            state
+            store
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        variables: {
+          address,
+        },
+        models: {
+          account: Account,
+        },
+      },
+    );
+
+    return account;
+  }
+
+  async getAccountMembers(address: string, page: number): Promise<AccountMembers> {
+    const { apiService } = this.services;
+
+    const { account } = await apiService.query<{
+      account: Account;
+    }>(
+      gql`
+        query($address: String!, $page: Int) {
+          account(address: $address) {
+            members(page: $page) {
+              items {
+                member {
+                  address
+                  type
+                  state
+                  store
+                  createdAt
+                  updatedAt
+                }
+                type
+                state
+                store
+                createdAt
+                updatedAt
+              }
+              currentPage
+              nextPage
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          address,
+        },
+        models: {
+          account: Account,
+        },
+      },
+    );
+
+    return account.members;
   }
 }

@@ -17,6 +17,9 @@ async function main(): Promise<void> {
 
   logger.log('synced contract account', sdk.state.account);
   logger.log('synced contract account member', sdk.state.accountMember);
+
+  logger.log('get account', await sdk.getAccount(sdk.state.accountAddress));
+  logger.log('get account members', await sdk.getAccountMembers(sdk.state.accountAddress));
 }
 
 main()

@@ -1,6 +1,6 @@
 import { Wallet } from 'ethers';
 import { Observable } from 'rxjs';
-import { Account, Accounts, AccountService, AccountTypes } from './account';
+import { Account, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { Context } from './context';
@@ -172,6 +172,14 @@ export class Sdk {
     });
 
     return this.services.accountService.getConnectedAccounts(page);
+  }
+
+  async getAccount(address: string): Promise<Account> {
+    return this.services.accountService.getAccount(address);
+  }
+
+  async getAccountMembers(address: string, page = 1): Promise<AccountMembers> {
+    return this.services.accountService.getAccountMembers(address, page);
   }
 
   // ens
