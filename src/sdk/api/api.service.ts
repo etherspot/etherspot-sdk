@@ -10,10 +10,9 @@ import {
 } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
-import { plainToClass } from 'class-transformer';
 import { Service } from '../common';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
-import { buildApiUri } from './utils';
+import { buildApiUri, catchApiError, mapApiResult } from './utils';
 
 export class ApiService extends Service {
   private readonly options: ApiOptions;
@@ -71,7 +70,9 @@ export class ApiService extends Service {
     });
   }
 
-  query<T>(query: DocumentNode, options?: ApiRequestQueryOptions<T>): Promise<T> {
+  async query<T extends {}>(query: DocumentNode, options?: ApiRequestQueryOptions<T>): Promise<T> {
+    let result: T = null;
+
     options = {
       variables: {},
       fetchPolicy: 'no-cache',
@@ -81,21 +82,27 @@ export class ApiService extends Service {
     const {
       variables, //
       fetchPolicy,
-      Model,
+      models,
     } = options;
 
-    return this.apolloClient
-      .query<{
-        output: T;
-      }>({
+    try {
+      const { data } = await this.apolloClient.query<T>({
         query,
         variables,
         fetchPolicy,
-      })
-      .then(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
+      });
+
+      result = mapApiResult(data, models);
+    } catch (err) {
+      catchApiError(err);
+    }
+
+    return result;
   }
 
-  mutate<T>(mutation: DocumentNode, options?: ApiRequestOptions<T>): Promise<T> {
+  async mutate<T extends {}>(mutation: DocumentNode, options?: ApiRequestOptions<T>): Promise<T> {
+    let result: T = null;
+
     options = {
       variables: {},
       ...options,
@@ -103,32 +110,35 @@ export class ApiService extends Service {
 
     const {
       variables, //
-      Model,
+      models,
     } = options;
 
-    return this.apolloClient
-      .mutate<{
-        output: T;
-      }>({
+    try {
+      const { data } = await this.apolloClient.mutate<T>({
         mutation,
         variables,
-      })
-      .then(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
+      });
+
+      result = mapApiResult(data, models);
+    } catch (err) {
+      catchApiError(err);
+    }
+
+    return result;
   }
 
-  subscribe<T = any>(query: DocumentNode, options?: ApiRequestOptions<T>): Observable<T> {
+  subscribe<T extends {}>(query: DocumentNode, options?: ApiRequestOptions<T>): Observable<T> {
     const {
       variables, //
-      Model,
+      models,
     } = options;
 
     return this.apolloClient
-      .subscribe<{
-        output: T;
-      }>({
+      .subscribe<T>({
         query,
         variables,
       })
-      .map(({ data: { output } }) => (Model ? plainToClass(Model, output) : output));
+
+      .map(({ data }) => mapApiResult(data, models));
   }
 }
