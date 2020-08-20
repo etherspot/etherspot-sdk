@@ -29,9 +29,9 @@ import { WalletService } from './wallet';
  */
 export class Sdk {
   readonly state: State;
+  readonly network: Network;
 
   private readonly context: Context;
-  private readonly network: Network;
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
@@ -44,8 +44,8 @@ export class Sdk {
     if (args.length > 0) {
       let optionsIndex = 0;
 
-      if (args[0] instanceof Wallet) {
-        wallet = args[0];
+      if (Wallet.isSigner(args[0])) {
+        wallet = args[0] as Wallet;
         ++optionsIndex;
       }
 
@@ -109,7 +109,7 @@ export class Sdk {
   // wallet
 
   attachWallet(wallet: Wallet): void {
-    if (!(wallet instanceof Wallet)) {
+    if (!Wallet.isSigner(wallet)) {
       throw new Error('Invalid Wallet object');
     }
 

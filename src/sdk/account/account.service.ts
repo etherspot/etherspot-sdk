@@ -18,6 +18,24 @@ export class AccountService extends Service {
   }
 
   protected onInit(): void {
+    const { walletService } = this.services;
+
+    this.addSubscription(
+      walletService.address$
+        .pipe(
+          map((address) =>
+            !address
+              ? null
+              : Account.fromPlain({
+                  address,
+                  type: AccountTypes.Key,
+                  synchronizedAt: null,
+                }),
+          ),
+        )
+        .subscribe(this.account$),
+    );
+
     this.addSubscription(
       this.accountAddress$ //
         .pipe(map(() => null))
@@ -35,18 +53,6 @@ export class AccountService extends Service {
 
   get accountMember(): AccountMember {
     return this.accountMember$.value;
-  }
-
-  createAccountFromWallet(wallet: Wallet): void {
-    const { address } = wallet;
-
-    this.account$.next(
-      Account.fromPlain({
-        address,
-        type: AccountTypes.Key,
-        synchronizedAt: null,
-      }),
-    );
   }
 
   computeContractAccount(): void {

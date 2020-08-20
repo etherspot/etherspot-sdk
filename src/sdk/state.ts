@@ -8,6 +8,14 @@ export class State {
     //
   }
 
+  get walletAddress$(): BehaviorSubject<string> {
+    return this.services.walletService.address$;
+  }
+
+  get walletAddress(): string {
+    return this.services.walletService.address;
+  }
+
   get account$(): BehaviorSubject<Account> {
     return this.services.accountService.account$;
   }

@@ -39,6 +39,7 @@ export class ApiService extends Service {
       uri: buildApiUri(this.options, 'ws', 'graphql'),
       options: {
         reconnect: true,
+        lazy: true,
       },
     });
 
