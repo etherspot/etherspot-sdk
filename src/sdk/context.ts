@@ -6,6 +6,7 @@ import { BatchService } from './batch';
 import { ENSService } from './ens';
 import { Network } from './network';
 import { NotificationService } from './notification';
+import { PaymentsService } from './payments';
 import { RelayerService } from './relayer';
 import { Service } from './common';
 import { WalletService } from './wallet';
@@ -36,6 +37,7 @@ export class Context {
       authService: AuthService;
       ensService: ENSService;
       notificationService: NotificationService;
+      paymentsService: PaymentsService;
       relayerService: RelayerService;
       walletService: WalletService;
     },

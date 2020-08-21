@@ -10,6 +10,7 @@ export * from './ens';
 export * from './interfaces';
 export * from './network';
 export * from './notification';
+export * from './payments';
 export * from './relayer';
 export * from './wallet';
 

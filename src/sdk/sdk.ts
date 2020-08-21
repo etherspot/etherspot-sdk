@@ -17,6 +17,7 @@ import { ENSNode, ENSService, parseENSName } from './ens';
 import { SdkOptions } from './interfaces';
 import { createNetwork, Network } from './network';
 import { Notification, NotificationService } from './notification';
+import { PaymentsService } from './payments';
 import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
@@ -84,6 +85,7 @@ export class Sdk {
       batchService: new BatchService(),
       ensService: new ENSService(),
       notificationService: new NotificationService(),
+      paymentsService: new PaymentsService(),
       relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
