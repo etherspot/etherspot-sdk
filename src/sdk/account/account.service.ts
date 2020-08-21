@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client/core';
-import { Wallet } from 'ethers';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, SynchronizedSubject } from '../common';
@@ -88,7 +87,7 @@ export class AccountService extends Service {
     );
   }
 
-  async syncAccount(): Promise<void> {
+  async syncAccount(): Promise<Account> {
     const { apiService } = this.services;
 
     switch (this.account.type) {
@@ -159,6 +158,8 @@ export class AccountService extends Service {
         break;
       }
     }
+
+    return this.account;
   }
 
   async getConnectedAccounts(page: number): Promise<Accounts> {

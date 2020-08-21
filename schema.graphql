@@ -19,6 +19,15 @@ type Account {
   updatedAt: DateTime!
 }
 
+type AccountBalance {
+  balance: BigNumber!
+  token: String!
+}
+
+type AccountBalances {
+  items: [AccountBalance!]!
+}
+
 type AccountMember {
   account: Account!
   createdAt: DateTime!
@@ -75,7 +84,7 @@ type EstimatedRelayedTransaction {
   gasLimit: Int!
   gasPrice: BigNumber!
   refundAmount: BigNumber!
-  refundToken: String!
+  refundToken: String
   totalCost: BigNumber!
 }
 
@@ -145,11 +154,18 @@ type PaymentDeposit {
 type Query {
   account(address: String!): Account
   accounts(limit: Int = 10, page: Int = 1): Accounts!
+  balances(tokens: [String!]!): AccountBalances!
   blockStats: BlockStats!
   ensNode(nameOrHashOrAddress: String!): ENSNode
   network: Network!
   paymentChannel(hash: String!): PaymentChannel
+  relayedAccount(address: String!): RelayedAccount
   relayedTransaction(key: String!): RelayedTransaction
+}
+
+type RelayedAccount {
+  address: String!
+  nonce: BigNumber!
 }
 
 type RelayedTransaction {

@@ -8,12 +8,12 @@ import {
 } from '@etherspot/contracts';
 import { TypedData, buildTypedData } from 'ethers-typed-data';
 import { utils } from 'ethers';
-import { Service } from '../common';
+import { Service, TransactionRequest } from '../common';
 
 /**
  * @ignore
  */
-export abstract class Contract extends Service {
+export abstract class Contract<F = string> extends Service {
   protected interface: utils.Interface;
 
   private typedDataDomain: {
@@ -76,5 +76,18 @@ export abstract class Contract extends Service {
           message,
         )
       : null;
+  }
+
+  protected encodeContractTransactionRequest(to: string, name: F, ...args: any[]): TransactionRequest {
+    const data = this.interface.encodeFunctionData(name as any, args);
+
+    return {
+      to,
+      data,
+    };
+  }
+
+  protected encodeSelfContractTransactionRequest(name: F, ...args: any[]): TransactionRequest {
+    return this.encodeContractTransactionRequest(this.address, name, ...args);
   }
 }

@@ -1,24 +1,23 @@
-import { Wallet } from 'ethers';
+import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { Observable } from 'rxjs';
 import { Account, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
+import { BatchService, Batch } from './batch';
 import { Context } from './context';
 import {
-  AccountOwnerRegistryContract,
-  AccountProofRegistryContract,
   ENSControllerContract,
-  ENSRegistryContract,
   ERC20TokenContract,
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contracts';
 import { DEFAULT_NETWORK_API_OPTIONS, DEFAULT_NETWORK_NAME } from './defaults';
-import { ENSNode, ENSService } from './ens';
+import { ENSNode, ENSService, parseENSName } from './ens';
 import { SdkOptions } from './interfaces';
 import { createNetwork, Network } from './network';
 import { Notification, NotificationService } from './notification';
+import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
 
@@ -71,10 +70,7 @@ export class Sdk {
     this.network = createNetwork(options.networkName);
 
     this.contracts = {
-      accountOwnerRegistryContract: new AccountOwnerRegistryContract(),
-      accountProofRegistryContract: new AccountProofRegistryContract(),
       ensControllerContract: new ENSControllerContract(),
-      ensRegistryContract: new ENSRegistryContract(),
       erc20TokenContract: new ERC20TokenContract(),
       gatewayContract: new GatewayContract(),
       paymentRegistryContract: new PaymentRegistryContract(),
@@ -85,8 +81,10 @@ export class Sdk {
       accountService: new AccountService(),
       apiService: new ApiService(options.apiOptions),
       authService: new AuthService(),
+      batchService: new BatchService(),
       ensService: new ENSService(),
       notificationService: new NotificationService(),
+      relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
 
@@ -130,14 +128,38 @@ export class Sdk {
     return this.services.authService.restoreSession(session);
   }
 
+  // batch
+
+  clearBatch(): void {
+    this.services.batchService.clearBatch();
+  }
+
+  async estimateBatch(refundToken: string = null): Promise<Batch> {
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    return this.services.batchService.estimateBatch(refundToken);
+  }
+
+  async submitBatch(gasPrice: BigNumberish = null): Promise<RelayedTransaction> {
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    return this.services.batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null);
+  }
+
   // account
 
-  async syncAccount(): Promise<void> {
+  async syncAccount(): Promise<Account> {
     await this.require({
       session: true,
     });
 
-    await this.services.accountService.syncAccount();
+    return this.services.accountService.syncAccount();
   }
 
   async computeContractAccount(sync = true): Promise<Account> {
@@ -188,6 +210,47 @@ export class Sdk {
     return this.services.accountService.getAccountMembers(address, page);
   }
 
+  // account (batch)
+
+  async batchAddAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService, batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner),
+    );
+  }
+
+  async batchRemoveAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService, batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner),
+    );
+  }
+
+  async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService, batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      personalAccountRegistryContract.encodeExecuteAccountTransaction(accountService.accountAddress, to, value, data),
+    );
+  }
+
   // ens
 
   async reserveENSName(name: string): Promise<ENSNode> {
@@ -200,6 +263,37 @@ export class Sdk {
 
   async getENSNode(nameOrHashOrAddress: string): Promise<ENSNode> {
     return this.services.ensService.getENSNode(nameOrHashOrAddress);
+  }
+
+  // ens (batch)
+
+  async batchClaimENSNode(ensNode: ENSNode): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    if (!ensNode || !ensNode.guardianSignature) {
+      throw new Error('Can not clime ens node');
+    }
+
+    const { name, guardianSignature } = ensNode;
+
+    const parsedName = parseENSName(name);
+
+    const { ensControllerContract } = this.contracts;
+    const { batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      ensControllerContract.encodeRegisterSubNode(parsedName.root.hash, parsedName.labelHash, guardianSignature),
+    );
+  }
+
+  // relayer
+
+  async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
+    await this.require();
+
+    return this.services.relayerService.getRelayedTransaction(key);
   }
 
   // subscriptions
