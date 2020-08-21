@@ -1,5 +1,6 @@
 import { utils, Wallet, BytesLike } from 'ethers';
-import { Service, UniqueSubject } from '../common';
+import { hashTypedData, TypedData } from 'ethers-typed-data';
+import { Service, UniqueSubject, isHex, keccak256 } from '../common';
 
 export class WalletService extends Service {
   readonly address$ = new UniqueSubject<string>();
@@ -20,7 +21,20 @@ export class WalletService extends Service {
     this.address$.next(address);
   }
 
-  personalSignMessage(message: BytesLike): Promise<string> {
+  async personalSignMessage(message: BytesLike): Promise<string> {
     return this.wallet.signMessage(message);
+  }
+
+  async signMessage(message: string): Promise<string> {
+    const hex = isHex(message, 32) ? message : keccak256(message);
+    const signature = this.signer.signDigest(utils.arrayify(hex));
+
+    return utils.joinSignature(signature);
+  }
+
+  async signTypedData(typedData: TypedData): Promise<string> {
+    const hash = hashTypedData(typedData);
+
+    return this.signMessage(hash);
   }
 }

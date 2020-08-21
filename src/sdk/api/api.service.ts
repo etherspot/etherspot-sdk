@@ -12,7 +12,7 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { Service } from '../common';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
-import { buildApiUri, catchApiError, mapApiResult } from './utils';
+import { buildApiUri, catchApiError, mapApiResult, prepareApiVariables } from './utils';
 
 export class ApiService extends Service {
   private readonly options: ApiOptions;
@@ -89,8 +89,8 @@ export class ApiService extends Service {
     try {
       const { data } = await this.apolloClient.query<T>({
         query,
-        variables,
         fetchPolicy,
+        variables: prepareApiVariables(variables),
       });
 
       result = mapApiResult(data, models);
@@ -117,7 +117,7 @@ export class ApiService extends Service {
     try {
       const { data } = await this.apolloClient.mutate<T>({
         mutation,
-        variables,
+        variables: prepareApiVariables(variables),
       });
 
       result = mapApiResult(data, models);
@@ -137,7 +137,7 @@ export class ApiService extends Service {
     return this.apolloClient
       .subscribe<T>({
         query,
-        variables,
+        variables: prepareApiVariables(variables),
       })
 
       .map(({ data }) => mapApiResult(data, models));
