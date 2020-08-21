@@ -1,9 +1,7 @@
+import { TransactionRequest } from '../common';
 import { EstimatedRelayedTransaction } from './classes';
 
 export interface Batch {
-  requests: {
-    to: string;
-    data: string;
-  }[];
+  requests: TransactionRequest[];
   estimation: EstimatedRelayedTransaction;
 }
