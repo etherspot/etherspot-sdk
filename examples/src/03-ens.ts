@@ -12,19 +12,21 @@ async function main(): Promise<void> {
 
   const { state } = sdk;
 
-  const notification = sdk.subscribeNotifications().pipe(take(1)).toPromise();
+  const notification = sdk.notifications$.pipe(take(1)).toPromise();
 
   logger.log('contract account', await sdk.computeContractAccount(false));
 
   await topUpAccount(state.accountAddress, '0.5');
 
-  const ensNode = await sdk.reserveENSName(`random${Date.now().toString(16)}.pillar.dev`);
+  const ensName = `random${Date.now().toString(16)}.pillar.dev`;
+
+  const ensNode = await sdk.reserveENSName(ensName);
 
   logger.log('ensNode', ensNode);
 
   logger.log('last notification', await notification);
 
-  logger.log('batch', await sdk.batchClaimENSNode(ensNode));
+  logger.log('batch', await sdk.batchClaimENSNode(ensName));
   logger.log('estimated batch', await sdk.estimateBatch());
 
   logger.log('relayed transaction', await sdk.submitBatch());

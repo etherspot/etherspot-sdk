@@ -6,8 +6,8 @@ export class BlockService extends Service {
   async getBlockStats(): Promise<BlockStats> {
     const { apiService } = this.services;
 
-    const { result } = await apiService.query<{
-      result: BlockStats;
+    const { blockStats } = await apiService.query<{
+      blockStats: BlockStats;
     }>(
       gql`
         query {
@@ -19,11 +19,11 @@ export class BlockService extends Service {
       `,
       {
         models: {
-          result: BlockStats,
+          blockStats: BlockStats,
         },
       },
     );
 
-    return result;
+    return blockStats;
   }
 }
