@@ -2,6 +2,7 @@ import { AccountService } from './account';
 import { ApiService } from './api';
 import { AuthService } from './auth';
 import { BatchService } from './batch';
+import { BlockService } from './block';
 import { ENSService } from './ens';
 import { Network } from './network';
 import { NotificationService } from './notification';
@@ -32,6 +33,7 @@ export class Context {
     readonly services: {
       accountService: AccountService;
       batchService: BatchService;
+      blockService: BlockService;
       apiService: ApiService;
       authService: AuthService;
       ensService: ENSService;

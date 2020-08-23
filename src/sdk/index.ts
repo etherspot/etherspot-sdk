@@ -4,6 +4,7 @@ export * from './account';
 export * from './api';
 export * from './auth';
 export * from './batch';
+export * from './block';
 export * from './common';
 export * from './contracts';
 export * from './ens';

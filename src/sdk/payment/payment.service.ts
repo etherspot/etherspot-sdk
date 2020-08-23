@@ -97,13 +97,14 @@ export class PaymentService extends Service {
     token: string = null,
     totalAmount: BigNumber,
     uidSalt: string = null,
-    blockNumber = 1,
   ): Promise<PaymentChannel> {
     const { paymentRegistryContract } = this.contracts;
-    const { apiService, accountService, walletService } = this.services;
+    const { apiService, accountService, blockService, walletService } = this.services;
 
     const uid = createPaymentChannelUid(uidSalt);
     const sender = accountService.accountAddress;
+
+    const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
 
     const typedMessage = paymentRegistryContract.buildTypedData(
       'PaymentChannelCommit',

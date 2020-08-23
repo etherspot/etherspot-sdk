@@ -4,6 +4,7 @@ import { Account, AccountMembers, Accounts, AccountService, AccountTypes } from 
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
+import { BlockService } from './block';
 import { Context } from './context';
 import { WalletLike, walletFrom } from './common';
 import {
@@ -85,6 +86,7 @@ export class Sdk {
       apiService: new ApiService(options.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
+      blockService: new BlockService(),
       ensService: new ENSService(),
       notificationService: new NotificationService(),
       paymentService: new PaymentService(),
