@@ -2,6 +2,7 @@ import { TransformBigNumber, WithTypename } from '../../common';
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
 import { PaymentChannelStates } from '../constants';
+import { Payment } from './payment';
 
 export class PaymentChannel extends WithTypename {
   hash: string;
@@ -21,6 +22,9 @@ export class PaymentChannel extends WithTypename {
 
   @TransformBigNumber()
   committedAmount: BigNumber;
+
+  @Type(() => Payment)
+  latestPayment?: Payment;
 
   @Type(() => Date)
   createdAt: Date;

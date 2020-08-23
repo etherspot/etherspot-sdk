@@ -1,4 +1,3 @@
-import { Subscription } from 'rxjs';
 import { AccountService } from './account';
 import { ApiService } from './api';
 import { AuthService } from './auth';
@@ -6,7 +5,7 @@ import { BatchService } from './batch';
 import { ENSService } from './ens';
 import { Network } from './network';
 import { NotificationService } from './notification';
-import { PaymentsService } from './payments';
+import { PaymentService } from './payment';
 import { RelayerService } from './relayer';
 import { Service } from './common';
 import { WalletService } from './wallet';
@@ -19,7 +18,7 @@ import {
 } from './contracts';
 
 export class Context {
-  private subscriptions: Subscription[] = [];
+  private readonly attached: Service[] = [];
 
   constructor(
     readonly network: Network, //
@@ -37,28 +36,21 @@ export class Context {
       authService: AuthService;
       ensService: ENSService;
       notificationService: NotificationService;
-      paymentsService: PaymentsService;
+      paymentService: PaymentService;
       relayerService: RelayerService;
       walletService: WalletService;
     },
   ) {
-    this.initServices(Object.values(contracts));
-    this.initServices(Object.values(services));
-  }
+    this.attached = [...Object.values(contracts), ...Object.values(services)];
 
-  addSubscription(subscription: Subscription): void {
-    this.subscriptions.push(subscription);
-  }
-
-  destroy(): void {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
+    for (const attached of this.attached) {
+      attached.init(this);
     }
   }
 
-  private initServices(services: Service[]): void {
-    for (const service of services) {
-      service.init(this);
+  destroy(): void {
+    for (const attached of this.attached) {
+      attached.destroy();
     }
   }
 }

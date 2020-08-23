@@ -16,7 +16,8 @@ import { buildApiUri, catchApiError, mapApiResult, prepareApiVariables } from '.
 
 export class ApiService extends Service {
   private readonly options: ApiOptions;
-  apolloClient: ApolloClient<NormalizedCacheObject>;
+
+  private apolloClient: ApolloClient<NormalizedCacheObject>;
 
   constructor(options: ApiOptions) {
     super();
@@ -26,49 +27,6 @@ export class ApiService extends Service {
       useSsl: false,
       ...options,
     };
-  }
-
-  protected onInit(): void {
-    const httpLink = new HttpLink({
-      fetch,
-      uri: buildApiUri(this.options, 'http'),
-    });
-
-    const wsLink = new WebSocketLink({
-      webSocketImpl: WebSocket,
-      uri: buildApiUri(this.options, 'ws', 'graphql'),
-      options: {
-        reconnect: true,
-        lazy: true,
-      },
-    });
-
-    const authLink = new ApolloLink((operation, forward) => {
-      const { authService } = this.services;
-
-      operation.setContext({
-        headers: authService.headers,
-      });
-
-      return forward(operation);
-    });
-
-    const link = split(
-      // split based on operation type
-      ({ query }) => {
-        const definition = getMainDefinition(query);
-        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-      },
-      wsLink,
-      authLink.concat(httpLink),
-    );
-
-    this.apolloClient = new ApolloClient({
-      link,
-      cache: new InMemoryCache({
-        resultCaching: false,
-      }),
-    });
   }
 
   async query<T extends {}>(query: DocumentNode, options?: ApiRequestQueryOptions<T>): Promise<T> {
@@ -141,5 +99,48 @@ export class ApiService extends Service {
       })
 
       .map(({ data }) => mapApiResult(data, models));
+  }
+
+  protected onInit(): void {
+    const httpLink = new HttpLink({
+      fetch,
+      uri: buildApiUri(this.options, 'http'),
+    });
+
+    const wsLink = new WebSocketLink({
+      webSocketImpl: WebSocket,
+      uri: buildApiUri(this.options, 'ws', 'graphql'),
+      options: {
+        reconnect: true,
+        lazy: true,
+      },
+    });
+
+    const authLink = new ApolloLink((operation, forward) => {
+      const { authService } = this.services;
+
+      operation.setContext({
+        headers: authService.headers,
+      });
+
+      return forward(operation);
+    });
+
+    const link = split(
+      // split based on operation type
+      ({ query }) => {
+        const definition = getMainDefinition(query);
+        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+      },
+      wsLink,
+      authLink.concat(httpLink),
+    );
+
+    this.apolloClient = new ApolloClient({
+      link,
+      cache: new InMemoryCache({
+        resultCaching: false,
+      }),
+    });
   }
 }

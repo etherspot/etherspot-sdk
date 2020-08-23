@@ -1,4 +1,5 @@
 import { BigNumber, utils } from 'ethers';
+import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, TransactionRequest } from '../common';
 import { RelayedTransaction } from '../relayer';
 import { Batch } from './interfaces';
@@ -97,6 +98,18 @@ export class BatchService extends Service {
     }
 
     return result;
+  }
+
+  protected onInit() {
+    const { accountService } = this.services;
+
+    this.addSubscriptions(
+      accountService.accountAddress$
+        .pipe(
+          map(() => null), //
+        )
+        .subscribe(this.batch$),
+    );
   }
 
   private extractRequests(): { to: string[]; data: string[] } {

@@ -1,10 +1,11 @@
 import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
-import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Account, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { Context } from './context';
+import { WalletLike, walletFrom } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -13,11 +14,11 @@ import {
   PersonalAccountRegistryContract,
 } from './contracts';
 import { DEFAULT_NETWORK_API_OPTIONS, DEFAULT_NETWORK_NAME } from './defaults';
-import { ENSNode, ENSService, parseENSName } from './ens';
+import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
 import { SdkOptions } from './interfaces';
 import { createNetwork, Network } from './network';
 import { Notification, NotificationService } from './notification';
-import { PaymentsService } from './payments';
+import { PaymentService, PaymentDeposit, PaymentChannel } from './payment';
 import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
@@ -35,7 +36,7 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(wallet: Wallet, options?: SdkOptions);
+  constructor(wallet: WalletLike, options?: SdkOptions);
   constructor(options?: SdkOptions);
   constructor(...args: any[]) {
     let wallet: Wallet = null;
@@ -44,8 +45,9 @@ export class Sdk {
     if (args.length > 0) {
       let optionsIndex = 0;
 
-      if (Wallet.isSigner(args[0])) {
-        wallet = args[0] as Wallet;
+      wallet = walletFrom(args[0]);
+
+      if (wallet) {
         ++optionsIndex;
       }
 
@@ -85,7 +87,7 @@ export class Sdk {
       batchService: new BatchService(),
       ensService: new ENSService(),
       notificationService: new NotificationService(),
-      paymentsService: new PaymentsService(),
+      paymentService: new PaymentService(),
       relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
@@ -98,9 +100,25 @@ export class Sdk {
     }
   }
 
+  // exposes
+
   get api(): ApiService {
     return this.services.apiService;
   }
+
+  get notifications$(): Subject<Notification> {
+    return this.services.notificationService.subscribeNotifications();
+  }
+
+  get batch(): Batch {
+    return this.services.batchService.batch;
+  }
+
+  get batch$(): Subject<Batch> {
+    return this.services.batchService.batch$;
+  }
+
+  // sdk
 
   destroy(): void {
     this.context.destroy();
@@ -108,8 +126,10 @@ export class Sdk {
 
   // wallet
 
-  attachWallet(wallet: Wallet): void {
-    if (!Wallet.isSigner(wallet)) {
+  attachWallet(walletLike: WalletLike): void {
+    const wallet = walletFrom(walletLike);
+
+    if (!wallet) {
       throw new Error('Invalid Wallet object');
     }
 
@@ -258,6 +278,7 @@ export class Sdk {
   async reserveENSName(name: string): Promise<ENSNode> {
     await this.require({
       session: true,
+      contractAccount: true,
     });
 
     return this.services.ensService.createENSSubNode(name);
@@ -269,12 +290,14 @@ export class Sdk {
 
   // ens (batch)
 
-  async batchClaimENSNode(ensNode: ENSNode): Promise<Batch> {
+  async batchClaimENSNode(nameOrHashOrAddress: string): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
 
-    if (!ensNode || !ensNode.guardianSignature) {
+    const ensNode = await this.getENSNode(nameOrHashOrAddress);
+
+    if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
       throw new Error('Can not clime ens node');
     }
 
@@ -290,18 +313,114 @@ export class Sdk {
     );
   }
 
+  // payments
+
+  async syncPaymentDeposit(token: string = null): Promise<PaymentDeposit> {
+    await this.require({
+      session: true,
+    });
+
+    const { accountService, paymentService } = this.services;
+
+    return paymentService.syncPaymentDeposit(accountService.accountAddress, token);
+  }
+
+  async getPaymentChannel(hash: string): Promise<PaymentChannel> {
+    const { paymentService } = this.services;
+
+    return paymentService.getPaymentChannel(hash);
+  }
+
+  async updatePaymentChannel(
+    recipient: string,
+    totalAmount: BigNumberish,
+    token: string = null,
+  ): Promise<PaymentChannel> {
+    await this.require({
+      session: true,
+    });
+
+    const { paymentService } = this.services;
+
+    return paymentService.updatePaymentChannel(recipient, token, BigNumber.from(totalAmount));
+  }
+
+  // payments (batch)
+
+  async batchCommitPaymentChannelAndDeposit(hash: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const paymentChannel = await this.getPaymentChannel(hash);
+
+    if (!paymentChannel) {
+      throw new Error('Payment channel not found');
+    }
+
+    const {
+      sender,
+      token,
+      uid,
+      totalAmount,
+      latestPayment: { blockNumber, senderSignature, guardianSignature },
+    } = paymentChannel;
+
+    const { paymentRegistryContract } = this.contracts;
+    const { batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
+        sender,
+        token,
+        uid,
+        blockNumber,
+        totalAmount,
+        senderSignature,
+        guardianSignature,
+      ),
+    );
+  }
+
+  async batchCommitPaymentChannelAndWithdraw(hash: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const paymentChannel = await this.getPaymentChannel(hash);
+
+    if (!paymentChannel) {
+      throw new Error('Payment channel not found');
+    }
+
+    const {
+      sender,
+      token,
+      uid,
+      totalAmount,
+      latestPayment: { blockNumber, senderSignature, guardianSignature },
+    } = paymentChannel;
+
+    const { paymentRegistryContract } = this.contracts;
+    const { batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
+        sender,
+        token,
+        uid,
+        blockNumber,
+        totalAmount,
+        senderSignature,
+        guardianSignature,
+      ),
+    );
+  }
+
   // relayer
 
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
-    await this.require();
-
     return this.services.relayerService.getRelayedTransaction(key);
-  }
-
-  // subscriptions
-
-  subscribeNotifications(): Observable<Notification> {
-    return this.services.notificationService.subscribeNotifications();
   }
 
   private async require(
