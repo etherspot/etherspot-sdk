@@ -60,6 +60,16 @@ export class NotificationService extends Service {
     return this.notification$;
   }
 
+  protected onDestroy() {
+    if (this.walletSubscription) {
+      this.walletSubscription.unsubscribe();
+    }
+
+    if (this.accountSubscription) {
+      this.accountSubscription.unsubscribe();
+    }
+  }
+
   private createGraphQLSubscription(address: string): SubscriptionLike {
     const { apiService } = this.services;
     const observable = apiService.subscribe<{
