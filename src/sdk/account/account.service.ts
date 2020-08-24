@@ -16,32 +16,6 @@ export class AccountService extends Service {
     this.accountAddress$ = this.account$.observeKey('address');
   }
 
-  protected onInit(): void {
-    const { walletService } = this.services;
-
-    this.addSubscription(
-      walletService.address$
-        .pipe(
-          map((address) =>
-            !address
-              ? null
-              : Account.fromPlain({
-                  address,
-                  type: AccountTypes.Key,
-                  synchronizedAt: null,
-                }),
-          ),
-        )
-        .subscribe(this.account$),
-    );
-
-    this.addSubscription(
-      this.accountAddress$ //
-        .pipe(map(() => null))
-        .subscribe(this.accountMember$),
-    );
-  }
-
   get account(): Account {
     return this.account$.value;
   }
@@ -165,12 +139,12 @@ export class AccountService extends Service {
   async getConnectedAccounts(page: number): Promise<Accounts> {
     const { apiService } = this.services;
 
-    const { result } = await apiService.query<{
-      result: Accounts;
+    const { accounts } = await apiService.query<{
+      accounts: Accounts;
     }>(
       gql`
         query($page: Int!) {
-          result: accounts(page: $page) {
+          accounts(page: $page) {
             items {
               address
               type
@@ -189,12 +163,12 @@ export class AccountService extends Service {
           page,
         },
         models: {
-          result: Accounts,
+          accounts: Accounts,
         },
       },
     );
 
-    return result;
+    return accounts;
   }
 
   async getAccount(address: string): Promise<Account> {
@@ -262,6 +236,7 @@ export class AccountService extends Service {
       {
         variables: {
           address,
+          page,
         },
         models: {
           account: Account,
@@ -270,5 +245,26 @@ export class AccountService extends Service {
     );
 
     return account.members;
+  }
+
+  protected onInit(): void {
+    const { walletService } = this.services;
+
+    this.addSubscriptions(
+      walletService.address$
+        .pipe(
+          map((address) =>
+            !address
+              ? null
+              : Account.fromPlain({
+                  address,
+                  type: AccountTypes.Key,
+                  synchronizedAt: null,
+                }),
+          ),
+        )
+        .subscribe(this.account$),
+      this.accountAddress$.pipe(map(() => null)).subscribe(this.accountMember$),
+    );
   }
 }

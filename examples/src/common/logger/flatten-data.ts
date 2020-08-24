@@ -5,9 +5,9 @@ export function flattenData(data: any): any {
 
   if (data && typeof data === 'object') {
     if (BigNumber.isBigNumber(data)) {
-      result = `BigNumber: ${(data as BigNumber).toString()}`;
+      result = `[BigNumber] ${(data as BigNumber).toString()}`;
     } else if (data instanceof Date) {
-      result = data.toJSON();
+      result = `[Date] ${data.toJSON()}`;
     } else if (Array.isArray(data)) {
       result = data.map(flattenData);
     } else {

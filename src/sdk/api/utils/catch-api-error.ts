@@ -15,11 +15,14 @@ export function catchApiError(error: ApolloError): void {
       case HttpExceptionCodes.Unauthorized:
       case HttpExceptionCodes.Forbidden:
       case HttpExceptionCodes.NotFound:
-      case HttpExceptionCodes.InternalServerError:
         exception = new HttpException(code);
         break;
 
-      case ValidationException.CODE:
+      case HttpExceptionCodes.InternalServerError:
+        exception = new HttpException(code, error.message);
+        break;
+
+      case HttpExceptionCodes.ValidationError:
         exception = new ValidationException(errors);
         break;
     }

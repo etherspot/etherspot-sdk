@@ -31,27 +31,6 @@ export abstract class Contract<F = string> extends Service {
     return getContractAddress(this.name, chainId);
   }
 
-  protected onInit() {
-    const { chainId } = this.context.network;
-
-    const abi = getContractAbi(this.name);
-    const typedDataDomainName = getContractTypedDataDomainName(this.name);
-
-    if (!abi) {
-      throw new Error('No abi has been found');
-    }
-
-    if (typedDataDomainName) {
-      this.typedDataDomain = {
-        chainId,
-        name: typedDataDomainName,
-        salt: TYPED_DATA_DOMAIN_SALT,
-      };
-    }
-
-    this.interface = new utils.Interface(abi);
-  }
-
   computeAccountCreate2Address(saltKey: string): string {
     return utils.getCreate2Address(
       this.address,
@@ -76,6 +55,27 @@ export abstract class Contract<F = string> extends Service {
           message,
         )
       : null;
+  }
+
+  protected onInit() {
+    const { chainId } = this.context.network;
+
+    const abi = getContractAbi(this.name);
+    const typedDataDomainName = getContractTypedDataDomainName(this.name);
+
+    if (!abi) {
+      throw new Error('No abi has been found');
+    }
+
+    if (typedDataDomainName) {
+      this.typedDataDomain = {
+        chainId,
+        name: typedDataDomainName,
+        salt: TYPED_DATA_DOMAIN_SALT,
+      };
+    }
+
+    this.interface = new utils.Interface(abi);
   }
 
   protected encodeContractTransactionRequest(to: string, name: F, ...args: any[]): TransactionRequest {

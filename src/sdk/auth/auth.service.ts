@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { plainToClass } from 'class-transformer';
+import { map } from 'rxjs/operators';
 import { Service, ObjectSubject } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
@@ -97,5 +98,17 @@ export class AuthService extends Service {
     this.session$.next(session);
 
     return session;
+  }
+
+  protected onInit() {
+    const { walletService } = this.services;
+
+    this.addSubscriptions(
+      walletService.address$
+        .pipe(
+          map(() => null), //
+        )
+        .subscribe(this.session$),
+    );
   }
 }

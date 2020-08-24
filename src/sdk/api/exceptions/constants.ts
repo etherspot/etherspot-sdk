@@ -4,4 +4,5 @@ export enum HttpExceptionCodes {
   Forbidden = 'FORBIDDEN',
   NotFound = 'NOT_FOUND',
   InternalServerError = 'INTERNAL_SERVER_ERROR',
+  ValidationError = 'VALIDATION_ERROR',
 }

@@ -1,7 +1,6 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Account, AccountMember } from './account';
 import { Session } from './auth';
-import { Batch } from './batch';
 import { Context } from './context';
 
 export class State {
@@ -41,12 +40,12 @@ export class State {
     return this.services.accountService.accountMember;
   }
 
-  get batch$(): BehaviorSubject<Batch> {
-    return this.services.batchService.batch$;
+  get paymentDepositAddress$(): BehaviorSubject<string> {
+    return this.services.paymentService.paymentDepositAddress$;
   }
 
-  get batch(): Batch {
-    return this.services.batchService.batch;
+  get paymentDepositAddress(): string {
+    return this.services.paymentService.paymentDepositAddress;
   }
 
   get session$(): BehaviorSubject<Session> {
