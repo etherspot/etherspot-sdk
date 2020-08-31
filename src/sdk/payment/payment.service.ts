@@ -68,7 +68,6 @@ export class PaymentService extends Service {
             updatedAt
             latestPayment {
               blockNumber
-              createdAt
               guardianSignature
               senderSignature
               state
@@ -114,7 +113,6 @@ export class PaymentService extends Service {
               updatedAt
               latestPayment {
                 blockNumber
-                createdAt
                 guardianSignature
                 senderSignature
                 state
@@ -212,7 +210,6 @@ export class PaymentService extends Service {
             updatedAt
             latestPayment {
               blockNumber
-              createdAt
               guardianSignature
               senderSignature
               state

@@ -31,7 +31,7 @@ async function main(): Promise<void> {
     logger.log(`payment channel #${index}`, paymentChannel);
   }
 
-  logger.log('batch', await recipientSdk.batchCommitPaymentChannelAndDeposit(hash));
+  logger.log('batch', await recipientSdk.batchCommitPaymentChannel(hash, 'deposit'));
   logger.log('estimated batch', await recipientSdk.estimateBatch());
 
   logger.log('relayed transaction', await recipientSdk.submitBatch());

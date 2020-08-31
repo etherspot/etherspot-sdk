@@ -19,7 +19,7 @@ export function TransformBigNumber(): Function {
         break;
 
       case TransformationType.CLASS_TO_PLAIN:
-        result = isBigNumber(value) ? (value as BigNumber).toHexString() : '0x00';
+        result = isBigNumber(value) ? BigNumber.from(value).toHexString() : '0x00';
         break;
     }
 
