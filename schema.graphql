@@ -9,8 +9,11 @@ schema {
 type Account {
   address: String!
   createdAt: DateTime!
+  ensNode: ENSNode!
   member(address: String!): AccountMember
   members(limit: Int = 10, page: Int = 1): AccountMembers!
+  metadata: AccountMetadata
+  paymentChannels(limit: Int = 10, page: Int = 1): PaymentChannels!
   proof(hash: String!): AccountProof
   proofs(limit: Int = 10, page: Int = 1): AccountProofs!
   state: AccountStates
@@ -42,6 +45,16 @@ type AccountMembers {
   currentPage: Int!
   items: [AccountMember!]!
   nextPage: Int
+}
+
+type AccountMetadata {
+  account: Account!
+  createdAt: DateTime!
+  email: String
+  isEmailVerified: Boolean!
+  isPhoneVerified: Boolean!
+  phone: String
+  updatedAt: DateTime!
 }
 
 type AccountProof {
@@ -90,7 +103,7 @@ type EstimatedRelayedTransaction {
 
 type Mutation {
   createENSSubNode(address: String!, name: String!): ENSNode!
-  createSession(account: String!, code: String!, signature: String!, ttl: Int): Session!
+  createSession(account: String!, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!): String!
   destroySession: Boolean!
   estimateRelayedTransaction(account: String!, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
@@ -99,6 +112,7 @@ type Mutation {
   syncAccountMember(account: String!): AccountMember!
   syncPaymentDeposit(owner: String!, token: String): PaymentDeposit!
   touchSession: Boolean!
+  updateAccountMetadata(account: String!, email: String, phone: String): AccountMetadata!
   updatePaymentChannel(blockNumber: Int!, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
 }
 
@@ -129,26 +143,38 @@ type PaymentChannel {
   createdAt: DateTime!
   hash: String!
   latestPayment: Payment
-  payments: [Payment!]
+  payments(limit: Int = 10, page: Int = 1): Payments!
   recipient: String!
   sender: String!
   state: PaymentChannelStates!
-  token: String!
+  token: String
   totalAmount: BigNumber!
   uid: String!
   updatedAt: DateTime!
 }
 
+type PaymentChannels {
+  currentPage: Int!
+  items: [PaymentChannel!]!
+  nextPage: Int
+}
+
 type PaymentDeposit {
   address: String!
   availableAmount: BigNumber!
-  createdAt: DateTime!
+  createdAt: DateTime
   lockedAmount: BigNumber!
   owner: String!
   state: PaymentDepositStates!
   token: String
   totalAmount: BigNumber!
-  updatedAt: DateTime!
+  updatedAt: DateTime
+}
+
+type Payments {
+  currentPage: Int!
+  items: [Payment!]!
+  nextPage: Int
 }
 
 type Query {
@@ -159,6 +185,7 @@ type Query {
   ensNode(nameOrHashOrAddress: String!): ENSNode
   network: Network!
   paymentChannel(hash: String!): PaymentChannel
+  paymentChannels(limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentChannels
   relayedAccount(address: String!): RelayedAccount
   relayedTransaction(key: String!): RelayedTransaction
 }
