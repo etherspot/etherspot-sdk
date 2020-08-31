@@ -24,7 +24,7 @@ export class PaymentChannel extends WithTypename {
   committedAmount: BigNumber;
 
   @Type(() => Payment)
-  latestPayment?: Payment;
+  latestPayment: Payment;
 
   @Type(() => Date)
   createdAt: Date;

@@ -1,6 +1,8 @@
 import { plainToClass } from 'class-transformer';
 import { Type } from 'class-transformer';
 import { Synchronized } from '../../common';
+import { ENSNode } from '../../ens';
+import { PaymentChannels } from '../../payment';
 import { AccountTypes, AccountStates, AccountStores } from '../constants';
 import { AccountMember } from './account-member';
 import { AccountMembers } from './account-members';
@@ -31,6 +33,12 @@ export class Account extends Synchronized {
 
   @Type(() => AccountProofs)
   proofs?: AccountProofs;
+
+  @Type(() => ENSNode)
+  ensNode?: ENSNode;
+
+  @Type(() => PaymentChannels)
+  paymentChannels?: PaymentChannels;
 
   @Type(() => Date)
   createdAt: Date;
