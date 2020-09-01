@@ -1,6 +1,6 @@
 import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { Subject } from 'rxjs';
-import { Account, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
+import { Account, AccountBalance, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
@@ -23,6 +23,7 @@ import { PaymentService, PaymentDeposit, PaymentChannel, PaymentChannels } from 
 import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
+import { BatchCommitPaymentChannelModes } from './constants';
 
 /**
  * Sdk
@@ -230,6 +231,10 @@ export class Sdk {
     return this.services.accountService.getAccount(address);
   }
 
+  async getAccountBalances(address: string, tokens: string[]): Promise<AccountBalance[]> {
+    return this.services.accountService.getAccountBalances(address, tokens);
+  }
+
   async getAccountMembers(address: string, page = 1): Promise<AccountMembers> {
     return this.services.accountService.getAccountMembers(address, page);
   }
@@ -373,7 +378,10 @@ export class Sdk {
 
   // payments (batch)
 
-  async batchCommitPaymentChannel(hash: string, mode: 'deposit' | 'withdraw' = 'deposit'): Promise<Batch> {
+  async batchCommitPaymentChannel(
+    hash: string,
+    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+  ): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
@@ -396,7 +404,7 @@ export class Sdk {
     const { batchService } = this.services;
 
     const transactionRequest =
-      mode === 'withdraw'
+      mode === BatchCommitPaymentChannelModes.Withdraw
         ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
             sender,
             token,

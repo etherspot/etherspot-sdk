@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Service, SynchronizedSubject } from '../common';
-import { Account, AccountMember, AccountMembers, Accounts } from './classes';
+import { prepareAddress, Service, SynchronizedSubject } from '../common';
+import { Account, AccountBalance, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
 export class AccountService extends Service {
@@ -200,6 +200,38 @@ export class AccountService extends Service {
     );
 
     return account;
+  }
+
+  async getAccountBalances(address: string, tokens: string[]): Promise<AccountBalance[]> {
+    const { apiService } = this.services;
+
+    const { account } = await apiService.query<{
+      account: Account;
+    }>(
+      gql`
+        query($address: String!, $tokens: [String!]!) {
+          account(address: $address) {
+            balances(tokens: $tokens) {
+              items {
+                token
+                balance
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          address,
+          tokens: tokens.map((token) => prepareAddress(token, true)),
+        },
+        models: {
+          account: Account,
+        },
+      },
+    );
+
+    return account && account.balances.items ? account.balances.items : [];
   }
 
   async getAccountMembers(address: string, page: number): Promise<AccountMembers> {

@@ -4,6 +4,7 @@ import { Synchronized } from '../../common';
 import { ENSNode } from '../../ens';
 import { PaymentChannels } from '../../payment';
 import { AccountTypes, AccountStates, AccountStores } from '../constants';
+import { AccountBalances } from './account-balances';
 import { AccountMember } from './account-member';
 import { AccountMembers } from './account-members';
 import { AccountProof } from './account-proof';
@@ -21,6 +22,9 @@ export class Account extends Synchronized {
   state: AccountStates;
 
   store: AccountStores;
+
+  @Type(() => AccountBalances)
+  balances?: AccountBalances;
 
   @Type(() => AccountMember)
   member?: AccountMember;
