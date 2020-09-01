@@ -8,6 +8,7 @@ schema {
 
 type Account {
   address: String!
+  balances(tokens: [String!]!): AccountBalances!
   createdAt: DateTime!
   ensNode: ENSNode!
   member(address: String!): AccountMember
@@ -18,6 +19,7 @@ type Account {
   proofs(limit: Int = 10, page: Int = 1): AccountProofs!
   state: AccountStates
   store: AccountStores
+  transactions(limit: Int = 10, page: Int = 1): Transactions!
   type: AccountTypes
   updatedAt: DateTime!
 }
@@ -180,7 +182,6 @@ type Payments {
 type Query {
   account(address: String!): Account
   accounts(limit: Int = 10, page: Int = 1): Accounts!
-  balances(tokens: [String!]!): AccountBalances!
   blockStats: BlockStats!
   ensNode(nameOrHashOrAddress: String!): ENSNode
   network: Network!
@@ -188,6 +189,8 @@ type Query {
   paymentChannels(limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentChannels
   relayedAccount(address: String!): RelayedAccount
   relayedTransaction(key: String!): RelayedTransaction
+  transaction(hash: String!): Transaction
+  validateENSLabel(label: String!): Boolean!
 }
 
 type RelayedAccount {
@@ -218,6 +221,34 @@ type Session {
 
 type Subscription {
   newNotification(address: String!): Notification
+}
+
+type Transaction {
+  accountFrom: String
+  accountTo: String
+  blockNumber: Int
+  createdAt: DateTime!
+  encodedData: String!
+  fee: BigNumber!
+  from: String!
+  gasLimit: Int!
+  gasPrice: BigNumber!
+  gasToken: String
+  gasUsed: Int
+  hash: String!
+  index: Int!
+  metadata: String
+  state: TransactionStates!
+  to: String!
+  type: TransactionTypes!
+  updatedAt: DateTime!
+  value: BigNumber!
+}
+
+type Transactions {
+  currentPage: Int!
+  items: [Transaction!]!
+  nextPage: Int
 }
 
 enum AccountMemberStates {
@@ -303,6 +334,18 @@ enum RelayedTransactionStates {
   Queued
   Reverted
   Sent
+}
+
+enum TransactionStates {
+  Canceled
+  Confirmed
+  Reverted
+}
+
+enum TransactionTypes {
+  ContractCall
+  Erc20
+  EthTransfer
 }
 
 
