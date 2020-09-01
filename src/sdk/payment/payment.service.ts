@@ -132,7 +132,7 @@ export class PaymentService extends Service {
         },
         variables: {
           senderOrRecipient,
-          page,
+          page: page || 1,
         },
       },
     );

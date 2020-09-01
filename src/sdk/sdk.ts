@@ -348,7 +348,7 @@ export class Sdk {
     return paymentService.getPaymentChannel(hash);
   }
 
-  async getPaymentChannels(senderOrRecipient: string = null, page: number = null): Promise<PaymentChannels> {
+  async getPaymentChannels(senderOrRecipient: string = null, page = 1): Promise<PaymentChannels> {
     await this.require({
       wallet: !senderOrRecipient,
     });

@@ -160,7 +160,7 @@ export class AccountService extends Service {
       `,
       {
         variables: {
-          page,
+          page: page || 1,
         },
         models: {
           accounts: Accounts,
@@ -268,7 +268,7 @@ export class AccountService extends Service {
       {
         variables: {
           address,
-          page,
+          page: page || 1,
         },
         models: {
           account: Account,
@@ -276,7 +276,7 @@ export class AccountService extends Service {
       },
     );
 
-    return account.members;
+    return account && account.members ? account.members : null;
   }
 
   protected onInit(): void {
