@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { Sdk } from '../../src';
+import { Sdk, BatchCommitPaymentChannelModes } from '../../src';
 import { logger, topUpAccount } from './common';
 
 async function main(): Promise<void> {
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
     logger.log(`payment channel #${index}`, paymentChannel);
   }
 
-  logger.log('batch', await recipientSdk.batchCommitPaymentChannelAndDeposit(hash));
+  logger.log('batch', await recipientSdk.batchCommitPaymentChannel(hash, BatchCommitPaymentChannelModes.Deposit));
   logger.log('estimated batch', await recipientSdk.estimateBatch());
 
   logger.log('relayed transaction', await recipientSdk.submitBatch());

@@ -6,6 +6,7 @@ export * from './auth';
 export * from './batch';
 export * from './block';
 export * from './common';
+export * from './constants';
 export * from './contracts';
 export * from './ens';
 export * from './interfaces';

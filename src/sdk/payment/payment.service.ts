@@ -2,7 +2,7 @@ import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, prepareAddress } from '../common';
-import { PaymentChannel, PaymentDeposit } from './classes';
+import { PaymentChannel, PaymentChannels, PaymentDeposit } from './classes';
 import { createPaymentChannelUid } from './utils';
 
 export class PaymentService extends Service {
@@ -68,7 +68,6 @@ export class PaymentService extends Service {
             updatedAt
             latestPayment {
               blockNumber
-              createdAt
               guardianSignature
               senderSignature
               state
@@ -85,6 +84,55 @@ export class PaymentService extends Service {
         },
         variables: {
           hash,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getPaymentChannels(senderOrRecipient: string = null, page: number = null): Promise<PaymentChannels> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: PaymentChannels;
+    }>(
+      gql`
+        query($senderOrRecipient: String!, $page: Int) {
+          result: paymentChannels(senderOrRecipient: $senderOrRecipient, page: $page) {
+            items {
+              committedAmount
+              createdAt
+              hash
+              recipient
+              sender
+              state
+              token
+              totalAmount
+              uid
+              updatedAt
+              latestPayment {
+                blockNumber
+                guardianSignature
+                senderSignature
+                state
+                totalAmount
+                updatedAt
+                value
+              }
+            }
+            nextPage
+            currentPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentChannels,
+        },
+        variables: {
+          senderOrRecipient,
+          page: page || 1,
         },
       },
     );
@@ -162,7 +210,6 @@ export class PaymentService extends Service {
             updatedAt
             latestPayment {
               blockNumber
-              createdAt
               guardianSignature
               senderSignature
               state
