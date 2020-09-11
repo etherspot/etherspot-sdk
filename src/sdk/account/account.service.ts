@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { prepareAddress, Service, SynchronizedSubject } from '../common';
+import { Service, SynchronizedSubject } from '../common';
 import { Account, AccountBalance, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
@@ -209,7 +209,7 @@ export class AccountService extends Service {
       account: Account;
     }>(
       gql`
-        query($address: String!, $tokens: [String!]!) {
+        query($address: String!, $tokens: [String!]) {
           account(address: $address) {
             balances(tokens: $tokens) {
               items {
@@ -223,7 +223,7 @@ export class AccountService extends Service {
       {
         variables: {
           address,
-          tokens: tokens.map((token) => prepareAddress(token, true)),
+          tokens,
         },
         models: {
           account: Account,

@@ -231,7 +231,7 @@ export class Sdk {
     return this.services.accountService.getAccount(address);
   }
 
-  async getAccountBalances(address: string, tokens: string[]): Promise<AccountBalance[]> {
+  async getAccountBalances(address: string, tokens: string[] = []): Promise<AccountBalance[]> {
     return this.services.accountService.getAccountBalances(address, tokens);
   }
 
@@ -332,14 +332,14 @@ export class Sdk {
 
   // payments
 
-  async syncPaymentDeposit(token: string = null): Promise<PaymentDeposit> {
+  async syncPaymentDeposits(tokens: string[] = []): Promise<PaymentDeposit[]> {
     await this.require({
       session: true,
     });
 
     const { accountService, paymentService } = this.services;
 
-    return paymentService.syncPaymentDeposit(accountService.accountAddress, token);
+    return paymentService.syncPaymentDeposits(accountService.accountAddress, tokens);
   }
 
   async getPaymentChannel(hash: string): Promise<PaymentChannel> {
@@ -364,7 +364,7 @@ export class Sdk {
 
   async increasePaymentChannelAmount(
     recipient: string,
-    amount: BigNumberish,
+    value: BigNumberish,
     token: string = null,
   ): Promise<PaymentChannel> {
     await this.require({
@@ -373,7 +373,7 @@ export class Sdk {
 
     const { paymentService } = this.services;
 
-    return paymentService.increasePaymentChannelAmount(recipient, token, BigNumber.from(amount));
+    return paymentService.increasePaymentChannelAmount(recipient, token, BigNumber.from(value));
   }
 
   async updatePaymentChannel(
