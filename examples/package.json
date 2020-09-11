@@ -9,5 +9,7 @@
     "03-ens": "ts-node ./src/03-ens.ts",
     "04-payments": "ts-node ./src/04-payments.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "ts-node": "9.0.0"
+  }
 }
