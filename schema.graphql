@@ -8,7 +8,7 @@ schema {
 
 type Account {
   address: String!
-  balances(tokens: [String!]!): AccountBalances!
+  balances(tokens: [String!] = []): AccountBalances!
   createdAt: DateTime!
   ensNode: ENSNode!
   member(address: String!): AccountMember
@@ -26,7 +26,7 @@ type Account {
 
 type AccountBalance {
   balance: BigNumber!
-  token: String!
+  token: String
 }
 
 type AccountBalances {
@@ -112,7 +112,7 @@ type Mutation {
   sendRelayedTransaction(account: String!, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
   syncAccount: Account!
   syncAccountMember(account: String!): AccountMember!
-  syncPaymentDeposit(owner: String!, token: String): PaymentDeposit!
+  syncPaymentDeposits(owner: String!, tokens: [String!] = []): PaymentDeposits!
   touchSession: Boolean!
   updateAccountMetadata(account: String!, email: String, phone: String): AccountMetadata!
   updatePaymentChannel(blockNumber: Int!, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
@@ -167,10 +167,15 @@ type PaymentDeposit {
   createdAt: DateTime
   lockedAmount: BigNumber!
   owner: String!
+  pendingAmount: BigNumber!
   state: PaymentDepositStates!
   token: String
   totalAmount: BigNumber!
   updatedAt: DateTime
+}
+
+type PaymentDeposits {
+  items: [PaymentDeposit!]!
 }
 
 type Payments {
