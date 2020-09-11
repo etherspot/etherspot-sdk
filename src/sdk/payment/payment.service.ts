@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, prepareAddress } from '../common';
 import { PaymentChannel, PaymentChannels, PaymentDeposit } from './classes';
-import { createPaymentChannelUid } from './utils';
+import { createPaymentChannelUid, computePaymentChannelHash } from './utils';
 
 export class PaymentService extends Service {
   readonly paymentDepositAddress$ = new UniqueSubject<string>();
@@ -140,9 +140,33 @@ export class PaymentService extends Service {
     return result;
   }
 
+  async increasePaymentChannelAmount(
+    recipient: string,
+    token: string,
+    amount: BigNumber,
+    uidSalt: string = null,
+  ): Promise<PaymentChannel> {
+    const { accountService } = this.services;
+    const hash = computePaymentChannelHash(
+      accountService.accountAddress,
+      recipient,
+      token,
+      createPaymentChannelUid(uidSalt),
+    );
+
+    const paymentChannel = await this.getPaymentChannel(hash);
+
+    return this.updatePaymentChannel(
+      recipient,
+      token,
+      paymentChannel ? paymentChannel.totalAmount.add(amount) : amount,
+      uidSalt,
+    );
+  }
+
   async updatePaymentChannel(
     recipient: string,
-    token: string = null,
+    token: string,
     totalAmount: BigNumber,
     uidSalt: string = null,
   ): Promise<PaymentChannel> {

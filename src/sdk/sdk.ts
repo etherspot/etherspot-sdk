@@ -362,6 +362,20 @@ export class Sdk {
     return paymentService.getPaymentChannels(senderOrRecipient, page);
   }
 
+  async increasePaymentChannelAmount(
+    recipient: string,
+    amount: BigNumberish,
+    token: string = null,
+  ): Promise<PaymentChannel> {
+    await this.require({
+      session: true,
+    });
+
+    const { paymentService } = this.services;
+
+    return paymentService.increasePaymentChannelAmount(recipient, token, BigNumber.from(amount));
+  }
+
   async updatePaymentChannel(
     recipient: string,
     totalAmount: BigNumberish,
