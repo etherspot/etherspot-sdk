@@ -2,8 +2,8 @@ import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, prepareAddress } from '../common';
-import { PaymentChannel, PaymentChannels, PaymentDeposit } from './classes';
-import { createPaymentChannelUid } from './utils';
+import { PaymentChannel, PaymentChannels, PaymentDeposit, PaymentDeposits } from './classes';
+import { createPaymentChannelUid, computePaymentChannelHash } from './utils';
 
 export class PaymentService extends Service {
   readonly paymentDepositAddress$ = new UniqueSubject<string>();
@@ -12,39 +12,41 @@ export class PaymentService extends Service {
     return this.paymentDepositAddress$.value;
   }
 
-  async syncPaymentDeposit(owner: string, token: string = null) {
+  async syncPaymentDeposits(owner: string, tokens: string[]): Promise<PaymentDeposit[]> {
     const { apiService } = this.services;
 
-    const { result } = await apiService.mutate<{
-      result: PaymentDeposit;
+    const { paymentDeposits } = await apiService.mutate<{
+      paymentDeposits: PaymentDeposits;
     }>(
       gql`
-        mutation($owner: String!, $token: String) {
-          result: syncPaymentDeposit(owner: $owner, token: $token) {
-            address
-            availableAmount
-            createdAt
-            lockedAmount
-            owner
-            state
-            token
-            totalAmount
-            updatedAt
+        mutation($owner: String!, $tokens: [String!]) {
+          paymentDeposits: syncPaymentDeposits(owner: $owner, tokens: $tokens) {
+            items {
+              address
+              availableAmount
+              createdAt
+              lockedAmount
+              owner
+              state
+              token
+              totalAmount
+              updatedAt
+            }
           }
         }
       `,
       {
         models: {
-          result: PaymentDeposit,
+          paymentDeposits: PaymentDeposits,
         },
         variables: {
           owner,
-          token,
+          tokens,
         },
       },
     );
 
-    return result;
+    return paymentDeposits ? paymentDeposits.items : [];
   }
 
   async getPaymentChannel(hash: string): Promise<PaymentChannel> {
@@ -140,9 +142,33 @@ export class PaymentService extends Service {
     return result;
   }
 
+  async increasePaymentChannelAmount(
+    recipient: string,
+    token: string,
+    value: BigNumber,
+    uidSalt: string = null,
+  ): Promise<PaymentChannel> {
+    const { accountService } = this.services;
+    const hash = computePaymentChannelHash(
+      accountService.accountAddress,
+      recipient,
+      token,
+      createPaymentChannelUid(uidSalt),
+    );
+
+    const paymentChannel = await this.getPaymentChannel(hash);
+
+    return this.updatePaymentChannel(
+      recipient,
+      token,
+      paymentChannel ? paymentChannel.totalAmount.add(value) : value,
+      uidSalt,
+    );
+  }
+
   async updatePaymentChannel(
     recipient: string,
-    token: string = null,
+    token: string,
     totalAmount: BigNumber,
     uidSalt: string = null,
   ): Promise<PaymentChannel> {
