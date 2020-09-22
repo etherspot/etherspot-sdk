@@ -1,9 +1,11 @@
-import { Service, UniqueSubject } from '../common';
+import { Observable } from 'rxjs';
+import { Service, ObjectSubject } from '../common';
 import { NETWORK_NAME_TO_CHAIN_ID, NetworkNames } from './constants';
 import { Network, NetworkOptions } from './interfaces';
 
 export class NetworkService extends Service {
-  readonly network$ = new UniqueSubject<Network>(null);
+  readonly network$ = new ObjectSubject<Network>(null);
+  readonly chainId$: Observable<number>;
   readonly supportedNetworks: Network[];
 
   private readonly defaultNetwork: Network;
@@ -42,12 +44,17 @@ export class NetworkService extends Service {
     }
 
     this.defaultNetwork = defaultNetwork;
-
     this.network$.next(defaultNetwork);
+    this.chainId$ = this.network$.observeKey('chainId');
   }
 
   get network(): Network {
     return this.network$.value;
+  }
+
+  get chainId(): number {
+    const { chainId } = this.network;
+    return chainId;
   }
 
   switchNetwork(networkName: NetworkNames = null): Network {
