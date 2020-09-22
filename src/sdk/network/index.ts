@@ -1,3 +1,3 @@
-export * from './constants';
 export * from './interfaces';
-export * from './utils';
+export * from './network.service';
+export { NetworkNames } from './constants';

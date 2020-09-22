@@ -1,3 +1,3 @@
-export * from './constants';
+export { EnvNames } from './constants';
 export * from './interfaces';
 export * from './utils';

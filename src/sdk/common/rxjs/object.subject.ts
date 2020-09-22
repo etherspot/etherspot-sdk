@@ -10,7 +10,7 @@ export class ObjectSubject<T extends {}, K extends keyof T = keyof T> extends Be
     super(value);
   }
 
-  observeKey<R = T[K]>(key: K): Observable<R> {
+  observeKey(key: K): Observable<T[K]> {
     return this.pipe<any>(distinctUniqueKey(key));
   }
 

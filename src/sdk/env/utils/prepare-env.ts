@@ -11,19 +11,16 @@ export function prepareEnv(env: EnvNames | Env): Env {
         break;
 
       case 'object':
-        if (
-          env.apiOptions &&
-          env.defaultNetworkName &&
-          Array.isArray(env.supportedNetworkNames) &&
-          env.supportedNetworkNames.length
-        ) {
+        if (env.apiOptions && env.networkOptions) {
           result = env;
         }
         break;
     }
-  }
 
-  if (!result) {
+    if (!result || !result.apiOptions || !result.networkOptions) {
+      throw new Error(`Unsupported env`);
+    }
+  } else {
     result = SUPPORTED_ENVS[DEFAULT_ENV_NAME];
   }
 

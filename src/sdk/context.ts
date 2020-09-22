@@ -4,7 +4,7 @@ import { AuthService } from './auth';
 import { BatchService } from './batch';
 import { BlockService } from './block';
 import { ENSService } from './ens';
-import { Network } from './network';
+import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { PaymentService } from './payment';
 import { RelayerService } from './relayer';
@@ -22,7 +22,6 @@ export class Context {
   private readonly attached: Service[] = [];
 
   constructor(
-    readonly network: Network, //
     readonly contracts: {
       ensControllerContract: ENSControllerContract;
       erc20TokenContract: ERC20TokenContract;
@@ -37,6 +36,7 @@ export class Context {
       apiService: ApiService;
       authService: AuthService;
       ensService: ENSService;
+      networkService: NetworkService;
       notificationService: NotificationService;
       paymentService: PaymentService;
       relayerService: RelayerService;

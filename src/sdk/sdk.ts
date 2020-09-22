@@ -17,7 +17,7 @@ import {
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
 import { prepareEnv } from './env';
 import { SdkOptions } from './interfaces';
-import { createNetwork, Network } from './network';
+import { NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import { PaymentService, PaymentDeposit, PaymentChannel, PaymentChannels } from './payment';
 import { RelayerService, RelayedTransaction } from './relayer';
@@ -32,8 +32,6 @@ import { BatchCommitPaymentChannelModes } from './constants';
  */
 export class Sdk {
   readonly state: State;
-  readonly network: Network;
-  readonly supportedNetworks: Network[];
 
   private readonly context: Context;
   private readonly contracts: Context['contracts'];
@@ -61,10 +59,6 @@ export class Sdk {
 
     const env = prepareEnv(options.env);
 
-    this.supportedNetworks = env.supportedNetworkNames.map((networkName) => createNetwork(networkName));
-
-    this.network = createNetwork(options.network || env.defaultNetworkName);
-
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
       erc20TokenContract: new ERC20TokenContract(),
@@ -80,13 +74,17 @@ export class Sdk {
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
+      networkService: new NetworkService({
+        ...env.networkOptions,
+        defaultNetworkName: options.network,
+      }),
       notificationService: new NotificationService(),
       paymentService: new PaymentService(),
       relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
 
-    this.context = new Context(this.network, this.contracts, this.services);
+    this.context = new Context(this.contracts, this.services);
     this.state = new State(this.services);
 
     if (wallet) {
@@ -102,14 +100,6 @@ export class Sdk {
 
   get notifications$(): Subject<Notification> {
     return this.services.notificationService.subscribeNotifications();
-  }
-
-  get batch(): Batch {
-    return this.services.batchService.batch;
-  }
-
-  get batch$(): Subject<Batch> {
-    return this.services.batchService.batch$;
   }
 
   // sdk
