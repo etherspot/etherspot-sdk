@@ -1,4 +1,4 @@
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Context } from '../context';
 
 export abstract class Service {
