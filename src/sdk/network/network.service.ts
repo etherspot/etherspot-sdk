@@ -57,21 +57,34 @@ export class NetworkService extends Service {
     return chainId;
   }
 
-  switchNetwork(networkName: NetworkNames = null): Network {
-    let network: Network;
-
-    if (!networkName) {
-      network = this.defaultNetwork;
-    } else {
-      network = this.supportedNetworks.find(({ name }) => name === networkName);
-    }
+  switchNetwork(network: NetworkNames | Network = null): Network {
+    let result: Network = null;
 
     if (!network) {
-      throw new Error(`Unsupported network`);
+      result = this.defaultNetwork;
+    } else {
+      let networkName: string;
+
+      switch (typeof network) {
+        case 'string':
+          networkName = network;
+          break;
+        case 'object':
+          networkName = network.name;
+          break;
+      }
+
+      if (networkName) {
+        result = this.supportedNetworks.find(({ name }) => name === networkName);
+      }
+
+      if (!result) {
+        throw new Error(`Unsupported network`);
+      }
     }
 
-    this.network$.next(network);
+    this.network$.next(result);
 
-    return this.network;
+    return result;
   }
 }

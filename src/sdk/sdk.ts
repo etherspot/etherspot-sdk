@@ -102,6 +102,10 @@ export class Sdk {
     return this.services.notificationService.subscribeNotifications();
   }
 
+  get supportedNetworks(): Network[] {
+    return this.services.networkService.supportedNetworks;
+  }
+
   // sdk
 
   destroy(): void {
@@ -122,8 +126,8 @@ export class Sdk {
 
   // network
 
-  switchNetwork(networkName: NetworkNames = null): Network {
-    return this.services.networkService.switchNetwork(networkName);
+  switchNetwork(network: NetworkNames | Network = null): Network {
+    return this.services.networkService.switchNetwork(network);
   }
 
   // session
