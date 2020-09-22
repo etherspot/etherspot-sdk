@@ -1,4 +1,4 @@
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { Context } from '../context';
 
 export abstract class Service {
@@ -37,10 +37,6 @@ export abstract class Service {
   protected onInit?(): void;
 
   protected onDestroy?(): void;
-
-  protected get network(): Context['network'] {
-    return this.context.network;
-  }
 
   protected get contracts(): Context['contracts'] {
     return this.context.contracts;
