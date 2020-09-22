@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, prepareAddress } from '../common';
 import { PaymentChannel, PaymentChannels, PaymentDeposit, PaymentDeposits } from './classes';
@@ -19,8 +20,8 @@ export class PaymentService extends Service {
       paymentDeposits: PaymentDeposits;
     }>(
       gql`
-        mutation($owner: String!, $tokens: [String!]) {
-          paymentDeposits: syncPaymentDeposits(owner: $owner, tokens: $tokens) {
+        mutation($chainId: Int, $owner: String!, $tokens: [String!]) {
+          paymentDeposits: syncPaymentDeposits(chainId: $chainId, owner: $owner, tokens: $tokens) {
             items {
               address
               availableAmount
@@ -56,8 +57,8 @@ export class PaymentService extends Service {
       result: PaymentChannel;
     }>(
       gql`
-        query($hash: String!) {
-          result: paymentChannel(hash: $hash) {
+        query($chainId: Int, $hash: String!) {
+          result: paymentChannel(chainId: $chainId, hash: $hash) {
             committedAmount
             createdAt
             hash
@@ -100,8 +101,8 @@ export class PaymentService extends Service {
       result: PaymentChannels;
     }>(
       gql`
-        query($senderOrRecipient: String!, $page: Int) {
-          result: paymentChannels(senderOrRecipient: $senderOrRecipient, page: $page) {
+        query($chainId: Int, $senderOrRecipient: String!, $page: Int) {
+          result: paymentChannels(chainId: $chainId, senderOrRecipient: $senderOrRecipient, page: $page) {
             items {
               committedAmount
               createdAt
@@ -207,6 +208,7 @@ export class PaymentService extends Service {
     }>(
       gql`
         mutation(
+          $chainId: Int
           $blockNumber: Int!
           $recipient: String!
           $sender: String!
@@ -216,6 +218,7 @@ export class PaymentService extends Service {
           $uid: String!
         ) {
           result: updatePaymentChannel(
+            chainId: $chainId
             blockNumber: $blockNumber
             recipient: $recipient
             sender: $sender
@@ -267,12 +270,15 @@ export class PaymentService extends Service {
 
   protected onInit() {
     const { paymentRegistryContract } = this.contracts;
-    const { accountService } = this.services;
+    const { accountService, networkService } = this.services;
 
     this.addSubscriptions(
-      accountService.accountAddress$
+      combineLatest([
+        accountService.accountAddress$, //
+        networkService.chainId$,
+      ])
         .pipe(
-          map((address) => {
+          map(([address]) => {
             let result: string = null;
 
             if (address) {

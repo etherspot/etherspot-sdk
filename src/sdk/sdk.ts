@@ -17,7 +17,7 @@ import {
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
 import { prepareEnv } from './env';
 import { SdkOptions } from './interfaces';
-import { NetworkService } from './network';
+import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import { PaymentService, PaymentDeposit, PaymentChannel, PaymentChannels } from './payment';
 import { RelayerService, RelayedTransaction } from './relayer';
@@ -118,6 +118,12 @@ export class Sdk {
     }
 
     this.services.walletService.attachWallet(wallet);
+  }
+
+  // network
+
+  switchNetwork(networkName: NetworkNames = null): Network {
+    return this.services.networkService.switchNetwork(networkName);
   }
 
   // session

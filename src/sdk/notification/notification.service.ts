@@ -1,4 +1,4 @@
-import { Subject, SubscriptionLike } from 'rxjs';
+import { Subject, SubscriptionLike, combineLatest } from 'rxjs';
 import { gql } from '@apollo/client/core';
 import { map, tap } from 'rxjs/operators';
 import { Service } from '../common';
@@ -17,12 +17,15 @@ export class NotificationService extends Service {
     if (!this.subscribed) {
       this.subscribed = true;
 
-      const { walletService, accountService } = this.services;
+      const { walletService, accountService, networkService } = this.services;
 
       this.addSubscriptions(
-        walletService.address$
+        combineLatest([
+          walletService.address$, //
+          networkService.chainId$,
+        ])
           .pipe(
-            tap((address) => {
+            tap(([address]) => {
               if (address) {
                 if (this.walletSubscription) {
                   this.walletSubscription.unsubscribe();
@@ -33,9 +36,13 @@ export class NotificationService extends Service {
             }),
           )
           .subscribe(),
-        accountService.accountAddress$
+
+        combineLatest([
+          accountService.accountAddress$, //
+          networkService.chainId$,
+        ])
           .pipe(
-            map((address) => (address === walletService.address ? null : address)),
+            map(([address]) => (address === walletService.address ? null : address)),
             tap((address) => {
               if (address) {
                 if (this.accountSubscription && this.subscribedAccountAddress !== address) {
@@ -76,8 +83,8 @@ export class NotificationService extends Service {
       notification: Notification;
     }>(
       gql`
-        subscription($address: String!) {
-          notification: newNotification(address: $address) {
+        subscription($chainId: Int, $address: String!) {
+          notification: newNotification(chainId: $chainId, address: $address) {
             type
             recipient
             payload
