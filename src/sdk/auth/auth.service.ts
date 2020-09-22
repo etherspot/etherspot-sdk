@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { plainToClass } from 'class-transformer';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, ObjectSubject } from '../common';
 import { Session } from './classes';
@@ -55,8 +56,8 @@ export class AuthService extends Service {
       code: string;
     }>(
       gql`
-        mutation($account: String!) {
-          code: createSessionCode(account: $account)
+        mutation($chainId: Int, $account: String!) {
+          code: createSessionCode(chainId: $chainId, account: $account)
         }
       `,
       {
@@ -73,8 +74,8 @@ export class AuthService extends Service {
       session: Session;
     }>(
       gql`
-        mutation($account: String!, $code: String!, $signature: String!, $ttl: Int) {
-          session: createSession(account: $account, code: $code, signature: $signature, ttl: $ttl) {
+        mutation($chainId: Int, $account: String!, $code: String!, $signature: String!, $ttl: Int) {
+          session: createSession(chainId: $chainId, account: $account, code: $code, signature: $signature, ttl: $ttl) {
             token
             ttl
           }
@@ -101,10 +102,13 @@ export class AuthService extends Service {
   }
 
   protected onInit() {
-    const { walletService } = this.services;
+    const { walletService, networkService } = this.services;
 
     this.addSubscriptions(
-      walletService.address$
+      combineLatest([
+        walletService.address$, //
+        networkService.chainId$,
+      ])
         .pipe(
           map(() => null), //
         )
