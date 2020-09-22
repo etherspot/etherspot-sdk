@@ -15,7 +15,7 @@ import {
   PersonalAccountRegistryContract,
 } from './contracts';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
-import { prepareEnv } from './env';
+import { Env } from './env';
 import { SdkOptions } from './interfaces';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
@@ -57,7 +57,7 @@ export class Sdk {
       }
     }
 
-    const env = prepareEnv(options.env);
+    const env = Env.prepare(options.env);
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),

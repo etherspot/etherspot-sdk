@@ -1,5 +1,5 @@
 import { NetworkNames } from '../network';
-import { Env } from './interfaces';
+import { Env } from './env';
 
 export enum EnvNames {
   MainNets = 'mainnets',
@@ -7,17 +7,21 @@ export enum EnvNames {
   LocalNets = 'localnets',
 }
 
-export const DEFAULT_ENV_NAME = EnvNames.LocalNets;
-
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
   [EnvNames.MainNets]: {
-    apiOptions: null,
+    apiOptions: {
+      host: 'mainnets.etherspot.pillarproject.io',
+      useSsl: true,
+    },
     networkOptions: {
       supportedNetworkNames: [NetworkNames.Mainnet, NetworkNames.Xdai],
     },
   },
   [EnvNames.TestNets]: {
-    apiOptions: null,
+    apiOptions: {
+      host: 'testnets.etherspot.pillarproject.io',
+      useSsl: true,
+    },
     networkOptions: {
       supportedNetworkNames: [NetworkNames.Goerli, NetworkNames.Ropsten, NetworkNames.Rinkeby, NetworkNames.Kovan],
     },
