@@ -104,16 +104,16 @@ type EstimatedRelayedTransaction {
 }
 
 type Mutation {
-  createENSSubNode(address: String!, name: String!): ENSNode!
+  createENSSubNode(address: String!, chainId: Int, name: String!): ENSNode!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!, chainId: Int): String!
-  destroySession: Boolean!
+  destroySession(chainId: Int): Boolean!
   estimateRelayedTransaction(account: String!, chainId: Int, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
   sendRelayedTransaction(account: String!, chainId: Int, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
   syncAccount(chainId: Int): Account!
   syncAccountMember(account: String!, chainId: Int): AccountMember!
   syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): PaymentDeposits!
-  touchSession: Boolean!
+  touchSession(chainId: Int): Boolean!
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updatePaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
 }
@@ -189,7 +189,7 @@ type Query {
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
-  ensNode(nameOrHashOrAddress: String!): ENSNode
+  ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
   paymentChannel(chainId: Int, hash: String!): PaymentChannel
   paymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentChannels
   relayedAccount(address: String!, chainId: Int): RelayedAccount
