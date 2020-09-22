@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, SynchronizedSubject } from '../common';
 import { Account, AccountBalance, AccountMember, AccountMembers, Accounts } from './classes';
@@ -70,8 +70,8 @@ export class AccountService extends Service {
           account: Account;
         }>(
           gql`
-            mutation {
-              account: syncAccount {
+            mutation($chainId: Int) {
+              account: syncAccount(chainId: $chainId) {
                 address
                 type
                 state
@@ -99,8 +99,8 @@ export class AccountService extends Service {
           accountMember: AccountMember;
         }>(
           gql`
-            mutation($account: String!) {
-              accountMember: syncAccountMember(account: $account) {
+            mutation($chainId: Int, $account: String!) {
+              accountMember: syncAccountMember(chainId: $chainId, account: $account) {
                 account {
                   address
                   type
@@ -139,120 +139,19 @@ export class AccountService extends Service {
   async getConnectedAccounts(page: number): Promise<Accounts> {
     const { apiService } = this.services;
 
-    const { accounts } = await apiService.query<{
-      accounts: Accounts;
-    }>(
-      gql`
-        query($page: Int!) {
-          accounts(page: $page) {
-            items {
-              address
-              type
-              state
-              store
-              createdAt
-              updatedAt
-            }
-            currentPage
-            nextPage
-          }
-        }
-      `,
-      {
-        variables: {
-          page: page || 1,
-        },
-        models: {
-          accounts: Accounts,
-        },
-      },
-    );
+    const variables = {
+      page: page || 1,
+    };
 
-    return accounts;
-  }
-
-  async getAccount(address: string): Promise<Account> {
-    const { apiService } = this.services;
-
-    const { account } = await apiService.query<{
-      account: Account;
-    }>(
-      gql`
-        query($address: String!) {
-          account(address: $address) {
-            address
-            type
-            state
-            store
-            createdAt
-            updatedAt
-          }
-        }
-      `,
-      {
-        variables: {
-          address,
-        },
-        models: {
-          account: Account,
-        },
-      },
-    );
-
-    return account;
-  }
-
-  async getAccountBalances(address: string, tokens: string[]): Promise<AccountBalance[]> {
-    const { apiService } = this.services;
-
-    const { account } = await apiService.query<{
-      account: Account;
-    }>(
-      gql`
-        query($address: String!, $tokens: [String!]) {
-          account(address: $address) {
-            balances(tokens: $tokens) {
+    {
+      const { accounts } = await apiService.query<{
+        accounts: Accounts;
+      }>(
+        gql`
+          query($chainId: Int, $page: Int) {
+            accounts(chainId: $chainId, page: $page) {
               items {
-                token
-                balance
-              }
-            }
-          }
-        }
-      `,
-      {
-        variables: {
-          address,
-          tokens,
-        },
-        models: {
-          account: Account,
-        },
-      },
-    );
-
-    return account && account.balances.items ? account.balances.items : [];
-  }
-
-  async getAccountMembers(address: string, page: number): Promise<AccountMembers> {
-    const { apiService } = this.services;
-
-    const { account } = await apiService.query<{
-      account: Account;
-    }>(
-      gql`
-        query($address: String!, $page: Int) {
-          account(address: $address) {
-            members(page: $page) {
-              items {
-                member {
-                  address
-                  type
-                  state
-                  store
-                  createdAt
-                  updatedAt
-                }
+                address
                 type
                 state
                 store
@@ -263,29 +162,149 @@ export class AccountService extends Service {
               nextPage
             }
           }
-        }
-      `,
-      {
-        variables: {
-          address,
-          page: page || 1,
+        `,
+        {
+          variables,
+          models: {
+            accounts: Accounts,
+          },
         },
-        models: {
-          account: Account,
-        },
-      },
-    );
+      );
 
-    return account && account.members ? account.members : null;
+      return accounts;
+    }
+  }
+
+  async getAccount(account: string): Promise<Account> {
+    const { apiService } = this.services;
+
+    const variables = {
+      account,
+    };
+
+    {
+      const { account } = await apiService.query<{
+        account: Account;
+      }>(
+        gql`
+          query($chainId: Int, $account: String!) {
+            account(chainId: $chainId, account: $account) {
+              address
+              type
+              state
+              store
+              createdAt
+              updatedAt
+            }
+          }
+        `,
+        {
+          variables,
+          models: {
+            account: Account,
+          },
+        },
+      );
+
+      return account;
+    }
+  }
+
+  async getAccountBalances(account: string, tokens: string[]): Promise<AccountBalance[]> {
+    const { apiService } = this.services;
+
+    const variables = {
+      account,
+      tokens,
+    };
+
+    {
+      const { account } = await apiService.query<{
+        account: Account;
+      }>(
+        gql`
+          query($chainId: Int, $account: String!, $tokens: [String!]) {
+            account(chainId: $chainId, account: $account) {
+              balances(tokens: $tokens) {
+                items {
+                  token
+                  balance
+                }
+              }
+            }
+          }
+        `,
+        {
+          variables,
+          models: {
+            account: Account,
+          },
+        },
+      );
+
+      return account && account.balances.items ? account.balances.items : [];
+    }
+  }
+
+  async getAccountMembers(account: string, page: number): Promise<AccountMembers> {
+    const { apiService } = this.services;
+
+    const variables = {
+      account,
+      page: page || 1,
+    };
+
+    {
+      const { account } = await apiService.query<{
+        account: Account;
+      }>(
+        gql`
+          query($chainId: Int, $account: String!, $page: Int) {
+            account(chainId: $chainId, account: $account) {
+              members(page: $page) {
+                items {
+                  member {
+                    address
+                    type
+                    state
+                    store
+                    createdAt
+                    updatedAt
+                  }
+                  type
+                  state
+                  store
+                  createdAt
+                  updatedAt
+                }
+                currentPage
+                nextPage
+              }
+            }
+          }
+        `,
+        {
+          variables,
+          models: {
+            account: Account,
+          },
+        },
+      );
+
+      return account && account.members ? account.members : null;
+    }
   }
 
   protected onInit(): void {
-    const { walletService } = this.services;
+    const { walletService, networkService } = this.services;
 
     this.addSubscriptions(
-      walletService.address$
+      combineLatest([
+        walletService.address$, //
+        networkService.chainId$,
+      ])
         .pipe(
-          map((address) =>
+          map(([address]) =>
             !address
               ? null
               : Account.fromPlain({
@@ -296,6 +315,7 @@ export class AccountService extends Service {
           ),
         )
         .subscribe(this.account$),
+
       this.accountAddress$.pipe(map(() => null)).subscribe(this.accountMember$),
     );
   }
