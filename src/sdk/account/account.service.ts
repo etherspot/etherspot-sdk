@@ -34,21 +34,23 @@ export class AccountService extends Service {
 
     const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.address);
 
-    this.account$.next(
-      Account.fromPlain({
-        address,
-        type: AccountTypes.Contract,
-        synchronizedAt: null,
-      }),
-    );
+    if (address) {
+      this.account$.next(
+        Account.fromPlain({
+          address,
+          type: AccountTypes.Contract,
+          synchronizedAt: null,
+        }),
+      );
 
-    this.accountMember$.next(
-      AccountMember.fromPlain({
-        state: AccountMemberStates.Added,
-        type: AccountMemberTypes.Owner,
-        synchronizedAt: null,
-      }),
-    );
+      this.accountMember$.next(
+        AccountMember.fromPlain({
+          state: AccountMemberStates.Added,
+          type: AccountMemberTypes.Owner,
+          synchronizedAt: null,
+        }),
+      );
+    }
   }
 
   joinContractAccount(address: string): void {

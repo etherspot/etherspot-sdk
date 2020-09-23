@@ -31,11 +31,13 @@ export abstract class Contract<F = string> extends Service {
   }
 
   computeAccountCreate2Address(saltKey: string): string {
-    return utils.getCreate2Address(
-      this.address,
-      utils.solidityKeccak256(['address'], [saltKey]),
-      getContractByteCodeHash(ContractNames.Account),
-    );
+    return this.address && saltKey
+      ? utils.getCreate2Address(
+          this.address,
+          utils.solidityKeccak256(['address'], [saltKey]),
+          getContractByteCodeHash(ContractNames.Account),
+        )
+      : null;
   }
 
   buildTypedData<T extends {} = any>(
