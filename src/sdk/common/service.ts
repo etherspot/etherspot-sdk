@@ -38,10 +38,6 @@ export abstract class Service {
 
   protected onDestroy?(): void;
 
-  protected get network(): Context['network'] {
-    return this.context.network;
-  }
-
   protected get contracts(): Context['contracts'] {
     return this.context.contracts;
   }

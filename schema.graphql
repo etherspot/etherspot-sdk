@@ -11,7 +11,7 @@ type Account {
   balances(tokens: [String!] = []): AccountBalances!
   createdAt: DateTime!
   ensNode: ENSNode!
-  member(address: String!): AccountMember
+  member(member: String!): AccountMember
   members(limit: Int = 10, page: Int = 1): AccountMembers!
   metadata: AccountMetadata
   paymentChannels(limit: Int = 10, page: Int = 1): PaymentChannels!
@@ -104,18 +104,18 @@ type EstimatedRelayedTransaction {
 }
 
 type Mutation {
-  createENSSubNode(address: String!, name: String!): ENSNode!
-  createSession(account: String!, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
-  createSessionCode(account: String!): String!
-  destroySession: Boolean!
-  estimateRelayedTransaction(account: String!, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
-  sendRelayedTransaction(account: String!, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
-  syncAccount: Account!
-  syncAccountMember(account: String!): AccountMember!
-  syncPaymentDeposits(owner: String!, tokens: [String!] = []): PaymentDeposits!
-  touchSession: Boolean!
-  updateAccountMetadata(account: String!, email: String, phone: String): AccountMetadata!
-  updatePaymentChannel(blockNumber: Int!, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
+  createENSSubNode(address: String!, chainId: Int, name: String!): ENSNode!
+  createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
+  createSessionCode(account: String!, chainId: Int): String!
+  destroySession(chainId: Int): Boolean!
+  estimateRelayedTransaction(account: String!, chainId: Int, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
+  sendRelayedTransaction(account: String!, chainId: Int, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
+  syncAccount(chainId: Int): Account!
+  syncAccountMember(account: String!, chainId: Int): AccountMember!
+  syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): PaymentDeposits!
+  touchSession(chainId: Int): Boolean!
+  updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
+  updatePaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): PaymentChannel!
 }
 
 type Network {
@@ -185,16 +185,17 @@ type Payments {
 }
 
 type Query {
-  account(address: String!): Account
-  accounts(limit: Int = 10, page: Int = 1): Accounts!
-  blockStats: BlockStats!
-  ensNode(nameOrHashOrAddress: String!): ENSNode
-  network: Network!
-  paymentChannel(hash: String!): PaymentChannel
-  paymentChannels(limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentChannels
-  relayedAccount(address: String!): RelayedAccount
-  relayedTransaction(key: String!): RelayedTransaction
-  transaction(hash: String!): Transaction
+  account(account: String!, chainId: Int): Account
+  accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
+  blockStats(chainId: Int): BlockStats!
+  defaultNetwork: Network!
+  ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+  paymentChannel(chainId: Int, hash: String!): PaymentChannel
+  paymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentChannels
+  relayedAccount(address: String!, chainId: Int): RelayedAccount
+  relayedTransaction(chainId: Int, key: String!): RelayedTransaction
+  supportedNetworks: [Network!]!
+  transaction(chainId: Int, hash: String!): Transaction
   validateENSLabel(label: String!): Boolean!
 }
 
@@ -225,7 +226,7 @@ type Session {
 }
 
 type Subscription {
-  newNotification(address: String!): Notification
+  newNotification(address: String!, chainId: Int): Notification
 }
 
 type Transaction {
@@ -301,8 +302,13 @@ enum ENSNodeTypes {
 
 enum NetworkNames {
   Goerli
-  Local
+  Kovan
+  LocalA
+  LocalB
   Mainnet
+  Rinkeby
+  Ropsten
+  Xdai
 }
 
 enum NotificationTypes {

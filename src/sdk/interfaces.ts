@@ -1,7 +1,7 @@
-import { ApiOptions } from './api';
 import { NetworkNames } from './network';
+import { EnvNames, Env } from './env';
 
 export interface SdkOptions {
-  networkName?: NetworkNames;
-  apiOptions?: ApiOptions;
+  env?: Env | EnvNames;
+  network?: NetworkNames;
 }

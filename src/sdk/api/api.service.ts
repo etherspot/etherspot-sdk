@@ -10,9 +10,10 @@ import {
 } from '@apollo/client/core';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
+import { BigNumber } from 'ethers';
 import { Service } from '../common';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
-import { buildApiUri, catchApiError, mapApiResult, prepareApiVariables } from './utils';
+import { buildApiUri, catchApiError, mapApiResult } from './utils';
 
 export class ApiService extends Service {
   private readonly options: ApiOptions;
@@ -39,7 +40,8 @@ export class ApiService extends Service {
     };
 
     const {
-      variables, //
+      omitChainIdVariable, //
+      variables,
       fetchPolicy,
       models,
     } = options;
@@ -48,7 +50,7 @@ export class ApiService extends Service {
       const { data } = await this.apolloClient.query<T>({
         query,
         fetchPolicy,
-        variables: prepareApiVariables(variables),
+        variables: this.prepareApiVariables(variables, omitChainIdVariable),
       });
 
       result = mapApiResult(data, models);
@@ -68,14 +70,15 @@ export class ApiService extends Service {
     };
 
     const {
-      variables, //
+      omitChainIdVariable, //
+      variables,
       models,
     } = options;
 
     try {
       const { data } = await this.apolloClient.mutate<T>({
         mutation,
-        variables: prepareApiVariables(variables),
+        variables: this.prepareApiVariables(variables, omitChainIdVariable),
       });
 
       result = mapApiResult(data, models);
@@ -88,14 +91,15 @@ export class ApiService extends Service {
 
   subscribe<T extends {}>(query: DocumentNode, options?: ApiRequestOptions<T>): Observable<T> {
     const {
-      variables, //
+      omitChainIdVariable, //
+      variables,
       models,
     } = options;
 
     return this.apolloClient
       .subscribe<T>({
         query,
-        variables: prepareApiVariables(variables),
+        variables: this.prepareApiVariables(variables, omitChainIdVariable),
       })
 
       .map(({ data }) => mapApiResult(data, models));
@@ -142,5 +146,32 @@ export class ApiService extends Service {
         resultCaching: false,
       }),
     });
+  }
+
+  private prepareApiVariables(
+    variables: { [keys: string]: any },
+    omitChainIdVariable: boolean,
+  ): { [key: string]: any } {
+    const result: { [key: string]: any } = {};
+
+    const keys = Object.keys(variables || {});
+
+    for (const key of keys) {
+      let value: any;
+      if (BigNumber.isBigNumber(variables[key])) {
+        value = BigNumber.from(variables[key]).toHexString();
+      } else {
+        value = variables[key];
+      }
+      result[key] = value;
+    }
+
+    if (!omitChainIdVariable) {
+      const { chainId } = this.services.networkService;
+
+      result.chainId = chainId;
+    }
+
+    return result;
   }
 }

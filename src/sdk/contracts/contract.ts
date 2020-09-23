@@ -18,7 +18,6 @@ export abstract class Contract<F = string> extends Service {
 
   private typedDataDomain: {
     name: string;
-    chainId: number;
     salt: string;
   } = null;
 
@@ -27,16 +26,18 @@ export abstract class Contract<F = string> extends Service {
   }
 
   get address(): string {
-    const { chainId } = this.context.network;
+    const { chainId } = this.context.services.networkService;
     return getContractAddress(this.name, chainId);
   }
 
   computeAccountCreate2Address(saltKey: string): string {
-    return utils.getCreate2Address(
-      this.address,
-      utils.solidityKeccak256(['address'], [saltKey]),
-      getContractByteCodeHash(ContractNames.Account),
-    );
+    return this.address && saltKey
+      ? utils.getCreate2Address(
+          this.address,
+          utils.solidityKeccak256(['address'], [saltKey]),
+          getContractByteCodeHash(ContractNames.Account),
+        )
+      : null;
   }
 
   buildTypedData<T extends {} = any>(
@@ -44,10 +45,13 @@ export abstract class Contract<F = string> extends Service {
     primarySchema: { type: string; name: string }[],
     message: T,
   ): TypedData {
+    const { chainId } = this.context.services.networkService;
+
     return this.typedDataDomain
       ? buildTypedData(
           {
             verifyingContract: this.address,
+            chainId,
             ...this.typedDataDomain,
           },
           primaryType,
@@ -58,8 +62,6 @@ export abstract class Contract<F = string> extends Service {
   }
 
   protected onInit() {
-    const { chainId } = this.context.network;
-
     const abi = getContractAbi(this.name);
     const typedDataDomainName = getContractTypedDataDomainName(this.name);
 
@@ -69,7 +71,6 @@ export abstract class Contract<F = string> extends Service {
 
     if (typedDataDomainName) {
       this.typedDataDomain = {
-        chainId,
         name: typedDataDomainName,
         salt: TYPED_DATA_DOMAIN_SALT,
       };

@@ -18,8 +18,16 @@ export class RelayerService extends Service {
       result: EstimatedRelayedTransaction;
     }>(
       gql`
-        mutation($account: String!, $sender: String!, $to: [String!]!, $data: [String!]!, $refundToken: String) {
+        mutation(
+          $chainId: Int
+          $account: String!
+          $sender: String!
+          $to: [String!]!
+          $data: [String!]!
+          $refundToken: String
+        ) {
           result: estimateRelayedTransaction(
+            chainId: $chainId
             account: $account
             sender: $sender
             to: $to
@@ -81,6 +89,7 @@ export class RelayerService extends Service {
     }>(
       gql`
         mutation(
+          $chainId: Int
           $account: String!
           $to: [String!]!
           $data: [String!]!
@@ -88,6 +97,7 @@ export class RelayerService extends Service {
           $senderSignature: String!
         ) {
           result: sendRelayedTransaction(
+            chainId: $chainId
             account: $account
             to: $to
             data: $data
@@ -133,8 +143,8 @@ export class RelayerService extends Service {
       result: RelayedTransaction;
     }>(
       gql`
-        query($key: String!) {
-          result: relayedTransaction(key: $key) {
+        query($chainId: Int, $key: String!) {
+          result: relayedTransaction(chainId: $chainId, key: $key) {
             account
             createdAt
             encodedData
@@ -170,8 +180,8 @@ export class RelayerService extends Service {
       result: RelayedAccount;
     }>(
       gql`
-        query($address: String!) {
-          result: relayedAccount(address: $address) {
+        query($chainId: Int, $address: String!) {
+          result: relayedAccount(chainId: $chainId, address: $address) {
             address
             nonce
           }

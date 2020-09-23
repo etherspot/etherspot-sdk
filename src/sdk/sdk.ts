@@ -14,10 +14,10 @@ import {
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contracts';
-import { DEFAULT_NETWORK_API_OPTIONS, DEFAULT_NETWORK_NAME } from './defaults';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
+import { Env } from './env';
 import { SdkOptions } from './interfaces';
-import { createNetwork, Network } from './network';
+import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import { PaymentService, PaymentDeposit, PaymentChannel, PaymentChannels } from './payment';
 import { RelayerService, RelayedTransaction } from './relayer';
@@ -32,7 +32,6 @@ import { BatchCommitPaymentChannelModes } from './constants';
  */
 export class Sdk {
   readonly state: State;
-  readonly network: Network;
 
   private readonly context: Context;
   private readonly contracts: Context['contracts'];
@@ -58,21 +57,7 @@ export class Sdk {
       }
     }
 
-    options = {
-      networkName: DEFAULT_NETWORK_NAME,
-      ...options,
-    };
-
-    options = {
-      apiOptions: DEFAULT_NETWORK_API_OPTIONS[options.networkName],
-      ...options,
-    };
-
-    if (!options.apiOptions) {
-      throw new Error('Unsupported network');
-    }
-
-    this.network = createNetwork(options.networkName);
+    const env = Env.prepare(options.env);
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -84,18 +69,22 @@ export class Sdk {
 
     this.services = {
       accountService: new AccountService(),
-      apiService: new ApiService(options.apiOptions),
+      apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
+      networkService: new NetworkService({
+        ...env.networkOptions,
+        defaultNetworkName: options.network,
+      }),
       notificationService: new NotificationService(),
       paymentService: new PaymentService(),
       relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
 
-    this.context = new Context(this.network, this.contracts, this.services);
+    this.context = new Context(this.contracts, this.services);
     this.state = new State(this.services);
 
     if (wallet) {
@@ -113,12 +102,8 @@ export class Sdk {
     return this.services.notificationService.subscribeNotifications();
   }
 
-  get batch(): Batch {
-    return this.services.batchService.batch;
-  }
-
-  get batch$(): Subject<Batch> {
-    return this.services.batchService.batch$;
+  get supportedNetworks(): Network[] {
+    return this.services.networkService.supportedNetworks;
   }
 
   // sdk
@@ -137,6 +122,12 @@ export class Sdk {
     }
 
     this.services.walletService.attachWallet(wallet);
+  }
+
+  // network
+
+  switchNetwork(network: NetworkNames | Network = null): Network {
+    return this.services.networkService.switchNetwork(network);
   }
 
   // session

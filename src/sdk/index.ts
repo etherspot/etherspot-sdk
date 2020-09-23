@@ -9,6 +9,7 @@ export * from './common';
 export * from './constants';
 export * from './contracts';
 export * from './ens';
+export * from './env';
 export * from './interfaces';
 export * from './network';
 export * from './notification';

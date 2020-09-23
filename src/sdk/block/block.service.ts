@@ -10,8 +10,8 @@ export class BlockService extends Service {
       blockStats: BlockStats;
     }>(
       gql`
-        query {
-          blockStats {
+        query($chainId: Int) {
+          blockStats(chainId: $chainId) {
             currentOnchainBlockNumber
             lastProcessedBlockNumber
           }

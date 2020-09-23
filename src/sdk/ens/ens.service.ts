@@ -12,8 +12,8 @@ export class ENSService extends Service {
       result: ENSNode;
     }>(
       gql`
-        mutation($address: String!, $name: String!) {
-          result: createENSSubNode(address: $address, name: $name) {
+        mutation($chainId: Int, $address: String!, $name: String!) {
+          result: createENSSubNode(chainId: $chainId, address: $address, name: $name) {
             hash
             name
             address
@@ -47,8 +47,8 @@ export class ENSService extends Service {
       result: ENSNode;
     }>(
       gql`
-        query($nameOrHashOrAddress: String!) {
-          result: ensNode(nameOrHashOrAddress: $nameOrHashOrAddress) {
+        query($chainId: Int, $nameOrHashOrAddress: String!) {
+          result: ensNode(chainId: $chainId, nameOrHashOrAddress: $nameOrHashOrAddress) {
             hash
             name
             address

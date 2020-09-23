@@ -1,4 +1,5 @@
 import { BigNumber, utils } from 'ethers';
+import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, TransactionRequest } from '../common';
 import { RelayedTransaction } from '../relayer';
@@ -101,10 +102,13 @@ export class BatchService extends Service {
   }
 
   protected onInit() {
-    const { accountService } = this.services;
+    const { accountService, networkService } = this.services;
 
     this.addSubscriptions(
-      accountService.accountAddress$
+      combineLatest([
+        accountService.accountAddress$, //
+        networkService.chainId$,
+      ])
         .pipe(
           map(() => null), //
         )

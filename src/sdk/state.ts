@@ -1,7 +1,9 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Account, AccountMember } from './account';
 import { Session } from './auth';
+import { Batch } from './batch';
 import { Context } from './context';
+import { Network } from './network';
 
 export class State {
   constructor(private readonly services: Context['services']) {
@@ -54,5 +56,21 @@ export class State {
 
   get session(): Session {
     return this.services.authService.session;
+  }
+
+  get batch(): Batch {
+    return this.services.batchService.batch;
+  }
+
+  get batch$(): BehaviorSubject<Batch> {
+    return this.services.batchService.batch$;
+  }
+
+  get network(): Network {
+    return this.services.networkService.network;
+  }
+
+  get network$(): BehaviorSubject<Network> {
+    return this.services.networkService.network$;
   }
 }
