@@ -1,10 +1,10 @@
-import { TransformBigNumber, WithTypename } from '../../common';
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
-import { PaymentStates } from '../constants';
+import { WithTypename, TransformBigNumber } from '../../common';
+import { P2PPaymentChannelPaymentStates } from '../constants';
 
-export class Payment extends WithTypename {
-  state: PaymentStates;
+export class P2PPaymentChannelPayment extends WithTypename {
+  state: P2PPaymentChannelPaymentStates;
 
   blockNumber: number;
 

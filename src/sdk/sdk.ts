@@ -19,7 +19,7 @@ import { Env } from './env';
 import { SdkOptions } from './interfaces';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
-import { PaymentService, PaymentDeposit, PaymentChannel, PaymentChannels } from './payment';
+import { PaymentService, P2PPaymentDeposit, P2PPaymentChannel, P2PPaymentChannels } from './payment';
 import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
@@ -321,25 +321,25 @@ export class Sdk {
     );
   }
 
-  // payments
+  // p2p payments
 
-  async syncPaymentDeposits(tokens: string[] = []): Promise<PaymentDeposit[]> {
+  async syncP2PPaymentDeposits(tokens: string[] = []): Promise<P2PPaymentDeposit[]> {
     await this.require({
       session: true,
     });
 
     const { accountService, paymentService } = this.services;
 
-    return paymentService.syncPaymentDeposits(accountService.accountAddress, tokens);
+    return paymentService.syncP2PPaymentDeposits(accountService.accountAddress, tokens);
   }
 
-  async getPaymentChannel(hash: string): Promise<PaymentChannel> {
+  async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
     const { paymentService } = this.services;
 
-    return paymentService.getPaymentChannel(hash);
+    return paymentService.getP2PPaymentChannel(hash);
   }
 
-  async getPaymentChannels(senderOrRecipient: string = null, page = 1): Promise<PaymentChannels> {
+  async getP2PPaymentChannels(senderOrRecipient: string = null, page = 1): Promise<P2PPaymentChannels> {
     await this.require({
       wallet: !senderOrRecipient,
     });
@@ -350,40 +350,40 @@ export class Sdk {
       senderOrRecipient = accountService.accountAddress;
     }
 
-    return paymentService.getPaymentChannels(senderOrRecipient, page);
+    return paymentService.getP2PPaymentChannels(senderOrRecipient, page);
   }
 
-  async increasePaymentChannelAmount(
+  async increaseP2PPaymentChannelAmount(
     recipient: string,
     value: BigNumberish,
     token: string = null,
-  ): Promise<PaymentChannel> {
+  ): Promise<P2PPaymentChannel> {
     await this.require({
       session: true,
     });
 
     const { paymentService } = this.services;
 
-    return paymentService.increasePaymentChannelAmount(recipient, token, BigNumber.from(value));
+    return paymentService.increaseP2PPaymentChannelAmount(recipient, token, BigNumber.from(value));
   }
 
-  async updatePaymentChannel(
+  async updateP2PPaymentChannel(
     recipient: string,
     totalAmount: BigNumberish,
     token: string = null,
-  ): Promise<PaymentChannel> {
+  ): Promise<P2PPaymentChannel> {
     await this.require({
       session: true,
     });
 
     const { paymentService } = this.services;
 
-    return paymentService.updatePaymentChannel(recipient, token, BigNumber.from(totalAmount));
+    return paymentService.updateP2PPaymentChannel(recipient, token, BigNumber.from(totalAmount));
   }
 
-  // payments (batch)
+  // p2p payments (batch)
 
-  async batchCommitPaymentChannel(
+  async batchCommitP2PPaymentChannel(
     hash: string,
     mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
   ): Promise<Batch> {
@@ -391,7 +391,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    const paymentChannel = await this.getPaymentChannel(hash);
+    const paymentChannel = await this.getP2PPaymentChannel(hash);
 
     if (!paymentChannel) {
       throw new Error('Payment channel not found');

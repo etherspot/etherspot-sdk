@@ -7,7 +7,7 @@
     "01-session": "../node_modules/.bin/ts-node ./src/01-session.ts",
     "02-contract-account": "../node_modules/.bin/ts-node ./src/02-contract-account.ts",
     "03-ens": "../node_modules/.bin/ts-node ./src/03-ens.ts",
-    "04-payments": "../node_modules/.bin/ts-node ./src/04-payments.ts"
+    "04-p2p-payments": "../node_modules/.bin/ts-node ./src/04-p2p-payments.ts"
   },
   "dependencies": {}
 }
