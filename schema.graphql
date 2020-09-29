@@ -8,18 +8,11 @@ schema {
 
 type Account {
   address: String!
-  balances(tokens: [String!] = []): AccountBalances!
   createdAt: DateTime!
-  ensNode: ENSNode!
-  member(member: String!): AccountMember
-  members(limit: Int = 10, page: Int = 1): AccountMembers!
+  ensNode: ENSNode
   metadata: AccountMetadata
-  p2pPaymentChannels(limit: Int = 10, page: Int = 1): P2PPaymentChannels!
-  proof(hash: String!): AccountProof
-  proofs(limit: Int = 10, page: Int = 1): AccountProofs!
   state: AccountStates
   store: AccountStores
-  transactions(limit: Int = 10, page: Int = 1): Transactions!
   type: AccountTypes
   updatedAt: DateTime!
 }
@@ -64,12 +57,6 @@ type AccountProof {
   hash: String!
   state: AccountProofStates!
   updatedAt: DateTime!
-}
-
-type AccountProofs {
-  currentPage: Int!
-  items: [AccountProof!]!
-  nextPage: Int
 }
 
 type Accounts {
@@ -138,7 +125,6 @@ type P2PPaymentChannel {
   createdAt: DateTime!
   hash: String!
   latestPayment: P2PPaymentChannelPayment
-  payments(limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   recipient: String!
   sender: String!
   state: P2PPaymentChannelStates!
@@ -191,28 +177,29 @@ type P2PPaymentDeposits {
 type PaymentHub {
   address: String!
   createdAt: DateTime
-  deposits(owner: String!, tokens: [String!] = []): PaymentHubDeposits!
   liquidity: BigNumber!
-  payments(limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentHubPayments!
   token: String
   updatedAt: DateTime
 }
 
 type PaymentHubDeposit {
   createdAt: DateTime
+  hub: PaymentHub!
   owner: String!
-  token: String
   totalAmount: BigNumber!
   updatedAt: DateTime
 }
 
 type PaymentHubDeposits {
+  currentPage: Int!
   items: [PaymentHubDeposit!]!
+  nextPage: Int
 }
 
 type PaymentHubPayment {
   createdAt: DateTime!
   hash: String!
+  hub: PaymentHub!
   recipient: String!
   sender: String!
   value: BigNumber!
@@ -232,19 +219,27 @@ type PaymentHubs {
 
 type Query {
   account(account: String!, chainId: Int): Account
+  accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
+  accountMember(account: String!, chainId: Int, member: String!): AccountMember
+  accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
-  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!): P2PPaymentChannels
+  p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
+  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
-  paymentHubPayment(chainId: Int, hash: String!): PaymentHubPayment
+  paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
+  paymentHubPayment(hash: String!): PaymentHubPayment
+  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   relayedAccount(address: String!, chainId: Int): RelayedAccount
   relayedTransaction(chainId: Int, key: String!): RelayedTransaction
+  relayedTransactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): RelayedTransactions!
   supportedNetworks: [Network!]!
   transaction(chainId: Int, hash: String!): Transaction
+  transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
   validateENSLabel(label: String!): Boolean!
 }
 
@@ -266,6 +261,12 @@ type RelayedTransaction {
   sender: String
   state: RelayedTransactionStates!
   updatedAt: DateTime!
+}
+
+type RelayedTransactions {
+  currentPage: Int!
+  items: [RelayedTransaction!]!
+  nextPage: Int
 }
 
 type Session {
@@ -416,8 +417,8 @@ enum TransactionTypes {
 }
 
 
-"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
-scalar DateTime
-
 "BigNumber.js"
 scalar BigNumber
+
+"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
+scalar DateTime

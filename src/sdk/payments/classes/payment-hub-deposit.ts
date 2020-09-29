@@ -1,11 +1,13 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
 import { TransformBigNumber, WithTypename } from '../../common';
+import { PaymentHub } from './payment-hub';
 
 export class PaymentHubDeposit extends WithTypename {
-  owner: string;
+  @Type(() => PaymentHub)
+  hub?: Partial<PaymentHub>;
 
-  token: string;
+  owner: string;
 
   @TransformBigNumber()
   totalAmount: BigNumber;

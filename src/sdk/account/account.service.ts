@@ -2,7 +2,7 @@ import { gql } from '@apollo/client/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, SynchronizedSubject } from '../common';
-import { Account, AccountBalance, AccountMember, AccountMembers, Accounts } from './classes';
+import { Account, AccountBalance, AccountBalances, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
 export class AccountService extends Service {
@@ -141,56 +141,13 @@ export class AccountService extends Service {
   async getConnectedAccounts(page: number): Promise<Accounts> {
     const { apiService } = this.services;
 
-    const variables = {
-      page: page || 1,
-    };
-
-    {
-      const { accounts } = await apiService.query<{
-        accounts: Accounts;
-      }>(
-        gql`
-          query($chainId: Int, $page: Int) {
-            accounts(chainId: $chainId, page: $page) {
-              items {
-                address
-                type
-                state
-                store
-                createdAt
-                updatedAt
-              }
-              currentPage
-              nextPage
-            }
-          }
-        `,
-        {
-          variables,
-          models: {
-            accounts: Accounts,
-          },
-        },
-      );
-
-      return accounts;
-    }
-  }
-
-  async getAccount(account: string): Promise<Account> {
-    const { apiService } = this.services;
-
-    const variables = {
-      account,
-    };
-
-    {
-      const { account } = await apiService.query<{
-        account: Account;
-      }>(
-        gql`
-          query($chainId: Int, $account: String!) {
-            account(chainId: $chainId, account: $account) {
+    const { result } = await apiService.query<{
+      result: Accounts;
+    }>(
+      gql`
+        query($chainId: Int, $page: Int) {
+          result: accounts(chainId: $chainId, page: $page) {
+            items {
               address
               type
               state
@@ -198,103 +155,126 @@ export class AccountService extends Service {
               createdAt
               updatedAt
             }
+            currentPage
+            nextPage
           }
-        `,
-        {
-          variables,
-          models: {
-            account: Account,
-          },
+        }
+      `,
+      {
+        variables: {
+          page: page || 1,
         },
-      );
+        models: {
+          result: Accounts,
+        },
+      },
+    );
 
-      return account;
-    }
+    return result;
   }
 
-  async getAccountBalances(account: string, tokens: string[]): Promise<AccountBalance[]> {
+  async getAccount(account: string): Promise<Account> {
     const { apiService } = this.services;
 
-    const variables = {
-      account,
-      tokens,
-    };
+    const { result } = await apiService.query<{
+      result: Account;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!) {
+          result: account(chainId: $chainId, account: $account) {
+            address
+            type
+            state
+            store
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+        models: {
+          result: Account,
+        },
+      },
+    );
 
-    {
-      const { account } = await apiService.query<{
-        account: Account;
-      }>(
-        gql`
-          query($chainId: Int, $account: String!, $tokens: [String!]) {
-            account(chainId: $chainId, account: $account) {
-              balances(tokens: $tokens) {
-                items {
-                  token
-                  balance
-                }
-              }
+    return result;
+  }
+
+  async getAccountBalances(account: string, tokens: string[]): Promise<AccountBalances> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: AccountBalances;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $tokens: [String!]) {
+          result: accountBalances(chainId: $chainId, account: $account, tokens: $tokens) {
+            items {
+              token
+              balance
             }
           }
-        `,
-        {
-          variables,
-          models: {
-            account: Account,
-          },
+        }
+      `,
+      {
+        variables: {
+          account,
+          tokens,
         },
-      );
+        models: {
+          result: AccountBalances,
+        },
+      },
+    );
 
-      return account && account.balances.items ? account.balances.items : [];
-    }
+    return result;
   }
 
   async getAccountMembers(account: string, page: number): Promise<AccountMembers> {
     const { apiService } = this.services;
 
-    const variables = {
-      account,
-      page: page || 1,
-    };
-
-    {
-      const { account } = await apiService.query<{
-        account: Account;
-      }>(
-        gql`
-          query($chainId: Int, $account: String!, $page: Int) {
-            account(chainId: $chainId, account: $account) {
-              members(page: $page) {
-                items {
-                  member {
-                    address
-                    type
-                    state
-                    store
-                    createdAt
-                    updatedAt
-                  }
-                  type
-                  state
-                  store
-                  createdAt
-                  updatedAt
-                }
-                currentPage
-                nextPage
+    const { result } = await apiService.query<{
+      result: AccountMembers;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $page: Int) {
+          result: accountMembers(chainId: $chainId, account: $account, page: $page) {
+            items {
+              member {
+                address
+                type
+                state
+                store
+                createdAt
+                updatedAt
               }
+              type
+              state
+              store
+              createdAt
+              updatedAt
             }
+            currentPage
+            nextPage
           }
-        `,
-        {
-          variables,
-          models: {
-            account: Account,
-          },
+        }
+      `,
+      {
+        variables: {
+          account,
+          page: page || 1,
         },
-      );
+        models: {
+          result: AccountMembers,
+        },
+      },
+    );
 
-      return account && account.members ? account.members : null;
-    }
+    return result;
   }
 
   protected onInit(): void {

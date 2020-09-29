@@ -2,13 +2,7 @@ import { plainToClass } from 'class-transformer';
 import { Type } from 'class-transformer';
 import { Synchronized } from '../../common';
 import { ENSNode } from '../../ens';
-import { P2PPaymentChannels } from '../../payment';
 import { AccountTypes, AccountStates, AccountStores } from '../constants';
-import { AccountBalances } from './account-balances';
-import { AccountMember } from './account-member';
-import { AccountMembers } from './account-members';
-import { AccountProof } from './account-proof';
-import { AccountProofs } from './account-proofs';
 
 export class Account extends Synchronized {
   static fromPlain(plain: Partial<Account>): Account {
@@ -23,26 +17,8 @@ export class Account extends Synchronized {
 
   store: AccountStores;
 
-  @Type(() => AccountBalances)
-  balances?: AccountBalances;
-
-  @Type(() => AccountMember)
-  member?: AccountMember;
-
-  @Type(() => AccountMembers)
-  members?: AccountMembers;
-
-  @Type(() => AccountProof)
-  proof?: AccountProof;
-
-  @Type(() => AccountProofs)
-  proofs?: AccountProofs;
-
   @Type(() => ENSNode)
   ensNode?: ENSNode;
-
-  @Type(() => P2PPaymentChannels)
-  paymentChannels?: P2PPaymentChannels;
 
   @Type(() => Date)
   createdAt: Date;

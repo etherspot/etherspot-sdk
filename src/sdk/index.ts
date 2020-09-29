@@ -13,7 +13,7 @@ export * from './env';
 export * from './interfaces';
 export * from './network';
 export * from './notification';
-export * from './payment';
+export * from './payments';
 export * from './relayer';
 export * from './wallet';
 

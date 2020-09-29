@@ -1,12 +1,12 @@
 import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { Subject } from 'rxjs';
-import { Account, AccountBalance, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
+import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { WalletLike, walletFrom } from './common';
+import { WalletLike, walletFrom, TransactionRequest } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -19,7 +19,14 @@ import { Env } from './env';
 import { SdkOptions } from './interfaces';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
-import { PaymentService, P2PPaymentDeposit, P2PPaymentChannel, P2PPaymentChannels } from './payment';
+import {
+  P2pPaymentService,
+  P2PPaymentChannel,
+  P2PPaymentChannels,
+  P2PPaymentDeposits,
+  PaymentHubPayment,
+  PaymentHubService,
+} from './payments';
 import { RelayerService, RelayedTransaction } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
@@ -79,7 +86,8 @@ export class Sdk {
         defaultNetworkName: options.network,
       }),
       notificationService: new NotificationService(),
-      paymentService: new PaymentService(),
+      p2pPaymentsService: new P2pPaymentService(),
+      paymentHubService: new PaymentHubService(),
       relayerService: new RelayerService(),
       walletService: new WalletService(),
     };
@@ -148,6 +156,18 @@ export class Sdk {
 
   clearBatch(): void {
     this.services.batchService.clearBatch();
+  }
+
+  async batchTransactionRequest(transactionRequest: TransactionRequest | Promise<TransactionRequest>): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { batchService } = this.services;
+
+    return batchService.pushTransactionRequest(
+      transactionRequest instanceof Promise ? await transactionRequest : transactionRequest,
+    );
   }
 
   async estimateBatch(refundToken: string = null): Promise<Batch> {
@@ -222,7 +242,7 @@ export class Sdk {
     return this.services.accountService.getAccount(address);
   }
 
-  async getAccountBalances(address: string, tokens: string[] = []): Promise<AccountBalance[]> {
+  async getAccountBalances(address: string, tokens: string[] = []): Promise<AccountBalances> {
     return this.services.accountService.getAccountBalances(address, tokens);
   }
 
@@ -230,45 +250,58 @@ export class Sdk {
     return this.services.accountService.getAccountMembers(address, page);
   }
 
+  // account (encode)
+
+  async encodeAddAccountOwner(owner: string): Promise<TransactionRequest> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner);
+  }
+
+  async encodeRemoveAccountOwner(owner: string): Promise<TransactionRequest> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner);
+  }
+
+  async encodeExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<TransactionRequest> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return personalAccountRegistryContract.encodeExecuteAccountTransaction(
+      accountService.accountAddress,
+      to,
+      value,
+      data,
+    );
+  }
+
   // account (batch)
 
   async batchAddAccountOwner(owner: string): Promise<Batch> {
-    await this.require({
-      contractAccount: true,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService, batchService } = this.services;
-
-    return batchService.pushTransactionRequest(
-      personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner),
-    );
+    return this.batchTransactionRequest(this.encodeAddAccountOwner(owner));
   }
 
   async batchRemoveAccountOwner(owner: string): Promise<Batch> {
-    await this.require({
-      contractAccount: true,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService, batchService } = this.services;
-
-    return batchService.pushTransactionRequest(
-      personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner),
-    );
+    return this.batchTransactionRequest(this.encodeRemoveAccountOwner(owner));
   }
 
   async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
-    await this.require({
-      contractAccount: true,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService, batchService } = this.services;
-
-    return batchService.pushTransactionRequest(
-      personalAccountRegistryContract.encodeExecuteAccountTransaction(accountService.accountAddress, to, value, data),
-    );
+    return this.batchTransactionRequest(this.encodeExecuteAccountTransaction(to, value, data));
   }
 
   // ens
@@ -296,12 +329,10 @@ export class Sdk {
     return ensService.getENSNode(nameOrHashOrAddress);
   }
 
-  // ens (batch)
+  // ens (encode)
 
-  async batchClaimENSNode(nameOrHashOrAddress: string): Promise<Batch> {
-    await this.require({
-      contractAccount: true,
-    });
+  async encodeClaimENSNode(nameOrHashOrAddress: string = null): Promise<TransactionRequest> {
+    await this.require();
 
     const ensNode = await this.getENSNode(nameOrHashOrAddress);
 
@@ -314,29 +345,32 @@ export class Sdk {
     const parsedName = parseENSName(name);
 
     const { ensControllerContract } = this.contracts;
-    const { batchService } = this.services;
 
-    return batchService.pushTransactionRequest(
-      ensControllerContract.encodeRegisterSubNode(parsedName.root.hash, parsedName.labelHash, guardianSignature),
-    );
+    return ensControllerContract.encodeRegisterSubNode(parsedName.root.hash, parsedName.labelHash, guardianSignature);
+  }
+
+  // ens (batch)
+
+  async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
+    return this.batchTransactionRequest(this.encodeClaimENSNode(nameOrHashOrAddress));
   }
 
   // p2p payments
 
-  async syncP2PPaymentDeposits(tokens: string[] = []): Promise<P2PPaymentDeposit[]> {
+  async syncP2PPaymentDeposits(tokens: string[] = []): Promise<P2PPaymentDeposits> {
     await this.require({
       session: true,
     });
 
-    const { accountService, paymentService } = this.services;
+    const { accountService, p2pPaymentsService } = this.services;
 
-    return paymentService.syncP2PPaymentDeposits(accountService.accountAddress, tokens);
+    return p2pPaymentsService.syncP2PPaymentDeposits(accountService.accountAddress, tokens);
   }
 
   async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
-    const { paymentService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-    return paymentService.getP2PPaymentChannel(hash);
+    return p2pPaymentsService.getP2PPaymentChannel(hash);
   }
 
   async getP2PPaymentChannels(senderOrRecipient: string = null, page = 1): Promise<P2PPaymentChannels> {
@@ -344,13 +378,13 @@ export class Sdk {
       wallet: !senderOrRecipient,
     });
 
-    const { accountService, paymentService } = this.services;
+    const { accountService, p2pPaymentsService } = this.services;
 
     if (!senderOrRecipient) {
       senderOrRecipient = accountService.accountAddress;
     }
 
-    return paymentService.getP2PPaymentChannels(senderOrRecipient, page);
+    return p2pPaymentsService.getP2PPaymentChannels(senderOrRecipient, page);
   }
 
   async increaseP2PPaymentChannelAmount(
@@ -362,9 +396,9 @@ export class Sdk {
       session: true,
     });
 
-    const { paymentService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-    return paymentService.increaseP2PPaymentChannelAmount(recipient, token, BigNumber.from(value));
+    return p2pPaymentsService.increaseP2PPaymentChannelAmount(recipient, token, BigNumber.from(value));
   }
 
   async updateP2PPaymentChannel(
@@ -376,17 +410,17 @@ export class Sdk {
       session: true,
     });
 
-    const { paymentService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-    return paymentService.updateP2PPaymentChannel(recipient, token, BigNumber.from(totalAmount));
+    return p2pPaymentsService.updateP2PPaymentChannel(recipient, token, BigNumber.from(totalAmount));
   }
 
-  // p2p payments (batch)
+  // p2p payments (encode)
 
-  async batchCommitP2PPaymentChannel(
+  async encodeCommitP2PPaymentChannel(
     hash: string,
     mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
-  ): Promise<Batch> {
+  ): Promise<TransactionRequest> {
     await this.require({
       contractAccount: true,
     });
@@ -406,30 +440,52 @@ export class Sdk {
     } = paymentChannel;
 
     const { paymentRegistryContract } = this.contracts;
-    const { batchService } = this.services;
 
-    const transactionRequest =
-      mode === BatchCommitPaymentChannelModes.Withdraw
-        ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
-            sender,
-            token,
-            uid,
-            blockNumber,
-            totalAmount,
-            senderSignature,
-            guardianSignature,
-          )
-        : paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
-            sender,
-            token,
-            uid,
-            blockNumber,
-            totalAmount,
-            senderSignature,
-            guardianSignature,
-          );
+    return mode === BatchCommitPaymentChannelModes.Withdraw
+      ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        )
+      : paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        );
+  }
 
-    return batchService.pushTransactionRequest(transactionRequest);
+  // p2p payments (batch)
+
+  async batchCommitP2PPaymentChannel(
+    hash: string,
+    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+  ): Promise<Batch> {
+    return this.batchTransactionRequest(this.encodeCommitP2PPaymentChannel(hash, mode));
+  }
+
+  // hub payments
+
+  async createPaymentHubPayment(
+    hub: string,
+    recipient: string,
+    value: BigNumber,
+    token: string = null,
+  ): Promise<PaymentHubPayment> {
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.createPaymentHubPayment(hub, recipient, value, token);
   }
 
   // relayer
@@ -437,6 +493,12 @@ export class Sdk {
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
     return this.services.relayerService.getRelayedTransaction(key);
   }
+
+  async getRelayedTransactions(key: string): Promise<RelayedTransaction> {
+    return this.services.relayerService.getRelayedTransaction(key);
+  }
+
+  // private
 
   private async require(
     options: {

@@ -3,25 +3,25 @@ import { BigNumber } from 'ethers';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, UniqueSubject, prepareAddress } from '../common';
-import { P2PPaymentChannel, P2PPaymentChannels, P2PPaymentDeposit, P2PPaymentDeposits } from './classes';
+import { P2PPaymentChannel, P2PPaymentChannelPayments, P2PPaymentChannels, P2PPaymentDeposits } from './classes';
 import { createPaymentChannelUid, computePaymentChannelHash } from './utils';
 
-export class PaymentService extends Service {
+export class P2pPaymentService extends Service {
   readonly p2pPaymentDepositAddress$ = new UniqueSubject<string>();
 
   get p2pPaymentDepositAddress(): string {
     return this.p2pPaymentDepositAddress$.value;
   }
 
-  async syncP2PPaymentDeposits(owner: string, tokens: string[]): Promise<P2PPaymentDeposit[]> {
+  async syncP2PPaymentDeposits(owner: string, tokens: string[]): Promise<P2PPaymentDeposits> {
     const { apiService } = this.services;
 
-    const { paymentDeposits } = await apiService.mutate<{
-      paymentDeposits: P2PPaymentDeposits;
+    const { result } = await apiService.mutate<{
+      result: P2PPaymentDeposits;
     }>(
       gql`
         mutation($chainId: Int, $owner: String!, $tokens: [String!]) {
-          paymentDeposits: syncPaymentDeposits(chainId: $chainId, owner: $owner, tokens: $tokens) {
+          result: syncPaymentDeposits(chainId: $chainId, owner: $owner, tokens: $tokens) {
             items {
               address
               availableAmount
@@ -38,7 +38,7 @@ export class PaymentService extends Service {
       `,
       {
         models: {
-          paymentDeposits: P2PPaymentDeposits,
+          result: P2PPaymentDeposits,
         },
         variables: {
           owner,
@@ -47,7 +47,7 @@ export class PaymentService extends Service {
       },
     );
 
-    return paymentDeposits ? paymentDeposits.items : [];
+    return result;
   }
 
   async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
@@ -94,7 +94,7 @@ export class PaymentService extends Service {
     return result;
   }
 
-  async getP2PPaymentChannels(senderOrRecipient: string = null, page: number = null): Promise<P2PPaymentChannels> {
+  async getP2PPaymentChannels(senderOrRecipient: string, page: number = null): Promise<P2PPaymentChannels> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -135,6 +135,44 @@ export class PaymentService extends Service {
         },
         variables: {
           senderOrRecipient,
+          page: page || 1,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getP2PPaymentChannelPayments(channel: string, page: number = null): Promise<P2PPaymentChannelPayments> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: P2PPaymentChannelPayments;
+    }>(
+      gql`
+        query($chainId: Int, $channel: String!, $page: Int) {
+          result: p2pPaymentChannelPayments(chainId: $chainId, channel: $channel, page: $page) {
+            items {
+              blockNumber
+              createdAt
+              guardianSignature
+              senderSignature
+              state
+              totalAmount
+              updatedAt
+              value
+            }
+            currentPage
+            nextPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: P2PPaymentChannelPayments,
+        },
+        variables: {
+          channel,
           page: page || 1,
         },
       },

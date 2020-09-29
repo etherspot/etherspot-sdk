@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { Service } from '../common';
-import { EstimatedRelayedTransaction, RelayedAccount, RelayedTransaction } from './classes';
+import { EstimatedRelayedTransaction, RelayedAccount, RelayedTransaction, RelayedTransactions } from './classes';
 
 export class RelayerService extends Service {
   async estimatedRelayedTransaction(
@@ -166,6 +166,48 @@ export class RelayerService extends Service {
         },
         variables: {
           key,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getRelayedTransactions(account: string, page: number = null): Promise<RelayedTransactions> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: RelayedTransactions;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $page: Int) {
+          result: relayedTransactions(chainId: $chainId, account: $account, page: $page) {
+            items {
+              account
+              createdAt
+              encodedData
+              gasLimit
+              gasPrice
+              hash
+              key
+              refundAmount
+              refundToken
+              sender
+              state
+              updatedAt
+            }
+            currentPage
+            nextPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: RelayedTransactions,
+        },
+        variables: {
+          account,
+          page: page || 1,
         },
       },
     );

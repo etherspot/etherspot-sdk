@@ -43,11 +43,11 @@ export class State {
   }
 
   get p2pPaymentDepositAddress$(): BehaviorSubject<string> {
-    return this.services.paymentService.p2pPaymentDepositAddress$;
+    return this.services.p2pPaymentsService.p2pPaymentDepositAddress$;
   }
 
   get p2pPaymentDepositAddress(): string {
-    return this.services.paymentService.p2pPaymentDepositAddress;
+    return this.services.p2pPaymentsService.p2pPaymentDepositAddress;
   }
 
   get session$(): BehaviorSubject<Session> {
