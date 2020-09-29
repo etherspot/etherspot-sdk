@@ -1,7 +1,7 @@
-import { Synchronized } from '../../common';
+import { WithTypename } from '../../common';
 import { NotificationTypes } from '../constants';
 
-export class Notification extends Synchronized {
+export class Notification extends WithTypename {
   type: NotificationTypes;
 
   recipient: string;
