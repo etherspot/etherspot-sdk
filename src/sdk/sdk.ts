@@ -163,16 +163,14 @@ export class Sdk {
     this.services.batchService.clearBatch();
   }
 
-  async batchTransactionRequest(transactionRequest: TransactionRequest | Promise<TransactionRequest>): Promise<Batch> {
+  async batchTransactionRequest(transactionRequest: TransactionRequest): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
 
     const { batchService } = this.services;
 
-    return batchService.pushTransactionRequest(
-      transactionRequest instanceof Promise ? await transactionRequest : transactionRequest,
-    );
+    return batchService.pushTransactionRequest(transactionRequest);
   }
 
   async estimateBatch(refundToken: string = null): Promise<Batch> {
@@ -310,15 +308,15 @@ export class Sdk {
   // account (batch)
 
   async batchAddAccountOwner(owner: string): Promise<Batch> {
-    return this.batchTransactionRequest(this.encodeAddAccountOwner(owner));
+    return this.batchTransactionRequest(await this.encodeAddAccountOwner(owner));
   }
 
   async batchRemoveAccountOwner(owner: string): Promise<Batch> {
-    return this.batchTransactionRequest(this.encodeRemoveAccountOwner(owner));
+    return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(owner));
   }
 
   async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
-    return this.batchTransactionRequest(this.encodeExecuteAccountTransaction(to, value, data));
+    return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(to, value, data));
   }
 
   // ens
@@ -364,7 +362,7 @@ export class Sdk {
   // ens (batch)
 
   async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
-    return this.batchTransactionRequest(this.encodeClaimENSNode(nameOrHashOrAddress));
+    return this.batchTransactionRequest(await this.encodeClaimENSNode(nameOrHashOrAddress));
   }
 
   // p2p payments
@@ -484,7 +482,7 @@ export class Sdk {
     hash: string,
     mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
   ): Promise<Batch> {
-    return this.batchTransactionRequest(this.encodeCommitP2PPaymentChannel(hash, mode));
+    return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
   }
 
   // hub payments
