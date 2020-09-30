@@ -347,7 +347,6 @@ export class PaymentHubService extends Service {
 
     const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
 
-    const hash = computePaymentChannelHash(sender, hub, token, PAYMENT_HUB_P2P_CHANNEL_UID);
     const paymentHubDeposit = await this.getPaymentHubDeposit(hub, sender, token);
 
     const currentAmount = paymentHubDeposit ? paymentHubDeposit.totalAmount : BigNumber.from(0);
@@ -359,7 +358,9 @@ export class PaymentHubService extends Service {
       const diff = totalAmount.sub(currentAmount);
       const { p2pPaymentsService } = this.services;
 
+      const hash = computePaymentChannelHash(sender, hub, token, PAYMENT_HUB_P2P_CHANNEL_UID);
       const paymentChannel = await p2pPaymentsService.getP2PPaymentChannel(hash);
+      const amount = paymentChannel ? paymentChannel.totalAmount.add(diff) : diff;
 
       const typedMessage = paymentRegistryContract.buildTypedData(
         'PaymentChannelCommit',
@@ -373,11 +374,11 @@ export class PaymentHubService extends Service {
         ],
         {
           sender, //
-          hub,
+          recipient: hub,
           token: prepareAddress(token, true),
           uid: PAYMENT_HUB_P2P_CHANNEL_UID,
           blockNumber,
-          amount: paymentChannel.totalAmount.add(diff),
+          amount: amount.toHexString(),
         },
       );
 
@@ -391,11 +392,11 @@ export class PaymentHubService extends Service {
         mutation(
           $chainId: Int
           $blockNumber: Int!
-          $sender: String!
-          $senderSignature: String!
           $hub: String!
           $token: String
           $totalAmount: BigNumber!
+          $sender: String!
+          $senderSignature: String
         ) {
           result: updatePaymentHubDeposit(
             blockNumber: $blockNumber

@@ -386,13 +386,8 @@ export class P2pPaymentService extends Service {
           result: P2PPaymentChannel,
         },
         variables: {
-          blockNumber,
-          recipient,
-          sender,
+          hash,
           senderSignature,
-          token,
-          totalAmount,
-          uid,
         },
       },
     );

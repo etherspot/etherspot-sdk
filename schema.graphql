@@ -106,7 +106,7 @@ type Mutation {
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
-  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!): PaymentHubDeposit!
+  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber!): PaymentHubDeposit!
 }
 
 type Network {

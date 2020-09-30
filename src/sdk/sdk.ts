@@ -219,7 +219,7 @@ export class Sdk {
     return this.state.account;
   }
 
-  async joinContractAccount(address: string, sync = true): Promise<Account> {
+  async joinContractAccountAt(address: string, sync = true): Promise<Account> {
     await this.require({
       session: sync,
     });
@@ -243,16 +243,28 @@ export class Sdk {
     return this.services.accountService.getConnectedAccounts(page);
   }
 
-  async getAccount(address: string): Promise<Account> {
-    return this.services.accountService.getAccount(address);
+  async getAccount(account: string = null): Promise<Account> {
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.accountService.getAccount(this.prepareAccountAddress(account));
   }
 
-  async getAccountBalances(address: string, tokens: string[] = []): Promise<AccountBalances> {
-    return this.services.accountService.getAccountBalances(address, tokens);
+  async getAccountBalances(account: string = null, tokens: string[] = []): Promise<AccountBalances> {
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.accountService.getAccountBalances(this.prepareAccountAddress(account), tokens);
   }
 
-  async getAccountMembers(address: string, page = 1): Promise<AccountMembers> {
-    return this.services.accountService.getAccountMembers(address, page);
+  async getAccountMembers(account: string = null, page = 1): Promise<AccountMembers> {
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.accountService.getAccountMembers(this.prepareAccountAddress(account), page);
   }
 
   // account (encode)
@@ -314,7 +326,6 @@ export class Sdk {
   async reserveENSName(name: string): Promise<ENSNode> {
     await this.require({
       session: true,
-      contractAccount: true,
     });
 
     return this.services.ensService.createENSSubNode(name);
@@ -325,13 +336,9 @@ export class Sdk {
       wallet: !nameOrHashOrAddress,
     });
 
-    const { accountService, ensService } = this.services;
+    const { ensService } = this.services;
 
-    if (!nameOrHashOrAddress) {
-      nameOrHashOrAddress = accountService.accountAddress;
-    }
-
-    return ensService.getENSNode(nameOrHashOrAddress);
+    return ensService.getENSNode(this.prepareAccountAddress(nameOrHashOrAddress));
   }
 
   // ens (encode)
@@ -339,7 +346,7 @@ export class Sdk {
   async encodeClaimENSNode(nameOrHashOrAddress: string = null): Promise<TransactionRequest> {
     await this.require();
 
-    const ensNode = await this.getENSNode(nameOrHashOrAddress);
+    const ensNode = await this.getENSNode(this.prepareAccountAddress(nameOrHashOrAddress));
 
     if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
       throw new Error('Can not clime ens node');
@@ -383,13 +390,9 @@ export class Sdk {
       wallet: !senderOrRecipient,
     });
 
-    const { accountService, p2pPaymentsService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-    if (!senderOrRecipient) {
-      senderOrRecipient = accountService.accountAddress;
-    }
-
-    return p2pPaymentsService.getP2PPaymentChannels(senderOrRecipient, page);
+    return p2pPaymentsService.getP2PPaymentChannels(this.prepareAccountAddress(senderOrRecipient), page);
   }
 
   async increaseP2PPaymentChannelAmount(
@@ -486,13 +489,25 @@ export class Sdk {
 
   // hub payments
 
-  async getPaymentHub(hub: string, token: string = null): Promise<PaymentHub> {
+  async getPaymentHub(hub: string = null, token: string = null): Promise<PaymentHub> {
+    await this.require({
+      wallet: !hub,
+    });
+
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHub(hub, token);
+    return paymentHubService.getPaymentHub(this.prepareAccountAddress(hub), token);
   }
 
-  async getPaymentHubs(hub: string = null, token?: string, page: number = null): Promise<PaymentHubs> {
+  async getPaymentHubs(hub?: string, token?: string, page: number = null): Promise<PaymentHubs> {
+    if (typeof hub === 'undefined') {
+      await this.require({
+        wallet: true,
+      });
+
+      hub = this.prepareAccountAddress(hub);
+    }
+
     const { paymentHubService } = this.services;
 
     return paymentHubService.getPaymentHubs(hub, token, page);
@@ -503,12 +518,9 @@ export class Sdk {
       wallet: !owner,
     });
 
-    const {
-      paymentHubService,
-      accountService: { accountAddress },
-    } = this.services;
+    const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubDeposit(hub, owner || accountAddress, token);
+    return paymentHubService.getPaymentHubDeposit(hub, this.prepareAccountAddress(owner), token);
   }
 
   async getPaymentHubDeposits(
@@ -521,12 +533,9 @@ export class Sdk {
       wallet: !owner,
     });
 
-    const {
-      paymentHubService,
-      accountService: { accountAddress },
-    } = this.services;
+    const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubDeposits(hub, owner || accountAddress, tokens, page);
+    return paymentHubService.getPaymentHubDeposits(hub, this.prepareAccountAddress(owner), tokens, page);
   }
 
   async getPaymentHubPayment(hash: string): Promise<PaymentHubPayment> {
@@ -545,18 +554,15 @@ export class Sdk {
       wallet: !senderOrRecipient,
     });
 
-    const {
-      paymentHubService,
-      accountService: { accountAddress },
-    } = this.services;
+    const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubPayments(hub, senderOrRecipient || accountAddress, token, page);
+    return paymentHubService.getPaymentHubPayments(hub, this.prepareAccountAddress(senderOrRecipient), token, page);
   }
 
   async createPaymentHubPayment(
     hub: string,
     recipient: string,
-    value: BigNumber,
+    value: BigNumberish,
     token: string = null,
   ): Promise<PaymentHubPayment> {
     await this.require({
@@ -565,27 +571,31 @@ export class Sdk {
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.createPaymentHubPayment(hub, recipient, value, token);
+    return paymentHubService.createPaymentHubPayment(hub, recipient, BigNumber.from(value), token);
   }
 
-  async updatePaymentHub(liquidity: BigNumber, token: string = null): Promise<PaymentHub> {
+  async updatePaymentHub(liquidity: BigNumberish, token: string = null): Promise<PaymentHub> {
     await this.require({
       session: true,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.updatePaymentHub(liquidity, token);
+    return paymentHubService.updatePaymentHub(BigNumber.from(liquidity), token);
   }
 
-  async updatePaymentHubDeposit(hub: string, totalAmount: BigNumber, token: string = null): Promise<PaymentHubDeposit> {
+  async updatePaymentHubDeposit(
+    hub: string,
+    totalAmount: BigNumberish,
+    token: string = null,
+  ): Promise<PaymentHubDeposit> {
     await this.require({
       session: true,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.updatePaymentHubDeposit(hub, totalAmount, token);
+    return paymentHubService.updatePaymentHubDeposit(hub, BigNumber.from(totalAmount), token);
   }
 
   // relayer
@@ -594,8 +604,12 @@ export class Sdk {
     return this.services.relayerService.getRelayedTransaction(key);
   }
 
-  async getRelayedTransactions(key: string): Promise<RelayedTransactions> {
-    return this.services.relayerService.getRelayedTransactions(key);
+  async getRelayedTransactions(account: string = null, page: number = null): Promise<RelayedTransactions> {
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.relayerService.getRelayedTransactions(this.prepareAccountAddress(account), page);
   }
 
   // private
@@ -625,5 +639,12 @@ export class Sdk {
     if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {
       throw new Error('Require contract account');
     }
+  }
+
+  private prepareAccountAddress(account: string = null): string {
+    const {
+      accountService: { accountAddress },
+    } = this.services;
+    return account || accountAddress;
   }
 }

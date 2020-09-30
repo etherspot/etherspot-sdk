@@ -11,7 +11,7 @@ import {
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { BigNumber } from 'ethers';
-import { Service } from '../common';
+import { isBigNumber, Service } from '../common';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri, catchApiError, mapApiResult } from './utils';
 
@@ -158,7 +158,7 @@ export class ApiService extends Service {
 
     for (const key of keys) {
       let value: any;
-      if (BigNumber.isBigNumber(variables[key])) {
+      if (isBigNumber(variables[key])) {
         value = BigNumber.from(variables[key]).toHexString();
       } else {
         value = variables[key];
