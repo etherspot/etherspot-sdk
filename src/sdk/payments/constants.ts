@@ -1,3 +1,7 @@
+import { utils } from 'ethers';
+
+export const PAYMENT_HUB_P2P_CHANNEL_UID = utils.id('PAYMENT_HUB_P2P_CHANNEL_ID');
+
 export const DEFAULT_PAYMENT_CHANNEL_UID_SALT = 'default';
 
 export enum P2PPaymentChannelStates {

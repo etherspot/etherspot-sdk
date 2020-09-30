@@ -2,9 +2,10 @@ import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Service, UniqueSubject, prepareAddress } from '../common';
+import { prepareAddress, Service, UniqueSubject } from '../common';
 import { P2PPaymentChannel, P2PPaymentChannelPayments, P2PPaymentChannels, P2PPaymentDeposits } from './classes';
-import { createPaymentChannelUid, computePaymentChannelHash } from './utils';
+import { P2PPaymentChannelStates } from './constants';
+import { computePaymentChannelHash, createPaymentChannelUid } from './utils';
 
 export class P2pPaymentService extends Service {
   readonly p2pPaymentDepositAddress$ = new UniqueSubject<string>();
@@ -265,6 +266,99 @@ export class P2pPaymentService extends Service {
             totalAmount: $totalAmount
             uid: $uid
           ) {
+            committedAmount
+            createdAt
+            hash
+            recipient
+            sender
+            state
+            token
+            totalAmount
+            uid
+            updatedAt
+            latestPayment {
+              blockNumber
+              guardianSignature
+              senderSignature
+              state
+              totalAmount
+              updatedAt
+              value
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: P2PPaymentChannel,
+        },
+        variables: {
+          blockNumber,
+          recipient,
+          sender,
+          senderSignature,
+          token,
+          totalAmount,
+          uid,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async signP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+    const { apiService, accountService, walletService } = this.services;
+    const paymentChannel = await this.getP2PPaymentChannel(hash);
+
+    if (
+      !paymentChannel ||
+      !paymentChannel.latestPayment ||
+      paymentChannel.sender !== accountService.accountAddress ||
+      paymentChannel.latestPayment.senderSignature
+    ) {
+      throw new Error('Can not sign payment channel');
+    }
+
+    const {
+      sender,
+      recipient,
+      token,
+      totalAmount,
+      uid,
+      latestPayment: { blockNumber },
+    } = paymentChannel;
+
+    const { paymentRegistryContract } = this.contracts;
+
+    const typedMessage = paymentRegistryContract.buildTypedData(
+      'PaymentChannelCommit',
+      [
+        { name: 'sender', type: 'address' }, //
+        { name: 'recipient', type: 'address' },
+        { name: 'token', type: 'address' },
+        { name: 'uid', type: 'bytes32' },
+        { name: 'blockNumber', type: 'uint256' },
+        { name: 'amount', type: 'uint256' },
+      ],
+      {
+        sender, //
+        recipient,
+        token: prepareAddress(token, true),
+        uid,
+        blockNumber,
+        amount: totalAmount.toHexString(),
+      },
+    );
+
+    const senderSignature = await walletService.signTypedData(typedMessage);
+
+    const { result } = await apiService.mutate<{
+      result: P2PPaymentChannel;
+    }>(
+      gql`
+        mutation($chainId: Int, $hash: String!, $senderSignature: String!) {
+          result: signP2PPaymentChannel(chainId: $chainId, hash: $hash, senderSignature: $senderSignature) {
             committedAmount
             createdAt
             hash

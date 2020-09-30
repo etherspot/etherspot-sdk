@@ -106,7 +106,7 @@ type Mutation {
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
-  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!): PaymentHub!
+  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!): PaymentHubDeposit!
 }
 
 type Network {
@@ -230,9 +230,10 @@ type Query {
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
+  paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
   paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
   paymentHubPayment(hash: String!): PaymentHubPayment
-  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, senderOrRecipient: String!): PaymentHubPayments!
+  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   relayedAccount(address: String!, chainId: Int): RelayedAccount
   relayedTransaction(chainId: Int, key: String!): RelayedTransaction

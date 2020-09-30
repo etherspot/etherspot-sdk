@@ -21,7 +21,7 @@ export abstract class Contract<F = string> extends Service {
     salt: string;
   } = null;
 
-  protected constructor(readonly name: ContractNames) {
+  protected constructor(readonly name: ContractNames = null) {
     super();
   }
 

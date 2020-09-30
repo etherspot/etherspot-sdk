@@ -44,11 +44,16 @@ export class Context {
       walletService: WalletService;
     },
   ) {
-    this.attached = [...Object.values(contracts), ...Object.values(services)];
+    const items = [...Object.values(contracts), ...Object.values(services)];
 
-    for (const attached of this.attached) {
-      attached.init(this);
+    for (const item of items) {
+      this.attach(item);
     }
+  }
+
+  attach<T extends Service>(service: T): void {
+    this.attached.push(service);
+    service.init(this);
   }
 
   destroy(): void {

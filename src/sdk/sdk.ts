@@ -26,8 +26,13 @@ import {
   P2PPaymentDeposits,
   PaymentHubPayment,
   PaymentHubService,
+  PaymentHub,
+  PaymentHubs,
+  PaymentHubDeposit,
+  PaymentHubDeposits,
+  PaymentHubPayments,
 } from './payments';
-import { RelayerService, RelayedTransaction } from './relayer';
+import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State } from './state';
 import { WalletService } from './wallet';
 import { BatchCommitPaymentChannelModes } from './constants';
@@ -415,15 +420,23 @@ export class Sdk {
     return p2pPaymentsService.updateP2PPaymentChannel(recipient, token, BigNumber.from(totalAmount));
   }
 
+  async signP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+    await this.require({
+      session: true,
+    });
+
+    const { p2pPaymentsService } = this.services;
+
+    return p2pPaymentsService.signP2PPaymentChannel(hash);
+  }
+
   // p2p payments (encode)
 
   async encodeCommitP2PPaymentChannel(
     hash: string,
     mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
   ): Promise<TransactionRequest> {
-    await this.require({
-      contractAccount: true,
-    });
+    await this.require();
 
     const paymentChannel = await this.getP2PPaymentChannel(hash);
 
@@ -473,6 +486,73 @@ export class Sdk {
 
   // hub payments
 
+  async getPaymentHub(hub: string, token: string = null): Promise<PaymentHub> {
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.getPaymentHub(hub, token);
+  }
+
+  async getPaymentHubs(hub: string = null, token?: string, page: number = null): Promise<PaymentHubs> {
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.getPaymentHubs(hub, token, page);
+  }
+
+  async getPaymentHubDeposit(hub: string, owner: string = null, token: string = null): Promise<PaymentHubDeposit> {
+    await this.require({
+      wallet: !owner,
+    });
+
+    const {
+      paymentHubService,
+      accountService: { accountAddress },
+    } = this.services;
+
+    return paymentHubService.getPaymentHubDeposit(hub, owner || accountAddress, token);
+  }
+
+  async getPaymentHubDeposits(
+    hub: string,
+    owner: string = null,
+    tokens: string[] = [],
+    page: number = null,
+  ): Promise<PaymentHubDeposits> {
+    await this.require({
+      wallet: !owner,
+    });
+
+    const {
+      paymentHubService,
+      accountService: { accountAddress },
+    } = this.services;
+
+    return paymentHubService.getPaymentHubDeposits(hub, owner || accountAddress, tokens, page);
+  }
+
+  async getPaymentHubPayment(hash: string): Promise<PaymentHubPayment> {
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.getPaymentHubPayment(hash);
+  }
+
+  async getPaymentHubPayments(
+    hub: string,
+    senderOrRecipient: string = null,
+    token: string = null,
+    page: number = null,
+  ): Promise<PaymentHubPayments> {
+    await this.require({
+      wallet: !senderOrRecipient,
+    });
+
+    const {
+      paymentHubService,
+      accountService: { accountAddress },
+    } = this.services;
+
+    return paymentHubService.getPaymentHubPayments(hub, senderOrRecipient || accountAddress, token, page);
+  }
+
   async createPaymentHubPayment(
     hub: string,
     recipient: string,
@@ -494,8 +574,8 @@ export class Sdk {
     return this.services.relayerService.getRelayedTransaction(key);
   }
 
-  async getRelayedTransactions(key: string): Promise<RelayedTransaction> {
-    return this.services.relayerService.getRelayedTransaction(key);
+  async getRelayedTransactions(key: string): Promise<RelayedTransactions> {
+    return this.services.relayerService.getRelayedTransactions(key);
   }
 
   // private
