@@ -568,6 +568,26 @@ export class Sdk {
     return paymentHubService.createPaymentHubPayment(hub, recipient, value, token);
   }
 
+  async updatePaymentHub(liquidity: BigNumber, token: string = null): Promise<PaymentHub> {
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.updatePaymentHub(liquidity, token);
+  }
+
+  async updatePaymentHubDeposit(hub: string, totalAmount: BigNumber, token: string = null): Promise<PaymentHubDeposit> {
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.updatePaymentHubDeposit(hub, totalAmount, token);
+  }
+
   // relayer
 
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {

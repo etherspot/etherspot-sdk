@@ -305,8 +305,11 @@ export class PaymentHubService extends Service {
     return result;
   }
 
-  async updatePaymentHub(hub: string, liquidity: BigNumber, token: string = null): Promise<PaymentHub> {
-    const { apiService } = this.services;
+  async updatePaymentHub(liquidity: BigNumber, token: string = null): Promise<PaymentHub> {
+    const { apiService, accountService } = this.services;
+
+    const { accountAddress } = accountService;
+
     const { result } = await apiService.mutate<{
       result: PaymentHub;
     }>(
@@ -326,7 +329,7 @@ export class PaymentHubService extends Service {
           result: PaymentHub,
         },
         variables: {
-          hub,
+          hub: accountAddress,
           token,
           liquidity,
         },
