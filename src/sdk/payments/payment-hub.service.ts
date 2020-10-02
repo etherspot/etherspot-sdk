@@ -340,6 +340,10 @@ export class PaymentHubService extends Service {
   }
 
   async updatePaymentHubDeposit(hub: string, totalAmount: BigNumber, token: string = null): Promise<PaymentHubDeposit> {
+    if (!totalAmount) {
+      totalAmount = BigNumber.from(0);
+    }
+
     const { paymentRegistryContract } = this.contracts;
     const { apiService, accountService, blockService, walletService } = this.services;
 
@@ -394,7 +398,7 @@ export class PaymentHubService extends Service {
           $blockNumber: Int!
           $hub: String!
           $token: String
-          $totalAmount: BigNumber!
+          $totalAmount: BigNumber
           $sender: String!
           $senderSignature: String
         ) {

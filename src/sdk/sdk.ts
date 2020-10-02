@@ -584,7 +584,7 @@ export class Sdk {
 
   async updatePaymentHubDeposit(
     hub: string,
-    totalAmount: BigNumberish,
+    totalAmount: BigNumberish = null,
     token: string = null,
   ): Promise<PaymentHubDeposit> {
     await this.require({
@@ -593,7 +593,7 @@ export class Sdk {
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.updatePaymentHubDeposit(hub, BigNumber.from(totalAmount), token);
+    return paymentHubService.updatePaymentHubDeposit(hub, totalAmount ? BigNumber.from(totalAmount) : null, token);
   }
 
   // relayer
