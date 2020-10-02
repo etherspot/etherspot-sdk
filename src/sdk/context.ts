@@ -6,7 +6,7 @@ import { BlockService } from './block';
 import { ENSService } from './ens';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
-import { PaymentService } from './payment';
+import { P2pPaymentService, PaymentHubService } from './payments';
 import { RelayerService } from './relayer';
 import { Service } from './common';
 import { WalletService } from './wallet';
@@ -38,16 +38,22 @@ export class Context {
       ensService: ENSService;
       networkService: NetworkService;
       notificationService: NotificationService;
-      paymentService: PaymentService;
+      p2pPaymentsService: P2pPaymentService;
+      paymentHubService: PaymentHubService;
       relayerService: RelayerService;
       walletService: WalletService;
     },
   ) {
-    this.attached = [...Object.values(contracts), ...Object.values(services)];
+    const items = [...Object.values(contracts), ...Object.values(services)];
 
-    for (const attached of this.attached) {
-      attached.init(this);
+    for (const item of items) {
+      this.attach(item);
     }
+  }
+
+  attach<T extends Service>(service: T): void {
+    this.attached.push(service);
+    service.init(this);
   }
 
   destroy(): void {

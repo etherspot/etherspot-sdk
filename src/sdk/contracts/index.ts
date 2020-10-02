@@ -1,3 +1,4 @@
+export * from './contract';
 export * from './constants';
 export * from './ens-controller.contract';
 export * from './erc20-token.contract';

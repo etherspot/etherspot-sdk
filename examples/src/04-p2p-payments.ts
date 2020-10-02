@@ -13,7 +13,7 @@ async function main(): Promise<void> {
   logger.log('recipient contract account', await recipientSdk.computeContractAccount(false));
 
   await topUpAccount(recipientState.accountAddress, '0.5');
-  await topUpAccount(senderState.paymentDepositAddress, '2');
+  await topUpAccount(senderState.p2pPaymentDepositAddress, '2');
 
   const partialPaymentValue = 100;
   const partialPaymentCount = 5;
@@ -22,7 +22,7 @@ async function main(): Promise<void> {
 
   for (let index = 1; index <= partialPaymentCount; index++) {
     const totalAmount = index * partialPaymentValue;
-    const paymentChannel = await senderSdk.updatePaymentChannel(recipientState.accountAddress, totalAmount);
+    const paymentChannel = await senderSdk.updateP2PPaymentChannel(recipientState.accountAddress, totalAmount);
 
     if (!hash) {
       ({ hash } = paymentChannel);
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
     logger.log(`payment channel #${index}`, paymentChannel);
   }
 
-  logger.log('batch', await recipientSdk.batchCommitPaymentChannel(hash, BatchCommitPaymentChannelModes.Deposit));
+  logger.log('batch', await recipientSdk.batchCommitP2PPaymentChannel(hash, BatchCommitPaymentChannelModes.Deposit));
   logger.log('estimated batch', await recipientSdk.estimateBatch());
 
   logger.log('relayed transaction', await recipientSdk.submitBatch());
