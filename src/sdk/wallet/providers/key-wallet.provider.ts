@@ -6,7 +6,7 @@ import { KeyWalletProviderOptions } from './interfaces';
 import { WalletProvider } from './wallet.provider';
 
 export class KeyWalletProvider extends WalletProvider {
-  readonly type: string = 'Key';
+  readonly type = 'KeyWallet';
   readonly address?: string;
   readonly networkName?: NetworkNames;
 
