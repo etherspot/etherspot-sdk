@@ -9,7 +9,6 @@ export * from './common';
 export * from './contracts';
 export * from './ens';
 export * from './env';
-export * from './interfaces';
 export * from './network';
 export * from './notification';
 export * from './payments';

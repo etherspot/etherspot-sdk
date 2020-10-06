@@ -17,7 +17,6 @@ import {
 } from './contracts';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
 import { Env, EnvLike } from './env';
-import { SdkOptions } from './interfaces';
 import { Network, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -51,7 +50,7 @@ export class Sdk {
   private readonly services: Context['services'];
 
   constructor(walletOptions: WalletOptions, env?: EnvLike);
-  constructor(options?: SdkOptions);
+  constructor(env?: EnvLike);
   constructor(...args: any[]) {
     let walletOptions: WalletOptions = null;
     let envLike: EnvLike = null;
@@ -320,14 +319,26 @@ export class Sdk {
   // account (batch)
 
   async batchAddAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.batchTransactionRequest(await this.encodeAddAccountOwner(owner));
   }
 
   async batchRemoveAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(owner));
   }
 
   async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(to, value, data));
   }
 
@@ -374,6 +385,10 @@ export class Sdk {
   // ens (batch)
 
   async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.batchTransactionRequest(await this.encodeClaimENSNode(nameOrHashOrAddress));
   }
 
@@ -390,6 +405,10 @@ export class Sdk {
   }
 
   async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+    await this.require({
+      wallet: false,
+    });
+
     const { p2pPaymentsService } = this.services;
 
     return p2pPaymentsService.getP2PPaymentChannel(hash);
@@ -494,6 +513,10 @@ export class Sdk {
     hash: string,
     mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<Batch> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
   }
 
@@ -510,11 +533,12 @@ export class Sdk {
   }
 
   async getPaymentHubs(hub?: string, token?: string, page: number = null): Promise<PaymentHubs> {
-    if (typeof hub === 'undefined') {
-      await this.require({
-        wallet: true,
-      });
+    await this.require({
+      network: true,
+      wallet: typeof hub === 'undefined',
+    });
 
+    if (typeof hub === 'undefined') {
       hub = this.prepareAccountAddress(hub);
     }
 
@@ -611,6 +635,11 @@ export class Sdk {
   // relayer
 
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
+    await this.require({
+      network: true,
+      wallet: false,
+    });
+
     return this.services.relayerService.getRelayedTransaction(key);
   }
 
@@ -626,17 +655,23 @@ export class Sdk {
 
   private async require(
     options: {
+      network?: boolean;
       wallet?: boolean;
       session?: boolean;
       contractAccount?: boolean;
     } = {},
   ): Promise<void> {
     options = {
-      wallet: true, // require wallet by default
+      network: true,
+      wallet: true,
       ...options,
     };
 
-    const { accountService, authService, walletService } = this.services;
+    const { accountService, authService, networkService, walletService } = this.services;
+
+    if (options.network && !networkService.chainId) {
+      throw new Error('Unknown network');
+    }
 
     if (options.wallet && !walletService.walletAddress) {
       throw new Error('Require wallet');

@@ -77,7 +77,11 @@ export class WalletService extends Service {
         }
       } else if (typeof networkName$ !== 'undefined') {
         subscriptions.push(
-          networkName$.pipe(tap((networkName) => networkService.switchNetwork(networkName))).subscribe(),
+          networkName$
+            .pipe(
+              tap((networkName) => networkService.switchNetwork(networkName)), //
+            )
+            .subscribe(),
         );
       } else {
         throw new Error('Invalid wallet networkName');

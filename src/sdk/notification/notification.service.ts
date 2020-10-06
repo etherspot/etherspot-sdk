@@ -25,8 +25,8 @@ export class NotificationService extends Service {
           networkService.chainId$,
         ])
           .pipe(
-            tap(([address]) => {
-              if (address) {
+            tap(([address, chainId]) => {
+              if (address && chainId) {
                 if (this.walletSubscription) {
                   this.walletSubscription.unsubscribe();
                 }
@@ -42,7 +42,7 @@ export class NotificationService extends Service {
           networkService.chainId$,
         ])
           .pipe(
-            map(([address]) => (address === walletService.walletAddress ? null : address)),
+            map(([address, chainId]) => (!chainId || address === walletService.walletAddress ? null : address)),
             tap((address) => {
               if (address) {
                 if (this.accountSubscription && this.subscribedAccountAddress !== address) {

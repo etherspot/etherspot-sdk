@@ -286,8 +286,8 @@ export class AccountService extends Service {
         networkService.chainId$,
       ])
         .pipe(
-          map(([address]) =>
-            !address
+          map(([address, chainId]) =>
+            !address || !chainId
               ? null
               : Account.fromPlain({
                   address,
