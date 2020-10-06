@@ -19,18 +19,18 @@ declare const window: Window & {
   };
 };
 
-export class MetaMaskWalletProvider extends WalletProvider {
+export class MetaMaskProvider extends WalletProvider {
   static detect(): boolean {
     return !!window?.ethereum?.isMetaMask;
   }
 
-  static async connect(): Promise<MetaMaskWalletProvider> {
+  static async connect(): Promise<MetaMaskProvider> {
     if (!this.instance) {
       if (!this.detect()) {
         throw new Error('MetaMask not found');
       }
 
-      this.instance = new MetaMaskWalletProvider();
+      this.instance = new MetaMaskProvider();
 
       await this.instance.connect();
     }
@@ -38,7 +38,7 @@ export class MetaMaskWalletProvider extends WalletProvider {
     return this.instance;
   }
 
-  private static instance: MetaMaskWalletProvider;
+  private static instance: MetaMaskProvider;
 
   readonly type = 'MetaMask';
   readonly address$? = new UniqueSubject<string>();
