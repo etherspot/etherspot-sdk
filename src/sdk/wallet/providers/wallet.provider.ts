@@ -1,8 +1,8 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { Service, UniqueSubject } from '../../common';
+import { UniqueSubject } from '../../common';
 
-export abstract class WalletProvider extends Service {
+export abstract class WalletProvider {
   readonly address$ = new UniqueSubject<string>();
 
   get address(): string {

@@ -1,26 +1,89 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
+import { isHex, keccak256, toHex } from '../../common/utils';
 import { WalletProvider } from './wallet.provider';
+import { MetaMaskWindow } from './interfaces';
 
 export class MetaMaskWalletProvider extends WalletProvider {
-  constructor() {
+  static detect(): boolean {
+    const win = (window as any) as MetaMaskWindow;
+    return typeof win !== 'undefined' && !!win?.ethereum?.isMetaMask;
+  }
+
+  static async connect(): Promise<MetaMaskWalletProvider> {
+    if (!this.instance) {
+      if (!this.detect()) {
+        throw new Error('MetaMask not found');
+      }
+
+      this.instance = new MetaMaskWalletProvider();
+
+      await this.instance.connect();
+    }
+
+    return this.instance;
+  }
+
+  private static instance: MetaMaskWalletProvider;
+
+  private connected = false;
+
+  protected constructor() {
     super();
-
-    throw new Error('MetaMask currently not supported');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async personalSignMessage(message: BytesLike): Promise<string> {
-    return null;
+    return this.sendRequest('personal_sign', [
+      this.address, //
+      toHex(message),
+    ]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async signMessage(message: string): Promise<string> {
-    return null;
+    return this.sendRequest('eth_sign', [
+      this.address, //
+      isHex(message, 32) ? message : keccak256(message),
+    ]);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async signTypedData(typedData: TypedData): Promise<string> {
-    return null;
+    return this.sendRequest('eth_signTypedData_v4', [
+      this.address, //
+      JSON.stringify(typedData),
+    ]);
+  }
+
+  protected async connect(): Promise<void> {
+    this.ethereum.autoRefreshOnNetworkChange = false;
+    this.ethereum.on<string>('accountsChanged', ([address]) => this.address$.next(address));
+
+    try {
+      const [address] = await this.sendRequest<string[]>('eth_requestAccounts');
+
+      if (address) {
+        this.address$.next(address);
+        this.connected = true;
+      }
+    } catch (err) {
+      //
+    }
+
+    if (!this.connected) {
+      throw new Error('Can not connect to MetaMask');
+    }
+  }
+
+  protected async sendRequest<T = any>(method: string, params?: any): Promise<T> {
+    const { result, error } = await this.ethereum.send(method, params);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return result;
+  }
+
+  private get ethereum(): MetaMaskWindow['ethereum'] {
+    return ((window as any) as MetaMaskWindow).ethereum;
   }
 }
