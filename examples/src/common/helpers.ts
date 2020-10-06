@@ -20,8 +20,12 @@ export async function getBalance(account: string): Promise<BigNumber> {
   return provider.getBalance(account);
 }
 
+export function randomPrivateKey(): string {
+  return utils.hexlify(utils.randomBytes(32));
+}
+
 export function randomWallet(): Wallet {
-  return new Wallet(utils.randomBytes(32), provider);
+  return new Wallet(randomPrivateKey(), provider);
 }
 
 export function randomAddress(): string {
