@@ -24,6 +24,10 @@ export class MetaMaskWalletProvider extends WalletProvider {
     return this.instance;
   }
 
+  private static get ethereum(): MetaMaskWindow['ethereum'] {
+    return ((window as any) as MetaMaskWindow).ethereum;
+  }
+
   private static instance: MetaMaskWalletProvider;
 
   private connected = false;
@@ -54,8 +58,8 @@ export class MetaMaskWalletProvider extends WalletProvider {
   }
 
   protected async connect(): Promise<void> {
-    this.ethereum.autoRefreshOnNetworkChange = false;
-    this.ethereum.on<string>('accountsChanged', ([address]) => this.address$.next(address));
+    MetaMaskWalletProvider.ethereum.autoRefreshOnNetworkChange = false;
+    MetaMaskWalletProvider.ethereum.on<string>('accountsChanged', ([address]) => this.address$.next(address));
 
     try {
       const [address] = await this.sendRequest<string[]>('eth_requestAccounts');
@@ -74,16 +78,12 @@ export class MetaMaskWalletProvider extends WalletProvider {
   }
 
   protected async sendRequest<T = any>(method: string, params?: any): Promise<T> {
-    const { result, error } = await this.ethereum.send(method, params);
+    const { result, error } = await MetaMaskWalletProvider.ethereum.send(method, params);
 
     if (error) {
       throw new Error(error.message);
     }
 
     return result;
-  }
-
-  private get ethereum(): MetaMaskWindow['ethereum'] {
-    return ((window as any) as MetaMaskWindow).ethereum;
   }
 }
