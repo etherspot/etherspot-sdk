@@ -21,7 +21,7 @@ export class NotificationService extends Service {
 
       this.addSubscriptions(
         combineLatest([
-          walletService.address$, //
+          walletService.walletAddress$, //
           networkService.chainId$,
         ])
           .pipe(
@@ -42,7 +42,7 @@ export class NotificationService extends Service {
           networkService.chainId$,
         ])
           .pipe(
-            map(([address]) => (address === walletService.address ? null : address)),
+            map(([address]) => (address === walletService.walletAddress ? null : address)),
             tap((address) => {
               if (address) {
                 if (this.accountSubscription && this.subscribedAccountAddress !== address) {
