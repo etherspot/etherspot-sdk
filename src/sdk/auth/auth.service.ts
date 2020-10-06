@@ -50,7 +50,7 @@ export class AuthService extends Service {
   async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
-    const account = walletService.address;
+    const account = walletService.walletAddress;
 
     const { code } = await apiService.mutate<{
       code: string;
@@ -106,7 +106,7 @@ export class AuthService extends Service {
 
     this.addSubscriptions(
       combineLatest([
-        walletService.address$, //
+        walletService.walletAddress$, //
         networkService.chainId$,
       ])
         .pipe(

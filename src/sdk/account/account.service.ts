@@ -32,7 +32,7 @@ export class AccountService extends Service {
     const { walletService } = this.services;
     const { personalAccountRegistryContract } = this.contracts;
 
-    const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.address);
+    const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.walletAddress);
 
     if (address) {
       this.account$.next(
@@ -282,7 +282,7 @@ export class AccountService extends Service {
 
     this.addSubscriptions(
       combineLatest([
-        walletService.address$, //
+        walletService.walletAddress$, //
         networkService.chainId$,
       ])
         .pipe(

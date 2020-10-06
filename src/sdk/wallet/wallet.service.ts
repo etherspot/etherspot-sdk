@@ -1,40 +1,81 @@
-import { utils, Wallet, BytesLike } from 'ethers';
-import { hashTypedData, TypedData } from 'ethers-typed-data';
-import { Service, UniqueSubject, isHex, keccak256 } from '../common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { BytesLike } from 'ethers';
+import { TypedData } from 'ethers-typed-data';
+import { Service, ObjectSubject } from '../common';
+import { WalletProviderTypes } from './constants';
+import { WalletOptions, Wallet } from './interfaces';
+import { WalletProvider, KeyWalletProvider, MetaMaskWalletProvider } from './providers';
 
 export class WalletService extends Service {
-  readonly address$ = new UniqueSubject<string>();
+  readonly wallet$ = new ObjectSubject<Wallet>();
+  readonly walletAddress$: Observable<string>;
 
-  private wallet: Wallet;
-  private signer: utils.SigningKey;
+  private provider: WalletProvider;
 
-  get address(): string {
-    return this.address$.value;
+  constructor(walletOptions: WalletOptions) {
+    super();
+
+    this.walletAddress$ = this.wallet$.observeKey('address');
+
+    if (walletOptions) {
+      this.switchWalletProvider(walletOptions);
+    }
   }
 
-  attachWallet(wallet: Wallet): void {
-    this.wallet = wallet;
-    this.signer = new utils.SigningKey(wallet.privateKey);
+  get wallet(): Wallet {
+    return this.wallet$.value;
+  }
 
-    const { address } = wallet;
+  get walletAddress(): string {
+    return this.wallet ? this.wallet.address : null;
+  }
 
-    this.address$.next(address);
+  switchWalletProvider(options: WalletOptions): void {
+    let provider: WalletProvider = null;
+    let providerType: WalletProviderTypes = null;
+
+    if (options && typeof options === 'object') {
+      if (options instanceof WalletProvider) {
+        providerType =
+          options instanceof MetaMaskWalletProvider ? WalletProviderTypes.MetaMask : WalletProviderTypes.Custom;
+        provider = options;
+      } else {
+        providerType = WalletProviderTypes.Key;
+        provider = new KeyWalletProvider(options);
+      }
+    }
+
+    if (!provider) {
+      this.provider = null;
+      this.wallet$.next(null);
+
+      this.removeSubscriptions();
+    } else {
+      this.provider = provider;
+
+      this.replaceSubscriptions(
+        this.provider.address$
+          .pipe(
+            map((address) => ({
+              address,
+              providerType,
+            })),
+          )
+          .subscribe(this.wallet$),
+      );
+    }
   }
 
   async personalSignMessage(message: BytesLike): Promise<string> {
-    return this.wallet.signMessage(message);
+    return this.provider ? this.provider.personalSignMessage(message) : null;
   }
 
   async signMessage(message: string): Promise<string> {
-    const hex = isHex(message, 32) ? message : keccak256(message);
-    const signature = this.signer.signDigest(utils.arrayify(hex));
-
-    return utils.joinSignature(signature);
+    return this.provider ? this.provider.signMessage(message) : null;
   }
 
   async signTypedData(typedData: TypedData): Promise<string> {
-    const hash = hashTypedData(typedData);
-
-    return this.signMessage(hash);
+    return this.provider ? this.provider.signTypedData(typedData) : null;
   }
 }

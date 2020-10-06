@@ -1,6 +1,5 @@
 export enum WalletProviderTypes {
+  Custom = 'Custom',
   Key = 'Key',
   MetaMask = 'MetaMask',
-  Torus = 'Torus',
-  WalletConnect = 'WalletConnect',
 }

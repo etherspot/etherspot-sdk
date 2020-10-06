@@ -4,18 +4,27 @@ import { Session } from './auth';
 import { Batch } from './batch';
 import { Context } from './context';
 import { Network } from './network';
+import { Wallet } from './wallet';
 
 export class State {
   constructor(private readonly services: Context['services']) {
     //
   }
 
-  get walletAddress$(): BehaviorSubject<string> {
-    return this.services.walletService.address$;
+  get wallet$(): BehaviorSubject<Wallet> {
+    return this.services.walletService.wallet$;
+  }
+
+  get wallet(): Wallet {
+    return this.services.walletService.wallet;
+  }
+
+  get walletAddress$(): Observable<string> {
+    return this.services.walletService.walletAddress$;
   }
 
   get walletAddress(): string {
-    return this.services.walletService.address;
+    return this.services.walletService.walletAddress;
   }
 
   get account$(): BehaviorSubject<Account> {

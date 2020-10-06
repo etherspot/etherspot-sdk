@@ -22,11 +22,7 @@ export abstract class Service {
     if (!this.destroyed) {
       this.destroyed = true;
 
-      for (const subscription of this.subscriptions) {
-        subscription.unsubscribe();
-      }
-
-      this.subscriptions = [];
+      this.removeSubscriptions();
 
       if (this.onDestroy) {
         this.onDestroy();
@@ -48,5 +44,17 @@ export abstract class Service {
 
   protected addSubscriptions(...subscription: Subscription[]): void {
     this.subscriptions.push(...subscription);
+  }
+
+  protected removeSubscriptions(): void {
+    for (const subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
+    this.subscriptions = [];
+  }
+
+  protected replaceSubscriptions(...subscription: Subscription[]): void {
+    this.removeSubscriptions();
+    this.addSubscriptions(...subscription);
   }
 }

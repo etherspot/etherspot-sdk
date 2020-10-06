@@ -1,4 +1,5 @@
-import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike } from 'ethers';
+import { TypedData } from 'ethers-typed-data';
 import { Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
@@ -6,7 +7,7 @@ import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { WalletLike, walletFrom, TransactionRequest } from './common';
+import { TransactionRequest } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -31,11 +32,11 @@ import {
   PaymentHubDeposit,
   PaymentHubDeposits,
   PaymentHubPayments,
+  BatchCommitP2PPaymentChannelModes,
 } from './payments';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State } from './state';
-import { WalletService } from './wallet';
-import { BatchCommitPaymentChannelModes } from './constants';
+import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
 
 /**
  * Sdk
@@ -49,18 +50,18 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(wallet: WalletLike, options?: SdkOptions);
+  constructor(walletOptions: WalletOptions, options?: SdkOptions);
   constructor(options?: SdkOptions);
   constructor(...args: any[]) {
-    let wallet: Wallet = null;
+    let walletOptions: WalletOptions = null;
     let options: SdkOptions = {};
 
     if (args.length > 0) {
       let optionsIndex = 0;
 
-      wallet = walletFrom(args[0]);
+      walletOptions = parseWalletOptions(args[0]);
 
-      if (wallet) {
+      if (walletOptions) {
         ++optionsIndex;
       }
 
@@ -94,15 +95,11 @@ export class Sdk {
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
       relayerService: new RelayerService(),
-      walletService: new WalletService(),
+      walletService: new WalletService(walletOptions),
     };
 
     this.context = new Context(this.contracts, this.services);
     this.state = new State(this.services);
-
-    if (wallet) {
-      this.attachWallet(wallet);
-    }
   }
 
   // exposes
@@ -127,14 +124,32 @@ export class Sdk {
 
   // wallet
 
-  attachWallet(walletLike: WalletLike): void {
-    const wallet = walletFrom(walletLike);
+  switchWalletProvider(walletOptions: WalletOptions): void {
+    walletOptions = parseWalletOptions(walletOptions);
 
-    if (!wallet) {
-      throw new Error('Invalid Wallet object');
+    if (!walletOptions) {
+      throw new Error('Invalid wallet options');
     }
 
-    this.services.walletService.attachWallet(wallet);
+    this.services.walletService.switchWalletProvider(walletOptions);
+  }
+
+  async personalSignMessage(message: BytesLike): Promise<string> {
+    await this.require();
+
+    return this.services.walletService.personalSignMessage(message);
+  }
+
+  async signMessage(message: string): Promise<string> {
+    await this.require();
+
+    return this.services.walletService.signMessage(message);
+  }
+
+  async signTypedData(typedData: TypedData): Promise<string> {
+    await this.require();
+
+    return this.services.walletService.signTypedData(typedData);
   }
 
   // network
@@ -435,7 +450,7 @@ export class Sdk {
 
   async encodeCommitP2PPaymentChannel(
     hash: string,
-    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<TransactionRequest> {
     await this.require();
 
@@ -455,7 +470,7 @@ export class Sdk {
 
     const { paymentRegistryContract } = this.contracts;
 
-    return mode === BatchCommitPaymentChannelModes.Withdraw
+    return mode === BatchCommitP2PPaymentChannelModes.Withdraw
       ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
           sender,
           token,
@@ -480,7 +495,7 @@ export class Sdk {
 
   async batchCommitP2PPaymentChannel(
     hash: string,
-    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<Batch> {
     return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
   }
@@ -626,7 +641,7 @@ export class Sdk {
 
     const { accountService, authService, walletService } = this.services;
 
-    if (options.wallet && !walletService.address) {
+    if (options.wallet && !walletService.walletAddress) {
       throw new Error('Require wallet');
     }
 
