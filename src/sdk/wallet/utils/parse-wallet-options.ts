@@ -17,11 +17,12 @@ export function parseWalletOptions(options: WalletOptions): WalletOptions {
         if (options instanceof WalletProvider) {
           result = options;
         } else {
-          const { privateKey } = options;
+          const { privateKey, networkName } = options;
 
           if (privateKey && utils.isHexString(privateKey, 32)) {
             result = {
               privateKey,
+              networkName,
             };
           }
         }

@@ -8,12 +8,10 @@ export class NetworkService extends Service {
   readonly chainId$: Observable<number>;
   readonly supportedNetworks: Network[];
 
-  private readonly defaultNetwork: Network;
-
   constructor(options: NetworkOptions) {
     super();
 
-    const { defaultNetworkName, supportedNetworkNames } = options;
+    const { supportedNetworkNames } = options;
 
     this.supportedNetworks = supportedNetworkNames
       .map((name) => {
@@ -31,20 +29,6 @@ export class NetworkService extends Service {
       throw new Error(`Invalid network config`);
     }
 
-    let defaultNetwork: Network;
-
-    if (defaultNetworkName) {
-      defaultNetwork = this.supportedNetworks.find(({ name }) => name === defaultNetworkName);
-
-      if (!defaultNetwork) {
-        throw new Error(`Unsupported network`);
-      }
-    } else {
-      defaultNetwork = this.supportedNetworks[0];
-    }
-
-    this.defaultNetwork = defaultNetwork;
-    this.network$.next(defaultNetwork);
     this.chainId$ = this.network$.observeKey('chainId');
   }
 
@@ -53,38 +37,18 @@ export class NetworkService extends Service {
   }
 
   get chainId(): number {
-    const { chainId } = this.network;
-    return chainId;
+    return this.network ? this.network.chainId : null;
   }
 
-  switchNetwork(network: NetworkNames | Network = null): Network {
-    let result: Network = null;
+  useDefaultNetwork(): void {
+    this.network$.next(this.supportedNetworks[0]);
+  }
 
-    if (!network) {
-      result = this.defaultNetwork;
-    } else {
-      let networkName: string;
+  switchNetwork(networkName: NetworkNames): void {
+    this.network$.next(this.supportedNetworks.find(({ name }) => name === networkName) || null);
+  }
 
-      switch (typeof network) {
-        case 'string':
-          networkName = network;
-          break;
-        case 'object':
-          networkName = network.name;
-          break;
-      }
-
-      if (networkName) {
-        result = this.supportedNetworks.find(({ name }) => name === networkName);
-      }
-
-      if (!result) {
-        throw new Error(`Unsupported network`);
-      }
-    }
-
-    this.network$.next(result);
-
-    return result;
+  isNetworkNameSupported(networkName: string): boolean {
+    return !!this.supportedNetworks.find(({ name }) => name === networkName);
   }
 }

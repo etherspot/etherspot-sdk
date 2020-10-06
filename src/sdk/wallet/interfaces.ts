@@ -1,9 +1,8 @@
-import { WalletProviderTypes } from './constants';
 import { KeyWalletProviderOptions, WalletProvider } from './providers';
 
 export interface Wallet {
   address: string;
-  providerType: WalletProviderTypes;
+  providerType: string;
 }
 
 export type WalletOptions = string | KeyWalletProviderOptions | WalletProvider;

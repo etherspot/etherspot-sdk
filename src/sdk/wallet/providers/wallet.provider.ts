@@ -1,17 +1,34 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { UniqueSubject } from '../../common';
+import { NetworkNames, prepareNetworkName } from '../../network';
+import { prepareAddress, UniqueSubject } from '../../common';
 
 export abstract class WalletProvider {
-  readonly address$ = new UniqueSubject<string>();
-
-  get address(): string {
-    return this.address$.value;
-  }
+  readonly type: string = 'Custom';
+  readonly address?: string;
+  readonly address$?: UniqueSubject<string>;
+  readonly networkName?: NetworkNames;
+  readonly networkName$?: UniqueSubject<NetworkNames>;
 
   abstract personalSignMessage(message: BytesLike): Promise<string>;
 
   abstract signMessage(message: string): Promise<string>;
 
   abstract signTypedData(typedData: TypedData): Promise<string>;
+
+  protected getAddress(): string {
+    return this.address$ ? this.address$.value : this.address || null;
+  }
+
+  protected setAddress(address: string): void {
+    if (this.address$) {
+      this.address$.next(prepareAddress(address));
+    }
+  }
+
+  protected setNetworkName(networkNameOrChainId: any): void {
+    if (this.networkName$) {
+      this.networkName$.next(prepareNetworkName(networkNameOrChainId));
+    }
+  }
 }

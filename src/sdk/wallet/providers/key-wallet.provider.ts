@@ -1,24 +1,30 @@
 import { Wallet, utils, BytesLike } from 'ethers';
 import { hashTypedData, TypedData } from 'ethers-typed-data';
 import { isHex, keccak256 } from '../../common';
+import { NetworkNames } from '../../network';
 import { KeyWalletProviderOptions } from './interfaces';
 import { WalletProvider } from './wallet.provider';
 
 export class KeyWalletProvider extends WalletProvider {
+  readonly type: string = 'Key';
+  readonly address?: string;
+  readonly networkName?: NetworkNames;
+
   private readonly wallet: Wallet;
   private readonly signer: utils.SigningKey;
 
   constructor(options: KeyWalletProviderOptions) {
     super();
 
-    const { privateKey } = options;
+    const { privateKey, networkName } = options;
 
     this.wallet = new Wallet(privateKey);
     this.signer = new utils.SigningKey(privateKey);
 
     const { address } = this.wallet;
 
-    this.address$.next(address);
+    this.address = address;
+    this.networkName = networkName || null;
   }
 
   async personalSignMessage(message: BytesLike): Promise<string> {

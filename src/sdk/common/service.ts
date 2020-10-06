@@ -42,8 +42,8 @@ export abstract class Service {
     return this.context.services;
   }
 
-  protected addSubscriptions(...subscription: Subscription[]): void {
-    this.subscriptions.push(...subscription);
+  protected addSubscriptions(...subscriptions: Subscription[]): void {
+    this.subscriptions.push(...subscriptions.filter((subscription) => !!subscription));
   }
 
   protected removeSubscriptions(): void {
@@ -53,8 +53,8 @@ export abstract class Service {
     this.subscriptions = [];
   }
 
-  protected replaceSubscriptions(...subscription: Subscription[]): void {
+  protected replaceSubscriptions(...subscriptions: Subscription[]): void {
     this.removeSubscriptions();
-    this.addSubscriptions(...subscription);
+    this.addSubscriptions(...subscriptions);
   }
 }

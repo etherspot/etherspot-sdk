@@ -14,6 +14,7 @@ export * from './network';
 export * from './notification';
 export * from './payments';
 export * from './relayer';
+export * from './state';
 export * from './wallet';
 
 export { Sdk };

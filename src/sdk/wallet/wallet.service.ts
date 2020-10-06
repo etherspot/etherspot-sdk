@@ -1,11 +1,10 @@
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
 import { Service, ObjectSubject } from '../common';
-import { WalletProviderTypes } from './constants';
 import { WalletOptions, Wallet } from './interfaces';
-import { WalletProvider, KeyWalletProvider, MetaMaskWalletProvider } from './providers';
+import { WalletProvider, KeyWalletProvider } from './providers';
 
 export class WalletService extends Service {
   readonly wallet$ = new ObjectSubject<Wallet>();
@@ -13,14 +12,10 @@ export class WalletService extends Service {
 
   private provider: WalletProvider;
 
-  constructor(walletOptions: WalletOptions) {
+  constructor() {
     super();
 
     this.walletAddress$ = this.wallet$.observeKey('address');
-
-    if (walletOptions) {
-      this.switchWalletProvider(walletOptions);
-    }
   }
 
   get wallet(): Wallet {
@@ -33,38 +28,65 @@ export class WalletService extends Service {
 
   switchWalletProvider(options: WalletOptions): void {
     let provider: WalletProvider = null;
-    let providerType: WalletProviderTypes = null;
 
     if (options && typeof options === 'object') {
       if (options instanceof WalletProvider) {
-        providerType =
-          options instanceof MetaMaskWalletProvider ? WalletProviderTypes.MetaMask : WalletProviderTypes.Custom;
         provider = options;
       } else {
-        providerType = WalletProviderTypes.Key;
         provider = new KeyWalletProvider(options);
       }
     }
 
     if (!provider) {
-      this.provider = null;
       this.wallet$.next(null);
 
       this.removeSubscriptions();
     } else {
-      this.provider = provider;
+      const { type: providerType } = provider;
+      const { networkService } = this.services;
 
-      this.replaceSubscriptions(
-        this.provider.address$
-          .pipe(
-            map((address) => ({
-              address,
-              providerType,
-            })),
-          )
-          .subscribe(this.wallet$),
-      );
+      const subscriptions: Subscription[] = [];
+
+      const { address, address$, networkName, networkName$ } = provider;
+
+      if (typeof address !== 'undefined') {
+        this.wallet$.next({
+          address,
+          providerType,
+        });
+      } else if (typeof address$ !== 'undefined') {
+        subscriptions.push(
+          address$
+            .pipe(
+              map((address) => ({
+                address,
+                providerType,
+              })),
+            )
+            .subscribe(this.wallet$),
+        );
+      } else {
+        throw new Error('Invalid wallet address');
+      }
+
+      if (typeof networkName !== 'undefined') {
+        if (networkName) {
+          networkService.switchNetwork(networkName);
+        } else {
+          networkService.useDefaultNetwork();
+        }
+      } else if (typeof networkName$ !== 'undefined') {
+        subscriptions.push(
+          networkName$.pipe(tap((networkName) => networkService.switchNetwork(networkName))).subscribe(),
+        );
+      } else {
+        throw new Error('Invalid wallet networkName');
+      }
+
+      this.replaceSubscriptions(...subscriptions);
     }
+
+    this.provider = provider;
   }
 
   async personalSignMessage(message: BytesLike): Promise<string> {

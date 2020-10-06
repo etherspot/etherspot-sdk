@@ -16,9 +16,9 @@ import {
   PersonalAccountRegistryContract,
 } from './contracts';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
-import { Env } from './env';
+import { Env, EnvLike } from './env';
 import { SdkOptions } from './interfaces';
-import { Network, NetworkNames, NetworkService } from './network';
+import { Network, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
   P2pPaymentService,
@@ -50,11 +50,11 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(walletOptions: WalletOptions, options?: SdkOptions);
+  constructor(walletOptions: WalletOptions, env?: EnvLike);
   constructor(options?: SdkOptions);
   constructor(...args: any[]) {
     let walletOptions: WalletOptions = null;
-    let options: SdkOptions = {};
+    let envLike: EnvLike = null;
 
     if (args.length > 0) {
       let optionsIndex = 0;
@@ -65,12 +65,12 @@ export class Sdk {
         ++optionsIndex;
       }
 
-      if (args[optionsIndex] && typeof args[optionsIndex] === 'object') {
-        options = args[optionsIndex];
+      if (args[optionsIndex]) {
+        envLike = args[optionsIndex];
       }
     }
 
-    const env = Env.prepare(options.env);
+    const env = Env.prepare(envLike);
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -80,26 +80,29 @@ export class Sdk {
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
     };
 
+    const walletService = new WalletService();
+
     this.services = {
+      walletService,
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
-      networkService: new NetworkService({
-        ...env.networkOptions,
-        defaultNetworkName: options.network,
-      }),
+      networkService: new NetworkService(env.networkOptions),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
       relayerService: new RelayerService(),
-      walletService: new WalletService(walletOptions),
     };
 
     this.context = new Context(this.contracts, this.services);
     this.state = new State(this.services);
+
+    if (walletOptions) {
+      walletService.switchWalletProvider(walletOptions);
+    }
   }
 
   // exposes
@@ -150,12 +153,6 @@ export class Sdk {
     await this.require();
 
     return this.services.walletService.signTypedData(typedData);
-  }
-
-  // network
-
-  switchNetwork(network: NetworkNames | Network = null): Network {
-    return this.services.networkService.switchNetwork(network);
   }
 
   // session
