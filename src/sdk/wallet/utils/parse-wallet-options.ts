@@ -1,6 +1,6 @@
 import { utils } from 'ethers';
 import { WalletOptions } from '../interfaces';
-import { KeyWalletProviderOptions, WalletProvider } from '../providers';
+import { KeyWalletProviderOptions, WalletProvider, WalletProviderLike } from '../providers';
 
 export function parseWalletOptions(options: WalletOptions): WalletOptions {
   let result: WalletOptions = null;
@@ -14,7 +14,7 @@ export function parseWalletOptions(options: WalletOptions): WalletOptions {
       }
 
       if (typeof options === 'object') {
-        if (WalletProvider.isWalletProvider(options)) {
+        if (WalletProvider.isWalletProvider(options as WalletProviderLike)) {
           result = options as WalletProvider;
         } else {
           const { privateKey, networkName } = options as KeyWalletProviderOptions;

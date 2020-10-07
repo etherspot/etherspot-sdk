@@ -57,10 +57,12 @@ export class MetaMaskProvider extends WalletProvider {
     ]);
   }
 
-  async signMessage(message: string): Promise<string> {
+  async signMessage(message: BytesLike): Promise<string> {
+    const hex = toHex(message);
+
     return this.sendRequest('eth_sign', [
       this.getAddress(), //
-      isHex(message, 32) ? message : keccak256(message),
+      isHex(hex, 32) ? hex : keccak256(hex),
     ]);
   }
 

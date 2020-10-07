@@ -2,9 +2,10 @@ import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
 import { NetworkNames, prepareNetworkName } from '../../network';
 import { prepareAddress, UniqueSubject } from '../../common';
+import { WalletProviderLike } from './interfaces';
 
-export abstract class WalletProvider {
-  static isWalletProvider(provider: any): boolean {
+export abstract class WalletProvider implements WalletProviderLike {
+  static isWalletProvider(provider: WalletProviderLike): boolean {
     return (
       provider && //
       typeof provider === 'object' &&
@@ -22,7 +23,7 @@ export abstract class WalletProvider {
 
   abstract personalSignMessage(message: BytesLike): Promise<string>;
 
-  abstract signMessage(message: string): Promise<string>;
+  abstract signMessage(message: BytesLike): Promise<string>;
 
   abstract signTypedData(typedData: TypedData): Promise<string>;
 

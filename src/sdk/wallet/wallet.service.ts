@@ -4,7 +4,7 @@ import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
 import { Service, ObjectSubject } from '../common';
 import { WalletOptions, Wallet } from './interfaces';
-import { WalletProvider, KeyWalletProvider } from './providers';
+import { WalletProvider, KeyWalletProvider, KeyWalletProviderOptions, WalletProviderLike } from './providers';
 
 export class WalletService extends Service {
   readonly wallet$ = new ObjectSubject<Wallet>();
@@ -30,10 +30,10 @@ export class WalletService extends Service {
     let provider: WalletProvider = null;
 
     if (options && typeof options === 'object') {
-      if (options instanceof WalletProvider) {
-        provider = options;
+      if (WalletProvider.isWalletProvider(options as WalletProviderLike)) {
+        provider = options as WalletProvider;
       } else {
-        provider = new KeyWalletProvider(options);
+        provider = new KeyWalletProvider(options as KeyWalletProviderOptions);
       }
     }
 
@@ -97,7 +97,7 @@ export class WalletService extends Service {
     return this.provider ? this.provider.personalSignMessage(message) : null;
   }
 
-  async signMessage(message: string): Promise<string> {
+  async signMessage(message: BytesLike): Promise<string> {
     return this.provider ? this.provider.signMessage(message) : null;
   }
 

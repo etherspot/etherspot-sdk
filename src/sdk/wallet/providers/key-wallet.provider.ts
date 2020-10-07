@@ -1,6 +1,6 @@
 import { Wallet, utils, BytesLike } from 'ethers';
 import { hashTypedData, TypedData } from 'ethers-typed-data';
-import { isHex, keccak256 } from '../../common';
+import { isHex, keccak256, toHex } from '../../common';
 import { NetworkNames } from '../../network';
 import { KeyWalletProviderOptions } from './interfaces';
 import { WalletProvider } from './wallet.provider';
@@ -31,8 +31,11 @@ export class KeyWalletProvider extends WalletProvider {
     return this.wallet.signMessage(message);
   }
 
-  async signMessage(message: string): Promise<string> {
-    const hex = isHex(message, 32) ? message : keccak256(message);
+  async signMessage(message: BytesLike): Promise<string> {
+    let hex = toHex(message);
+
+    hex = isHex(hex, 32) ? hex : keccak256(hex);
+
     const signature = this.signer.signDigest(utils.arrayify(hex));
 
     return utils.joinSignature(signature);

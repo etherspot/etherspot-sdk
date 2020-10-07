@@ -142,7 +142,7 @@ export class Sdk {
     return this.services.walletService.personalSignMessage(message);
   }
 
-  async signMessage(message: string): Promise<string> {
+  async signMessage(message: BytesLike): Promise<string> {
     await this.require();
 
     return this.services.walletService.signMessage(message);

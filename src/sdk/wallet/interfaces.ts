@@ -1,8 +1,8 @@
-import { KeyWalletProviderOptions, WalletProvider } from './providers';
+import { KeyWalletProviderOptions, WalletProviderLike } from './providers';
 
 export interface Wallet {
   address: string;
   providerType: string;
 }
 
-export type WalletOptions = string | KeyWalletProviderOptions | WalletProvider;
+export type WalletOptions = string | KeyWalletProviderOptions | WalletProviderLike;
