@@ -1,6 +1,6 @@
 import { utils } from 'ethers';
 import { WalletOptions } from '../interfaces';
-import { WalletProvider } from '../providers';
+import { KeyWalletProviderOptions, WalletProvider } from '../providers';
 
 export function parseWalletOptions(options: WalletOptions): WalletOptions {
   let result: WalletOptions = null;
@@ -14,10 +14,10 @@ export function parseWalletOptions(options: WalletOptions): WalletOptions {
       }
 
       if (typeof options === 'object') {
-        if (options instanceof WalletProvider) {
-          result = options;
+        if (WalletProvider.isWalletProvider(options)) {
+          result = options as WalletProvider;
         } else {
-          const { privateKey, networkName } = options;
+          const { privateKey, networkName } = options as KeyWalletProviderOptions;
 
           if (privateKey && utils.isHexString(privateKey, 32)) {
             result = {

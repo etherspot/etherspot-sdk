@@ -4,6 +4,16 @@ import { NetworkNames, prepareNetworkName } from '../../network';
 import { prepareAddress, UniqueSubject } from '../../common';
 
 export abstract class WalletProvider {
+  static isWalletProvider(provider: any): boolean {
+    return (
+      provider && //
+      typeof provider === 'object' &&
+      typeof provider.personalSignMessage === 'function' &&
+      typeof provider.signMessage === 'function' &&
+      typeof provider.signTypedData === 'function'
+    );
+  }
+
   readonly type: string = 'Custom';
   readonly address?: string;
   readonly address$?: UniqueSubject<string>;
