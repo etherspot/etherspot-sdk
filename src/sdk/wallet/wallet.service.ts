@@ -63,7 +63,7 @@ export class WalletService extends Service {
                 providerType,
               })),
             )
-            .subscribe(this.wallet$),
+            .subscribe((wallet) => this.wallet$.next(wallet)),
         );
       } else {
         throw new Error('Invalid wallet address');
