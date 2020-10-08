@@ -1,8 +1,7 @@
 import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
-import { TypedData } from 'ethers-typed-data';
-import { Service, ObjectSubject } from '../common';
+import { Service, ObjectSubject, UnChainedTypedData } from '../common';
 import {
   WalletProvider,
   KeyWalletProvider,
@@ -55,12 +54,7 @@ export class WalletService extends Service {
 
       const { address, address$, networkName, networkName$ } = provider;
 
-      if (typeof address !== 'undefined') {
-        this.wallet$.next({
-          address,
-          providerType,
-        });
-      } else if (typeof address$ !== 'undefined') {
+      if (typeof address$ !== 'undefined') {
         subscriptions.push(
           address$
             .pipe(
@@ -71,17 +65,16 @@ export class WalletService extends Service {
             )
             .subscribe((wallet) => this.wallet$.next(wallet)),
         );
+      } else if (typeof address !== 'undefined') {
+        this.wallet$.next({
+          address,
+          providerType,
+        });
       } else {
         throw new Error('Invalid wallet address');
       }
 
-      if (typeof networkName !== 'undefined') {
-        if (networkName) {
-          networkService.switchNetwork(networkName);
-        } else {
-          networkService.useDefaultNetwork();
-        }
-      } else if (typeof networkName$ !== 'undefined') {
+      if (typeof networkName$ !== 'undefined') {
         subscriptions.push(
           networkName$
             .pipe(
@@ -89,6 +82,12 @@ export class WalletService extends Service {
             )
             .subscribe(),
         );
+      } else if (typeof networkName !== 'undefined') {
+        if (networkName) {
+          networkService.switchNetwork(networkName);
+        } else {
+          networkService.useDefaultNetwork();
+        }
       } else {
         throw new Error('Invalid wallet networkName');
       }
@@ -107,7 +106,25 @@ export class WalletService extends Service {
     return this.provider ? this.provider.signMessage(message) : null;
   }
 
-  async signTypedData(typedData: TypedData): Promise<string> {
-    return this.provider ? this.provider.signTypedData(typedData) : null;
+  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
+    let result: string = null;
+
+    if (this.provider) {
+      const { chainId } = this.services.networkService;
+
+      if (chainId) {
+        const { domain, ...typedData } = unChainedTypedData;
+
+        result = await this.provider.signTypedData({
+          domain: {
+            chainId,
+            ...domain,
+          },
+          ...typedData,
+        });
+      }
+    }
+
+    return result;
   }
 }

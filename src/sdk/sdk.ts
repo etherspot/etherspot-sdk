@@ -1,5 +1,4 @@
 import { BigNumber, BigNumberish, BytesLike } from 'ethers';
-import { TypedData } from 'ethers-typed-data';
 import { Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
@@ -7,7 +6,7 @@ import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { TransactionRequest } from './common';
+import { TransactionRequest, UnChainedTypedData } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -148,10 +147,10 @@ export class Sdk {
     return this.services.walletService.signMessage(message);
   }
 
-  async signTypedData(typedData: TypedData): Promise<string> {
+  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
     await this.require();
 
-    return this.services.walletService.signTypedData(typedData);
+    return this.services.walletService.signTypedData(unChainedTypedData);
   }
 
   // session
