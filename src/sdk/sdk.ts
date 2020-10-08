@@ -160,9 +160,7 @@ export class Sdk {
   // session
 
   async createSession(ttl: number = null): Promise<Session> {
-    await this.require({
-      network: false,
-    });
+    await this.require();
 
     return this.services.authService.createSession(ttl);
   }
