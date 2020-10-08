@@ -64,6 +64,7 @@ export class MetaMaskWalletProvider extends DynamicWalletProvider {
   }
 
   async signTypedData(typedData: TypedData): Promise<string> {
+    console.log(typedData);
     return this.sendRequest('eth_signTypedData_v4', [
       this.address, //
       JSON.stringify(typedData),

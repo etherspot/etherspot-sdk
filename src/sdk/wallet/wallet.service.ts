@@ -117,8 +117,8 @@ export class WalletService extends Service {
 
         result = await this.provider.signTypedData({
           domain: {
-            chainId,
             ...domain,
+            chainId,
           },
           ...typedData,
         });
