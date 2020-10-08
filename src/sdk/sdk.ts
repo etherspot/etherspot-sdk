@@ -136,13 +136,17 @@ export class Sdk {
   }
 
   async personalSignMessage(message: BytesLike): Promise<string> {
-    await this.require();
+    await this.require({
+      network: false,
+    });
 
     return this.services.walletService.personalSignMessage(message);
   }
 
   async signMessage(message: BytesLike): Promise<string> {
-    await this.require();
+    await this.require({
+      network: false,
+    });
 
     return this.services.walletService.signMessage(message);
   }
@@ -156,7 +160,9 @@ export class Sdk {
   // session
 
   async createSession(ttl: number = null): Promise<Session> {
-    await this.require();
+    await this.require({
+      network: false,
+    });
 
     return this.services.authService.createSession(ttl);
   }
