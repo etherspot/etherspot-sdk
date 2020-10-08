@@ -1,4 +1,4 @@
-import { KeyWalletProviderOptions, WalletProviderLike } from './providers';
+import { KeyWalletProviderOptions, WalletProviderLike } from '../wallet-providers';
 
 export interface Wallet {
   address: string;

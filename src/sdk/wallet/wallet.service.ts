@@ -3,8 +3,14 @@ import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
 import { Service, ObjectSubject } from '../common';
+import {
+  WalletProvider,
+  KeyWalletProvider,
+  KeyWalletProviderOptions,
+  WalletProviderLike,
+  isWalletProvider,
+} from '../wallet-providers';
 import { WalletOptions, Wallet } from './interfaces';
-import { WalletProvider, KeyWalletProvider, KeyWalletProviderOptions, WalletProviderLike } from './providers';
 
 export class WalletService extends Service {
   readonly wallet$ = new ObjectSubject<Wallet>();
@@ -30,7 +36,7 @@ export class WalletService extends Service {
     let provider: WalletProvider = null;
 
     if (options && typeof options === 'object') {
-      if (WalletProvider.isWalletProvider(options as WalletProviderLike)) {
+      if (isWalletProvider(options as WalletProviderLike)) {
         provider = options as WalletProvider;
       } else {
         provider = new KeyWalletProvider(options as KeyWalletProviderOptions);

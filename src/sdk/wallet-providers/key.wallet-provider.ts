@@ -1,20 +1,19 @@
 import { Wallet, utils, BytesLike } from 'ethers';
 import { hashTypedData, TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, toHex } from '../../common';
-import { NetworkNames } from '../../network';
+import { isHex, keccak256, toHex } from '../common';
+import { NetworkNames } from '../network';
 import { KeyWalletProviderOptions } from './interfaces';
-import { WalletProvider } from './wallet.provider';
+import { WalletProvider } from './wallet-provider';
 
 export class KeyWalletProvider extends WalletProvider {
-  readonly type = 'KeyWallet';
-  readonly address?: string;
-  readonly networkName?: NetworkNames;
+  readonly address: string;
+  readonly networkName: NetworkNames;
 
   private readonly wallet: Wallet;
   private readonly signer: utils.SigningKey;
 
   constructor(options: KeyWalletProviderOptions) {
-    super();
+    super('Key');
 
     const { privateKey, networkName } = options;
 

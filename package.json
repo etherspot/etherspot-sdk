@@ -1,6 +1,6 @@
 {
   "name": "etherspot",
-  "version": "1.0.0-alpha.41",
+  "version": "1.0.0-alpha.42",
   "description": "ETHERspot sdk",
   "license": "MIT",
   "author": {
@@ -23,9 +23,6 @@
     "test:unit": "jest",
     "test:unit-watch": "jest --watch",
     "test:unit-cov": "jest --coverage",
-    "test:bdd": "cucumber-js test/**/*.feature --require test/setup.js --require 'test/**/*.ts'",
-    "test:bdd-pretty": "npm run test:bdd -- --format progress-bar --format node_modules/cucumber-pretty",
-    "test:bdd-only": "npm run test:bdd -- --tags @only",
     "prebuild": "rimraf ./dist",
     "build": "npm run compile",
     "compile": "tsc -p ./tsconfig.build.json",
@@ -45,15 +42,12 @@
     "subscriptions-transport-ws": "0.9.17"
   },
   "devDependencies": {
-    "@types/cucumber": "6.0.1",
     "@types/graphql": "14.5.0",
     "@types/jest": "25.2.3",
     "@types/node": "13.13.9",
     "@types/ws": "7.2.4",
     "@typescript-eslint/eslint-plugin": "2.34.0",
     "@typescript-eslint/parser": "2.34.0",
-    "cucumber": "6.0.5",
-    "cucumber-pretty": "6.0.0",
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.20.2",

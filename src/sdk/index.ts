@@ -15,6 +15,7 @@ export * from './payments';
 export * from './relayer';
 export * from './state';
 export * from './wallet';
+export * from './wallet-providers';
 
 export { Sdk };
 export default Sdk;

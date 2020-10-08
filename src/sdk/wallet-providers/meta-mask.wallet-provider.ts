@@ -1,8 +1,7 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, toHex, UniqueSubject } from '../../common';
-import { NetworkNames } from '../../network';
-import { WalletProvider } from './wallet.provider';
+import { isHex, keccak256, toHex } from '../common';
+import { DynamicWalletProvider } from './dynamic.wallet-provider';
 
 declare const window: Window & {
   ethereum: {
@@ -19,40 +18,38 @@ declare const window: Window & {
   };
 };
 
-export class MetaMaskProvider extends WalletProvider {
+export class MetaMaskWalletProvider extends DynamicWalletProvider {
   static detect(): boolean {
     return !!window?.ethereum?.isMetaMask;
   }
 
-  static async connect(): Promise<MetaMaskProvider> {
+  static async connect(): Promise<MetaMaskWalletProvider> {
     if (!this.instance) {
       if (!this.detect()) {
         throw new Error('MetaMask not found');
       }
 
-      this.instance = new MetaMaskProvider();
+      this.instance = new MetaMaskWalletProvider();
 
       await this.instance.connect();
+    }
+
+    if (!this.instance.address) {
+      throw new Error('Can not connect to MetaMask');
     }
 
     return this.instance;
   }
 
-  private static instance: MetaMaskProvider;
-
-  readonly type = 'MetaMask';
-  readonly address$? = new UniqueSubject<string>();
-  readonly networkName$? = new UniqueSubject<NetworkNames>();
-
-  private connected = false;
+  private static instance: MetaMaskWalletProvider;
 
   protected constructor() {
-    super();
+    super('MetaMask');
   }
 
   async personalSignMessage(message: BytesLike): Promise<string> {
     return this.sendRequest('personal_sign', [
-      this.getAddress(), //
+      this.address, //
       toHex(message),
     ]);
   }
@@ -61,14 +58,14 @@ export class MetaMaskProvider extends WalletProvider {
     const hex = toHex(message);
 
     return this.sendRequest('eth_sign', [
-      this.getAddress(), //
+      this.address, //
       isHex(hex, 32) ? hex : keccak256(hex),
     ]);
   }
 
   async signTypedData(typedData: TypedData): Promise<string> {
     return this.sendRequest('eth_signTypedData_v4', [
-      this.getAddress(), //
+      this.address, //
       JSON.stringify(typedData),
     ]);
   }
@@ -83,27 +80,21 @@ export class MetaMaskProvider extends WalletProvider {
     });
 
     try {
-      const chainId = await this.sendRequest<string[]>('eth_chainId');
-      const [address] = await this.sendRequest<string[]>('eth_requestAccounts');
+      const chainId = await this.sendRequest<string>('eth_chainId');
 
       this.setNetworkName(chainId);
 
-      if (address) {
-        this.setAddress(address);
+      const [address] = await this.sendRequest<string[]>('eth_requestAccounts');
 
-        this.connected = true;
-      }
+      this.setAddress(address);
     } catch (err) {
       //
-    }
-
-    if (!this.connected) {
-      throw new Error('Can not connect to MetaMask');
     }
   }
 
   protected async sendRequest<T = any>(method: string, params?: any): Promise<T> {
     const { ethereum } = window;
+
     return ethereum.request({
       method,
       params,
