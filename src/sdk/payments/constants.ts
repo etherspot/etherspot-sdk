@@ -21,3 +21,8 @@ export enum P2PPaymentDepositStates {
   Locked = 'Locked',
   Unlocked = 'Unlocked',
 }
+
+export enum BatchCommitP2PPaymentChannelModes {
+  Deposit = 'Deposit',
+  Withdraw = 'Withdraw',
+}

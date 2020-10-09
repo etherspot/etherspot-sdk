@@ -27,7 +27,7 @@ export abstract class Contract<F = string> extends Service {
 
   get address(): string {
     const { chainId } = this.context.services.networkService;
-    return getContractAddress(this.name, chainId);
+    return !chainId ? null : getContractAddress(this.name, chainId);
   }
 
   computeAccountCreate2Address(saltKey: string): string {
@@ -45,20 +45,24 @@ export abstract class Contract<F = string> extends Service {
     primarySchema: { type: string; name: string }[],
     message: T,
   ): TypedData {
+    let result: TypedData = null;
+
     const { chainId } = this.context.services.networkService;
 
-    return this.typedDataDomain
-      ? buildTypedData(
-          {
-            verifyingContract: this.address,
-            chainId,
-            ...this.typedDataDomain,
-          },
-          primaryType,
-          primarySchema,
-          message,
-        )
-      : null;
+    if (chainId && this.address && this.typedDataDomain) {
+      result = buildTypedData(
+        {
+          verifyingContract: this.address,
+          chainId,
+          ...this.typedDataDomain,
+        },
+        primaryType,
+        primarySchema,
+        message,
+      );
+    }
+
+    return result;
   }
 
   protected onInit() {
@@ -89,6 +93,6 @@ export abstract class Contract<F = string> extends Service {
   }
 
   protected encodeSelfContractTransactionRequest(name: F, ...args: any[]): TransactionRequest {
-    return this.encodeContractTransactionRequest(this.address, name, ...args);
+    return !this.address ? null : this.encodeContractTransactionRequest(this.address, name, ...args);
   }
 }

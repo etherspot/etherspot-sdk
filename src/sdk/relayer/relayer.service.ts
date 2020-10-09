@@ -12,7 +12,7 @@ export class RelayerService extends Service {
     const { accountService, walletService, apiService } = this.services;
 
     const account = accountService.accountAddress;
-    const sender = walletService.address;
+    const sender = walletService.walletAddress;
 
     const { result } = await apiService.mutate<{
       result: EstimatedRelayedTransaction;

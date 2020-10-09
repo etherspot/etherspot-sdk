@@ -6,6 +6,5 @@ export interface Network {
 }
 
 export interface NetworkOptions {
-  defaultNetworkName?: NetworkNames;
   supportedNetworkNames: NetworkNames[];
 }

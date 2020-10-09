@@ -2,7 +2,7 @@ import { gql } from '@apollo/client/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, SynchronizedSubject } from '../common';
-import { Account, AccountBalance, AccountBalances, AccountMember, AccountMembers, Accounts } from './classes';
+import { Account, AccountBalances, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
 export class AccountService extends Service {
@@ -32,7 +32,7 @@ export class AccountService extends Service {
     const { walletService } = this.services;
     const { personalAccountRegistryContract } = this.contracts;
 
-    const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.address);
+    const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.walletAddress);
 
     if (address) {
       this.account$.next(
@@ -282,12 +282,12 @@ export class AccountService extends Service {
 
     this.addSubscriptions(
       combineLatest([
-        walletService.address$, //
+        walletService.walletAddress$, //
         networkService.chainId$,
       ])
         .pipe(
-          map(([address]) =>
-            !address
+          map(([address, chainId]) =>
+            !address || !chainId
               ? null
               : Account.fromPlain({
                   address,

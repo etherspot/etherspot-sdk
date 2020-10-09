@@ -22,11 +22,7 @@ export abstract class Service {
     if (!this.destroyed) {
       this.destroyed = true;
 
-      for (const subscription of this.subscriptions) {
-        subscription.unsubscribe();
-      }
-
-      this.subscriptions = [];
+      this.removeSubscriptions();
 
       if (this.onDestroy) {
         this.onDestroy();
@@ -46,7 +42,19 @@ export abstract class Service {
     return this.context.services;
   }
 
-  protected addSubscriptions(...subscription: Subscription[]): void {
-    this.subscriptions.push(...subscription);
+  protected addSubscriptions(...subscriptions: Subscription[]): void {
+    this.subscriptions.push(...subscriptions.filter((subscription) => !!subscription));
+  }
+
+  protected removeSubscriptions(): void {
+    for (const subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
+    this.subscriptions = [];
+  }
+
+  protected replaceSubscriptions(...subscriptions: Subscription[]): void {
+    this.removeSubscriptions();
+    this.addSubscriptions(...subscriptions);
   }
 }

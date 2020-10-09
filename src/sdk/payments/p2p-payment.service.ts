@@ -4,7 +4,6 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { prepareAddress, Service, UniqueSubject } from '../common';
 import { P2PPaymentChannel, P2PPaymentChannelPayments, P2PPaymentChannels, P2PPaymentDeposits } from './classes';
-import { P2PPaymentChannelStates } from './constants';
 import { computePaymentChannelHash, createPaymentChannelUid } from './utils';
 
 export class P2pPaymentService extends Service {

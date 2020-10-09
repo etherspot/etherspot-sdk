@@ -1,4 +1,4 @@
-import { Wallet, BigNumber, BigNumberish, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
@@ -6,7 +6,7 @@ import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { WalletLike, walletFrom, TransactionRequest } from './common';
+import { TransactionRequest, UnChainedTypedData } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -15,9 +15,8 @@ import {
   PersonalAccountRegistryContract,
 } from './contracts';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
-import { Env } from './env';
-import { SdkOptions } from './interfaces';
-import { Network, NetworkNames, NetworkService } from './network';
+import { Env, EnvLike } from './env';
+import { Network, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
   P2pPaymentService,
@@ -31,11 +30,11 @@ import {
   PaymentHubDeposit,
   PaymentHubDeposits,
   PaymentHubPayments,
+  BatchCommitP2PPaymentChannelModes,
 } from './payments';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State } from './state';
-import { WalletService } from './wallet';
-import { BatchCommitPaymentChannelModes } from './constants';
+import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
 
 /**
  * Sdk
@@ -49,27 +48,27 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(wallet: WalletLike, options?: SdkOptions);
-  constructor(options?: SdkOptions);
+  constructor(walletOptions: WalletOptions, env?: EnvLike);
+  constructor(env?: EnvLike);
   constructor(...args: any[]) {
-    let wallet: Wallet = null;
-    let options: SdkOptions = {};
+    let walletOptions: WalletOptions = null;
+    let envLike: EnvLike = null;
 
     if (args.length > 0) {
       let optionsIndex = 0;
 
-      wallet = walletFrom(args[0]);
+      walletOptions = parseWalletOptions(args[0]);
 
-      if (wallet) {
+      if (walletOptions) {
         ++optionsIndex;
       }
 
-      if (args[optionsIndex] && typeof args[optionsIndex] === 'object') {
-        options = args[optionsIndex];
+      if (args[optionsIndex]) {
+        envLike = args[optionsIndex];
       }
     }
 
-    const env = Env.prepare(options.env);
+    const env = Env.prepare(envLike);
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -79,29 +78,28 @@ export class Sdk {
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
     };
 
+    const walletService = new WalletService();
+
     this.services = {
+      walletService,
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
-      networkService: new NetworkService({
-        ...env.networkOptions,
-        defaultNetworkName: options.network,
-      }),
+      networkService: new NetworkService(env.networkOptions),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
       relayerService: new RelayerService(),
-      walletService: new WalletService(),
     };
 
     this.context = new Context(this.contracts, this.services);
     this.state = new State(this.services);
 
-    if (wallet) {
-      this.attachWallet(wallet);
+    if (walletOptions) {
+      walletService.switchWalletProvider(walletOptions);
     }
   }
 
@@ -127,20 +125,36 @@ export class Sdk {
 
   // wallet
 
-  attachWallet(walletLike: WalletLike): void {
-    const wallet = walletFrom(walletLike);
+  switchWalletProvider(walletOptions: WalletOptions): void {
+    walletOptions = parseWalletOptions(walletOptions);
 
-    if (!wallet) {
-      throw new Error('Invalid Wallet object');
+    if (!walletOptions) {
+      throw new Error('Invalid wallet options');
     }
 
-    this.services.walletService.attachWallet(wallet);
+    this.services.walletService.switchWalletProvider(walletOptions);
   }
 
-  // network
+  async personalSignMessage(message: BytesLike): Promise<string> {
+    await this.require({
+      network: false,
+    });
 
-  switchNetwork(network: NetworkNames | Network = null): Network {
-    return this.services.networkService.switchNetwork(network);
+    return this.services.walletService.personalSignMessage(message);
+  }
+
+  async signMessage(message: BytesLike): Promise<string> {
+    await this.require({
+      network: false,
+    });
+
+    return this.services.walletService.signMessage(message);
+  }
+
+  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
+    await this.require();
+
+    return this.services.walletService.signTypedData(unChainedTypedData);
   }
 
   // session
@@ -269,7 +283,7 @@ export class Sdk {
 
   async encodeAddAccountOwner(owner: string): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -280,7 +294,7 @@ export class Sdk {
 
   async encodeRemoveAccountOwner(owner: string): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -291,7 +305,7 @@ export class Sdk {
 
   async encodeExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -308,14 +322,26 @@ export class Sdk {
   // account (batch)
 
   async batchAddAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
     return this.batchTransactionRequest(await this.encodeAddAccountOwner(owner));
   }
 
   async batchRemoveAccountOwner(owner: string): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
     return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(owner));
   }
 
   async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
     return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(to, value, data));
   }
 
@@ -362,6 +388,10 @@ export class Sdk {
   // ens (batch)
 
   async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
     return this.batchTransactionRequest(await this.encodeClaimENSNode(nameOrHashOrAddress));
   }
 
@@ -378,6 +408,10 @@ export class Sdk {
   }
 
   async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+    await this.require({
+      wallet: false,
+    });
+
     const { p2pPaymentsService } = this.services;
 
     return p2pPaymentsService.getP2PPaymentChannel(hash);
@@ -435,7 +469,7 @@ export class Sdk {
 
   async encodeCommitP2PPaymentChannel(
     hash: string,
-    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<TransactionRequest> {
     await this.require();
 
@@ -455,7 +489,7 @@ export class Sdk {
 
     const { paymentRegistryContract } = this.contracts;
 
-    return mode === BatchCommitPaymentChannelModes.Withdraw
+    return mode === BatchCommitP2PPaymentChannelModes.Withdraw
       ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
           sender,
           token,
@@ -480,8 +514,12 @@ export class Sdk {
 
   async batchCommitP2PPaymentChannel(
     hash: string,
-    mode: BatchCommitPaymentChannelModes = BatchCommitPaymentChannelModes.Deposit,
+    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<Batch> {
+    await this.require({
+      contractAccount: true,
+    });
+
     return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
   }
 
@@ -498,11 +536,12 @@ export class Sdk {
   }
 
   async getPaymentHubs(hub?: string, token?: string, page: number = null): Promise<PaymentHubs> {
-    if (typeof hub === 'undefined') {
-      await this.require({
-        wallet: true,
-      });
+    await this.require({
+      network: true,
+      wallet: typeof hub === 'undefined',
+    });
 
+    if (typeof hub === 'undefined') {
       hub = this.prepareAccountAddress(hub);
     }
 
@@ -599,6 +638,10 @@ export class Sdk {
   // relayer
 
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
+    await this.require({
+      wallet: false,
+    });
+
     return this.services.relayerService.getRelayedTransaction(key);
   }
 
@@ -614,19 +657,25 @@ export class Sdk {
 
   private async require(
     options: {
+      network?: boolean;
       wallet?: boolean;
       session?: boolean;
       contractAccount?: boolean;
     } = {},
   ): Promise<void> {
     options = {
-      wallet: true, // require wallet by default
+      network: true,
+      wallet: true,
       ...options,
     };
 
-    const { accountService, authService, walletService } = this.services;
+    const { accountService, authService, networkService, walletService } = this.services;
 
-    if (options.wallet && !walletService.address) {
+    if (options.network && !networkService.chainId) {
+      throw new Error('Unknown network');
+    }
+
+    if (options.wallet && !walletService.walletAddress) {
       throw new Error('Require wallet');
     }
 

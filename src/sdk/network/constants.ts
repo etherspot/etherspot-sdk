@@ -21,3 +21,13 @@ export const NETWORK_NAME_TO_CHAIN_ID: {
   [NetworkNames.LocalA]: 9999,
   [NetworkNames.LocalB]: 6666,
 };
+
+export const CHAIN_ID_TO_NETWORK_NAME: { [key: number]: NetworkNames } = Object.entries(
+  NETWORK_NAME_TO_CHAIN_ID,
+).reduce(
+  (result, [networkName, chainId]) => ({
+    ...result,
+    [chainId]: networkName,
+  }),
+  {},
+);
