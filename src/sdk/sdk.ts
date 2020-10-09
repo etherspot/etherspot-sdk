@@ -283,7 +283,7 @@ export class Sdk {
 
   async encodeAddAccountOwner(owner: string): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -294,7 +294,7 @@ export class Sdk {
 
   async encodeRemoveAccountOwner(owner: string): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -305,7 +305,7 @@ export class Sdk {
 
   async encodeExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<TransactionRequest> {
     await this.require({
-      contractAccount: true,
+      wallet: false,
     });
 
     const { personalAccountRegistryContract } = this.contracts;
@@ -323,7 +323,7 @@ export class Sdk {
 
   async batchAddAccountOwner(owner: string): Promise<Batch> {
     await this.require({
-      wallet: false,
+      contractAccount: true,
     });
 
     return this.batchTransactionRequest(await this.encodeAddAccountOwner(owner));
@@ -331,7 +331,7 @@ export class Sdk {
 
   async batchRemoveAccountOwner(owner: string): Promise<Batch> {
     await this.require({
-      wallet: false,
+      contractAccount: true,
     });
 
     return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(owner));
@@ -339,7 +339,7 @@ export class Sdk {
 
   async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
     await this.require({
-      wallet: false,
+      contractAccount: true,
     });
 
     return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(to, value, data));
@@ -389,7 +389,7 @@ export class Sdk {
 
   async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
     await this.require({
-      wallet: false,
+      contractAccount: true,
     });
 
     return this.batchTransactionRequest(await this.encodeClaimENSNode(nameOrHashOrAddress));
@@ -517,7 +517,7 @@ export class Sdk {
     mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
   ): Promise<Batch> {
     await this.require({
-      wallet: false,
+      contractAccount: true,
     });
 
     return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
@@ -639,7 +639,6 @@ export class Sdk {
 
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
     await this.require({
-      network: true,
       wallet: false,
     });
 
