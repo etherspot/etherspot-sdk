@@ -2,10 +2,11 @@ import { Subject, SubscriptionLike, combineLatest } from 'rxjs';
 import { gql } from '@apollo/client/core';
 import { map, tap } from 'rxjs/operators';
 import { Service } from '../common';
-import { Notification } from './classes';
+import { AnyNotification } from './classes';
+import { Notification } from './interfaces';
 
 export class NotificationService extends Service {
-  readonly notification$ = new Subject<Notification>();
+  readonly notification$ = new Subject<AnyNotification>();
 
   private subscribed = false;
 
@@ -80,7 +81,7 @@ export class NotificationService extends Service {
   private createGraphQLSubscription(address: string): SubscriptionLike {
     const { apiService } = this.services;
     const observable = apiService.subscribe<{
-      notification: Notification;
+      notification: AnyNotification;
     }>(
       gql`
         subscription($chainId: Int, $address: String!) {
@@ -96,7 +97,7 @@ export class NotificationService extends Service {
           address,
         },
         models: {
-          notification: Notification,
+          notification: AnyNotification,
         },
       },
     );

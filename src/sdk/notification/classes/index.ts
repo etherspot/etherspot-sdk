@@ -1,1 +1,1 @@
-export * from './notification';
+export * from './any-notification';
