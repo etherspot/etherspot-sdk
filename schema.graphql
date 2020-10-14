@@ -95,6 +95,7 @@ type Mutation {
   createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!, chainId: Int): String!
+  deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
   estimateRelayedTransaction(account: String!, chainId: Int, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
   sendRelayedTransaction(account: String!, chainId: Int, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
@@ -103,9 +104,11 @@ type Mutation {
   syncAccountMember(account: String!, chainId: Int): AccountMember!
   syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
   touchSession(chainId: Int): Boolean!
+  transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
+  updatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
 }
 
@@ -115,7 +118,7 @@ type Network {
 }
 
 type Notification {
-  payload: String
+  payload: JSONObject
   recipient: String!
   type: NotificationTypes!
 }
@@ -182,6 +185,21 @@ type PaymentHub {
   updatedAt: DateTime
 }
 
+type PaymentHubBridge {
+  acceptedChainId: Int!
+  acceptedToken: String
+  createdAt: DateTime
+  hub: PaymentHub!
+  state: PaymentHubBridgeStates!
+  updatedAt: DateTime
+}
+
+type PaymentHubBridges {
+  currentPage: Int!
+  items: [PaymentHubBridge!]!
+  nextPage: Int
+}
+
 type PaymentHubDeposit {
   createdAt: DateTime
   hub: PaymentHub!
@@ -230,10 +248,12 @@ type Query {
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
+  paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
+  paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1): PaymentHubBridges!
   paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
   paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
   paymentHubPayment(hash: String!): PaymentHubPayment
-  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): PaymentHubPayments!
+  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   relayedAccount(address: String!, chainId: Int): RelayedAccount
   relayedTransaction(chainId: Int, key: String!): RelayedTransaction
@@ -370,6 +390,8 @@ enum NotificationTypes {
   ENSSubNodeUpdated
   P2PPaymentChannelCreated
   P2PPaymentChannelUpdated
+  PaymentHubBridgeCreated
+  PaymentHubBridgeUpdated
   PaymentHubCreated
   PaymentHubDepositCreated
   PaymentHubDepositUpdated
@@ -395,6 +417,11 @@ enum P2PPaymentChannelStates {
 enum P2PPaymentDepositStates {
   Locked
   Unlocked
+}
+
+enum PaymentHubBridgeStates {
+  Active
+  Inactive
 }
 
 enum RelayedTransactionStates {
@@ -423,3 +450,6 @@ scalar BigNumber
 
 "A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
 scalar DateTime
+
+"JSONObject"
+scalar JSONObject
