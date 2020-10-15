@@ -626,12 +626,14 @@ export class PaymentHubService extends Service {
   }
 
   async activatePaymentHubBridge(
-    hub: string,
     token: string,
     acceptedChainId: number,
     acceptedToken: string = null,
   ): Promise<PaymentHubBridge> {
-    const { apiService } = this.services;
+    const {
+      apiService,
+      accountService: { accountAddress: hub },
+    } = this.services;
 
     const { result } = await apiService.mutate<{
       result: PaymentHubBridge;
@@ -675,12 +677,14 @@ export class PaymentHubService extends Service {
   }
 
   async deactivatePaymentHubBridge(
-    hub: string,
     token: string,
     acceptedChainId: number,
     acceptedToken: string = null,
   ): Promise<PaymentHubBridge> {
-    const { apiService } = this.services;
+    const {
+      apiService,
+      accountService: { accountAddress: hub },
+    } = this.services;
 
     const { result } = await apiService.mutate<{
       result: PaymentHubBridge;

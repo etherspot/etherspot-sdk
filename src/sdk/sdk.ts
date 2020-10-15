@@ -29,6 +29,8 @@ import {
   GetENSNodeDto,
   GetP2PPaymentChannelDto,
   GetP2PPaymentChannelsDto,
+  GetPaymentHubBridgeDto,
+  GetPaymentHubBridgesDto,
   GetPaymentHubDepositDto,
   GetPaymentHubDepositsDto,
   GetPaymentHubDto,
@@ -49,6 +51,7 @@ import {
   TransactionRequestDto,
   TransferPaymentHubDepositDto,
   UpdateP2PPaymentChannelDto,
+  UpdatePaymentHubBridgeDto,
   UpdatePaymentHubDepositDto,
   UpdatePaymentHubDto,
   validateDto,
@@ -69,6 +72,8 @@ import {
   PaymentHubDeposit,
   PaymentHubDeposits,
   PaymentHubPayments,
+  PaymentHubBridge,
+  PaymentHubBridges,
 } from './payments';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State } from './state';
@@ -325,6 +330,7 @@ export class Sdk {
   /**
    * computes contract account
    * @param dto
+   * @return Promise<Account>
    */
   async computeContractAccount(dto: ComputeContractAccountDto = {}): Promise<Account> {
     const { sync } = await validateDto(dto, ComputeContractAccountDto);
@@ -431,7 +437,7 @@ export class Sdk {
 
     return this.services.accountService.getAccountMembers(
       this.prepareAccountAddress(account), //
-      page,
+      page || 1,
     );
   }
 
@@ -640,7 +646,7 @@ export class Sdk {
 
     return p2pPaymentsService.getP2PPaymentChannels(
       this.prepareAccountAddress(senderOrRecipient), //
-      page,
+      page || 1,
     );
   }
 
@@ -816,13 +822,64 @@ export class Sdk {
     return paymentHubService.getPaymentHubs(
       hub, //
       token,
-      page,
+      page || 1,
+    );
+  }
+
+  /**
+   * gets payment hub bridge
+   * @param dto
+   * @return Promise<PaymentHubBridge>
+   */
+  async getPaymentHubBridge(dto: GetPaymentHubBridgeDto = {}): Promise<PaymentHubBridge> {
+    const { hub, token, acceptedNetworkName, acceptedToken } = await validateDto(dto, GetPaymentHubBridgeDto);
+
+    await this.require({
+      wallet: !hub,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.getPaymentHubBridge(
+      this.prepareAccountAddress(hub), //
+      token,
+      this.getNetworkChainId(acceptedNetworkName),
+      acceptedToken,
+    );
+  }
+
+  /**
+   * gets payment hub bridges
+   * @param dto
+   * @return Promise<PaymentHubBridges>
+   */
+  async getPaymentHubBridges(dto: GetPaymentHubBridgesDto): Promise<PaymentHubBridges> {
+    const { hub, token, acceptedNetworkName, page } = await validateDto(dto, GetPaymentHubBridgesDto);
+
+    await this.require({
+      wallet: !hub,
+    });
+
+    let acceptedChainId: number;
+
+    if (typeof acceptedNetworkName === 'undefined') {
+      acceptedChainId = this.getNetworkChainId(acceptedNetworkName);
+    }
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.getPaymentHubBridges(
+      this.prepareAccountAddress(hub), //
+      token,
+      acceptedChainId,
+      page || 1,
     );
   }
 
   /**
    * gets payment hub deposit
    * @param dto
+   * @return Promise<PaymentHubDeposit>
    */
   async getPaymentHubDeposit(dto: GetPaymentHubDepositDto): Promise<PaymentHubDeposit> {
     const { hub, token, owner } = await validateDto(dto, GetPaymentHubDepositDto);
@@ -839,6 +896,7 @@ export class Sdk {
   /**
    * gets payment hub deposits
    * @param dto
+   * @return Promise<PaymentHubDeposits>
    */
   async getPaymentHubDeposits(dto: GetPaymentHubDepositsDto): Promise<PaymentHubDeposits> {
     const { hub, tokens, owner, page } = await validateDto(dto, GetPaymentHubDepositsDto);
@@ -853,7 +911,7 @@ export class Sdk {
       hub, //
       tokens || [],
       this.prepareAccountAddress(owner),
-      page,
+      page || 1,
     );
   }
 
@@ -888,7 +946,7 @@ export class Sdk {
       hub, //
       token,
       this.prepareAccountAddress(senderOrRecipient),
-      page,
+      page || 1,
     );
   }
 
@@ -982,6 +1040,48 @@ export class Sdk {
     );
   }
 
+  /**
+   * activates payment hub bridge
+   * @param dto
+   * @return Promise<PaymentHubBridge>
+   */
+  async activatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
+    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto);
+
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.activatePaymentHubBridge(
+      token,
+      this.getNetworkChainId(acceptedNetworkName),
+      acceptedToken,
+    );
+  }
+
+  /**
+   * deactivates payment hub bridge
+   * @param dto
+   * @return Promise<PaymentHubBridge>
+   */
+  async deactivatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
+    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto);
+
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.deactivatePaymentHubBridge(
+      token,
+      this.getNetworkChainId(acceptedNetworkName),
+      acceptedToken,
+    );
+  }
+
   // relayer
 
   /**
@@ -1013,7 +1113,7 @@ export class Sdk {
 
     return this.services.relayerService.getRelayedTransactions(
       this.prepareAccountAddress(account), //
-      page,
+      page || 1,
     );
   }
 
