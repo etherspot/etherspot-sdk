@@ -55,7 +55,7 @@ import {
 } from './dto';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
 import { Env, EnvNames } from './env';
-import { Network, NetworkService } from './network';
+import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
   P2pPaymentService,
@@ -961,7 +961,7 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async transferPaymentHubDeposit(dto: TransferPaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, value, targetChainId, targetHub, targetToken } = await validateDto(
+    const { hub, token, value, targetNetworkName, targetHub, targetToken } = await validateDto(
       dto,
       TransferPaymentHubDepositDto,
     );
@@ -976,7 +976,7 @@ export class Sdk {
       hub,
       token,
       BigNumber.from(value),
-      targetChainId,
+      this.getNetworkChainId(targetNetworkName),
       targetHub,
       targetToken,
     );
@@ -1057,5 +1057,23 @@ export class Sdk {
       accountService: { accountAddress },
     } = this.services;
     return account || accountAddress;
+  }
+
+  private getNetworkChainId(networkName: NetworkNames = null): number {
+    let result: number;
+
+    if (!networkName) {
+      ({ chainId: result } = this.services.networkService);
+    } else {
+      const network = this.supportedNetworks.find(({ name }) => name === networkName);
+
+      if (!network) {
+        throw new Exception('Unsupported network');
+      }
+
+      ({ chainId: result } = network);
+    }
+
+    return result;
   }
 }

@@ -1,5 +1,6 @@
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { IsOptional, IsEnum } from 'class-validator';
 import { BigNumberish } from 'ethers';
+import { NetworkNames } from '../network';
 import { IsAddress, IsBigNumberish } from './validators';
 
 export class TransferPaymentHubDepositDto {
@@ -13,9 +14,9 @@ export class TransferPaymentHubDepositDto {
   @IsBigNumberish()
   value: BigNumberish;
 
-  @IsPositive()
-  @IsInt()
-  targetChainId: number;
+  @IsOptional()
+  @IsEnum(NetworkNames)
+  targetNetworkName?: NetworkNames = null;
 
   @IsOptional()
   @IsAddress()

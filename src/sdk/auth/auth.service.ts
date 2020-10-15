@@ -37,7 +37,7 @@ export class AuthService extends Service {
   async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
-    const account = walletService.walletAddress;
+    const { walletAddress } = walletService;
 
     const { code } = await apiService.mutate<{
       code: string;
@@ -49,7 +49,7 @@ export class AuthService extends Service {
       `,
       {
         variables: {
-          account,
+          account: walletAddress,
         },
       },
     );
@@ -65,21 +65,42 @@ export class AuthService extends Service {
           session: createSession(chainId: $chainId, account: $account, code: $code, signature: $signature, ttl: $ttl) {
             token
             ttl
+            account {
+              address
+              type
+              state
+              store
+              createdAt
+              updatedAt
+            }
           }
         }
       `,
       {
         variables: {
-          account,
           code,
           signature,
           ttl,
+          account: walletAddress,
         },
         models: {
           session: Session,
         },
       },
     );
+
+    const { account } = session;
+
+    delete session.account;
+
+    if (account.address !== walletAddress) {
+      const { providerType } = walletService.wallet;
+
+      walletService.wallet$.next({
+        address: account.address,
+        providerType,
+      });
+    }
 
     session.refresh();
 
