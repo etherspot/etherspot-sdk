@@ -26,3 +26,8 @@ export enum BatchCommitP2PPaymentChannelModes {
   Deposit = 'Deposit',
   Withdraw = 'Withdraw',
 }
+
+export enum PaymentHubBridgeStates {
+  Active = 'Active',
+  Inactive = 'Inactive',
+}

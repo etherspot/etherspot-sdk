@@ -91,6 +91,7 @@ type EstimatedRelayedTransaction {
 }
 
 type Mutation {
+  activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   createENSSubNode(address: String!, chainId: Int, name: String!): ENSNode!
   createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
@@ -108,7 +109,6 @@ type Mutation {
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
-  updatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
 }
 
@@ -218,8 +218,8 @@ type PaymentHubPayment {
   createdAt: DateTime!
   hash: String!
   hub: PaymentHub!
-  recipient: String!
-  sender: String!
+  recipient: String
+  sender: String
   value: BigNumber!
 }
 
@@ -249,7 +249,7 @@ type Query {
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
   paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
-  paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1): PaymentHubBridges!
+  paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, token: String): PaymentHubBridges!
   paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
   paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
   paymentHubPayment(hash: String!): PaymentHubPayment
