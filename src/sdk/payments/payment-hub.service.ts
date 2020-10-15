@@ -184,7 +184,7 @@ export class PaymentHubService extends Service {
     return result;
   }
 
-  async getPaymentHubDeposit(hub: string, owner: string, token: string = null): Promise<PaymentHubDeposit> {
+  async getPaymentHubDeposit(hub: string, token: string = null, owner: string): Promise<PaymentHubDeposit> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -222,8 +222,8 @@ export class PaymentHubService extends Service {
 
   async getPaymentHubDeposits(
     hub: string,
-    owner: string,
     tokens: string[] = [],
+    owner: string,
     page: number = null,
   ): Promise<PaymentHubDeposits> {
     const { apiService } = this.services;
@@ -303,8 +303,8 @@ export class PaymentHubService extends Service {
 
   async getPaymentHubPayments(
     hub: string,
-    senderOrRecipient: string,
     token: string = null,
+    senderOrRecipient: string,
     page: number = null,
   ): Promise<PaymentHubPayments> {
     const { apiService, accountService } = this.services;
@@ -360,9 +360,9 @@ export class PaymentHubService extends Service {
 
   async createPaymentHubPayment(
     hub: string,
+    token: string,
     recipient: string,
     value: BigNumber,
-    token: string = null,
   ): Promise<PaymentHubPayment> {
     const { apiService, accountService } = this.services;
 
@@ -464,7 +464,7 @@ export class PaymentHubService extends Service {
 
     const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
 
-    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, sender, token);
+    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, token, sender);
 
     const currentAmount = paymentHubDeposit ? paymentHubDeposit.totalAmount : BigNumber.from(0);
 

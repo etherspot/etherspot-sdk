@@ -1,5 +1,5 @@
 import { utils } from 'ethers';
-import { BatchCommitP2PPaymentChannelModes, Sdk } from '../../src';
+import { Sdk } from '../../src';
 import { logger, topUpAccount, randomWallet } from './common';
 
 async function main(): Promise<void> {
@@ -21,25 +21,58 @@ async function main(): Promise<void> {
   const { accountAddress: sender } = senderState;
   const { accountAddress: recipient } = recipientState;
 
-  logger.log('payment hub', await hubSdk.updatePaymentHub(utils.parseEther('5')));
+  logger.log(
+    'payment hub',
+    await hubSdk.updatePaymentHub({
+      liquidity: utils.parseEther('5'),
+    }),
+  );
 
-  logger.log('payment hub sender deposit', await senderSdk.updatePaymentHubDeposit(hub, utils.parseEther('5')));
+  logger.log(
+    'payment hub sender deposit',
+    await senderSdk.updatePaymentHubDeposit({
+      hub,
+      totalAmount: utils.parseEther('5'),
+    }),
+  );
 
   logger.log(
     'payment hub payment (sender > recipient 1 ETH)',
-    await senderSdk.createPaymentHubPayment(hub, recipient, utils.parseEther('1')),
+    await senderSdk.createPaymentHubPayment({
+      hub,
+      recipient,
+      value: utils.parseEther('1'),
+    }),
   );
   logger.log(
     'payment hub payment (sender > recipient 2 ETH)',
-    await senderSdk.createPaymentHubPayment(hub, recipient, utils.parseEther('2')),
+    await senderSdk.createPaymentHubPayment({
+      hub,
+      recipient,
+      value: utils.parseEther('2'),
+    }),
   );
   logger.log(
     'payment hub payment (recipient > sender 1.5 ETH)',
-    await recipientSdk.createPaymentHubPayment(hub, sender, utils.parseEther('1.5')),
+    await recipientSdk.createPaymentHubPayment({
+      hub,
+      recipient: sender,
+      value: utils.parseEther('1.5'),
+    }),
   );
 
-  logger.log('payment hub recipient deposit', await recipientSdk.getPaymentHubDeposit(hub));
-  logger.log('payment hub recipient deposit (updated)', await recipientSdk.updatePaymentHubDeposit(hub, 0));
+  logger.log(
+    'payment hub recipient deposit',
+    await recipientSdk.getPaymentHubDeposit({
+      hub,
+    }),
+  );
+  logger.log(
+    'payment hub recipient deposit (updated)',
+    await recipientSdk.updatePaymentHubDeposit({
+      hub,
+    }),
+  );
 
   const {
     items: [paymentHubChannel],
@@ -48,9 +81,19 @@ async function main(): Promise<void> {
   const { hash } = paymentHubChannel;
 
   logger.log('payment hub recipient p2p channel', paymentHubChannel);
-  logger.log('payment hub recipient p2p channel (signed)', await hubSdk.signP2PPaymentChannel(hash));
+  logger.log(
+    'payment hub recipient p2p channel (signed)',
+    await hubSdk.signP2PPaymentChannel({
+      hash,
+    }),
+  );
 
-  logger.log('batch', await recipientSdk.batchCommitP2PPaymentChannel(hash, BatchCommitP2PPaymentChannelModes.Deposit));
+  logger.log(
+    'batch',
+    await recipientSdk.batchCommitP2PPaymentChannel({
+      hash,
+    }),
+  );
   logger.log('estimated batch', await recipientSdk.estimateBatch());
 
   logger.log('relayed transaction', await recipientSdk.submitBatch());

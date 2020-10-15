@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, BytesLike } from 'ethers';
+import { BigNumber } from 'ethers';
 import { Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
@@ -6,7 +6,7 @@ import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { TransactionRequest, UnChainedTypedData } from './common';
+import { Exception, TransactionRequest, UnChainedTypedData } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -14,8 +14,47 @@ import {
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contracts';
+import {
+  AddAccountOwnerDto,
+  ClaimENSNodeDto,
+  CommitP2PPaymentChannelDto,
+  ComputeContractAccountDto,
+  CreatePaymentHubPaymentDto,
+  CreateSessionDto,
+  EstimateBatchDto,
+  ExecuteAccountTransactionDto,
+  GetAccountBalancesDto,
+  GetAccountDto,
+  GetAccountMembersDto,
+  GetENSNodeDto,
+  GetP2PPaymentChannelDto,
+  GetP2PPaymentChannelsDto,
+  GetPaymentHubDepositDto,
+  GetPaymentHubDepositsDto,
+  GetPaymentHubDto,
+  GetPaymentHubPaymentDto,
+  GetPaymentHubPaymentsDto,
+  GetPaymentHubsDto,
+  GetRelayedTransactionDto,
+  GetRelayedTransactionsDto,
+  IncreaseP2PPaymentChannelAmountDto,
+  JoinContractAccountDto,
+  PaginationDto,
+  RemoveAccountOwnerDto,
+  ReserveENSNameDto,
+  SignMessageDto,
+  SignP2PPaymentChannelDto,
+  SubmitBatchDto,
+  SyncP2PPaymentDepositsDto,
+  TransactionRequestDto,
+  TransferPaymentHubDepositDto,
+  UpdateP2PPaymentChannelDto,
+  UpdatePaymentHubDepositDto,
+  UpdatePaymentHubDto,
+  validateDto,
+} from './dto';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
-import { Env, EnvLike } from './env';
+import { Env, EnvNames } from './env';
 import { Network, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -30,11 +69,11 @@ import {
   PaymentHubDeposit,
   PaymentHubDeposits,
   PaymentHubPayments,
-  BatchCommitP2PPaymentChannelModes,
 } from './payments';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
+import { SdkOptions } from './interfaces';
 
 /**
  * Sdk
@@ -48,11 +87,11 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(walletOptions: WalletOptions, env?: EnvLike);
-  constructor(env?: EnvLike);
+  constructor(walletOptions: WalletOptions, sdkOptions?: EnvNames | SdkOptions);
+  constructor(sdkOptions?: EnvNames | SdkOptions);
   constructor(...args: any[]) {
     let walletOptions: WalletOptions = null;
-    let envLike: EnvLike = null;
+    let sdkOptions: SdkOptions = {};
 
     if (args.length > 0) {
       let optionsIndex = 0;
@@ -64,11 +103,21 @@ export class Sdk {
       }
 
       if (args[optionsIndex]) {
-        envLike = args[optionsIndex];
+        switch (typeof args[optionsIndex]) {
+          case 'string':
+            sdkOptions = {
+              env: args[optionsIndex],
+            };
+            break;
+
+          case 'object':
+            sdkOptions = args[optionsIndex];
+            break;
+        }
       }
     }
 
-    const env = Env.prepare(envLike);
+    const env = Env.prepare(sdkOptions.env);
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -119,23 +168,37 @@ export class Sdk {
 
   // sdk
 
+  /**
+   * destroys
+   */
   destroy(): void {
     this.context.destroy();
   }
 
   // wallet
 
+  /**
+   * switches wallet provider
+   * @param walletOptions
+   */
   switchWalletProvider(walletOptions: WalletOptions): void {
     walletOptions = parseWalletOptions(walletOptions);
 
     if (!walletOptions) {
-      throw new Error('Invalid wallet options');
+      throw new Exception('Invalid wallet options');
     }
 
     this.services.walletService.switchWalletProvider(walletOptions);
   }
 
-  async personalSignMessage(message: BytesLike): Promise<string> {
+  /**
+   * personal signs message
+   * @param dto
+   * @return Promise<string>
+   */
+  async personalSignMessage(dto: SignMessageDto): Promise<string> {
+    const { message } = await validateDto(dto, SignMessageDto);
+
     await this.require({
       network: false,
     });
@@ -143,7 +206,14 @@ export class Sdk {
     return this.services.walletService.personalSignMessage(message);
   }
 
-  async signMessage(message: BytesLike): Promise<string> {
+  /**
+   * signs message
+   * @param dto
+   * @return Promise<string>
+   */
+  async signMessage(dto: SignMessageDto): Promise<string> {
+    const { message } = await validateDto(dto, SignMessageDto);
+
     await this.require({
       network: false,
     });
@@ -151,6 +221,11 @@ export class Sdk {
     return this.services.walletService.signMessage(message);
   }
 
+  /**
+   * sings typed data
+   * @param unChainedTypedData
+   * @return Promise<string>
+   */
   async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
     await this.require();
 
@@ -159,35 +234,49 @@ export class Sdk {
 
   // session
 
-  async createSession(ttl: number = null): Promise<Session> {
+  /**
+   * creates session
+   * @param dto
+   * @return Promise<Session>
+   */
+  async createSession(dto: CreateSessionDto = {}): Promise<Session> {
+    const { ttl } = await validateDto(dto, CreateSessionDto);
+
     await this.require();
 
     return this.services.authService.createSession(ttl);
   }
 
-  async restoreSession(session: Session): Promise<Session> {
-    await this.require();
-
-    return this.services.authService.restoreSession(session);
-  }
-
   // batch
 
-  clearBatch(): void {
-    this.services.batchService.clearBatch();
-  }
+  /**
+   * batch transaction request
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchTransactionRequest(dto: TransactionRequestDto): Promise<Batch> {
+    const { to, data } = await validateDto(dto, TransactionRequestDto);
 
-  async batchTransactionRequest(transactionRequest: TransactionRequest): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
 
     const { batchService } = this.services;
 
-    return batchService.pushTransactionRequest(transactionRequest);
+    return batchService.pushTransactionRequest({
+      to,
+      data,
+    });
   }
 
-  async estimateBatch(refundToken: string = null): Promise<Batch> {
+  /**
+   * estimates batch
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async estimateBatch(dto: EstimateBatchDto = {}): Promise<Batch> {
+    const { refundToken } = await validateDto(dto, EstimateBatchDto);
+
     await this.require({
       session: true,
       contractAccount: true,
@@ -196,7 +285,14 @@ export class Sdk {
     return this.services.batchService.estimateBatch(refundToken);
   }
 
-  async submitBatch(gasPrice: BigNumberish = null): Promise<RelayedTransaction> {
+  /**
+   * submits batch
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async submitBatch(dto: SubmitBatchDto = {}): Promise<RelayedTransaction> {
+    const { gasPrice } = await validateDto(dto, SubmitBatchDto);
+
     await this.require({
       session: true,
       contractAccount: true,
@@ -205,8 +301,19 @@ export class Sdk {
     return this.services.batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null);
   }
 
+  /**
+   * clears batch
+   */
+  clearBatch(): void {
+    this.services.batchService.clearBatch();
+  }
+
   // account
 
+  /**
+   * syncs account
+   * @return Promise<Account>
+   */
   async syncAccount(): Promise<Account> {
     await this.require({
       session: true,
@@ -215,7 +322,13 @@ export class Sdk {
     return this.services.accountService.syncAccount();
   }
 
-  async computeContractAccount(sync = true): Promise<Account> {
+  /**
+   * computes contract account
+   * @param dto
+   */
+  async computeContractAccount(dto: ComputeContractAccountDto = {}): Promise<Account> {
+    const { sync } = await validateDto(dto, ComputeContractAccountDto);
+
     await this.require({
       session: sync,
     });
@@ -228,10 +341,17 @@ export class Sdk {
       await accountService.syncAccount();
     }
 
-    return this.state.account;
+    return accountService.account;
   }
 
-  async joinContractAccountAt(address: string, sync = true): Promise<Account> {
+  /**
+   * joins contract account
+   * @param dto
+   * @return Promise<Account>
+   */
+  async joinContractAccount(dto: JoinContractAccountDto): Promise<Account> {
+    const { address, sync } = await validateDto(dto, JoinContractAccountDto);
+
     await this.require({
       session: sync,
     });
@@ -244,110 +364,154 @@ export class Sdk {
       await accountService.syncAccount();
     }
 
-    return this.state.account;
+    return accountService.account;
   }
 
-  async getConnectedAccounts(page = 1): Promise<Accounts> {
+  /**
+   * gets connected accounts
+   * @param dto
+   * @return Promise<Accounts>
+   */
+  async getConnectedAccounts(dto: PaginationDto = {}): Promise<Accounts> {
+    const { page } = await validateDto(dto, PaginationDto);
+
     await this.require({
       session: true,
     });
 
-    return this.services.accountService.getConnectedAccounts(page);
+    return this.services.accountService.getConnectedAccounts(page || 1);
   }
 
-  async getAccount(account: string = null): Promise<Account> {
+  /**
+   * get account
+   * @param dto
+   * @return Promise<Account>
+   */
+  async getAccount(dto: GetAccountDto = {}): Promise<Account> {
+    const { address } = await validateDto(dto, GetAccountDto);
+
+    await this.require({
+      wallet: !address,
+    });
+
+    return this.services.accountService.getAccount(
+      this.prepareAccountAddress(address), //
+    );
+  }
+
+  /**
+   * gets account balances
+   * @param dto
+   * @return Promise<AccountBalances>
+   */
+  async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
+    const { account, tokens } = await validateDto(dto, GetAccountBalancesDto);
+
     await this.require({
       wallet: !account,
     });
 
-    return this.services.accountService.getAccount(this.prepareAccountAddress(account));
+    return this.services.accountService.getAccountBalances(
+      this.prepareAccountAddress(account), //
+      tokens,
+    );
   }
 
-  async getAccountBalances(account: string = null, tokens: string[] = []): Promise<AccountBalances> {
+  /**
+   * gets account members
+   * @param dto
+   * @return Promise<AccountMembers>
+   */
+  async getAccountMembers(dto: GetAccountMembersDto = {}): Promise<AccountMembers> {
+    const { account, page } = await validateDto(dto, GetAccountMembersDto);
+
     await this.require({
       wallet: !account,
     });
 
-    return this.services.accountService.getAccountBalances(this.prepareAccountAddress(account), tokens);
-  }
-
-  async getAccountMembers(account: string = null, page = 1): Promise<AccountMembers> {
-    await this.require({
-      wallet: !account,
-    });
-
-    return this.services.accountService.getAccountMembers(this.prepareAccountAddress(account), page);
-  }
-
-  // account (encode)
-
-  async encodeAddAccountOwner(owner: string): Promise<TransactionRequest> {
-    await this.require({
-      wallet: false,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService } = this.services;
-
-    return personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner);
-  }
-
-  async encodeRemoveAccountOwner(owner: string): Promise<TransactionRequest> {
-    await this.require({
-      wallet: false,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService } = this.services;
-
-    return personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner);
-  }
-
-  async encodeExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<TransactionRequest> {
-    await this.require({
-      wallet: false,
-    });
-
-    const { personalAccountRegistryContract } = this.contracts;
-    const { accountService } = this.services;
-
-    return personalAccountRegistryContract.encodeExecuteAccountTransaction(
-      accountService.accountAddress,
-      to,
-      value,
-      data,
+    return this.services.accountService.getAccountMembers(
+      this.prepareAccountAddress(account), //
+      page,
     );
   }
 
   // account (batch)
 
-  async batchAddAccountOwner(owner: string): Promise<Batch> {
+  /**
+   * batch add account owner
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchAddAccountOwner(dto: AddAccountOwnerDto): Promise<Batch> {
+    const { owner } = await validateDto(dto, AddAccountOwnerDto);
+
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeAddAccountOwner(owner));
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return this.batchTransactionRequest(
+      personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner),
+    );
   }
 
-  async batchRemoveAccountOwner(owner: string): Promise<Batch> {
+  /**
+   * batch remove account owner
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<Batch> {
+    const { owner } = await validateDto(dto, RemoveAccountOwnerDto);
+
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(owner));
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return this.batchTransactionRequest(
+      personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner),
+    );
   }
 
-  async batchExecuteAccountTransaction(to: string, value: BigNumberish, data: BytesLike): Promise<Batch> {
+  /**
+   * batch execute account transaction
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<Batch> {
+    const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto);
+
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(to, value, data));
+    const { personalAccountRegistryContract } = this.contracts;
+    const { accountService } = this.services;
+
+    return this.batchTransactionRequest(
+      personalAccountRegistryContract.encodeExecuteAccountTransaction(
+        accountService.accountAddress, //
+        to,
+        value || 0,
+        data || '0x',
+      ),
+    );
   }
 
   // ens
 
-  async reserveENSName(name: string): Promise<ENSNode> {
+  /**
+   * reserve ens name
+   * @param dto
+   * @return Promise<ENSNode>
+   */
+  async reserveENSName(dto: ReserveENSNameDto): Promise<ENSNode> {
+    const { name } = await validateDto(dto, ReserveENSNameDto);
+
     await this.require({
       session: true,
     });
@@ -355,25 +519,45 @@ export class Sdk {
     return this.services.ensService.createENSSubNode(name);
   }
 
-  async getENSNode(nameOrHashOrAddress: string = null): Promise<ENSNode> {
+  /**
+   * gets ens node
+   * @param dto
+   * @return Promise<ENSNode>
+   */
+  async getENSNode(dto: GetENSNodeDto = {}): Promise<ENSNode> {
+    const { nameOrHashOrAddress } = await validateDto(dto, ClaimENSNodeDto);
+
     await this.require({
       wallet: !nameOrHashOrAddress,
     });
 
     const { ensService } = this.services;
 
-    return ensService.getENSNode(this.prepareAccountAddress(nameOrHashOrAddress));
+    return ensService.getENSNode(
+      this.prepareAccountAddress(nameOrHashOrAddress), //
+    );
   }
 
   // ens (encode)
 
-  async encodeClaimENSNode(nameOrHashOrAddress: string = null): Promise<TransactionRequest> {
-    await this.require();
+  /**
+   * encodes claim ens node
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeClaimENSNode(dto: ClaimENSNodeDto = {}): Promise<TransactionRequest> {
+    const { nameOrHashOrAddress } = await validateDto(dto, ClaimENSNodeDto);
 
-    const ensNode = await this.getENSNode(this.prepareAccountAddress(nameOrHashOrAddress));
+    await this.require({
+      wallet: !nameOrHashOrAddress,
+    });
+
+    const ensNode = await this.getENSNode({
+      nameOrHashOrAddress,
+    });
 
     if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
-      throw new Error('Can not clime ens node');
+      throw new Exception('Can not clime ens node');
     }
 
     const { name, guardianSignature } = ensNode;
@@ -382,22 +566,38 @@ export class Sdk {
 
     const { ensControllerContract } = this.contracts;
 
-    return ensControllerContract.encodeRegisterSubNode(parsedName.root.hash, parsedName.labelHash, guardianSignature);
+    return ensControllerContract.encodeRegisterSubNode(
+      parsedName.root.hash, //
+      parsedName.labelHash,
+      guardianSignature,
+    );
   }
 
   // ens (batch)
 
-  async batchClaimENSNode(nameOrHashOrAddress: string = null): Promise<Batch> {
+  /**
+   * batch claim ens node
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchClaimENSNode(dto: ClaimENSNodeDto = {}): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeClaimENSNode(nameOrHashOrAddress));
+    return this.batchTransactionRequest(await this.encodeClaimENSNode(dto));
   }
 
   // p2p payments
 
-  async syncP2PPaymentDeposits(tokens: string[] = []): Promise<P2PPaymentDeposits> {
+  /**
+   * syncs p2p payment deposits
+   * @param dto
+   * @return Promise<P2PPaymentDeposits>
+   */
+  async syncP2PPaymentDeposits(dto: SyncP2PPaymentDepositsDto = {}): Promise<P2PPaymentDeposits> {
+    const { tokens } = await validateDto(dto, SyncP2PPaymentDepositsDto);
+
     await this.require({
       session: true,
     });
@@ -407,7 +607,14 @@ export class Sdk {
     return p2pPaymentsService.syncP2PPaymentDeposits(accountService.accountAddress, tokens);
   }
 
-  async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+  /**
+   * gets p2p payment channel
+   * @param dto
+   * @return Promise<P2PPaymentChannel>
+   */
+  async getP2PPaymentChannel(dto: GetP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
+    const { hash } = await validateDto(dto, GetP2PPaymentChannelDto);
+
     await this.require({
       wallet: false,
     });
@@ -417,45 +624,76 @@ export class Sdk {
     return p2pPaymentsService.getP2PPaymentChannel(hash);
   }
 
-  async getP2PPaymentChannels(senderOrRecipient: string = null, page = 1): Promise<P2PPaymentChannels> {
+  /**
+   * gets p2p payment channels
+   * @param dto
+   * @return Promise<P2PPaymentChannels>
+   */
+  async getP2PPaymentChannels(dto: GetP2PPaymentChannelsDto = {}): Promise<P2PPaymentChannels> {
+    const { senderOrRecipient, page } = await validateDto(dto, GetP2PPaymentChannelsDto);
+
     await this.require({
       wallet: !senderOrRecipient,
     });
 
     const { p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.getP2PPaymentChannels(this.prepareAccountAddress(senderOrRecipient), page);
+    return p2pPaymentsService.getP2PPaymentChannels(
+      this.prepareAccountAddress(senderOrRecipient), //
+      page,
+    );
   }
 
-  async increaseP2PPaymentChannelAmount(
-    recipient: string,
-    value: BigNumberish,
-    token: string = null,
-  ): Promise<P2PPaymentChannel> {
+  /**
+   * increases p2p payment channel amount
+   * @param dto
+   * @return Promise<P2PPaymentChannel>
+   */
+  async increaseP2PPaymentChannelAmount(dto: IncreaseP2PPaymentChannelAmountDto): Promise<P2PPaymentChannel> {
+    const { recipient, token, value } = await validateDto(dto, IncreaseP2PPaymentChannelAmountDto);
+
     await this.require({
       session: true,
     });
 
     const { p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.increaseP2PPaymentChannelAmount(recipient, token, BigNumber.from(value));
+    return p2pPaymentsService.increaseP2PPaymentChannelAmount(
+      recipient, //
+      token,
+      BigNumber.from(value),
+    );
   }
 
-  async updateP2PPaymentChannel(
-    recipient: string,
-    totalAmount: BigNumberish,
-    token: string = null,
-  ): Promise<P2PPaymentChannel> {
+  /**
+   * updates p2p payment channel
+   * @param dto
+   * @return Promise<P2PPaymentChannel>
+   */
+  async updateP2PPaymentChannel(dto: UpdateP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
+    const { recipient, token, totalAmount } = await validateDto(dto, UpdateP2PPaymentChannelDto);
+
     await this.require({
       session: true,
     });
 
     const { p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.updateP2PPaymentChannel(recipient, token, BigNumber.from(totalAmount));
+    return p2pPaymentsService.updateP2PPaymentChannel(
+      recipient, //
+      token,
+      BigNumber.from(totalAmount),
+    );
   }
 
-  async signP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+  /**
+   * signs p2p payment channel
+   * @param dto
+   * @return Promise<P2PPaymentChannel>
+   */
+  async signP2PPaymentChannel(dto: SignP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
+    const { hash } = await validateDto(dto, SignP2PPaymentChannelDto);
+
     await this.require({
       session: true,
     });
@@ -467,16 +705,22 @@ export class Sdk {
 
   // p2p payments (encode)
 
-  async encodeCommitP2PPaymentChannel(
-    hash: string,
-    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
-  ): Promise<TransactionRequest> {
+  /**
+   * encodes commit p2p payment channel
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<TransactionRequest> {
+    const { hash, deposit } = await validateDto(dto, CommitP2PPaymentChannelDto);
+
     await this.require();
 
-    const paymentChannel = await this.getP2PPaymentChannel(hash);
+    const paymentChannel = await this.getP2PPaymentChannel({
+      hash,
+    });
 
     if (!paymentChannel) {
-      throw new Error('Payment channel not found');
+      throw new Exception('Payment channel not found');
     }
 
     const {
@@ -489,8 +733,8 @@ export class Sdk {
 
     const { paymentRegistryContract } = this.contracts;
 
-    return mode === BatchCommitP2PPaymentChannelModes.Withdraw
-      ? paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
+    return deposit
+      ? paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
           sender,
           token,
           uid,
@@ -499,7 +743,7 @@ export class Sdk {
           senderSignature,
           guardianSignature,
         )
-      : paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
+      : paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
           sender,
           token,
           uid,
@@ -512,30 +756,52 @@ export class Sdk {
 
   // p2p payments (batch)
 
-  async batchCommitP2PPaymentChannel(
-    hash: string,
-    mode: BatchCommitP2PPaymentChannelModes = BatchCommitP2PPaymentChannelModes.Deposit,
-  ): Promise<Batch> {
+  /**
+   * batch commit p2p payment channel
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<Batch> {
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(hash, mode));
+    return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(dto));
   }
 
   // hub payments
 
-  async getPaymentHub(hub: string = null, token: string = null): Promise<PaymentHub> {
+  /**
+   * gets payment hub
+   * @param dto
+   * @return Promise<PaymentHub>
+   */
+  async getPaymentHub(dto: GetPaymentHubDto): Promise<PaymentHub> {
+    const { hub, token } = await validateDto(dto, GetPaymentHubDto);
+
     await this.require({
       wallet: !hub,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHub(this.prepareAccountAddress(hub), token);
+    return paymentHubService.getPaymentHub(
+      this.prepareAccountAddress(hub), //
+      token,
+    );
   }
 
-  async getPaymentHubs(hub?: string, token?: string, page: number = null): Promise<PaymentHubs> {
+  /**
+   * gets payment hubs
+   * @param dto
+   * @return Promise<PaymentHubs>
+   */
+  async getPaymentHubs(dto: GetPaymentHubsDto = {}): Promise<PaymentHubs> {
+    dto = await validateDto(dto, GetPaymentHubsDto);
+
+    const { token, page } = dto;
+    let { hub } = dto;
+
     await this.require({
       network: true,
       wallet: typeof hub === 'undefined',
@@ -547,97 +813,185 @@ export class Sdk {
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubs(hub, token, page);
+    return paymentHubService.getPaymentHubs(
+      hub, //
+      token,
+      page,
+    );
   }
 
-  async getPaymentHubDeposit(hub: string, owner: string = null, token: string = null): Promise<PaymentHubDeposit> {
+  /**
+   * gets payment hub deposit
+   * @param dto
+   */
+  async getPaymentHubDeposit(dto: GetPaymentHubDepositDto): Promise<PaymentHubDeposit> {
+    const { hub, token, owner } = await validateDto(dto, GetPaymentHubDepositDto);
+
     await this.require({
       wallet: !owner,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubDeposit(hub, this.prepareAccountAddress(owner), token);
+    return paymentHubService.getPaymentHubDeposit(hub, token, this.prepareAccountAddress(owner));
   }
 
-  async getPaymentHubDeposits(
-    hub: string,
-    owner: string = null,
-    tokens: string[] = [],
-    page: number = null,
-  ): Promise<PaymentHubDeposits> {
+  /**
+   * gets payment hub deposits
+   * @param dto
+   */
+  async getPaymentHubDeposits(dto: GetPaymentHubDepositsDto): Promise<PaymentHubDeposits> {
+    const { hub, tokens, owner, page } = await validateDto(dto, GetPaymentHubDepositsDto);
+
     await this.require({
       wallet: !owner,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubDeposits(hub, this.prepareAccountAddress(owner), tokens, page);
+    return paymentHubService.getPaymentHubDeposits(
+      hub, //
+      tokens || [],
+      this.prepareAccountAddress(owner),
+      page,
+    );
   }
 
-  async getPaymentHubPayment(hash: string): Promise<PaymentHubPayment> {
+  /**
+   * gets payment hub payment
+   * @param dto
+   * @return Promise<PaymentHubPayment>
+   */
+  async getPaymentHubPayment(dto: GetPaymentHubPaymentDto): Promise<PaymentHubPayment> {
+    const { hash } = await validateDto(dto, GetPaymentHubPaymentDto);
+
     const { paymentHubService } = this.services;
 
     return paymentHubService.getPaymentHubPayment(hash);
   }
 
-  async getPaymentHubPayments(
-    hub: string,
-    senderOrRecipient: string = null,
-    token: string = null,
-    page: number = null,
-  ): Promise<PaymentHubPayments> {
-    await this.require({
-      wallet: !senderOrRecipient,
-    });
+  /**
+   * gets payment hub payments
+   * @param dto
+   * @return Promise<PaymentHubPayments>
+   */
+  async getPaymentHubPayments(dto: GetPaymentHubPaymentsDto): Promise<PaymentHubPayments> {
+    const { hub, token, senderOrRecipient, page } = await validateDto(dto, GetPaymentHubPaymentsDto);
 
-    const { paymentHubService } = this.services;
-
-    return paymentHubService.getPaymentHubPayments(hub, this.prepareAccountAddress(senderOrRecipient), token, page);
-  }
-
-  async createPaymentHubPayment(
-    hub: string,
-    recipient: string,
-    value: BigNumberish,
-    token: string = null,
-  ): Promise<PaymentHubPayment> {
     await this.require({
       session: true,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.createPaymentHubPayment(hub, recipient, BigNumber.from(value), token);
+    return paymentHubService.getPaymentHubPayments(
+      hub, //
+      token,
+      this.prepareAccountAddress(senderOrRecipient),
+      page,
+    );
   }
 
-  async updatePaymentHub(liquidity: BigNumberish, token: string = null): Promise<PaymentHub> {
+  /**
+   * creates payment hub payment
+   * @param dto
+   * @return Promise<PaymentHubPayment>
+   */
+  async createPaymentHubPayment(dto: CreatePaymentHubPaymentDto): Promise<PaymentHubPayment> {
+    const { hub, token, recipient, value } = await validateDto(dto, CreatePaymentHubPaymentDto);
+
     await this.require({
       session: true,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.updatePaymentHub(BigNumber.from(liquidity), token);
+    return paymentHubService.createPaymentHubPayment(
+      hub, //
+      token,
+      recipient,
+      BigNumber.from(value),
+    );
   }
 
-  async updatePaymentHubDeposit(
-    hub: string,
-    totalAmount: BigNumberish = null,
-    token: string = null,
-  ): Promise<PaymentHubDeposit> {
+  /**
+   * updates payment hub
+   * @param dto
+   * @return Promise<PaymentHub>
+   */
+  async updatePaymentHub(dto: UpdatePaymentHubDto = {}): Promise<PaymentHub> {
+    const { token, liquidity } = await validateDto(dto, UpdatePaymentHubDto);
+
     await this.require({
       session: true,
     });
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.updatePaymentHubDeposit(hub, totalAmount ? BigNumber.from(totalAmount) : null, token);
+    return paymentHubService.updatePaymentHub(
+      BigNumber.from(liquidity || 0), //
+      token,
+    );
+  }
+
+  /**
+   * updates payment hub deposit
+   * @param dto
+   * @return Promise<PaymentHubDeposit>
+   */
+  async updatePaymentHubDeposit(dto: UpdatePaymentHubDepositDto): Promise<PaymentHubDeposit> {
+    const { hub, token, totalAmount } = await validateDto(dto, UpdatePaymentHubDepositDto);
+
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.updatePaymentHubDeposit(
+      hub, //
+      BigNumber.from(totalAmount || 0),
+      token,
+    );
+  }
+
+  /**
+   * transfers payment hub deposit
+   * @param dto
+   * @return Promise<PaymentHubDeposit>
+   */
+  async transferPaymentHubDeposit(dto: TransferPaymentHubDepositDto): Promise<PaymentHubDeposit> {
+    const { hub, token, value, targetChainId, targetHub, targetToken } = await validateDto(
+      dto,
+      TransferPaymentHubDepositDto,
+    );
+
+    await this.require({
+      session: true,
+    });
+
+    const { paymentHubService } = this.services;
+
+    return paymentHubService.transferPaymentHubDeposit(
+      hub,
+      token,
+      BigNumber.from(value),
+      targetChainId,
+      targetHub,
+      targetToken,
+    );
   }
 
   // relayer
 
-  async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
+  /**
+   * gets relayed transaction
+   * @param dto
+   * @return Promise<RelayedTransaction>
+   */
+  async getRelayedTransaction(dto: GetRelayedTransactionDto): Promise<RelayedTransaction> {
+    const { key } = await validateDto(dto, GetRelayedTransactionDto);
+
     await this.require({
       wallet: false,
     });
@@ -645,12 +999,22 @@ export class Sdk {
     return this.services.relayerService.getRelayedTransaction(key);
   }
 
-  async getRelayedTransactions(account: string = null, page: number = null): Promise<RelayedTransactions> {
+  /**
+   * gets relayed transactions
+   * @param dto
+   * @return Promise<RelayedTransactions>
+   */
+  async getRelayedTransactions(dto: GetRelayedTransactionsDto = {}): Promise<RelayedTransactions> {
+    const { account, page } = await validateDto(dto, GetRelayedTransactionsDto);
+
     await this.require({
       wallet: !account,
     });
 
-    return this.services.relayerService.getRelayedTransactions(this.prepareAccountAddress(account), page);
+    return this.services.relayerService.getRelayedTransactions(
+      this.prepareAccountAddress(account), //
+      page,
+    );
   }
 
   // private
@@ -672,11 +1036,11 @@ export class Sdk {
     const { accountService, authService, networkService, walletService } = this.services;
 
     if (options.network && !networkService.chainId) {
-      throw new Error('Unknown network');
+      throw new Exception('Unknown network');
     }
 
     if (options.wallet && !walletService.walletAddress) {
-      throw new Error('Require wallet');
+      throw new Exception('Require wallet');
     }
 
     if (options.session) {
@@ -684,7 +1048,7 @@ export class Sdk {
     }
 
     if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {
-      throw new Error('Require contract account');
+      throw new Exception('Require contract account');
     }
   }
 

@@ -7,6 +7,7 @@ export const logger = {
   },
 
   error(err: any): void {
+    console.warn(JSON.stringify(err, null, 2));
     console.error(err);
   },
 };

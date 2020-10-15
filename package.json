@@ -37,6 +37,7 @@
     "@etherspot/contracts": "1.0.0-alpha.26",
     "ethers-typed-data": "0.0.4",
     "class-transformer": "0.2.3",
+    "class-validator": "0.12.2",
     "cross-fetch": "3.0.4",
     "graphql": "15.3.0",
     "subscriptions-transport-ws": "0.9.17"

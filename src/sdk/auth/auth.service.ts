@@ -35,18 +35,6 @@ export class AuthService extends Service {
     }
   }
 
-  restoreSession(session: Session): Session {
-    session = plainToClass(Session, session);
-
-    if (!session.verify()) {
-      session = null;
-    }
-
-    this.session$.next(session);
-
-    return session;
-  }
-
   async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
