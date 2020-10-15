@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client/core';
-import { plainToClass } from 'class-transformer';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Service, ObjectSubject } from '../common';
