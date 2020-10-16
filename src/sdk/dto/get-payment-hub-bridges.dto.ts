@@ -4,8 +4,9 @@ import { IsAddress } from './validators';
 import { PaginationDto } from './pagination.dto';
 
 export class GetPaymentHubBridgesDto extends PaginationDto {
+  @IsOptional()
   @IsAddress()
-  hub: string;
+  hub?: string = null;
 
   @IsOptional()
   @IsAddress()
