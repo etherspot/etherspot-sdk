@@ -8,7 +8,6 @@ export * from './block';
 export * from './common';
 export * from './contracts';
 export * from './dto';
-export * from './dto';
 export * from './ens';
 export * from './env';
 export * from './interfaces';
