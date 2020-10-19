@@ -8,7 +8,8 @@
     "02-contract-account": "../node_modules/.bin/ts-node ./src/02-contract-account.ts",
     "03-ens": "../node_modules/.bin/ts-node ./src/03-ens.ts",
     "04-p2p-payments": "../node_modules/.bin/ts-node ./src/04-p2p-payments.ts",
-    "05-payment-hub": "../node_modules/.bin/ts-node ./src/05-payment-hub.ts"
+    "05-payment-hub": "../node_modules/.bin/ts-node ./src/05-payment-hub.ts",
+    "06-payment-bridge": "../node_modules/.bin/ts-node ./src/06-payment-bridge.ts"
   },
   "dependencies": {}
 }

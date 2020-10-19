@@ -1,5 +1,6 @@
 import { ApolloError } from '@apollo/client/core';
-import { HttpExceptionCodes, HttpException, ValidationException } from '../exceptions';
+import { ValidationException } from '../../common';
+import { HttpExceptionCodes, HttpException } from '../exceptions';
 
 export function catchApiError(error: ApolloError): void {
   let exception: Error;

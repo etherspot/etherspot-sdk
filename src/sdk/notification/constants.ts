@@ -8,6 +8,8 @@ export enum NotificationTypes {
   P2PPaymentChannelUpdated = 'P2PPaymentChannelUpdated',
   PaymentHubCreated = 'PaymentHubCreated',
   PaymentHubUpdated = 'PaymentHubUpdated',
+  PaymentHubBridgeCreated = 'PaymentHubBridgeCreated',
+  PaymentHubBridgeUpdated = 'PaymentHubBridgeUpdated',
   PaymentHubDepositCreated = 'PaymentHubDepositCreated',
   PaymentHubDepositUpdated = 'PaymentHubDepositUpdated',
   PaymentHubPaymentCreated = 'PaymentHubPaymentCreated',

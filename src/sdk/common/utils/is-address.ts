@@ -1,15 +1,18 @@
-import { utils } from 'ethers';
+import { utils, constants } from 'ethers';
 
 /**
  * @ignore
  */
 export function isAddress(value: string): boolean {
-  let result = true;
+  let result = false;
 
-  if (value) {
+  if (value && value !== constants.AddressZero) {
     try {
       const address = utils.getAddress(value);
-      result = address === value;
+
+      if (address) {
+        result = address === value;
+      }
     } catch (err) {
       result = false;
     }

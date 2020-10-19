@@ -3,6 +3,8 @@ import { gql } from '@apollo/client/core';
 import { prepareAddress, Service } from '../common';
 import {
   PaymentHub,
+  PaymentHubBridge,
+  PaymentHubBridges,
   PaymentHubDeposit,
   PaymentHubDeposits,
   PaymentHubPayment,
@@ -80,7 +82,109 @@ export class PaymentHubService extends Service {
     return result;
   }
 
-  async getPaymentHubDeposit(hub: string, owner: string, token: string = null): Promise<PaymentHubDeposit> {
+  async getPaymentHubBridge(
+    hub: string,
+    token: string,
+    acceptedChainId: number,
+    acceptedToken: string,
+  ): Promise<PaymentHubBridge> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: PaymentHubBridge;
+    }>(
+      gql`
+        query($chainId: Int, $hub: String!, $token: String, $acceptedChainId: Int!, $acceptedToken: String) {
+          result: paymentHubBridge(
+            chainId: $chainId
+            hub: $hub
+            token: $token
+            acceptedChainId: $acceptedChainId
+            acceptedToken: $acceptedToken
+          ) {
+            hub {
+              address
+              token
+              liquidity
+            }
+            acceptedChainId
+            acceptedToken
+            state
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentHubBridge,
+        },
+        variables: {
+          hub,
+          token,
+          acceptedChainId,
+          acceptedToken,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getPaymentHubBridges(
+    hub: string,
+    token: string = null,
+    acceptedChainId: number = null,
+    page: number = null,
+  ): Promise<PaymentHubBridges> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: PaymentHubBridges;
+    }>(
+      gql`
+        query($chainId: Int, $hub: String!, $token: String, $acceptedChainId: Int, $page: Int) {
+          result: paymentHubBridges(
+            chainId: $chainId
+            hub: $hub
+            token: $token
+            acceptedChainId: $acceptedChainId
+            page: $page
+          ) {
+            items {
+              hub {
+                address
+                token
+                liquidity
+              }
+              acceptedChainId
+              acceptedToken
+              state
+              createdAt
+              updatedAt
+            }
+            currentPage
+            nextPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentHubBridges,
+        },
+        variables: {
+          hub,
+          token,
+          acceptedChainId,
+          page: page || 1,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getPaymentHubDeposit(hub: string, token: string = null, owner: string): Promise<PaymentHubDeposit> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -92,6 +196,7 @@ export class PaymentHubService extends Service {
             hub {
               address
               token
+              liquidity
             }
             owner
             totalAmount
@@ -117,8 +222,8 @@ export class PaymentHubService extends Service {
 
   async getPaymentHubDeposits(
     hub: string,
-    owner: string,
     tokens: string[] = [],
+    owner: string,
     page: number = null,
   ): Promise<PaymentHubDeposits> {
     const { apiService } = this.services;
@@ -133,6 +238,7 @@ export class PaymentHubService extends Service {
               hub {
                 address
                 token
+                liquidity
               }
               owner
               totalAmount
@@ -172,6 +278,7 @@ export class PaymentHubService extends Service {
             hub {
               address
               token
+              liquidity
             }
             hash
             sender
@@ -196,20 +303,23 @@ export class PaymentHubService extends Service {
 
   async getPaymentHubPayments(
     hub: string,
-    senderOrRecipient: string,
     token: string = null,
+    senderOrRecipient: string,
     page: number = null,
   ): Promise<PaymentHubPayments> {
-    const { apiService } = this.services;
+    const { apiService, accountService } = this.services;
+
+    const owner = accountService.accountAddress;
 
     const { result } = await apiService.query<{
       result: PaymentHubPayments;
     }>(
       gql`
-        query($chainId: Int, $hub: String!, $senderOrRecipient: String!, $token: String, $page: Int) {
+        query($chainId: Int, $hub: String!, $owner: String!, $senderOrRecipient: String, $token: String, $page: Int) {
           result: paymentHubPayments(
             chainId: $chainId
             hub: $hub
+            owner: $owner
             senderOrRecipient: $senderOrRecipient
             token: $token
             page: $page
@@ -218,6 +328,7 @@ export class PaymentHubService extends Service {
               hub {
                 address
                 token
+                liquidity
               }
               hash
               sender
@@ -236,6 +347,7 @@ export class PaymentHubService extends Service {
         },
         variables: {
           hub,
+          owner,
           senderOrRecipient,
           token,
           page: page || 1,
@@ -248,9 +360,9 @@ export class PaymentHubService extends Service {
 
   async createPaymentHubPayment(
     hub: string,
+    token: string,
     recipient: string,
     value: BigNumber,
-    token: string = null,
   ): Promise<PaymentHubPayment> {
     const { apiService, accountService } = this.services;
 
@@ -279,6 +391,7 @@ export class PaymentHubService extends Service {
             hub {
               address
               token
+              liquidity
             }
             hash
             sender
@@ -351,7 +464,7 @@ export class PaymentHubService extends Service {
 
     const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
 
-    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, sender, token);
+    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, token, sender);
 
     const currentAmount = paymentHubDeposit ? paymentHubDeposit.totalAmount : BigNumber.from(0);
 
@@ -414,6 +527,7 @@ export class PaymentHubService extends Service {
             hub {
               address
               token
+              liquidity
             }
             owner
             totalAmount
@@ -433,6 +547,179 @@ export class PaymentHubService extends Service {
           totalAmount,
           sender,
           senderSignature,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async transferPaymentHubDeposit(
+    hub: string,
+    token: string,
+    value: BigNumber,
+    targetChainId: number,
+    targetHub: string = null,
+    targetToken = null,
+  ): Promise<PaymentHubDeposit> {
+    if (!value) {
+      value = BigNumber.from(0);
+    }
+
+    const { apiService, accountService } = this.services;
+
+    const sender = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: PaymentHubDeposit;
+    }>(
+      gql`
+        mutation(
+          $chainId: Int
+          $hub: String!
+          $token: String
+          $sender: String!
+          $value: BigNumber!
+          $targetChainId: Int!
+          $targetHub: String
+          $targetToken: String
+        ) {
+          result: transferPaymentHubDeposit(
+            chainId: $chainId
+            hub: $hub
+            token: $token
+            sender: $sender
+            value: $value
+            targetChainId: $targetChainId
+            targetHub: $targetHub
+            targetToken: $targetToken
+          ) {
+            hub {
+              address
+              token
+              liquidity
+            }
+            owner
+            totalAmount
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentHubDeposit,
+        },
+        variables: {
+          hub,
+          token,
+          sender,
+          value,
+          targetChainId,
+          targetHub,
+          targetToken,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async activatePaymentHubBridge(
+    token: string,
+    acceptedChainId: number,
+    acceptedToken: string = null,
+  ): Promise<PaymentHubBridge> {
+    const {
+      apiService,
+      accountService: { accountAddress: hub },
+    } = this.services;
+
+    const { result } = await apiService.mutate<{
+      result: PaymentHubBridge;
+    }>(
+      gql`
+        mutation($chainId: Int, $hub: String!, $token: String, $acceptedChainId: Int!, $acceptedToken: String) {
+          result: activatePaymentHubBridge(
+            chainId: $chainId
+            hub: $hub
+            token: $token
+            acceptedChainId: $acceptedChainId
+            acceptedToken: $acceptedToken
+          ) {
+            hub {
+              address
+              token
+              liquidity
+            }
+            acceptedChainId
+            acceptedToken
+            state
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentHubBridge,
+        },
+        variables: {
+          hub,
+          token,
+          acceptedChainId,
+          acceptedToken,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async deactivatePaymentHubBridge(
+    token: string,
+    acceptedChainId: number,
+    acceptedToken: string = null,
+  ): Promise<PaymentHubBridge> {
+    const {
+      apiService,
+      accountService: { accountAddress: hub },
+    } = this.services;
+
+    const { result } = await apiService.mutate<{
+      result: PaymentHubBridge;
+    }>(
+      gql`
+        mutation($chainId: Int, $hub: String!, $token: String, $acceptedChainId: Int!, $acceptedToken: String) {
+          result: deactivatePaymentHubBridge(
+            chainId: $chainId
+            hub: $hub
+            token: $token
+            acceptedChainId: $acceptedChainId
+            acceptedToken: $acceptedToken
+          ) {
+            hub {
+              address
+              token
+              liquidity
+            }
+            acceptedChainId
+            acceptedToken
+            state
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: PaymentHubBridge,
+        },
+        variables: {
+          hub,
+          token,
+          acceptedChainId,
+          acceptedToken,
         },
       },
     );

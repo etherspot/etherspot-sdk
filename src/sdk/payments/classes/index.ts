@@ -5,6 +5,8 @@ export * from './p2p-payment-channels';
 export * from './p2p-payment-deposit';
 export * from './p2p-payment-deposits';
 export * from './payment-hub';
+export * from './payment-hub-bridge';
+export * from './payment-hub-bridges';
 export * from './payment-hub-deposit';
 export * from './payment-hub-deposits';
 export * from './payment-hub-payment';

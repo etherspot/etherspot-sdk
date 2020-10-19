@@ -1,4 +1,6 @@
+import { Type } from 'class-transformer';
 import { WithTypename } from '../../common';
+import { Account } from '../../account';
 
 export class Session extends WithTypename {
   static TTL_MARGIN = 3000;
@@ -6,6 +8,9 @@ export class Session extends WithTypename {
   token: string;
 
   ttl: number;
+
+  @Type(() => Account)
+  account?: Account;
 
   expireAt?: Date;
 
