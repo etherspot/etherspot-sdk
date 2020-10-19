@@ -4,6 +4,7 @@ import {
   getContractByteCodeHash,
   getContractAddress,
   getContractTypedDataDomainName,
+  getContractTypedDataDomainVersion,
   TYPED_DATA_DOMAIN_SALT,
 } from '@etherspot/contracts';
 import { TypedData, buildTypedData } from 'ethers-typed-data';
@@ -18,6 +19,7 @@ export abstract class Contract<F = string> extends Service {
 
   private typedDataDomain: {
     name: string;
+    version: string;
     salt: string;
   } = null;
 
@@ -68,14 +70,16 @@ export abstract class Contract<F = string> extends Service {
   protected onInit() {
     const abi = getContractAbi(this.name);
     const typedDataDomainName = getContractTypedDataDomainName(this.name);
+    const typedDataDomainVersion = getContractTypedDataDomainVersion(this.name);
 
     if (!abi) {
       throw new Error('No abi has been found');
     }
 
-    if (typedDataDomainName) {
+    if (typedDataDomainName && typedDataDomainVersion) {
       this.typedDataDomain = {
         name: typedDataDomainName,
+        version: typedDataDomainVersion,
         salt: TYPED_DATA_DOMAIN_SALT,
       };
     }
