@@ -15,6 +15,10 @@ export abstract class Service {
       if (this.onInit) {
         this.onInit();
       }
+
+      if (this.error$) {
+        this.addSubscriptions(this.error$.subscribe());
+      }
     }
   }
 
@@ -33,6 +37,10 @@ export abstract class Service {
   protected onInit?(): void;
 
   protected onDestroy?(): void;
+
+  protected get error$(): Context['error$'] {
+    return this.context.error$;
+  }
 
   protected get contracts(): Context['contracts'] {
     return this.context.contracts;

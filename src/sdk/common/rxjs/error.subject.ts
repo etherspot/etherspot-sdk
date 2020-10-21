@@ -34,17 +34,32 @@ export class ErrorSubject extends Subject<any> {
     return result;
   }
 
-  catch<T>(func: () => T): void {
+  catch<T>(func: () => T, onComplete?: () => any): void {
+    const fireOnComplete = () => {
+      if (onComplete) {
+        onComplete();
+        onComplete = null;
+      }
+    };
+
     try {
       const promise = func();
 
       if (promise instanceof Promise) {
-        promise.catch((err) => {
-          this.next(err);
-        });
+        promise
+          .catch((err) => {
+            this.next(err);
+          })
+          .finally(() => {
+            fireOnComplete();
+          });
+        return;
       }
+
+      fireOnComplete();
     } catch (err) {
       this.next(err);
+      fireOnComplete();
     }
   }
 }
