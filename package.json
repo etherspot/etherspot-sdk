@@ -3,14 +3,7 @@
   "version": "1.0.0-alpha.53",
   "description": "ETHERspot sdk",
   "license": "MIT",
-  "author": {
-    "name": "NEWOBJECT.dev",
-    "email": "hello@newobject.dev"
-  },
   "homepage": "https://docs.etherspot.dev",
-  "bugs": {
-    "email": "support@newobject.dev"
-  },
   "main": "./dist/node.js",
   "browser": "./dist/browser.js",
   "types": "./dist/index.d.ts",
