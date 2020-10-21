@@ -5,11 +5,12 @@
   "scripts": {
     "start": "exit 1",
     "01-session": "../node_modules/.bin/ts-node ./src/01-session.ts",
-    "02-contract-account": "../node_modules/.bin/ts-node ./src/02-contract-account.ts",
-    "03-ens": "../node_modules/.bin/ts-node ./src/03-ens.ts",
-    "04-p2p-payments": "../node_modules/.bin/ts-node ./src/04-p2p-payments.ts",
-    "05-payment-hub": "../node_modules/.bin/ts-node ./src/05-payment-hub.ts",
-    "06-payment-bridge": "../node_modules/.bin/ts-node ./src/06-payment-bridge.ts"
+    "02-state-storage": "../node_modules/.bin/ts-node ./src/02-state-storage.ts",
+    "03-contract-account": "../node_modules/.bin/ts-node ./src/03-contract-account.ts",
+    "04-ens": "../node_modules/.bin/ts-node ./src/04-ens.ts",
+    "05-p2p-payments": "../node_modules/.bin/ts-node ./src/05-p2p-payments.ts",
+    "06-payment-hub": "../node_modules/.bin/ts-node ./src/06-payment-hub.ts",
+    "07-payment-hub-bridge": "../node_modules/.bin/ts-node ./src/07-payment-hub-bridge.ts"
   },
   "dependencies": {}
 }

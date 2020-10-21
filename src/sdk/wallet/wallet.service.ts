@@ -17,7 +17,7 @@ export class WalletService extends Service {
 
   private provider: WalletProvider;
 
-  constructor() {
+  constructor(private options: WalletOptions) {
     super();
 
     this.walletAddress$ = this.wallet$.observeKey('address');
@@ -126,5 +126,12 @@ export class WalletService extends Service {
     }
 
     return result;
+  }
+
+  protected onInit() {
+    if (this.options) {
+      this.switchWalletProvider(this.options);
+      this.options = null;
+    }
   }
 }

@@ -130,17 +130,15 @@ export class Sdk {
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
     };
 
-    const walletService = new WalletService();
-
     this.services = {
-      walletService,
+      networkService: new NetworkService(env.networkOptions),
+      walletService: new WalletService(walletOptions),
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
-      networkService: new NetworkService(env.networkOptions),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
@@ -149,10 +147,6 @@ export class Sdk {
     };
 
     this.context = new Context(this.contracts, this.services);
-
-    if (walletOptions) {
-      walletService.switchWalletProvider(walletOptions);
-    }
   }
 
   // exposes

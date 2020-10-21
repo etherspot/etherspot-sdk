@@ -14,9 +14,11 @@ export interface State {
   network: Network;
 }
 
+export type StateStorageState = Omit<State, 'wallet' | 'network'>;
+
 export interface StateStorage {
-  setState(walletAddress: string, networkName: NetworkNames, state: State): Promise<void>;
-  getState(walletAddress: string, networkName: NetworkNames): Promise<State>;
+  setState(walletAddress: string, networkName: NetworkNames, state: StateStorageState): Promise<void>;
+  getState(walletAddress: string, networkName: NetworkNames): Promise<StateStorageState>;
 }
 
 export interface StateOptions {

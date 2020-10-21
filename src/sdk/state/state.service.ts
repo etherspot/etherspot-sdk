@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { filter, map, skip, tap } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 import { Service } from '../common';
 import { Account, AccountMember } from '../account';
 import { Session } from '../auth';
@@ -92,8 +92,6 @@ export class StateService extends Service implements State {
   }
 
   protected onInit() {
-    super.onInit();
-
     const { storage } = this.options || {};
 
     const {
@@ -134,30 +132,15 @@ export class StateService extends Service implements State {
                 State['session'],
                 State['batch'],
                 State['network'],
-              ]) => {
-                const state = {
-                  wallet, //
-                  account,
-                  accountMember,
-                  p2pPaymentDepositAddress,
-                  session,
-                  batch,
-                  network,
-                };
-
-                if (storage) {
-                  const walletAddress = wallet && wallet.address ? wallet.address : null;
-                  const networkName = network && network.name ? network.name : null;
-
-                  if (walletAddress && networkName) {
-                    this.error$.catch(
-                      () => storage.setState(walletAddress, networkName, state), //
-                    );
-                  }
-                }
-
-                return state;
-              },
+              ]) => ({
+                wallet, //
+                account,
+                accountMember,
+                p2pPaymentDepositAddress,
+                session,
+                batch,
+                network,
+              }),
             ),
           )
           .subscribe(this.state$),
@@ -166,7 +149,6 @@ export class StateService extends Service implements State {
           ? null
           : this.state$
               .pipe(
-                skip(1),
                 filter(
                   (state) =>
                     state && //
@@ -177,9 +159,9 @@ export class StateService extends Service implements State {
                     true,
                 ),
                 tap((state) => {
-                  const { wallet, network } = state;
+                  const { wallet, network, ...storageState } = state;
                   this.error$.catch(
-                    () => storage.setState(wallet.address, network.name, state), //
+                    () => storage.setState(wallet.address, network.name, storageState), //
                   );
                 }),
               )
@@ -192,16 +174,18 @@ export class StateService extends Service implements State {
         const walletAddress = wallet && wallet.address ? wallet.address : null;
         const networkName = network && network.name ? network.name : null;
 
-        const state = await storage.getState(walletAddress, networkName);
+        if (walletAddress && networkName) {
+          const state = await storage.getState(walletAddress, networkName);
 
-        if (state) {
-          const { account, accountMember, p2pPaymentDepositAddress, session, batch } = state;
+          if (state) {
+            const { account, accountMember, p2pPaymentDepositAddress, session, batch } = state;
 
-          account$.next(account);
-          accountMember$.next(accountMember);
-          p2pPaymentDepositAddress$.next(p2pPaymentDepositAddress);
-          session$.next(session);
-          batch$.next(batch);
+            account$.next(account);
+            accountMember$.next(accountMember);
+            p2pPaymentDepositAddress$.next(p2pPaymentDepositAddress);
+            session$.next(session);
+            batch$.next(batch);
+          }
         }
       }, callback);
     } else {
