@@ -8,7 +8,8 @@ import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { P2pPaymentService, PaymentHubService } from './payments';
 import { RelayerService } from './relayer';
-import { Service } from './common';
+import { ErrorSubject, Service } from './common';
+import { StateService } from './state';
 import { WalletService } from './wallet';
 import {
   ENSControllerContract,
@@ -19,6 +20,8 @@ import {
 } from './contracts';
 
 export class Context {
+  readonly error$ = new ErrorSubject();
+
   private readonly attached: Service[] = [];
 
   constructor(
@@ -41,6 +44,7 @@ export class Context {
       p2pPaymentsService: P2pPaymentService;
       paymentHubService: PaymentHubService;
       relayerService: RelayerService;
+      stateService: StateService;
       walletService: WalletService;
     },
   ) {

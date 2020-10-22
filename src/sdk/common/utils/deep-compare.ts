@@ -13,6 +13,8 @@ export function deepCompare(a: any, b: any): boolean {
       case 'object':
         if (a === null || b === null) {
           result = a === b;
+        } else if (a === b) {
+          result = true;
         } else if (isBigNumber(a) && isBigNumber(b)) {
           result = (a as BigNumber).eq(b);
         } else if (a instanceof Date && b instanceof Date) {

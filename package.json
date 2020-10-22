@@ -1,16 +1,9 @@
 {
   "name": "etherspot",
-  "version": "1.0.0-alpha.52",
+  "version": "1.0.0-alpha.53",
   "description": "ETHERspot sdk",
   "license": "MIT",
-  "author": {
-    "name": "NEWOBJECT.dev",
-    "email": "hello@newobject.dev"
-  },
   "homepage": "https://docs.etherspot.dev",
-  "bugs": {
-    "email": "support@newobject.dev"
-  },
   "main": "./dist/node.js",
   "browser": "./dist/browser.js",
   "types": "./dist/index.d.ts",
@@ -30,7 +23,8 @@
     "predocs:generate": "rimraf ./docs",
     "postdocs:generate": "cp -r ./.github-pages/files/ ./docs",
     "docs:generate": "typedoc ./src",
-    "docs:serve": "serve ./docs"
+    "docs:serve": "serve ./docs",
+    "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/etherspot-docs.git"
   },
   "dependencies": {
     "@apollo/client": "3.1.3",
@@ -54,6 +48,7 @@
     "eslint-plugin-import": "2.20.2",
     "ethers": "5.0.8",
     "expect": "25.5.0",
+    "gh-pages": "3.1.0",
     "jest": "25.5.4",
     "prettier": "2.0.5",
     "reflect-metadata": "0.1.13",

@@ -1,12 +1,12 @@
 import { BigNumber } from 'ethers';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
 import { BatchService, Batch } from './batch';
 import { BlockService } from './block';
 import { Context } from './context';
-import { Exception, TransactionRequest, UnChainedTypedData } from './common';
+import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -76,7 +76,7 @@ import {
   PaymentHubBridges,
 } from './payments';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
-import { State } from './state';
+import { State, StateService } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
 import { SdkOptions } from './interfaces';
 
@@ -86,8 +86,6 @@ import { SdkOptions } from './interfaces';
  * @category Sdk
  */
 export class Sdk {
-  readonly state: State;
-
   private readonly context: Context;
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
@@ -132,29 +130,23 @@ export class Sdk {
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
     };
 
-    const walletService = new WalletService();
-
     this.services = {
-      walletService,
+      networkService: new NetworkService(env.networkOptions),
+      walletService: new WalletService(walletOptions),
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
       batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
-      networkService: new NetworkService(env.networkOptions),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
       relayerService: new RelayerService(),
+      stateService: new StateService(sdkOptions.state),
     };
 
     this.context = new Context(this.contracts, this.services);
-    this.state = new State(this.services);
-
-    if (walletOptions) {
-      walletService.switchWalletProvider(walletOptions);
-    }
   }
 
   // exposes
@@ -165,6 +157,18 @@ export class Sdk {
 
   get notifications$(): Subject<Notification> {
     return this.services.notificationService.subscribeNotifications();
+  }
+
+  get state(): StateService {
+    return this.services.stateService;
+  }
+
+  get state$(): BehaviorSubject<State> {
+    return this.services.stateService.state$;
+  }
+
+  get error$(): ErrorSubject {
+    return this.context.error$;
   }
 
   get supportedNetworks(): Network[] {
