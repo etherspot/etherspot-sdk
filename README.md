@@ -31,6 +31,11 @@ const sdk = new Sdk(Wallet.createRandom());
 
 ```
 
+## Resources
+
+* [playground](https://etherspot.dev)
+* [documentation](https://docs.etherspot.dev)
+
 ## License
 
 MIT
