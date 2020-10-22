@@ -9,6 +9,11 @@ export enum ERC20TokenFunctionsNames {
   Approve = 'approve',
 }
 
+export enum GatewayFunctionsNames {
+  SendBatchFromAccount = 'sendBatchFromAccount',
+  DelegateBatchWithoutGasPriceFromAccount = 'delegateBatchWithoutGasPriceFromAccount',
+}
+
 export enum PaymentRegistryFunctionsNames {
   DeployDepositAccount = 'deployDepositAccount',
   WithdrawDeposit = 'withdrawDeposit',
