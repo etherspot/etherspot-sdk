@@ -10,7 +10,7 @@
     "**/*+(index|.spec|.e2e).ts"
   ],
   "theme": "./.github-pages/theme",
-  "name": "ETHERspot documentation",
+  "name": "ETHERspot docs",
   "hideGenerator": true,
   "disableSources": true,
   "excludePrivate": true,

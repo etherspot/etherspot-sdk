@@ -101,6 +101,17 @@ export class BatchService extends Service {
     return result;
   }
 
+  async encodeBatch(delegate: boolean): Promise<TransactionRequest> {
+    if (!this.batch) {
+      throw new Error('Can not encode empty batch');
+    }
+    const { relayerService } = this.services;
+
+    const { to, data } = this.extractRequests();
+
+    return relayerService.encodeRelayedTransaction(to, data, delegate);
+  }
+
   protected onInit() {
     const { accountService, networkService } = this.services;
 

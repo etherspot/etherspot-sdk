@@ -10,7 +10,8 @@
     "04-ens": "../node_modules/.bin/ts-node ./src/04-ens.ts",
     "05-p2p-payments": "../node_modules/.bin/ts-node ./src/05-p2p-payments.ts",
     "06-payment-hub": "../node_modules/.bin/ts-node ./src/06-payment-hub.ts",
-    "07-payment-hub-bridge": "../node_modules/.bin/ts-node ./src/07-payment-hub-bridge.ts"
+    "07-payment-hub-bridge": "../node_modules/.bin/ts-node ./src/07-payment-hub-bridge.ts",
+    "08-sending-batch": "../node_modules/.bin/ts-node ./src/08-sending-batch"
   },
   "dependencies": {}
 }

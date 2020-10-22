@@ -21,6 +21,7 @@ import {
   ComputeContractAccountDto,
   CreatePaymentHubPaymentDto,
   CreateSessionDto,
+  EncodeBatchDto,
   EstimateBatchDto,
   ExecuteAccountTransactionDto,
   GetAccountBalancesDto,
@@ -311,6 +312,22 @@ export class Sdk {
   }
 
   /**
+   * encodes batch
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeBatch(dto: EncodeBatchDto = {}): Promise<TransactionRequest> {
+    const { delegate } = await validateDto(dto, EncodeBatchDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    return this.services.batchService.encodeBatch(delegate);
+  }
+
+  /**
    * clears batch
    */
   clearBatch(): void {
@@ -445,14 +462,14 @@ export class Sdk {
     );
   }
 
-  // account (batch)
+  // account (encode)
 
   /**
-   * batch add account owner
+   * encodes add account owner
    * @param dto
    * @return Promise<Batch>
    */
-  async batchAddAccountOwner(dto: AddAccountOwnerDto): Promise<Batch> {
+  async encodeAddAccountOwner(dto: AddAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, AddAccountOwnerDto);
 
     await this.require({
@@ -462,17 +479,15 @@ export class Sdk {
     const { personalAccountRegistryContract } = this.contracts;
     const { accountService } = this.services;
 
-    return this.batchTransactionRequest(
-      personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner),
-    );
+    return personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner);
   }
 
   /**
-   * batch remove account owner
+   * encodes remove account owner
    * @param dto
    * @return Promise<Batch>
    */
-  async batchRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<Batch> {
+  async encodeRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, RemoveAccountOwnerDto);
 
     await this.require({
@@ -482,17 +497,15 @@ export class Sdk {
     const { personalAccountRegistryContract } = this.contracts;
     const { accountService } = this.services;
 
-    return this.batchTransactionRequest(
-      personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner),
-    );
+    return personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner);
   }
 
   /**
-   * batch execute account transaction
+   * encodes execute account transaction
    * @param dto
    * @return Promise<Batch>
    */
-  async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<Batch> {
+  async encodeExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<TransactionRequest> {
     const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto);
 
     await this.require({
@@ -502,14 +515,41 @@ export class Sdk {
     const { personalAccountRegistryContract } = this.contracts;
     const { accountService } = this.services;
 
-    return this.batchTransactionRequest(
-      personalAccountRegistryContract.encodeExecuteAccountTransaction(
-        accountService.accountAddress, //
-        to,
-        value || 0,
-        data || '0x',
-      ),
+    return personalAccountRegistryContract.encodeExecuteAccountTransaction(
+      accountService.accountAddress, //
+      to,
+      value || 0,
+      data || '0x',
     );
+  }
+
+  // account (batch)
+
+  /**
+   * batch add account owner
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchAddAccountOwner(dto: AddAccountOwnerDto): Promise<Batch> {
+    return this.batchTransactionRequest(await this.encodeAddAccountOwner(dto));
+  }
+
+  /**
+   * batch remove account owner
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<Batch> {
+    return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(dto));
+  }
+
+  /**
+   * batch execute account transaction
+   * @param dto
+   * @return Promise<Batch>
+   */
+  async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<Batch> {
+    return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(dto));
   }
 
   // ens
