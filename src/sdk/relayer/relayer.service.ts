@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
-import { Service } from '../common';
+import { Service, TransactionRequest } from '../common';
 import { EstimatedRelayedTransaction, RelayedAccount, RelayedTransaction, RelayedTransactions } from './classes';
 
 export class RelayerService extends Service {
@@ -136,6 +136,50 @@ export class RelayerService extends Service {
     return result;
   }
 
+  async encodeRelayedTransaction(to: string[], data: string[], delegate: boolean): Promise<TransactionRequest> {
+    let result: TransactionRequest;
+
+    const { gatewayContract } = this.contracts;
+    const { accountService, walletService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    if (delegate) {
+      const { nonce } = await this.getRelayedAccount(accountService.accountAddress);
+
+      const typedMessage = gatewayContract.buildTypedData(
+        'DelegatedBatchWithoutGasPrice',
+        [
+          { name: 'nonce', type: 'uint256' }, //
+          { name: 'to', type: 'address[]' },
+          { name: 'data', type: 'bytes[]' },
+        ],
+        {
+          nonce: nonce.toHexString(), //
+          to,
+          data,
+        },
+      );
+
+      const senderSignature = await walletService.signTypedData(typedMessage);
+
+      result = gatewayContract.encodeDelegateBatchWithoutGasPriceFromAccount(
+        account, //
+        to,
+        data,
+        senderSignature,
+      );
+    } else {
+      result = gatewayContract.encodeSendBatchFromAccount(
+        account, //
+        to,
+        data,
+      );
+    }
+
+    return result;
+  }
+
   async getRelayedTransaction(key: string): Promise<RelayedTransaction> {
     const { apiService } = this.services;
 
@@ -215,7 +259,7 @@ export class RelayerService extends Service {
     return result;
   }
 
-  private async getRelayedAccount(address: string): Promise<RelayedAccount> {
+  async getRelayedAccount(address: string): Promise<RelayedAccount> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
