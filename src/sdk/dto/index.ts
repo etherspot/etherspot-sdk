@@ -4,6 +4,7 @@ export * from './commit-p2p-payment-channel.dto';
 export * from './compute-contract-account.dto';
 export * from './create-payment-hub-payment.dto';
 export * from './create-session.dto';
+export * from './encode-batch.dto';
 export * from './estimate-batch.dto';
 export * from './execute-account-transaction.dto';
 export * from './get-account-balances.dto';
