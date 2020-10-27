@@ -121,10 +121,13 @@ export class ApiService extends Service {
     });
 
     const authLink = new ApolloLink((operation, forward) => {
-      const { authService } = this.services;
+      const { authService, projectService } = this.services;
 
       operation.setContext({
-        headers: authService.headers,
+        headers: {
+          ...authService.headers,
+          ...projectService.headers,
+        },
       });
 
       return forward(operation);

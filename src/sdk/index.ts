@@ -14,6 +14,7 @@ export * from './interfaces';
 export * from './network';
 export * from './notification';
 export * from './payments';
+export * from './project';
 export * from './relayer';
 export * from './state';
 export * from './wallet';

@@ -48,6 +48,7 @@ import {
   SignMessageDto,
   SignP2PPaymentChannelDto,
   SubmitBatchDto,
+  SwitchProjectDto,
   SyncP2PPaymentDepositsDto,
   TransactionRequestDto,
   TransferPaymentHubDepositDto,
@@ -76,6 +77,7 @@ import {
   PaymentHubBridge,
   PaymentHubBridges,
 } from './payments';
+import { Project, ProjectService } from './project';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State, StateService } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
@@ -143,6 +145,7 @@ export class Sdk {
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
+      projectService: new ProjectService(sdkOptions.project),
       relayerService: new RelayerService(),
       stateService: new StateService(sdkOptions.state),
     };
@@ -255,6 +258,29 @@ export class Sdk {
     await this.require();
 
     return this.services.authService.createSession(ttl);
+  }
+
+  // project
+
+  /**
+   * switches project
+   * @param dto
+   * @return Promise<Project>
+   */
+  async switchProject(dto: SwitchProjectDto = null): Promise<Project> {
+    let project: Project = null;
+
+    if (dto) {
+      const { key, metadata } = await validateDto(dto, SwitchProjectDto);
+      if (key) {
+        project = {
+          key: key,
+          metadata: metadata || null,
+        };
+      }
+    }
+
+    return this.services.projectService.switchProject(project);
   }
 
   // batch

@@ -7,6 +7,7 @@ import { ENSService } from './ens';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { P2pPaymentService, PaymentHubService } from './payments';
+import { ProjectService } from './project';
 import { RelayerService } from './relayer';
 import { ErrorSubject, Service } from './common';
 import { StateService } from './state';
@@ -43,6 +44,7 @@ export class Context {
       notificationService: NotificationService;
       p2pPaymentsService: P2pPaymentService;
       paymentHubService: PaymentHubService;
+      projectService: ProjectService;
       relayerService: RelayerService;
       stateService: StateService;
       walletService: WalletService;

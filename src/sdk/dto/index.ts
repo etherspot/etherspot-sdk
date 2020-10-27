@@ -31,6 +31,7 @@ export * from './reserve-ens-name.dto';
 export * from './sign-message.dto';
 export * from './sign-p2p-payment-channel.dto';
 export * from './submit-batch.dto';
+export * from './switch-project.dto';
 export * from './sync-p2p-payment-deposits.dto';
 export * from './transaction-request.dto';
 export * from './transfer-payment-hub-deposit.dto';
