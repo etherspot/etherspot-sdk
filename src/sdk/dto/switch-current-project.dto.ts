@@ -1,6 +1,6 @@
 import { IsOptional, MaxLength } from 'class-validator';
 
-export class SwitchProjectDto {
+export class SwitchCurrentProjectDto {
   @MaxLength(66)
   key: string;
 

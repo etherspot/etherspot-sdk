@@ -16,6 +16,7 @@ import {
 } from './contracts';
 import {
   AddAccountOwnerDto,
+  CallCurrentProjectDto,
   ClaimENSNodeDto,
   CommitP2PPaymentChannelDto,
   ComputeContractAccountDto,
@@ -38,6 +39,7 @@ import {
   GetPaymentHubPaymentDto,
   GetPaymentHubPaymentsDto,
   GetPaymentHubsDto,
+  GetProjectDto,
   GetRelayedTransactionDto,
   GetRelayedTransactionsDto,
   IncreaseP2PPaymentChannelAmountDto,
@@ -48,7 +50,7 @@ import {
   SignMessageDto,
   SignP2PPaymentChannelDto,
   SubmitBatchDto,
-  SwitchProjectDto,
+  SwitchCurrentProjectDto,
   SyncP2PPaymentDepositsDto,
   TransactionRequestDto,
   TransferPaymentHubDepositDto,
@@ -56,6 +58,7 @@ import {
   UpdatePaymentHubBridgeDto,
   UpdatePaymentHubDepositDto,
   UpdatePaymentHubDto,
+  UpdateProjectDto,
   validateDto,
 } from './dto';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
@@ -77,7 +80,7 @@ import {
   PaymentHubBridge,
   PaymentHubBridges,
 } from './payments';
-import { Project, ProjectService } from './project';
+import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State, StateService } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
@@ -260,29 +263,6 @@ export class Sdk {
     return this.services.authService.createSession(ttl);
   }
 
-  // project
-
-  /**
-   * switches project
-   * @param dto
-   * @return Promise<Project>
-   */
-  async switchProject(dto: SwitchProjectDto = null): Promise<Project> {
-    let project: Project = null;
-
-    if (dto) {
-      const { key, metadata } = await validateDto(dto, SwitchProjectDto);
-      if (key) {
-        project = {
-          key: key,
-          metadata: metadata || null,
-        };
-      }
-    }
-
-    return this.services.projectService.switchProject(project);
-  }
-
   // batch
 
   /**
@@ -358,6 +338,80 @@ export class Sdk {
    */
   clearBatch(): void {
     this.services.batchService.clearBatch();
+  }
+
+  // projects
+
+  /**
+   * switches current project
+   * @param dto
+   * @return Promise<CurrentProject>
+   */
+  async switchCurrentProject(dto: SwitchCurrentProjectDto = null): Promise<CurrentProject> {
+    let currentProject: CurrentProject = null;
+
+    if (dto) {
+      currentProject = await validateDto(dto, SwitchCurrentProjectDto);
+    }
+
+    return this.services.projectService.switchCurrentProject(currentProject);
+  }
+
+  /**
+   * calls current project
+   * @param dto
+   * @return Promise<any>
+   */
+  async callCurrentProject<T extends {} = any>(dto: CallCurrentProjectDto = {}): Promise<T> {
+    await this.require({
+      session: true,
+      currentProject: true,
+    });
+
+    const { payload } = await validateDto(dto, CallCurrentProjectDto);
+
+    return this.services.projectService.callCurrentProject(payload);
+  }
+
+  /**
+   * gets project
+   * @param dto
+   * @return Promise<Project>
+   */
+  async getProject(dto: GetProjectDto): Promise<Project> {
+    const { key } = await validateDto(dto, GetProjectDto);
+
+    return this.services.projectService.getProject(key);
+  }
+
+  /**
+   * gets projects
+   * @param dto
+   * @return Promise<Projects>
+   */
+  async getProjects(dto: PaginationDto): Promise<Projects> {
+    await this.require({
+      session: true,
+    });
+
+    const { page } = await validateDto(dto, PaginationDto);
+
+    return this.services.projectService.getProjects(page || 1);
+  }
+
+  /**
+   * updates project
+   * @param dto
+   * @return Promise<Project>
+   */
+  async updateProject(dto: UpdateProjectDto): Promise<Project> {
+    await this.require({
+      session: true,
+    });
+
+    const { key, privateKey, endpoint } = await validateDto(dto, UpdateProjectDto);
+
+    return this.services.projectService.updateProject(key, privateKey, endpoint);
   }
 
   // account
@@ -1195,6 +1249,7 @@ export class Sdk {
       wallet?: boolean;
       session?: boolean;
       contractAccount?: boolean;
+      currentProject?: boolean;
     } = {},
   ): Promise<void> {
     options = {
@@ -1203,7 +1258,7 @@ export class Sdk {
       ...options,
     };
 
-    const { accountService, authService, networkService, walletService } = this.services;
+    const { accountService, authService, networkService, walletService, projectService } = this.services;
 
     if (options.network && !networkService.chainId) {
       throw new Exception('Unknown network');
@@ -1219,6 +1274,10 @@ export class Sdk {
 
     if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {
       throw new Exception('Require contract account');
+    }
+
+    if (options.currentProject && !projectService.currentProject) {
+      throw new Exception('Require project');
     }
   }
 
