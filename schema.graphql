@@ -92,6 +92,7 @@ type EstimatedRelayedTransaction {
 
 type Mutation {
   activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+  callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
   createENSSubNode(address: String!, chainId: Int, name: String!): ENSNode!
   createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
@@ -110,6 +111,7 @@ type Mutation {
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
+  updateProject(chainId: Int, endpoint: String!, key: String!, owner: String!, privateKey: String!): Project!
 }
 
 type Network {
@@ -235,6 +237,25 @@ type PaymentHubs {
   nextPage: Int
 }
 
+type Project {
+  address: String!
+  createdAt: DateTime
+  key: String!
+  owner: String!
+  state: ProjectStates!
+  updatedAt: DateTime
+}
+
+type ProjectResponse {
+  data: JSONObject
+}
+
+type Projects {
+  currentPage: Int!
+  items: [Project!]!
+  nextPage: Int
+}
+
 type Query {
   account(account: String!, chainId: Int): Account
   accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
@@ -255,6 +276,8 @@ type Query {
   paymentHubPayment(hash: String!): PaymentHubPayment
   paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
+  project(chainId: Int, key: String!): Project
+  projects(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1): Projects!
   relayedAccount(address: String!, chainId: Int): RelayedAccount
   relayedTransaction(chainId: Int, key: String!): RelayedTransaction
   relayedTransactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): RelayedTransactions!
@@ -420,6 +443,11 @@ enum P2PPaymentDepositStates {
 }
 
 enum PaymentHubBridgeStates {
+  Active
+  Inactive
+}
+
+enum ProjectStates {
   Active
   Inactive
 }
