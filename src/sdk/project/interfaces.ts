@@ -1,4 +1,4 @@
-export interface Project {
+export interface CurrentProject {
   key: string;
   metadata?: string;
 }
