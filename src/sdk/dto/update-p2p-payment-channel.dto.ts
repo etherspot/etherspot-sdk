@@ -10,6 +10,8 @@ export class UpdateP2PPaymentChannelDto {
   @IsAddress()
   token?: string = null;
 
-  @IsBigNumberish()
+  @IsBigNumberish({
+    positive: true,
+  })
   totalAmount: BigNumberish;
 }

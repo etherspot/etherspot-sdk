@@ -1,6 +1,6 @@
 {
   "name": "etherspot",
-  "version": "1.0.0-alpha.55",
+  "version": "1.0.0-alpha.56",
   "description": "ETHERspot sdk",
   "license": "MIT",
   "homepage": "https://docs.etherspot.dev",
@@ -34,7 +34,8 @@
     "class-validator": "0.12.2",
     "cross-fetch": "3.0.4",
     "graphql": "15.3.0",
-    "subscriptions-transport-ws": "0.9.17"
+    "subscriptions-transport-ws": "0.9.17",
+    "validator": "13.0.0"
   },
   "devDependencies": {
     "@types/graphql": "14.5.0",

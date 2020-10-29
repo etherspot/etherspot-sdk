@@ -11,7 +11,9 @@ export class TransferPaymentHubDepositDto {
   @IsAddress()
   token?: string = null;
 
-  @IsBigNumberish()
+  @IsBigNumberish({
+    positive: true,
+  })
   value: BigNumberish;
 
   @IsOptional()

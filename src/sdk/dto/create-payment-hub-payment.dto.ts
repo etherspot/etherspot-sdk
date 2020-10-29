@@ -13,6 +13,8 @@ export class CreatePaymentHubPaymentDto {
   @IsAddress()
   recipient: string;
 
-  @IsBigNumberish()
+  @IsBigNumberish({
+    positive: true,
+  })
   value: BigNumberish;
 }

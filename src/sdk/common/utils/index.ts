@@ -3,6 +3,7 @@ export * from './deep-compare';
 export * from './is-address';
 export * from './is-big-number';
 export * from './is-hex';
+export * from './is-url';
 export * from './keccak256';
 export * from './parse-json';
 export * from './prepare-address';
