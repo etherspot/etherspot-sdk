@@ -1,9 +1,9 @@
 import { EnvLike } from './env';
-import { StateOptions } from './state';
-import { CurrentProject } from './project';
+import { StateStorage } from './state';
 
 export interface SdkOptions {
   env?: EnvLike;
-  state?: StateOptions;
-  project?: CurrentProject;
+  stateStorage?: StateStorage;
+  projectKey?: string;
+  projectMetadata?: string;
 }

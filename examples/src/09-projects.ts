@@ -28,10 +28,8 @@ async function main(): Promise<void> {
     logger.log('sender wallet', wallet.address);
 
     const sdk = new Sdk(wallet, {
-      project: {
-        key: projectKey,
-        metadata: 'test',
-      },
+      projectKey,
+      projectMetadata: 'test',
     });
 
     logger.log('project call', await sdk.callCurrentProject());

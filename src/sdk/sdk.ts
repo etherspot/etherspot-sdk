@@ -128,6 +128,8 @@ export class Sdk {
 
     const env = Env.prepare(sdkOptions.env);
 
+    const { projectKey, projectMetadata, stateStorage } = sdkOptions;
+
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
       erc20TokenContract: new ERC20TokenContract(),
@@ -148,9 +150,14 @@ export class Sdk {
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
-      projectService: new ProjectService(sdkOptions.project),
+      projectService: new ProjectService({
+        key: projectKey,
+        metadata: projectMetadata,
+      }),
       relayerService: new RelayerService(),
-      stateService: new StateService(sdkOptions.state),
+      stateService: new StateService({
+        storage: stateStorage,
+      }),
     };
 
     this.context = new Context(this.contracts, this.services);
