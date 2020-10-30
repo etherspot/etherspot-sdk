@@ -27,9 +27,7 @@ async function main(): Promise<void> {
   };
 
   const sdk = new Sdk(wallet, {
-    state: {
-      storage: stateStorage,
-    },
+    stateStorage,
   });
 
   await sdk.syncAccount();

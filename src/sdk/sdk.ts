@@ -16,6 +16,7 @@ import {
 } from './contracts';
 import {
   AddAccountOwnerDto,
+  CallCurrentProjectDto,
   ClaimENSNodeDto,
   CommitP2PPaymentChannelDto,
   ComputeContractAccountDto,
@@ -38,6 +39,7 @@ import {
   GetPaymentHubPaymentDto,
   GetPaymentHubPaymentsDto,
   GetPaymentHubsDto,
+  GetProjectDto,
   GetRelayedTransactionDto,
   GetRelayedTransactionsDto,
   IncreaseP2PPaymentChannelAmountDto,
@@ -48,6 +50,7 @@ import {
   SignMessageDto,
   SignP2PPaymentChannelDto,
   SubmitBatchDto,
+  SwitchCurrentProjectDto,
   SyncP2PPaymentDepositsDto,
   TransactionRequestDto,
   TransferPaymentHubDepositDto,
@@ -55,6 +58,7 @@ import {
   UpdatePaymentHubBridgeDto,
   UpdatePaymentHubDepositDto,
   UpdatePaymentHubDto,
+  UpdateProjectDto,
   validateDto,
 } from './dto';
 import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
@@ -76,6 +80,7 @@ import {
   PaymentHubBridge,
   PaymentHubBridges,
 } from './payments';
+import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State, StateService } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
@@ -123,6 +128,8 @@ export class Sdk {
 
     const env = Env.prepare(sdkOptions.env);
 
+    const { projectKey, projectMetadata, stateStorage } = sdkOptions;
+
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
       erc20TokenContract: new ERC20TokenContract(),
@@ -143,8 +150,14 @@ export class Sdk {
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
+      projectService: new ProjectService({
+        key: projectKey,
+        metadata: projectMetadata,
+      }),
       relayerService: new RelayerService(),
-      stateService: new StateService(sdkOptions.state),
+      stateService: new StateService({
+        storage: stateStorage,
+      }),
     };
 
     this.context = new Context(this.contracts, this.services);
@@ -301,14 +314,19 @@ export class Sdk {
    * @return Promise<Batch>
    */
   async submitBatch(dto: SubmitBatchDto = {}): Promise<RelayedTransaction> {
-    const { gasPrice } = await validateDto(dto, SubmitBatchDto);
+    const { gasPrice, customProjectMetadata } = await validateDto(dto, SubmitBatchDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null);
+    const { batchService, projectService } = this.services;
+
+    return projectService.withCustomProjectMetadata(
+      customProjectMetadata, //
+      () => batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null),
+    );
   }
 
   /**
@@ -332,6 +350,85 @@ export class Sdk {
    */
   clearBatch(): void {
     this.services.batchService.clearBatch();
+  }
+
+  // projects
+
+  /**
+   * switches current project
+   * @param dto
+   * @return Promise<CurrentProject>
+   */
+  async switchCurrentProject(dto: SwitchCurrentProjectDto = null): Promise<CurrentProject> {
+    let currentProject: CurrentProject = null;
+
+    if (dto) {
+      currentProject = await validateDto(dto, SwitchCurrentProjectDto);
+    }
+
+    return this.services.projectService.switchCurrentProject(currentProject);
+  }
+
+  /**
+   * calls current project
+   * @param dto
+   * @return Promise<any>
+   */
+  async callCurrentProject<T extends {} = any>(dto: CallCurrentProjectDto = {}): Promise<T> {
+    await this.require({
+      session: true,
+      currentProject: true,
+    });
+
+    const { payload, customProjectMetadata } = await validateDto(dto, CallCurrentProjectDto);
+
+    const { projectService } = this.services;
+
+    return projectService.withCustomProjectMetadata(
+      customProjectMetadata, //
+      () => projectService.callCurrentProject(payload),
+    );
+  }
+
+  /**
+   * gets project
+   * @param dto
+   * @return Promise<Project>
+   */
+  async getProject(dto: GetProjectDto): Promise<Project> {
+    const { key } = await validateDto(dto, GetProjectDto);
+
+    return this.services.projectService.getProject(key);
+  }
+
+  /**
+   * gets projects
+   * @param dto
+   * @return Promise<Projects>
+   */
+  async getProjects(dto: PaginationDto): Promise<Projects> {
+    await this.require({
+      session: true,
+    });
+
+    const { page } = await validateDto(dto, PaginationDto);
+
+    return this.services.projectService.getProjects(page || 1);
+  }
+
+  /**
+   * updates project
+   * @param dto
+   * @return Promise<Project>
+   */
+  async updateProject(dto: UpdateProjectDto): Promise<Project> {
+    await this.require({
+      session: true,
+    });
+
+    const { key, privateKey, endpoint } = await validateDto(dto, UpdateProjectDto);
+
+    return this.services.projectService.updateProject(key, privateKey, endpoint);
   }
 
   // account
@@ -1169,6 +1266,7 @@ export class Sdk {
       wallet?: boolean;
       session?: boolean;
       contractAccount?: boolean;
+      currentProject?: boolean;
     } = {},
   ): Promise<void> {
     options = {
@@ -1177,7 +1275,7 @@ export class Sdk {
       ...options,
     };
 
-    const { accountService, authService, networkService, walletService } = this.services;
+    const { accountService, authService, networkService, walletService, projectService } = this.services;
 
     if (options.network && !networkService.chainId) {
       throw new Exception('Unknown network');
@@ -1193,6 +1291,10 @@ export class Sdk {
 
     if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {
       throw new Exception('Require contract account');
+    }
+
+    if (options.currentProject && !projectService.currentProject) {
+      throw new Exception('Require project');
     }
   }
 

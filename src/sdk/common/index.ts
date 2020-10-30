@@ -1,4 +1,5 @@
 export * from './classes';
+export * from './constants';
 export * from './exceptions';
 export * from './interfaces';
 export * from './rxjs';

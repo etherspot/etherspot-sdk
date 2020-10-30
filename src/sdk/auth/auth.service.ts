@@ -1,13 +1,11 @@
 import { gql } from '@apollo/client/core';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Service, ObjectSubject } from '../common';
+import { Service, ObjectSubject, HeaderNames } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
 
 export class AuthService extends Service {
-  static TOKEN_HEADER_NAME = 'x-auth-token';
-
   readonly session$ = new ObjectSubject<Session>();
 
   get session(): Session {
@@ -17,7 +15,7 @@ export class AuthService extends Service {
   get headers(): { [key: string]: any } {
     return this.session
       ? {
-          [AuthService.TOKEN_HEADER_NAME]: this.session.token,
+          [HeaderNames.AuthToken]: this.session.token,
         }
       : {};
   }
