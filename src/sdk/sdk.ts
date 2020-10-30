@@ -314,14 +314,19 @@ export class Sdk {
    * @return Promise<Batch>
    */
   async submitBatch(dto: SubmitBatchDto = {}): Promise<RelayedTransaction> {
-    const { gasPrice } = await validateDto(dto, SubmitBatchDto);
+    const { gasPrice, customProjectMetadata } = await validateDto(dto, SubmitBatchDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null);
+    const { batchService, projectService } = this.services;
+
+    return projectService.withCustomProjectMetadata(
+      customProjectMetadata, //
+      () => batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null),
+    );
   }
 
   /**
@@ -375,9 +380,14 @@ export class Sdk {
       currentProject: true,
     });
 
-    const { payload } = await validateDto(dto, CallCurrentProjectDto);
+    const { payload, customProjectMetadata } = await validateDto(dto, CallCurrentProjectDto);
 
-    return this.services.projectService.callCurrentProject(payload);
+    const { projectService } = this.services;
+
+    return projectService.withCustomProjectMetadata(
+      customProjectMetadata, //
+      () => projectService.callCurrentProject(payload),
+    );
   }
 
   /**

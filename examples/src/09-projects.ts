@@ -33,6 +33,12 @@ async function main(): Promise<void> {
     });
 
     logger.log('project call', await sdk.callCurrentProject());
+    logger.log(
+      'project call with custom metadata',
+      await sdk.callCurrentProject({
+        customProjectMetadata: 'test2',
+      }),
+    );
 
     logger.log(
       'project call with payload',

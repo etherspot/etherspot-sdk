@@ -47,6 +47,30 @@ export class ProjectService extends Service {
     return this.currentProject;
   }
 
+  async withCustomProjectMetadata<T = any>(customMetadata: string, inner: () => Promise<T>): Promise<T> {
+    let result: T;
+
+    if (this.currentProject && customMetadata) {
+      const { key, metadata } = this.currentProject;
+
+      this.currentProject$.next({
+        key,
+        metadata: customMetadata,
+      });
+
+      result = await inner();
+
+      this.currentProject$.next({
+        key,
+        metadata,
+      });
+    } else {
+      result = await inner();
+    }
+
+    return result;
+  }
+
   async getProject(key: string): Promise<Project> {
     const { apiService } = this.services;
 
