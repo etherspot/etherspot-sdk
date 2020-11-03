@@ -1,20 +1,7 @@
-import { Account, AccountMember } from '../account/classes';
-import { Session } from '../auth/classes';
-import { Batch } from '../batch';
-import { Network, NetworkNames } from '../network';
-import { Wallet } from '../wallet';
+import { NetworkNames } from '../network';
+import { State } from './classes';
 
-export interface State {
-  wallet: Wallet;
-  account: Account;
-  accountMember: AccountMember;
-  p2pPaymentDepositAddress: string;
-  session: Session;
-  batch: Batch;
-  network: Network;
-}
-
-export type StateStorageState = Omit<State, 'wallet' | 'network'>;
+export type StateStorageState = Omit<State, 'wallet' | 'network' | 'batch'>;
 
 export interface StateStorage {
   setState(walletAddress: string, networkName: NetworkNames, state: StateStorageState): Promise<void>;

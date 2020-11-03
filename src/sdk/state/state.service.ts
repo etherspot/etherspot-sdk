@@ -1,3 +1,4 @@
+import { plainToClass } from 'class-transformer';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { Service } from '../common';
@@ -6,7 +7,8 @@ import { Session } from '../auth';
 import { Batch } from '../batch';
 import { Network } from '../network';
 import { Wallet } from '../wallet';
-import { State, StateOptions } from './interfaces';
+import { State } from './classes';
+import { StateOptions, StateStorageState } from './interfaces';
 
 export class StateService extends Service implements State {
   readonly state$ = new BehaviorSubject<State>(null);
@@ -91,6 +93,35 @@ export class StateService extends Service implements State {
     return this.services.networkService.network$;
   }
 
+  restore(state: StateStorageState): this {
+    const {
+      accountService: { account$, accountMember$ },
+      p2pPaymentsService: { p2pPaymentDepositAddress$ },
+      authService: { session$ },
+    } = this.services;
+
+    if (state) {
+      state = plainToClass(State, state);
+      const { account, accountMember, p2pPaymentDepositAddress, session } = state;
+
+      account$.next(account);
+      accountMember$.next(accountMember);
+      p2pPaymentDepositAddress$.next(p2pPaymentDepositAddress);
+      session$.next(session);
+    }
+
+    return this;
+  }
+
+  dump(): StateStorageState {
+    return {
+      account: this.account,
+      accountMember: this.accountMember,
+      p2pPaymentDepositAddress: this.p2pPaymentDepositAddress,
+      session: this.session,
+    };
+  }
+
   protected onInit() {
     const { storage } = this.options || {};
 
@@ -160,6 +191,8 @@ export class StateService extends Service implements State {
                 ),
                 tap((state) => {
                   const { wallet, network, ...storageState } = state;
+                  delete storageState.batch;
+
                   this.error$.catch(
                     () => storage.setState(wallet.address, network.name, storageState), //
                   );
@@ -177,15 +210,7 @@ export class StateService extends Service implements State {
         if (walletAddress && networkName) {
           const state = await storage.getState(walletAddress, networkName);
 
-          if (state) {
-            const { account, accountMember, p2pPaymentDepositAddress, session, batch } = state;
-
-            account$.next(account);
-            accountMember$.next(accountMember);
-            p2pPaymentDepositAddress$.next(p2pPaymentDepositAddress);
-            session$.next(session);
-            batch$.next(batch);
-          }
+          this.restore(state);
         }
       }, callback);
     } else {
