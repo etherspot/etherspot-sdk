@@ -12,6 +12,7 @@ export class Session extends WithTypename {
   @Type(() => Account)
   account?: Account;
 
+  @Type(() => Date)
   expireAt?: Date;
 
   refresh?(): void {

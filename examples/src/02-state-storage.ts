@@ -7,36 +7,58 @@ async function main(): Promise<void> {
 
   logger.log('wallet', wallet.address);
 
-  const stateStorage: StateStorage = {
-    getState: async (walletAddress, networkName) => {
-      logger.log('get storage state', {
-        walletAddress,
-        networkName,
-      });
-
-      return null;
+  const storageMock: Partial<Storage> = {
+    data: new Map<string, string>(),
+    setItem(key: string, value: string) {
+      this.data.set(key, value);
     },
-
-    setState: async (walletAddress, networkName, state) => {
-      logger.log('set storage state', {
-        walletAddress,
-        networkName,
-        state,
-      });
+    getItem(key: string): string {
+      return this.data.get(key);
     },
   };
 
-  const sdk = new Sdk(wallet, {
-    stateStorage,
-  });
+  const stateStorage: StateStorage = {
+    getState: async (walletAddress, networkName) => {
+      let result: any = null;
 
-  await sdk.syncAccount();
+      if (walletAddress && networkName) {
+        const plain = storageMock.getItem(`${walletAddress}:${networkName}`);
 
-  await sdk.computeContractAccount({
-    sync: true,
-  });
+        if (plain) {
+          result = JSON.parse(plain);
+        }
+      }
+      return result;
+    },
+
+    setState: async (walletAddress, networkName, state) => {
+      if (walletAddress && networkName) {
+        storageMock.setItem(`${walletAddress}:${networkName}`, JSON.stringify(state));
+      }
+    },
+  };
+
+  // set sdk state
+  {
+    const sdk = new Sdk(wallet, {
+      stateStorage,
+    });
+
+    await sdk.syncAccount();
+
+    await sdk.computeContractAccount({
+      sync: true,
+    });
+  }
+
+  // restore sdk state
+  {
+    const sdk = new Sdk(wallet, {
+      stateStorage,
+    });
+
+    sdk.state$.subscribe((state) => logger.log('sdk state', state));
+  }
 }
 
-main()
-  .catch(logger.error)
-  .finally(() => process.exit());
+main().catch(logger.error);
