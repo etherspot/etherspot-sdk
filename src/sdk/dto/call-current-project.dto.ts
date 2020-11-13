@@ -1,7 +1,7 @@
 import { IsObject, IsOptional } from 'class-validator';
-import { WithCustomProjectMetadataDto } from './with-custom-project-metadata.dto';
+import { CustomProjectMetadataDto } from './custom-project-metadata.dto';
 
-export class CallCurrentProjectDto extends WithCustomProjectMetadataDto {
+export class CallCurrentProjectDto extends CustomProjectMetadataDto {
   @IsOptional()
   @IsObject()
   payload?: any = null;

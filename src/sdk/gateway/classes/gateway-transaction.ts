@@ -1,30 +1,22 @@
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
 import { TransformBigNumber } from '../../common';
-import { RelayedTransactionStates } from '../constants';
+import { GatewayTransactionStates } from '../constants';
 
-export class RelayedTransaction {
-  key: string;
-
-  state: RelayedTransactionStates;
-
+export class GatewayTransaction {
   hash: string;
 
+  state: GatewayTransactionStates;
+
   sender: string;
-
-  account: string;
-
-  encodedData: string;
-
-  gasLimit: number;
 
   @TransformBigNumber()
   gasPrice: BigNumber;
 
-  refundToken: string;
+  estimatedGas: number;
 
   @TransformBigNumber()
-  refundAmount: BigNumber;
+  estimatedCost: BigNumber;
 
   @Type(() => Date)
   createdAt: Date;

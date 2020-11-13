@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { Account, AccountMember } from '../../account';
 import { Session } from '../../auth';
-import { Batch } from '../../batch';
+import { GatewayBatch } from '../../gateway';
 import { Network } from '../../network';
 import { Wallet } from '../../wallet';
 
@@ -19,7 +19,7 @@ export class State {
   @Type(() => Session)
   session: Session;
 
-  batch: Batch;
+  gatewayBatch: GatewayBatch;
 
   network: Network;
 }

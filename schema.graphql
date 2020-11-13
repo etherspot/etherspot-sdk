@@ -86,10 +86,10 @@ type GatewayBatch {
   account: String!
   createdAt: DateTime
   data: [String!]!
-  estimatedGas: Float!
+  estimatedGas: Int!
   estimatedGasPrice: BigNumber!
   hash: String!
-  nonce: Float!
+  nonce: Int!
   refundAmount: BigNumber!
   refundData: String!
   refundToken: String
@@ -108,7 +108,7 @@ type GatewayBatches {
 
 type GatewayEstimatedBatch {
   createdAt: DateTime!
-  estimatedGas: Float!
+  estimatedGas: Int!
   estimatedGasPrice: BigNumber!
   expiredAt: DateTime!
   refundAmount: BigNumber!
@@ -162,9 +162,9 @@ type Mutation {
   createSessionCode(account: String!, chainId: Int): String!
   deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
-  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Float!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayEstimatedBatch!
+  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayEstimatedBatch!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
-  submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Float!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Float!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
+  submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
   syncAccount(chainId: Int): Account!
   syncAccountMember(account: String!, chainId: Int): AccountMember!
   syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!

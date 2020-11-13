@@ -4,7 +4,7 @@ import { filter, map, tap } from 'rxjs/operators';
 import { Service } from '../common';
 import { Account, AccountMember } from '../account';
 import { Session } from '../auth';
-import { Batch } from '../batch';
+import { GatewayBatch } from '../gateway';
 import { Network } from '../network';
 import { Wallet } from '../wallet';
 import { State } from './classes';
@@ -77,12 +77,12 @@ export class StateService extends Service implements State {
     return this.services.authService.session;
   }
 
-  get batch$(): BehaviorSubject<Batch> {
-    return this.services.batchService.batch$;
+  get gatewayBatch$(): BehaviorSubject<GatewayBatch> {
+    return this.services.gatewayService.gatewayBatch$;
   }
 
-  get batch(): Batch {
-    return this.services.batchService.batch;
+  get gatewayBatch(): GatewayBatch {
+    return this.services.gatewayService.gatewayBatch;
   }
 
   get network(): Network {
@@ -130,7 +130,7 @@ export class StateService extends Service implements State {
       accountService: { account$, accountMember$ },
       p2pPaymentsService: { p2pPaymentDepositAddress$ },
       authService: { session$ },
-      batchService: { batch$ },
+      gatewayService: { gatewayBatch$ },
       networkService: { network$, network },
     } = this.services;
 
@@ -142,7 +142,7 @@ export class StateService extends Service implements State {
           accountMember$,
           p2pPaymentDepositAddress$,
           session$,
-          batch$,
+          gatewayBatch$,
           network$,
         ])
           .pipe(
@@ -153,7 +153,7 @@ export class StateService extends Service implements State {
                 accountMember,
                 p2pPaymentDepositAddress,
                 session,
-                batch,
+                gatewayBatch,
                 network,
               ]: [
                 State['wallet'], //
@@ -161,7 +161,7 @@ export class StateService extends Service implements State {
                 State['accountMember'],
                 State['p2pPaymentDepositAddress'],
                 State['session'],
-                State['batch'],
+                State['gatewayBatch'],
                 State['network'],
               ]) => ({
                 wallet, //
@@ -169,7 +169,7 @@ export class StateService extends Service implements State {
                 accountMember,
                 p2pPaymentDepositAddress,
                 session,
-                batch,
+                gatewayBatch,
                 network,
               }),
             ),
@@ -191,7 +191,7 @@ export class StateService extends Service implements State {
                 ),
                 tap((state) => {
                   const { wallet, network, ...storageState } = state;
-                  delete storageState.batch;
+                  delete storageState.gatewayBatch;
 
                   this.error$.catch(
                     () => storage.setState(wallet.address, network.name, storageState), //

@@ -1,6 +1,6 @@
 import { IsOptional, MaxLength } from 'class-validator';
 
-export class WithCustomProjectMetadataDto {
+export class CustomProjectMetadataDto {
   @IsOptional()
   @MaxLength(128)
   customProjectMetadata?: string = null;

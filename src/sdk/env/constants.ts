@@ -28,7 +28,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
   },
   [EnvNames.LocalNets]: {
     apiOptions: {
-      host: '0.0.0.0',
+      host: 'localhost',
       port: 4000,
     },
     networkOptions: {

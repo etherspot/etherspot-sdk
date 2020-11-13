@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
-import { BatchService, Batch } from './batch';
+import { GatewayService, GatewayBatch, GatewaySubmittedBatch } from './gateway';
 import { BlockService } from './block';
 import { Context } from './context';
 import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
@@ -16,14 +16,16 @@ import {
 } from './contracts';
 import {
   AddAccountOwnerDto,
+  BatchGatewayTransactionRequestDto,
   CallCurrentProjectDto,
   ClaimENSNodeDto,
   CommitP2PPaymentChannelDto,
   ComputeContractAccountDto,
   CreatePaymentHubPaymentDto,
   CreateSessionDto,
-  EncodeBatchDto,
-  EstimateBatchDto,
+  CustomProjectMetadataDto,
+  EncodeGatewayBatchDto,
+  EstimateGatewayBatchDto,
   ExecuteAccountTransactionDto,
   GetAccountBalancesDto,
   GetAccountDto,
@@ -40,8 +42,6 @@ import {
   GetPaymentHubPaymentsDto,
   GetPaymentHubsDto,
   GetProjectDto,
-  GetRelayedTransactionDto,
-  GetRelayedTransactionsDto,
   IncreaseP2PPaymentChannelAmountDto,
   JoinContractAccountDto,
   PaginationDto,
@@ -49,10 +49,8 @@ import {
   ReserveENSNameDto,
   SignMessageDto,
   SignP2PPaymentChannelDto,
-  SubmitBatchDto,
   SwitchCurrentProjectDto,
   SyncP2PPaymentDepositsDto,
-  TransactionRequestDto,
   TransferPaymentHubDepositDto,
   UpdateP2PPaymentChannelDto,
   UpdatePaymentHubBridgeDto,
@@ -81,7 +79,6 @@ import {
   PaymentHubBridges,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
-import { RelayerService, RelayedTransaction, RelayedTransactions } from './relayer';
 import { State, StateService } from './state';
 import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
 import { SdkOptions } from './interfaces';
@@ -144,9 +141,9 @@ export class Sdk {
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       authService: new AuthService(),
-      batchService: new BatchService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
+      gatewayService: new GatewayService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2pPaymentService(),
       paymentHubService: new PaymentHubService(),
@@ -154,7 +151,6 @@ export class Sdk {
         key: projectKey,
         metadata: projectMetadata,
       }),
-      relayerService: new RelayerService(),
       stateService: new StateService({
         storage: stateStorage,
       }),
@@ -270,86 +266,86 @@ export class Sdk {
     return this.services.authService.createSession(ttl);
   }
 
-  // batch
+  // gateway
 
   /**
-   * batch transaction request
+   * batches gateway transaction request
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchTransactionRequest(dto: TransactionRequestDto): Promise<Batch> {
-    const { to, data } = await validateDto(dto, TransactionRequestDto);
+  async batchGatewayTransactionRequest(dto: BatchGatewayTransactionRequestDto): Promise<GatewayBatch> {
+    const { to, data } = await validateDto(dto, BatchGatewayTransactionRequestDto);
 
     await this.require({
       contractAccount: true,
     });
 
-    const { batchService } = this.services;
+    const { gatewayService } = this.services;
 
-    return batchService.pushTransactionRequest({
+    return gatewayService.batchGatewayTransactionRequest({
       to,
       data,
     });
   }
 
   /**
-   * estimates batch
+   * estimates gateway batch
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async estimateBatch(dto: EstimateBatchDto = {}): Promise<Batch> {
-    const { refundToken } = await validateDto(dto, EstimateBatchDto);
+  async estimateGatewayBatch(dto: EstimateGatewayBatchDto = {}): Promise<GatewayBatch> {
+    const { refundToken } = await validateDto(dto, EstimateGatewayBatchDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.batchService.estimateBatch(refundToken);
+    return this.services.gatewayService.estimateGatewayBatch(refundToken);
   }
 
   /**
-   * submits batch
+   * submits gateway batch
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewaySubmittedBatch>
    */
-  async submitBatch(dto: SubmitBatchDto = {}): Promise<RelayedTransaction> {
-    const { gasPrice, customProjectMetadata } = await validateDto(dto, SubmitBatchDto);
+  async submitGatewayBatch(dto: CustomProjectMetadataDto = {}): Promise<GatewaySubmittedBatch> {
+    const { customProjectMetadata } = await validateDto(dto, CustomProjectMetadataDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    const { batchService, projectService } = this.services;
+    const { gatewayService, projectService } = this.services;
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => batchService.submitBatch(gasPrice ? BigNumber.from(gasPrice) : null),
+      () => gatewayService.submitGatewayBatch(),
     );
   }
 
   /**
-   * encodes batch
+   * encodes gateway batch
    * @param dto
    * @return Promise<TransactionRequest>
    */
-  async encodeBatch(dto: EncodeBatchDto = {}): Promise<TransactionRequest> {
-    const { delegate } = await validateDto(dto, EncodeBatchDto);
+  async encodeGatewayBatch(dto: EncodeGatewayBatchDto = {}): Promise<TransactionRequest> {
+    const { delegate } = await validateDto(dto, EncodeGatewayBatchDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.batchService.encodeBatch(delegate);
+    return this.services.gatewayService.encodeGatewayBatch(delegate);
   }
 
   /**
-   * clears batch
+   * clears gateway batch
    */
-  clearBatch(): void {
-    this.services.batchService.clearBatch();
+  clearGatewayBatch(): void {
+    this.services.gatewayService.clearGatewayBatch();
   }
 
   // projects
@@ -564,7 +560,7 @@ export class Sdk {
   /**
    * encodes add account owner
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
   async encodeAddAccountOwner(dto: AddAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, AddAccountOwnerDto);
@@ -582,7 +578,7 @@ export class Sdk {
   /**
    * encodes remove account owner
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
   async encodeRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, RemoveAccountOwnerDto);
@@ -600,7 +596,7 @@ export class Sdk {
   /**
    * encodes execute account transaction
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
   async encodeExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<TransactionRequest> {
     const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto);
@@ -625,28 +621,28 @@ export class Sdk {
   /**
    * batch add account owner
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchAddAccountOwner(dto: AddAccountOwnerDto): Promise<Batch> {
-    return this.batchTransactionRequest(await this.encodeAddAccountOwner(dto));
+  async batchAddAccountOwner(dto: AddAccountOwnerDto): Promise<GatewayBatch> {
+    return this.batchGatewayTransactionRequest(await this.encodeAddAccountOwner(dto));
   }
 
   /**
    * batch remove account owner
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<Batch> {
-    return this.batchTransactionRequest(await this.encodeRemoveAccountOwner(dto));
+  async batchRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<GatewayBatch> {
+    return this.batchGatewayTransactionRequest(await this.encodeRemoveAccountOwner(dto));
   }
 
   /**
    * batch execute account transaction
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<Batch> {
-    return this.batchTransactionRequest(await this.encodeExecuteAccountTransaction(dto));
+  async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<GatewayBatch> {
+    return this.batchGatewayTransactionRequest(await this.encodeExecuteAccountTransaction(dto));
   }
 
   // ens
@@ -725,14 +721,14 @@ export class Sdk {
   /**
    * batch claim ens node
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchClaimENSNode(dto: ClaimENSNodeDto = {}): Promise<Batch> {
+  async batchClaimENSNode(dto: ClaimENSNodeDto = {}): Promise<GatewayBatch> {
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeClaimENSNode(dto));
+    return this.batchGatewayTransactionRequest(await this.encodeClaimENSNode(dto));
   }
 
   // p2p payments
@@ -906,14 +902,14 @@ export class Sdk {
   /**
    * batch commit p2p payment channel
    * @param dto
-   * @return Promise<Batch>
+   * @return Promise<GatewayBatch>
    */
-  async batchCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<Batch> {
+  async batchCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<GatewayBatch> {
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchTransactionRequest(await this.encodeCommitP2PPaymentChannel(dto));
+    return this.batchGatewayTransactionRequest(await this.encodeCommitP2PPaymentChannel(dto));
   }
 
   // hub payments
@@ -1220,41 +1216,6 @@ export class Sdk {
       token,
       this.getNetworkChainId(acceptedNetworkName),
       acceptedToken,
-    );
-  }
-
-  // relayer
-
-  /**
-   * gets relayed transaction
-   * @param dto
-   * @return Promise<RelayedTransaction>
-   */
-  async getRelayedTransaction(dto: GetRelayedTransactionDto): Promise<RelayedTransaction> {
-    const { key } = await validateDto(dto, GetRelayedTransactionDto);
-
-    await this.require({
-      wallet: false,
-    });
-
-    return this.services.relayerService.getRelayedTransaction(key);
-  }
-
-  /**
-   * gets relayed transactions
-   * @param dto
-   * @return Promise<RelayedTransactions>
-   */
-  async getRelayedTransactions(dto: GetRelayedTransactionsDto = {}): Promise<RelayedTransactions> {
-    const { account, page } = await validateDto(dto, GetRelayedTransactionsDto);
-
-    await this.require({
-      wallet: !account,
-    });
-
-    return this.services.relayerService.getRelayedTransactions(
-      this.prepareAccountAddress(account), //
-      page || 1,
     );
   }
 
