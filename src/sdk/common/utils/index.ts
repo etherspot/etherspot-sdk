@@ -10,3 +10,4 @@ export * from './prepare-address';
 export * from './sleep';
 export * from './stringify-json';
 export * from './to-hex';
+export * from './unique-nonce';

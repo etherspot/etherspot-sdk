@@ -126,9 +126,7 @@ type GatewaySender {
 }
 
 type GatewaySenders {
-  currentPage: Int!
   items: [GatewaySender!]!
-  nextPage: Int
 }
 
 type GatewaySupportedToken {
@@ -137,9 +135,7 @@ type GatewaySupportedToken {
 }
 
 type GatewaySupportedTokens {
-  currentPage: Int!
   items: [GatewaySupportedToken!]!
-  nextPage: Int
 }
 
 type GatewayTransaction {

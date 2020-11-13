@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { utils } from 'ethers';
-import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
+import { Exception, Service, TransactionRequest, UniqueSubject, uniqueNonce } from '../common';
 import { GatewayEstimatedBatch, GatewaySubmittedBatch } from './classes';
 import { GATEWAY_ESTIMATION_REFUND_PAYEE, GATEWAY_ESTIMATION_AMOUNT } from './constants';
 import { GatewayBatch } from './interfaces';
@@ -48,7 +48,7 @@ export class GatewayService extends Service {
     }
 
     const { to, data } = this.extractToAndData();
-    const nonce = Date.now();
+    const nonce = uniqueNonce();
 
     const { accountService, walletService, apiService } = this.services;
     const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.contracts;
@@ -274,7 +274,7 @@ export class GatewayService extends Service {
       throw new Exception('Can not encode empty batch');
     }
 
-    let result: TransactionRequest = null;
+    let result: TransactionRequest;
 
     const { accountService, walletService } = this.services;
     const { gatewayContract } = this.contracts;
@@ -284,7 +284,7 @@ export class GatewayService extends Service {
     const { to, data } = this.extractToAndData();
 
     if (delegate) {
-      const nonce = Date.now();
+      const nonce = uniqueNonce();
 
       const typedMessage = gatewayContract.hashDelegatedBatch(nonce, to, data);
       const senderSignature = await walletService.signTypedData(typedMessage);

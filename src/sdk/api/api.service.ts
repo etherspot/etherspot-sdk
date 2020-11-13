@@ -163,6 +163,8 @@ export class ApiService extends Service {
       let value: any;
       if (isBigNumber(variables[key])) {
         value = BigNumber.from(variables[key]).toHexString();
+      } else if (variables[key] instanceof Date) {
+        value = variables[key].getTime();
       } else {
         value = variables[key];
       }
