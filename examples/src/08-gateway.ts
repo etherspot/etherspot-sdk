@@ -36,7 +36,7 @@ async function main(): Promise<void> {
       }),
     );
 
-    const transactionRequest = await sdk.encodeBatch();
+    const transactionRequest = await sdk.encodeGatewayBatch();
 
     logger.log('transaction request', transactionRequest);
 
@@ -44,8 +44,6 @@ async function main(): Promise<void> {
 
     logger.log('transaction response', transactionResponse);
     logger.log('transaction', await transactionResponse.wait());
-
-    sdk.clearBatch();
   }
 
   {
@@ -64,7 +62,7 @@ async function main(): Promise<void> {
       }),
     );
 
-    const transactionRequest = await sdk.encodeBatch({
+    const transactionRequest = await sdk.encodeGatewayBatch({
       delegate: true, // use delegate for external wallets
     });
 
@@ -74,12 +72,10 @@ async function main(): Promise<void> {
 
     logger.log('transaction response', transactionResponse);
     logger.log('transaction', await transactionResponse.wait());
-
-    sdk.clearBatch();
   }
 
   {
-    logger.info('sending batch using relayer');
+    logger.info('sending batch using gateway');
 
     await topUpAccount(sdk.state.accountAddress, '0.5');
 
@@ -96,9 +92,9 @@ async function main(): Promise<void> {
       }),
     );
 
-    logger.log('estimated batch', await sdk.estimateBatch());
+    logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
-    logger.log('relayed transaction', await sdk.submitBatch());
+    logger.log('submitted batch', await sdk.submitGatewayBatch());
   }
 }
 

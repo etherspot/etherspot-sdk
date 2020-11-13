@@ -134,9 +134,9 @@ async function main(): Promise<void> {
     }),
   );
 
-  logger.log('estimated batch', await recipientLocalBSdk.estimateBatch());
+  logger.log('estimated batch', await recipientLocalBSdk.estimateGatewayBatch());
 
-  logger.log('relayed transaction', await recipientLocalBSdk.submitBatch());
+  logger.log('submitted batch', await recipientLocalBSdk.submitGatewayBatch());
 
   logger.log('recipient balances', await recipientLocalBSdk.getAccountBalances());
 }

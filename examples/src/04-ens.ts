@@ -16,7 +16,7 @@ async function main(): Promise<void> {
     nameOrHashOrAddress: 'pillar.test',
   });
 
-  if (!ensRootNode) {
+  if (!ensRootNode || !ensRootNode.state) {
     logger.info('ens root node pillar.test not found');
     return;
   }
@@ -50,9 +50,9 @@ async function main(): Promise<void> {
       nameOrHashOrAddress: ensName,
     }),
   );
-  logger.log('estimated batch', await sdk.estimateBatch());
+  logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
-  logger.log('relayed transaction', await sdk.submitBatch());
+  logger.log('submitted batch', await sdk.submitGatewayBatch());
 }
 
 main()
