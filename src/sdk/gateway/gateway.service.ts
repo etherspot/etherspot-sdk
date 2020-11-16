@@ -8,7 +8,7 @@ import {
   GatewaySupportedToken,
   GatewaySupportedTokens,
 } from './classes';
-import { GATEWAY_ESTIMATION_REFUND_PAYEE, GATEWAY_ESTIMATION_AMOUNT } from './constants';
+import { GATEWAY_ESTIMATION_AMOUNT } from './constants';
 import { GatewayBatch } from './interfaces';
 
 export class GatewayService extends Service {
@@ -217,16 +217,13 @@ export class GatewayService extends Service {
     const { accountService, walletService, apiService } = this.services;
     const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.contracts;
 
+    const sender = walletService.walletAddress;
     const account = accountService.accountAddress;
 
     let refundTransactionRequest: TransactionRequest;
 
     if (refundToken) {
-      const { to, data } = erc20TokenContract.encodeTransfer(
-        refundToken,
-        GATEWAY_ESTIMATION_REFUND_PAYEE,
-        GATEWAY_ESTIMATION_AMOUNT,
-      );
+      const { to, data } = erc20TokenContract.encodeTransfer(refundToken, sender, GATEWAY_ESTIMATION_AMOUNT);
 
       refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(account, to, 0, data);
     } else {

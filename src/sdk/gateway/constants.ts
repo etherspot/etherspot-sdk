@@ -1,5 +1,4 @@
 export const GATEWAY_ESTIMATION_AMOUNT = 1;
-export const GATEWAY_ESTIMATION_REFUND_PAYEE = `0x${'F'.repeat(40)}`;
 
 export enum GatewayBatchStates {
   Queued = 'Queued',
