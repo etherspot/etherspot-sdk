@@ -140,13 +140,13 @@ type GatewaySupportedTokens {
 
 type GatewayTransaction {
   createdAt: DateTime!
-  estimatedCost: BigNumber!
-  estimatedGas: Int!
   gasPrice: BigNumber!
+  gasUsed: Int
   hash: String!
   sender: String
   state: GatewayTransactionStates!
-  updatedAt: DateTime
+  totalCost: BigNumber!
+  updatedAt: DateTime!
 }
 
 type Mutation {
@@ -325,7 +325,7 @@ type Query {
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
-  gatewayBatch(chainId: Int, hash: String!): GatewayBatch!
+  gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
   gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken

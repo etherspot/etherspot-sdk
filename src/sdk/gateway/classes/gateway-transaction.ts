@@ -13,10 +13,10 @@ export class GatewayTransaction extends WithTypename {
   @TransformBigNumber()
   gasPrice: BigNumber;
 
-  estimatedGas: number;
+  gasUsed: number;
 
   @TransformBigNumber()
-  estimatedCost: BigNumber;
+  totalCost: BigNumber;
 
   @Type(() => Date)
   createdAt: Date;

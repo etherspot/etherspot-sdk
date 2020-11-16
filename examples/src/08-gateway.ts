@@ -94,7 +94,16 @@ async function main(): Promise<void> {
 
     logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
-    logger.log('submitted batch', await sdk.submitGatewayBatch());
+    const submittedBatch = await sdk.submitGatewayBatch();
+
+    const { hash } = submittedBatch;
+
+    logger.log(
+      'submitted batch',
+      await sdk.getGatewaySubmittedBatch({
+        hash,
+      }),
+    );
   }
 }
 

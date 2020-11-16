@@ -3,7 +3,13 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AuthService, Session } from './auth';
-import { GatewayService, GatewayBatch, GatewaySubmittedBatch } from './gateway';
+import {
+  GatewayService,
+  GatewayBatch,
+  GatewaySubmittedBatch,
+  GatewaySupportedToken,
+  GatewaySubmittedBatches,
+} from './gateway';
 import { BlockService } from './block';
 import { Context } from './context';
 import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
@@ -31,6 +37,8 @@ import {
   GetAccountDto,
   GetAccountMembersDto,
   GetENSNodeDto,
+  GetGatewaySubmittedBatchDto,
+  GetGatewaySupportedTokenDto,
   GetP2PPaymentChannelDto,
   GetP2PPaymentChannelsDto,
   GetPaymentHubBridgeDto,
@@ -267,6 +275,54 @@ export class Sdk {
   }
 
   // gateway
+
+  /**
+   * gets gateway supported token
+   * @param dto
+   * @return Promise<GatewaySupportedToken>
+   */
+  async getGatewaySupportedToken(dto: GetGatewaySupportedTokenDto): Promise<GatewaySupportedToken> {
+    const { token } = await validateDto(dto, GetGatewaySupportedTokenDto);
+
+    const { gatewayService } = this.services;
+
+    return gatewayService.getGatewaySupportedToken(token);
+  }
+
+  /**
+   * gets gateway supported tokens
+   * @return Promise<GatewaySupportedToken[]>
+   */
+  async getGatewaySupportedTokens(): Promise<GatewaySupportedToken[]> {
+    return this.services.gatewayService.getGatewaySupportedTokens();
+  }
+
+  /**
+   * gets gateway submitted batch
+   * @param dto
+   * @return Promise<GatewaySubmittedBatch>
+   */
+  async getGatewaySubmittedBatch(dto: GetGatewaySubmittedBatchDto): Promise<GatewaySubmittedBatch> {
+    const { hash } = await validateDto(dto, GetGatewaySubmittedBatchDto);
+
+    return this.services.gatewayService.getGatewaySubmittedBatch(hash);
+  }
+
+  /**
+   * gets gateway submitted batches
+   * @param dto
+   * @return Promise<GatewaySubmittedBatches>
+   */
+  async getGatewaySubmittedBatches(dto: PaginationDto = {}): Promise<GatewaySubmittedBatches> {
+    const { page } = await validateDto(dto, PaginationDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    return this.services.gatewayService.getGatewaySubmittedBatches(page || 1);
+  }
 
   /**
    * batches gateway transaction request

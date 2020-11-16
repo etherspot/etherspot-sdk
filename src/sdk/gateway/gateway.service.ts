@@ -1,7 +1,13 @@
 import { gql } from '@apollo/client/core';
 import { utils } from 'ethers';
 import { Exception, Service, TransactionRequest, UniqueSubject, uniqueNonce } from '../common';
-import { GatewayEstimatedBatch, GatewaySubmittedBatch } from './classes';
+import {
+  GatewayEstimatedBatch,
+  GatewaySubmittedBatch,
+  GatewaySubmittedBatches,
+  GatewaySupportedToken,
+  GatewaySupportedTokens,
+} from './classes';
 import { GATEWAY_ESTIMATION_REFUND_PAYEE, GATEWAY_ESTIMATION_AMOUNT } from './constants';
 import { GatewayBatch } from './interfaces';
 
@@ -40,6 +46,164 @@ export class GatewayService extends Service {
     this.estimationOptions = null;
 
     this.gatewayBatch$.next(null);
+  }
+
+  async getGatewaySupportedToken(token: string): Promise<GatewaySupportedToken> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: GatewaySupportedToken;
+    }>(
+      gql`
+        query($chainId: Int, $token: String!) {
+          result: gatewaySupportedToken(chainId: $chainId, token: $token) {
+            address
+            exchangeRate
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySupportedToken,
+        },
+        variables: {
+          token,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getGatewaySupportedTokens(): Promise<GatewaySupportedToken[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: GatewaySupportedTokens;
+    }>(
+      gql`
+        query($chainId: Int) {
+          result: gatewaySupportedTokens(chainId: $chainId) {
+            items {
+              address
+              exchangeRate
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySupportedTokens,
+        },
+      },
+    );
+
+    return result.items;
+  }
+
+  async getGatewaySubmittedBatch(hash: string): Promise<GatewaySubmittedBatch> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: GatewaySubmittedBatch;
+    }>(
+      gql`
+        query($chainId: Int, $hash: String!) {
+          result: gatewayBatch(chainId: $chainId, hash: $hash) {
+            transaction {
+              hash
+              state
+              sender
+              gasPrice
+              gasUsed
+              totalCost
+              createdAt
+              updatedAt
+            }
+            hash
+            state
+            account
+            nonce
+            to
+            data
+            senderSignature
+            estimatedGas
+            estimatedGasPrice
+            refundToken
+            refundAmount
+            refundData
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatch,
+        },
+        variables: {
+          hash,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getGatewaySubmittedBatches(page: number = null): Promise<GatewaySubmittedBatches> {
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: GatewaySubmittedBatches;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $page: Int) {
+          result: gatewayBatches(chainId: $chainId, account: $account, page: $page) {
+            items {
+              transaction {
+                hash
+                state
+                sender
+                gasPrice
+                gasUsed
+                totalCost
+                createdAt
+                updatedAt
+              }
+              hash
+              state
+              account
+              nonce
+              to
+              data
+              senderSignature
+              estimatedGas
+              estimatedGasPrice
+              refundToken
+              refundAmount
+              refundData
+              createdAt
+              updatedAt
+            }
+            currentPage
+            nextPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatches,
+        },
+        variables: {
+          account,
+          page: page || 1,
+        },
+      },
+    );
+
+    return result;
   }
 
   async estimateGatewayBatch(refundToken: string): Promise<GatewayBatch> {
@@ -222,8 +386,8 @@ export class GatewayService extends Service {
               state
               sender
               gasPrice
-              estimatedGas
-              estimatedCost
+              gasUsed
+              totalCost
               createdAt
               updatedAt
             }
