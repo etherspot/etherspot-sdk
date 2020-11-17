@@ -94,9 +94,9 @@ async function main(): Promise<void> {
       hash,
     }),
   );
-  logger.log('estimated batch', await recipientSdk.estimateBatch());
+  logger.log('estimated batch', await recipientSdk.estimateGatewayBatch());
 
-  logger.log('relayed transaction', await recipientSdk.submitBatch());
+  logger.log('submitted batch', await recipientSdk.submitGatewayBatch());
 
   logger.log('recipient balances', await recipientSdk.getAccountBalances());
 }

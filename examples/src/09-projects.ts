@@ -73,9 +73,9 @@ async function main(): Promise<void> {
         owner: randomAddress(),
       }),
     );
-    logger.log('estimated batch', await sdk.estimateBatch());
+    logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
-    logger.log('relayed transaction', await sdk.submitBatch());
+    logger.log('submitted batch', await sdk.submitGatewayBatch());
   }
 }
 

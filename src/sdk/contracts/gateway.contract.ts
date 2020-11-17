@@ -1,4 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
+import { TypedData } from 'ethers-typed-data';
 import { TransactionRequest } from '../common';
 import { Contract } from './contract';
 import { GatewayFunctionsNames } from './constants';
@@ -17,18 +18,36 @@ export class GatewayContract extends Contract<GatewayFunctionsNames> {
     );
   }
 
-  encodeDelegateBatchWithoutGasPriceFromAccount(
+  encodeDelegateBatch(
     account: string,
+    nonce: number,
     to: string[],
     data: string[],
     senderSignature: string,
   ): TransactionRequest {
     return this.encodeSelfContractTransactionRequest(
-      GatewayFunctionsNames.DelegateBatchWithoutGasPriceFromAccount, //
+      GatewayFunctionsNames.DelegateBatch, //
       account,
+      nonce,
       to,
       data,
       senderSignature,
+    );
+  }
+
+  hashDelegatedBatch(nonce: number, to: string[], data: string[]): TypedData {
+    return this.buildTypedData(
+      'DelegatedBatch',
+      [
+        { name: 'nonce', type: 'uint256' }, //
+        { name: 'to', type: 'address[]' },
+        { name: 'data', type: 'bytes[]' },
+      ],
+      {
+        nonce, //
+        to,
+        data,
+      },
     );
   }
 }

@@ -14,7 +14,7 @@ export type AccountNotification = BaseNotification<
 >;
 
 export type AccountMemberNotification = BaseNotification<
-  NotificationTypes.AccountMemberCreated | NotificationTypes.AccountUpdated,
+  NotificationTypes.AccountMemberCreated | NotificationTypes.AccountMemberUpdated,
   {
     account: string;
     member: string;
@@ -23,6 +23,13 @@ export type AccountMemberNotification = BaseNotification<
 
 export type ENSSubNodeNotification = BaseNotification<
   NotificationTypes.ENSSubNodeCreated | NotificationTypes.ENSSubNodeUpdated,
+  {
+    hash: string;
+  }
+>;
+
+export type GatewayBatchNotification = BaseNotification<
+  NotificationTypes.GatewayBatchCreated | NotificationTypes.GatewayBatchUpdated,
   {
     hash: string;
   }
@@ -69,20 +76,13 @@ export type PaymentHubPaymentNotification = BaseNotification<
   }
 >;
 
-export type RelayedTransactionNotification = BaseNotification<
-  NotificationTypes.RelayedTransactionCreated | NotificationTypes.RelayedTransactionUpdated,
-  {
-    hey: string;
-  }
->;
-
 export type Notification =
   | AccountNotification
   | AccountMemberNotification
   | ENSSubNodeNotification
+  | GatewayBatchNotification
   | P2PPaymentChannelNotification
   | PaymentHubNotification
   | PaymentHubBridgeNotification
   | PaymentHubDepositNotification
-  | PaymentHubPaymentNotification
-  | RelayedTransactionNotification;
+  | PaymentHubPaymentNotification;

@@ -82,12 +82,71 @@ type ENSNode {
   updatedAt: DateTime
 }
 
-type EstimatedRelayedTransaction {
-  gasLimit: Int!
-  gasPrice: BigNumber!
+type GatewayBatch {
+  account: String!
+  createdAt: DateTime
+  data: [String!]!
+  estimatedGas: Int!
+  estimatedGasPrice: BigNumber!
+  hash: String!
+  nonce: Int!
   refundAmount: BigNumber!
+  refundData: String!
   refundToken: String
+  senderSignature: String!
+  state: GatewayBatchStates!
+  to: [String!]!
+  transaction: GatewayTransaction
+  updatedAt: DateTime
+}
+
+type GatewayBatches {
+  currentPage: Int!
+  items: [GatewayBatch!]!
+  nextPage: Int
+}
+
+type GatewayEstimatedBatch {
+  createdAt: DateTime!
+  estimatedGas: Int!
+  estimatedGasPrice: BigNumber!
+  expiredAt: DateTime!
+  refundAmount: BigNumber!
+  refundTokenPayee: String
+  signature: String!
+}
+
+type GatewaySender {
+  address: String!
+  balance: BigNumber!
+  createdAt: DateTime!
+  nonce: Float!
+  state: GatewaySenderStates!
+  updatedAt: DateTime!
+}
+
+type GatewaySenders {
+  items: [GatewaySender!]!
+}
+
+type GatewaySupportedToken {
+  address: String!
+  exchangeRate: Float!
+}
+
+type GatewaySupportedTokens {
+  items: [GatewaySupportedToken!]!
+}
+
+type GatewayTransaction {
+  createdAt: DateTime!
+  gasPrice: BigNumber!
+  gasUsed: Int
+  hash: String!
+  sender: String
+  state: GatewayTransactionStates!
   totalCost: BigNumber!
+  updatedAt: DateTime!
 }
 
 type Mutation {
@@ -99,9 +158,9 @@ type Mutation {
   createSessionCode(account: String!, chainId: Int): String!
   deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
-  estimateRelayedTransaction(account: String!, chainId: Int, data: [String!]!, refundToken: String, sender: String!, to: [String!]!): EstimatedRelayedTransaction!
-  sendRelayedTransaction(account: String!, chainId: Int, data: [String!]!, gasPrice: BigNumber!, senderSignature: String!, to: [String!]!): RelayedTransaction!
+  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayEstimatedBatch!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
+  submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
   syncAccount(chainId: Int): Account!
   syncAccountMember(account: String!, chainId: Int): AccountMember!
   syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
@@ -262,9 +321,16 @@ type Query {
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
+  asset(account: String = "0x0000000000000000000000000000000000000000", name: String = "tokens.1inch.eth"): TokenList!
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+  gatewayBatch(chainId: Int, hash: String!): GatewayBatch
+  gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
+  gatewaySenders(chainId: Int): GatewaySenders!
+  gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
+  gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
+  isSynthetixAsset(address: String!): Boolean!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
@@ -278,39 +344,10 @@ type Query {
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   project(chainId: Int, key: String!): Project
   projects(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1): Projects!
-  relayedAccount(address: String!, chainId: Int): RelayedAccount
-  relayedTransaction(chainId: Int, key: String!): RelayedTransaction
-  relayedTransactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): RelayedTransactions!
   supportedNetworks: [Network!]!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
   validateENSLabel(label: String!): Boolean!
-}
-
-type RelayedAccount {
-  address: String!
-  nonce: BigNumber!
-}
-
-type RelayedTransaction {
-  account: String!
-  createdAt: DateTime!
-  encodedData: String!
-  gasLimit: Int!
-  gasPrice: BigNumber!
-  hash: String
-  key: String!
-  refundAmount: BigNumber!
-  refundToken: String
-  sender: String
-  state: RelayedTransactionStates!
-  updatedAt: DateTime!
-}
-
-type RelayedTransactions {
-  currentPage: Int!
-  items: [RelayedTransaction!]!
-  nextPage: Int
 }
 
 type Session {
@@ -321,6 +358,29 @@ type Session {
 
 type Subscription {
   newNotification(address: String!, chainId: Int): Notification
+}
+
+type Token {
+  address: String!
+  chainId: Float!
+  decimals: Float!
+  logoURI: String!
+  name: String!
+  symbol: String!
+}
+
+type TokenList {
+  keywords: String!
+  name: String!
+  timestamp: DateTime!
+  tokens: [Token!]!
+  version: TokenListVersion!
+}
+
+type TokenListVersion {
+  major: Float!
+  minor: Float!
+  patch: Float!
 }
 
 type Transaction {
@@ -394,6 +454,27 @@ enum ENSNodeTypes {
   Sub
 }
 
+enum GatewayBatchStates {
+  Queued
+  Resending
+  Reverted
+  Sending
+  Sent
+}
+
+enum GatewaySenderStates {
+  Busy
+  Ready
+}
+
+enum GatewayTransactionStates {
+  Canceled
+  Canceling
+  Reverted
+  Sending
+  Sent
+}
+
 enum NetworkNames {
   Goerli
   Kovan
@@ -411,6 +492,8 @@ enum NotificationTypes {
   AccountUpdated
   ENSSubNodeCreated
   ENSSubNodeUpdated
+  GatewayBatchCreated
+  GatewayBatchUpdated
   P2PPaymentChannelCreated
   P2PPaymentChannelUpdated
   PaymentHubBridgeCreated
@@ -420,8 +503,6 @@ enum NotificationTypes {
   PaymentHubDepositUpdated
   PaymentHubPaymentCreated
   PaymentHubUpdated
-  RelayedTransactionCreated
-  RelayedTransactionUpdated
 }
 
 enum P2PPaymentChannelPaymentStates {
@@ -450,14 +531,6 @@ enum PaymentHubBridgeStates {
 enum ProjectStates {
   Active
   Inactive
-}
-
-enum RelayedTransactionStates {
-  Canceled
-  Pending
-  Queued
-  Reverted
-  Sent
 }
 
 enum TransactionStates {

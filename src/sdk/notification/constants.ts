@@ -4,6 +4,8 @@ export enum NotificationTypes {
   AccountMemberUpdated = 'AccountMemberUpdated',
   ENSSubNodeCreated = 'ENSSubNodeCreated',
   ENSSubNodeUpdated = 'ENSSubNodeUpdated',
+  GatewayBatchCreated = 'GatewayBatchCreated',
+  GatewayBatchUpdated = 'GatewayBatchUpdated',
   P2PPaymentChannelCreated = 'P2PPaymentChannelCreated',
   P2PPaymentChannelUpdated = 'P2PPaymentChannelUpdated',
   PaymentHubCreated = 'PaymentHubCreated',
@@ -13,6 +15,4 @@ export enum NotificationTypes {
   PaymentHubDepositCreated = 'PaymentHubDepositCreated',
   PaymentHubDepositUpdated = 'PaymentHubDepositUpdated',
   PaymentHubPaymentCreated = 'PaymentHubPaymentCreated',
-  RelayedTransactionCreated = 'RelayedTransactionCreated',
-  RelayedTransactionUpdated = 'RelayedTransactionUpdated',
 }

@@ -1,6 +1,6 @@
 import { IsAddress, IsHex } from './validators';
 
-export class TransactionRequestDto {
+export class BatchGatewayTransactionRequestDto {
   @IsAddress()
   to: string;
 

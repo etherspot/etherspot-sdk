@@ -1,7 +1,7 @@
 import { NetworkNames } from '../network';
 import { State } from './classes';
 
-export type StateStorageState = Omit<State, 'wallet' | 'network' | 'batch'>;
+export type StateStorageState = Omit<State, 'wallet' | 'network' | 'gatewayBatch'>;
 
 export interface StateStorage {
   setState(walletAddress: string, networkName: NetworkNames, state: StateStorageState): Promise<void>;

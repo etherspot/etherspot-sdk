@@ -1,14 +1,13 @@
 import { AccountService } from './account';
 import { ApiService } from './api';
 import { AuthService } from './auth';
-import { BatchService } from './batch';
 import { BlockService } from './block';
 import { ENSService } from './ens';
+import { GatewayService } from './gateway';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { P2pPaymentService, PaymentHubService } from './payments';
 import { ProjectService } from './project';
-import { RelayerService } from './relayer';
 import { ErrorSubject, Service } from './common';
 import { StateService } from './state';
 import { WalletService } from './wallet';
@@ -35,17 +34,16 @@ export class Context {
     },
     readonly services: {
       accountService: AccountService;
-      batchService: BatchService;
       blockService: BlockService;
       apiService: ApiService;
       authService: AuthService;
       ensService: ENSService;
+      gatewayService: GatewayService;
       networkService: NetworkService;
       notificationService: NotificationService;
       p2pPaymentsService: P2pPaymentService;
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
-      relayerService: RelayerService;
       stateService: StateService;
       walletService: WalletService;
     },

@@ -24,6 +24,10 @@ export class BlockService extends Service {
       },
     );
 
+    if (!blockStats.currentOnchainBlockNumber) {
+      blockStats.currentOnchainBlockNumber = 1;
+    }
+
     return blockStats;
   }
 }

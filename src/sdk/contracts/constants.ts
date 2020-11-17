@@ -11,7 +11,7 @@ export enum ERC20TokenFunctionsNames {
 
 export enum GatewayFunctionsNames {
   SendBatchFromAccount = 'sendBatchFromAccount',
-  DelegateBatchWithoutGasPriceFromAccount = 'delegateBatchWithoutGasPriceFromAccount',
+  DelegateBatch = 'delegateBatch',
 }
 
 export enum PaymentRegistryFunctionsNames {
