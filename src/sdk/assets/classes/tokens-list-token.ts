@@ -1,4 +1,6 @@
-export class TokensListToken {
+import { WithTypename } from '../../common';
+
+export class TokensListToken extends WithTypename {
   address: string;
 
   name: string;

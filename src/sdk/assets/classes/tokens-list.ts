@@ -1,7 +1,8 @@
 import { Type } from 'class-transformer';
+import { WithTypename } from '../../common';
 import { TokensListToken } from './tokens-list-token';
 
-export class TokensList {
+export class TokensList extends WithTypename {
   name: string;
 
   endpoint: string;

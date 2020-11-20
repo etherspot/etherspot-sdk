@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
-import { AssetsService, TokensLists, TokensListToken } from './assets';
+import { AssetsService, TokensList, TokensListToken } from './assets';
 import { AuthService, Session } from './auth';
 import {
   GatewayService,
@@ -1283,9 +1283,9 @@ export class Sdk {
 
   /**
    * gets tokens lists
-   * @return Promise<TokensLists>
+   * @return Promise<TokensList[]>
    */
-  async getTokensLists(): Promise<TokensLists> {
+  async getTokensLists(): Promise<TokensList[]> {
     await this.require({
       wallet: false,
     });

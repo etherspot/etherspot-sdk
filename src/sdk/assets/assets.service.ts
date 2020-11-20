@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { NetworkNames } from '../network';
 import { TokensList, TokensLists, TokensListToken } from './classes';
 import { DEFAULT_IS_TOKEN_ON_TOKENS_LISTS_NAMES } from './constants';
 
 export class AssetsService extends Service {
-  async getTokensLists(): Promise<TokensLists> {
+  async getTokensLists(): Promise<TokensList[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -31,7 +30,7 @@ export class AssetsService extends Service {
       },
     );
 
-    return result;
+    return result.items;
   }
 
   async getTokensListTokens(name: string = null): Promise<TokensListToken[]> {
