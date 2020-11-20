@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
+import { NetworkNames } from '../network';
 import { TokensList, TokensLists, TokensListToken } from './classes';
+import { DEFAULT_IS_TOKEN_ON_TOKENS_LISTS_NAMES } from './constants';
 
 export class AssetsService extends Service {
   async getTokensLists(): Promise<TokensLists> {
@@ -99,10 +101,14 @@ export class AssetsService extends Service {
     return result ? result.tokens : null;
   }
 
-  async isTokenOnTokensList($token: string, name: string = null): Promise<boolean> {
-    const { apiService, accountService } = this.services;
+  async isTokenOnTokensList(token: string, name: string = null): Promise<boolean> {
+    const { apiService, networkService } = this.services;
 
-    const account = accountService.accountAddress;
+    if (!name) {
+      const { network } = networkService;
+
+      name = DEFAULT_IS_TOKEN_ON_TOKENS_LISTS_NAMES[network.name] || null;
+    }
 
     const { result } = await apiService.query<{
       result: boolean;
@@ -114,7 +120,7 @@ export class AssetsService extends Service {
       `,
       {
         variables: {
-          account,
+          token,
           name,
         },
       },
