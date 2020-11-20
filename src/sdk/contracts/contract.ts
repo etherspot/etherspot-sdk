@@ -1,8 +1,6 @@
 import {
   ContractNames,
   getContractAbi,
-  getContractByteCodeHash,
-  getContractAddress,
   getContractTypedDataDomainName,
   getContractTypedDataDomainVersion,
   TYPED_DATA_DOMAIN_SALT,
@@ -28,16 +26,18 @@ export abstract class Contract<F = string> extends Service {
   }
 
   get address(): string {
-    const { chainId } = this.context.services.networkService;
-    return !chainId ? null : getContractAddress(this.name, chainId);
+    const { networkService } = this.context.services;
+    return networkService.getContractAddress(this.name);
   }
 
   computeAccountCreate2Address(saltKey: string): string {
+    const { networkService } = this.context.services;
+
     return this.address && saltKey
       ? utils.getCreate2Address(
           this.address,
           utils.solidityKeccak256(['address'], [saltKey]),
-          getContractByteCodeHash(ContractNames.Account),
+          networkService.getAccountByteCodeHash(),
         )
       : null;
   }
