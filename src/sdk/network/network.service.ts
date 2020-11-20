@@ -1,5 +1,6 @@
+import { ContractNames, getContractAddress, getContractByteCodeHash } from '@etherspot/contracts';
 import { Observable } from 'rxjs';
-import { Service, ObjectSubject } from '../common';
+import { ObjectSubject, Service } from '../common';
 import { NETWORK_NAME_TO_CHAIN_ID, NetworkNames } from './constants';
 import { Network, NetworkOptions } from './interfaces';
 
@@ -8,7 +9,7 @@ export class NetworkService extends Service {
   readonly chainId$: Observable<number>;
   readonly supportedNetworks: Network[];
 
-  constructor(options: NetworkOptions) {
+  constructor(private options: NetworkOptions) {
     super();
 
     const { supportedNetworkNames } = options;
@@ -50,5 +51,39 @@ export class NetworkService extends Service {
 
   isNetworkNameSupported(networkName: string): boolean {
     return !!this.supportedNetworks.find(({ name }) => name === networkName);
+  }
+
+  getContractAddress(contractName: ContractNames): string {
+    let result: string = null;
+
+    if (this.network) {
+      const { chainId, name } = this.network;
+      const { contracts } = this.options;
+
+      if (contracts && contracts[name] && contracts[name][contractName]) {
+        result = contracts[name][contractName];
+      } else {
+        result = getContractAddress(contractName, chainId);
+      }
+    }
+
+    return result;
+  }
+
+  getAccountByteCodeHash(): string {
+    let result: string = null;
+
+    if (this.network) {
+      const { name } = this.network;
+      const { contracts } = this.options;
+
+      if (contracts && contracts[name] && contracts[name].accountByteCodeHash) {
+        result = contracts[name].accountByteCodeHash;
+      } else {
+        result = getContractByteCodeHash(ContractNames.Account);
+      }
+    }
+
+    return result;
   }
 }

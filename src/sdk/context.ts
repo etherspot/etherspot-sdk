@@ -1,5 +1,6 @@
 import { AccountService } from './account';
 import { ApiService } from './api';
+import { AssetsService } from './assets';
 import { AuthService } from './auth';
 import { BlockService } from './block';
 import { ENSService } from './ens';
@@ -36,6 +37,7 @@ export class Context {
       accountService: AccountService;
       blockService: BlockService;
       apiService: ApiService;
+      assetsService: AssetsService;
       authService: AuthService;
       ensService: ENSService;
       gatewayService: GatewayService;

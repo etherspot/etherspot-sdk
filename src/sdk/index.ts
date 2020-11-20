@@ -2,6 +2,7 @@ import { Sdk } from './sdk';
 
 export * from './account';
 export * from './api';
+export * from './assets';
 export * from './auth';
 export * from './block';
 export * from './common';
