@@ -1,17 +1,17 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { TokensList, TokensLists, TokensListToken } from './classes';
+import { TokenList, TokenLists, TokenListToken } from './classes';
 
 export class AssetsService extends Service {
-  async getTokensLists(): Promise<TokensList[]> {
+  async getTokenLists(): Promise<TokenList[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
-      result: TokensLists;
+      result: TokenLists;
     }>(
       gql`
         query($chainId: Int) {
-          result: tokensLists(chainId: $chainId) {
+          result: tokenLists(chainId: $chainId) {
             items {
               name
               endpoint
@@ -24,7 +24,7 @@ export class AssetsService extends Service {
       `,
       {
         models: {
-          result: TokensLists,
+          result: TokenLists,
         },
       },
     );
@@ -32,15 +32,15 @@ export class AssetsService extends Service {
     return result.items;
   }
 
-  async getTokensListTokens(name: string = null): Promise<TokensListToken[]> {
+  async getTokenListTokens(name: string = null): Promise<TokenListToken[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
-      result: TokensList;
+      result: TokenList;
     }>(
       gql`
         query($chainId: Int, $name: String) {
-          result: tokensList(chainId: $chainId, name: $name) {
+          result: tokenList(chainId: $chainId, name: $name) {
             tokens {
               address
               name
@@ -56,7 +56,7 @@ export class AssetsService extends Service {
           name,
         },
         models: {
-          result: TokensList,
+          result: TokenList,
         },
       },
     );
@@ -64,17 +64,17 @@ export class AssetsService extends Service {
     return result ? result.tokens : null;
   }
 
-  async getAccountTokensListTokens(name: string = null): Promise<TokensListToken[]> {
+  async getAccountTokenListTokens(name: string = null): Promise<TokenListToken[]> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
 
     const { result } = await apiService.query<{
-      result: TokensList;
+      result: TokenList;
     }>(
       gql`
         query($chainId: Int, $account: String!, $name: String) {
-          result: accountTokensList(chainId: $chainId, account: $account, name: $name) {
+          result: accountTokenList(chainId: $chainId, account: $account, name: $name) {
             tokens {
               address
               name
@@ -91,7 +91,7 @@ export class AssetsService extends Service {
           name,
         },
         models: {
-          result: TokensList,
+          result: TokenList,
         },
       },
     );
@@ -99,7 +99,7 @@ export class AssetsService extends Service {
     return result ? result.tokens : null;
   }
 
-  async isTokenOnTokensList(token: string, name: string = null): Promise<boolean> {
+  async isTokenOnTokenList(token: string, name: string = null): Promise<boolean> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -107,7 +107,7 @@ export class AssetsService extends Service {
     }>(
       gql`
         query($chainId: Int, $token: String!, $name: String) {
-          result: isTokenOnTokensList(chainId: $chainId, token: $token, name: $name)
+          result: isTokenOnTokenList(chainId: $chainId, token: $token, name: $name)
         }
       `,
       {

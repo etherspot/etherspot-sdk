@@ -6,41 +6,41 @@ async function main(): Promise<void> {
   const wallet = Wallet.createRandom();
   const sdk = new Sdk(wallet);
 
-  const tokensLists = await sdk.getTokensLists();
+  const tokenLists = await sdk.getTokenLists();
 
-  logger.log('tokens lists', await sdk.getTokensLists());
+  logger.log('token lists', await sdk.getTokenLists());
 
-  const { name } = tokensLists[1];
+  const { name } = tokenLists[1];
 
-  let tokenListTokens = await sdk.getTokensListTokens();
+  let tokenListTokens = await sdk.getTokenListTokens();
 
-  logger.log('default tokens list tokens length', tokenListTokens.length);
+  logger.log('default token list tokens length', tokenListTokens.length);
 
-  tokenListTokens = await sdk.getTokensListTokens({
+  tokenListTokens = await sdk.getTokenListTokens({
     name,
   });
 
-  logger.log(`${name} tokens list tokens length`, tokenListTokens.length);
+  logger.log(`${name} token list tokens length`, tokenListTokens.length);
 
-  tokenListTokens = await sdk.getAccountTokensListTokens();
+  tokenListTokens = await sdk.getAccountTokenListTokens();
 
-  logger.log(`default account tokens list tokens length`, tokenListTokens.length);
+  logger.log(`default account token list tokens length`, tokenListTokens.length);
 
-  tokenListTokens = await sdk.getAccountTokensListTokens({
+  tokenListTokens = await sdk.getAccountTokenListTokens({
     name,
   });
 
-  logger.log(`${name} tokens account list tokens length`, tokenListTokens.length);
+  logger.log(`${name} account token list tokens length`, tokenListTokens.length);
 
-  tokenListTokens = await sdk.getAccountTokensListTokens();
+  tokenListTokens = await sdk.getAccountTokenListTokens();
 
-  logger.log('new default account tokens list tokens length', tokenListTokens.length);
+  logger.log('new default account token list tokens length', tokenListTokens.length);
 
   const { address: token } = tokenListTokens[0];
 
   logger.log(
     `is ${token} token exists on default list`,
-    await sdk.isTokenOnTokensList({
+    await sdk.isTokenOnTokenList({
       token,
     }),
   );

@@ -1,3 +1,3 @@
-export * from './tokens-list';
-export * from './tokens-list-token';
-export * from './tokens-lists';
+export * from './token-list';
+export * from './token-list-token';
+export * from './token-lists';

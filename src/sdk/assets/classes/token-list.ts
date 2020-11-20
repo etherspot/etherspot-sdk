@@ -1,16 +1,16 @@
 import { Type } from 'class-transformer';
 import { WithTypename } from '../../common';
-import { TokensListToken } from './tokens-list-token';
+import { TokenListToken } from './token-list-token';
 
-export class TokensList extends WithTypename {
+export class TokenList extends WithTypename {
   name: string;
 
   endpoint: string;
 
   isDefault: boolean;
 
-  @Type(() => TokensListToken)
-  tokens: TokensListToken[];
+  @Type(() => TokenListToken)
+  tokens: TokenListToken[];
 
   @Type(() => Date)
   createdAt: Date;

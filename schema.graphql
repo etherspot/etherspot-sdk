@@ -320,7 +320,7 @@ type Query {
   accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
-  accountTokensList(account: String!, chainId: Int, name: String): TokensList
+  accountTokenList(account: String!, chainId: Int, name: String): TokenList
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
@@ -330,7 +330,7 @@ type Query {
   gatewaySenders(chainId: Int): GatewaySenders!
   gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
   gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
-  isTokenOnTokensList(chainId: Int, name: String, token: String!): Boolean!
+  isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
@@ -345,8 +345,8 @@ type Query {
   project(chainId: Int, key: String!): Project
   projects(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1): Projects!
   supportedNetworks: [Network!]!
-  tokensList(chainId: Int, name: String): TokensList
-  tokensLists(chainId: Int): TokensLists!
+  tokenList(chainId: Int, name: String): TokenList
+  tokenLists(chainId: Int): TokenLists!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
   validateENSLabel(label: String!): Boolean!
@@ -362,16 +362,16 @@ type Subscription {
   newNotification(address: String!, chainId: Int): Notification
 }
 
-type TokensList {
+type TokenList {
   createdAt: DateTime!
   endpoint: String!
   isDefault: Boolean!
   name: String!
-  tokens: [TokensListToken!]
+  tokens: [TokenListToken!]
   updatedAt: DateTime!
 }
 
-type TokensListToken {
+type TokenListToken {
   address: String!
   decimals: Float
   logoURI: String
@@ -379,8 +379,8 @@ type TokensListToken {
   symbol: String!
 }
 
-type TokensLists {
-  items: [TokensList!]!
+type TokenLists {
+  items: [TokenList!]!
 }
 
 type Transaction {

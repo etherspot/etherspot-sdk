@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
-import { AssetsService, TokensList, TokensListToken } from './assets';
+import { AssetsService, TokenList, TokenListToken } from './assets';
 import { AuthService, Session } from './auth';
 import {
   GatewayService,
@@ -51,9 +51,9 @@ import {
   GetPaymentHubPaymentsDto,
   GetPaymentHubsDto,
   GetProjectDto,
-  GetTokensListDto,
+  GetTokenListDto,
   IncreaseP2PPaymentChannelAmountDto,
-  IsTokenOnTokensListDto,
+  IsTokenOnTokenListDto,
   JoinContractAccountDto,
   PaginationDto,
   RemoveAccountOwnerDto,
@@ -1282,45 +1282,45 @@ export class Sdk {
   // assets
 
   /**
-   * gets tokens lists
-   * @return Promise<TokensList[]>
+   * gets token lists
+   * @return Promise<TokenList[]>
    */
-  async getTokensLists(): Promise<TokensList[]> {
+  async getTokenLists(): Promise<TokenList[]> {
     await this.require({
       wallet: false,
     });
 
-    return this.services.assetsService.getTokensLists();
+    return this.services.assetsService.getTokenLists();
   }
 
   /**
-   * gets tokens list tokens
+   * gets token list tokens
    * @param dto
-   * @return Promise<TokensListToken[]>
+   * @return Promise<TokenListToken[]>
    */
-  async getTokensListTokens(dto: GetTokensListDto = {}): Promise<TokensListToken[]> {
-    const { name } = await validateDto(dto, GetTokensListDto);
+  async getTokenListTokens(dto: GetTokenListDto = {}): Promise<TokenListToken[]> {
+    const { name } = await validateDto(dto, GetTokenListDto);
 
     await this.require({
       wallet: false,
     });
 
-    return this.services.assetsService.getTokensListTokens(name);
+    return this.services.assetsService.getTokenListTokens(name);
   }
 
   /**
-   * gets account tokens list tokens
+   * gets account token list tokens
    * @param dto
-   * @return Promise<TokensListToken[]>
+   * @return Promise<TokenListToken[]>
    */
-  async getAccountTokensListTokens(dto: GetTokensListDto = {}): Promise<TokensListToken[]> {
-    const { name } = await validateDto(dto, GetTokensListDto);
+  async getAccountTokenListTokens(dto: GetTokenListDto = {}): Promise<TokenListToken[]> {
+    const { name } = await validateDto(dto, GetTokenListDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.assetsService.getAccountTokensListTokens(name);
+    return this.services.assetsService.getAccountTokenListTokens(name);
   }
 
   /**
@@ -1328,14 +1328,14 @@ export class Sdk {
    * @param dto
    * @return Promise<boolean>
    */
-  async isTokenOnTokensList(dto: IsTokenOnTokensListDto): Promise<boolean> {
-    const { token, name } = await validateDto(dto, IsTokenOnTokensListDto);
+  async isTokenOnTokenList(dto: IsTokenOnTokenListDto): Promise<boolean> {
+    const { token, name } = await validateDto(dto, IsTokenOnTokenListDto);
 
     await this.require({
       wallet: false,
     });
 
-    return this.services.assetsService.isTokenOnTokensList(token, name);
+    return this.services.assetsService.isTokenOnTokenList(token, name);
   }
 
   // private
