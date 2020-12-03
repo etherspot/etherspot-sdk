@@ -158,7 +158,7 @@ type Mutation {
   createSessionCode(account: String!, chainId: Int): String!
   deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
-  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayEstimatedBatch!
+  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
   submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
   syncAccount(chainId: Int): Account!
@@ -325,6 +325,7 @@ type Query {
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+  ensRootNodes(chainId: Int): ENSNode!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
@@ -349,7 +350,6 @@ type Query {
   tokenLists(chainId: Int): TokenLists!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
-  validateENSLabel(label: String!): Boolean!
 }
 
 type Session {
@@ -476,6 +476,8 @@ enum GatewayTransactionStates {
 }
 
 enum NetworkNames {
+  Bsc
+  BscTest
   Goerli
   Kovan
   LocalA
@@ -483,6 +485,7 @@ enum NetworkNames {
   Mainnet
   Rinkeby
   Ropsten
+  Sokol
   Xdai
 }
 
