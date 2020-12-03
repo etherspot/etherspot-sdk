@@ -82,6 +82,12 @@ type ENSNode {
   updatedAt: DateTime
 }
 
+type ENSNodes {
+  currentPage: Int!
+  items: [ENSNode!]!
+  nextPage: Int
+}
+
 type GatewayBatch {
   account: String!
   createdAt: DateTime
@@ -325,7 +331,7 @@ type Query {
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
-  ensRootNodes(chainId: Int): ENSNode!
+  ensRootNodes(chainId: Int): ENSNodes!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!

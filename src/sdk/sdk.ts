@@ -741,6 +741,20 @@ export class Sdk {
     );
   }
 
+  /**
+   * gets ens top level domains
+   * @return Promise<string[]>
+   */
+  async getENSTopLevelDomains(): Promise<string[]> {
+    await this.require({
+      wallet: false,
+    });
+
+    const { ensService } = this.services;
+
+    return ensService.getENSTopLevelDomains();
+  }
+
   // ens (encode)
 
   /**

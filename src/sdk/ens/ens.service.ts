@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { ENSNode } from './classes';
+import { ENSNode, ENSNodes } from './classes';
 
 export class ENSService extends Service {
   async createENSSubNode(name: string): Promise<ENSNode> {
@@ -72,5 +72,30 @@ export class ENSService extends Service {
     );
 
     return result;
+  }
+
+  async getENSTopLevelDomains(): Promise<string[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: ENSNodes;
+    }>(
+      gql`
+        query($chainId: Int) {
+          result: ensRootNodes(chainId: $chainId) {
+            items {
+              name
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: ENSNodes,
+        },
+      },
+    );
+
+    return result.items.map(({ name }) => name);
   }
 }
