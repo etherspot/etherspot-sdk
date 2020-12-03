@@ -94,15 +94,24 @@ export class P2pPaymentService extends Service {
     return result;
   }
 
-  async getP2PPaymentChannels(senderOrRecipient: string, page: number = null): Promise<P2PPaymentChannels> {
+  async getP2PPaymentChannels(
+    senderOrRecipient: string,
+    filters: { uncommittedOnly: boolean },
+    page: number = null,
+  ): Promise<P2PPaymentChannels> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: P2PPaymentChannels;
     }>(
       gql`
-        query($chainId: Int, $senderOrRecipient: String!, $page: Int) {
-          result: p2pPaymentChannels(chainId: $chainId, senderOrRecipient: $senderOrRecipient, page: $page) {
+        query($chainId: Int, $senderOrRecipient: String!, $page: Int, $uncommittedOnly: Boolean) {
+          result: p2pPaymentChannels(
+            chainId: $chainId
+            senderOrRecipient: $senderOrRecipient
+            page: $page
+            uncommittedOnly: $uncommittedOnly
+          ) {
             items {
               committedAmount
               createdAt
@@ -136,6 +145,7 @@ export class P2pPaymentService extends Service {
         variables: {
           senderOrRecipient,
           page: page || 1,
+          ...filters,
         },
       },
     );
