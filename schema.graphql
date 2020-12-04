@@ -82,6 +82,12 @@ type ENSNode {
   updatedAt: DateTime
 }
 
+type ENSNodes {
+  currentPage: Int!
+  items: [ENSNode!]!
+  nextPage: Int
+}
+
 type GatewayBatch {
   account: String!
   createdAt: DateTime
@@ -158,7 +164,7 @@ type Mutation {
   createSessionCode(account: String!, chainId: Int): String!
   deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
-  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayEstimatedBatch!
+  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
   submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
   syncAccount(chainId: Int): Account!
@@ -325,6 +331,7 @@ type Query {
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+  ensRootNodes(chainId: Int): ENSNodes!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
@@ -333,7 +340,7 @@ type Query {
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
-  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String): P2PPaymentChannels!
+  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
   paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
   paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, token: String): PaymentHubBridges!
@@ -349,7 +356,6 @@ type Query {
   tokenLists(chainId: Int): TokenLists!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
-  validateENSLabel(label: String!): Boolean!
 }
 
 type Session {
@@ -476,6 +482,8 @@ enum GatewayTransactionStates {
 }
 
 enum NetworkNames {
+  Bsc
+  BscTest
   Goerli
   Kovan
   LocalA
@@ -483,6 +491,7 @@ enum NetworkNames {
   Mainnet
   Rinkeby
   Ropsten
+  Sokol
   Xdai
 }
 

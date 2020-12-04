@@ -8,7 +8,6 @@ import {
   GatewaySupportedToken,
   GatewaySupportedTokens,
 } from './classes';
-import { GATEWAY_ESTIMATION_AMOUNT } from './constants';
 import { GatewayBatch } from './interfaces';
 
 export class GatewayService extends Service {
@@ -214,32 +213,9 @@ export class GatewayService extends Service {
     const { to, data } = this.extractToAndData();
     const nonce = uniqueNonce();
 
-    const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.contracts;
+    const { accountService, apiService } = this.services;
 
-    const sender = walletService.walletAddress;
     const account = accountService.accountAddress;
-
-    let refundTransactionRequest: TransactionRequest;
-
-    if (refundToken) {
-      const { to, data } = erc20TokenContract.encodeTransfer(refundToken, sender, GATEWAY_ESTIMATION_AMOUNT);
-
-      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(account, to, 0, data);
-    } else {
-      refundTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(
-        account,
-        null,
-        GATEWAY_ESTIMATION_AMOUNT,
-      );
-    }
-
-    const typedMessage = gatewayContract.hashDelegatedBatch(
-      nonce,
-      [...to, refundTransactionRequest.to],
-      [...data, refundTransactionRequest.data],
-    );
-    const senderSignature = await walletService.signTypedData(typedMessage);
 
     const { estimation } = await apiService.mutate<{
       estimation: GatewayEstimatedBatch;
@@ -252,7 +228,6 @@ export class GatewayService extends Service {
           $to: [String!]!
           $data: [String!]!
           $refundToken: String
-          $senderSignature: String!
         ) {
           estimation: estimateGatewayBatch(
             chainId: $chainId
@@ -261,7 +236,6 @@ export class GatewayService extends Service {
             to: $to
             data: $data
             refundToken: $refundToken
-            senderSignature: $senderSignature
           ) {
             refundAmount
             refundTokenPayee
@@ -283,7 +257,6 @@ export class GatewayService extends Service {
           to,
           data,
           refundToken,
-          senderSignature,
         },
       },
     );

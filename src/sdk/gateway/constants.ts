@@ -1,5 +1,3 @@
-export const GATEWAY_ESTIMATION_AMOUNT = 1;
-
 export enum GatewayBatchStates {
   Queued = 'Queued',
   Sending = 'Sending',

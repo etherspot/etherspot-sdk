@@ -12,16 +12,12 @@ async function main(): Promise<void> {
 
   const { state } = sdk;
 
-  const ensRootNode = await sdk.getENSNode({
-    nameOrHashOrAddress: 'pillar.test',
-  });
+  const ensTopLevelDomains = await sdk.getENSTopLevelDomains();
 
-  if (!ensRootNode || !ensRootNode.state) {
-    logger.info('ens root node pillar.test not found');
+  if (!ensTopLevelDomains.length) {
+    logger.info('ens top level domain not found');
     return;
   }
-
-  logger.log('ens root node', ensRootNode);
 
   const notification = sdk.notifications$.pipe(take(1)).toPromise();
 
@@ -34,7 +30,7 @@ async function main(): Promise<void> {
 
   await topUpAccount(state.accountAddress, '0.5');
 
-  const ensName = `random${Date.now().toString(16)}.pillar.test`;
+  const ensName = `random${Date.now().toString(16)}.${ensTopLevelDomains[0]}`;
 
   const ensNode = await sdk.reserveENSName({
     name: ensName,

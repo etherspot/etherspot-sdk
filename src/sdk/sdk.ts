@@ -741,6 +741,20 @@ export class Sdk {
     );
   }
 
+  /**
+   * gets ens top level domains
+   * @return Promise<string[]>
+   */
+  async getENSTopLevelDomains(): Promise<string[]> {
+    await this.require({
+      wallet: false,
+    });
+
+    const { ensService } = this.services;
+
+    return ensService.getENSTopLevelDomains();
+  }
+
   // ens (encode)
 
   /**
@@ -833,7 +847,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannels>
    */
   async getP2PPaymentChannels(dto: GetP2PPaymentChannelsDto = {}): Promise<P2PPaymentChannels> {
-    const { senderOrRecipient, page } = await validateDto(dto, GetP2PPaymentChannelsDto);
+    const { senderOrRecipient, uncommittedOnly, page } = await validateDto(dto, GetP2PPaymentChannelsDto);
 
     await this.require({
       wallet: !senderOrRecipient,
@@ -843,6 +857,7 @@ export class Sdk {
 
     return p2pPaymentsService.getP2PPaymentChannels(
       this.prepareAccountAddress(senderOrRecipient), //
+      { uncommittedOnly },
       page || 1,
     );
   }
