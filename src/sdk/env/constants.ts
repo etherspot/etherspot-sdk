@@ -10,7 +10,7 @@ export enum EnvNames {
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
   [EnvNames.MainNets]: {
     apiOptions: {
-      host: 'mainnets.etherspot.pillarproject.io',
+      host: 'api.etherspot.pillarproject.io',
       useSsl: true,
     },
     networkOptions: {
@@ -19,7 +19,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
   },
   [EnvNames.TestNets]: {
     apiOptions: {
-      host: 'testnets.etherspot.pillarproject.io',
+      host: 'api-qa.etherspot.pillarprojec.io',
       useSsl: true,
     },
     networkOptions: {
