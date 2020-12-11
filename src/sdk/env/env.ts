@@ -3,7 +3,7 @@ import { NetworkOptions } from '../network';
 import { EnvNames, SUPPORTED_ENVS } from './constants';
 
 export class Env {
-  static defaultName: EnvNames = EnvNames.MainNets;
+  static defaultName: EnvNames = EnvNames.TestNets;
 
   static prepare(env: EnvNames | Env): Env {
     let partial: Env = null;
@@ -25,7 +25,7 @@ export class Env {
         throw new Error(`Unsupported env`);
       }
     } else {
-      partial = SUPPORTED_ENVS[this.defaultName || EnvNames.MainNets];
+      partial = SUPPORTED_ENVS[this.defaultName || EnvNames.TestNets];
     }
 
     return new Env(partial);
