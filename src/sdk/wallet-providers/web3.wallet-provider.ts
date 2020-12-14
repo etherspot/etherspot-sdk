@@ -1,6 +1,6 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, prepareAddress, toHex, UniqueSubject } from '../common';
+import { isHex, keccak256, prepareAddress, toHex } from '../common';
 import { NetworkNames, prepareNetworkName } from '../network';
 import { Web3Provider } from './interfaces';
 import { DynamicWalletProvider } from './dynamic.wallet-provider';
@@ -11,9 +11,6 @@ export class Web3WalletProvider extends DynamicWalletProvider {
     const connected = await result.refresh();
     return connected ? result : null;
   }
-
-  readonly address$ = new UniqueSubject<string>();
-  readonly networkName$ = new UniqueSubject<NetworkNames>();
 
   constructor(readonly web3: Web3Provider, type = 'Web3') {
     super(type);

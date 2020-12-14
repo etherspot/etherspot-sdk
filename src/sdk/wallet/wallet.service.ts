@@ -1,8 +1,9 @@
+import { hashTypedData, TypedData } from 'ethers-typed-data';
 import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
 import { Service, ObjectSubject, UnChainedTypedData } from '../common';
-import { WalletProvider, WalletProviderLike, KeyWalletProvider } from '../wallet-providers';
+import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } from '../wallet-providers';
 import { Wallet, WalletOptions } from './interfaces';
 
 export class WalletService extends Service {
@@ -30,9 +31,17 @@ export class WalletService extends Service {
 
     if (providerLike) {
       switch (typeof providerLike) {
-        case 'object':
-          provider = providerLike as WalletProvider;
+        case 'object': {
+          const { privateKey } = providerLike as WalletLike;
+
+          if (privateKey) {
+            provider = new KeyWalletProvider(privateKey);
+          } else {
+            provider = providerLike as WalletProvider;
+          }
           break;
+        }
+
         case 'string':
           provider = new KeyWalletProvider(providerLike);
           break;
@@ -48,8 +57,7 @@ export class WalletService extends Service {
       const { networkService } = this.services;
 
       const subscriptions: Subscription[] = [];
-
-      const { address, address$, networkName, networkName$ } = provider;
+      const { address, address$, networkName$ } = provider;
 
       if (typeof address$ !== 'undefined') {
         subscriptions.push(
@@ -72,21 +80,23 @@ export class WalletService extends Service {
       }
 
       if (typeof networkName$ !== 'undefined') {
-        subscriptions.push(
-          networkName$
-            .pipe(
-              tap((networkName) => networkService.switchNetwork(networkName)), //
-            )
-            .subscribe(),
-        );
-      } else if (typeof networkName !== 'undefined') {
-        if (networkName) {
-          networkService.switchNetwork(networkName);
-        } else {
+        const { omitProviderNetworkCheck } = this.options;
+
+        if (omitProviderNetworkCheck) {
           networkService.useDefaultNetwork();
+        } else {
+          subscriptions.push(
+            networkName$
+              .pipe(
+                tap((networkName) => {
+                  networkService.switchNetwork(networkName);
+                }),
+              )
+              .subscribe(),
+          );
         }
       } else {
-        throw new Error('Invalid wallet networkName');
+        networkService.useDefaultNetwork();
       }
 
       this.replaceSubscriptions(...subscriptions);
@@ -107,18 +117,26 @@ export class WalletService extends Service {
     let result: string = null;
 
     if (this.provider) {
-      const { chainId } = this.services.networkService;
+      const { networkName } = this.provider;
+      const { networkService } = this.services;
+      const { chainId, network } = networkService;
 
       if (chainId) {
-        const { domain, ...typedData } = unChainedTypedData;
+        const { domain, ...typedDataWithoutDomain } = unChainedTypedData;
 
-        result = await this.provider.signTypedData({
+        const typedData: TypedData = {
           domain: {
             ...domain,
             chainId,
           },
-          ...typedData,
-        });
+          ...typedDataWithoutDomain,
+        };
+
+        if (network.name === networkName) {
+          result = await this.provider.signTypedData(typedData);
+        } else {
+          result = await this.provider.signMessage(hashTypedData(typedData));
+        }
       }
     }
 

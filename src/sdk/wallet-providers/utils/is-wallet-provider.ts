@@ -1,5 +1,5 @@
 import { utils } from 'ethers';
-import { WalletProviderLike } from '../interfaces';
+import { WalletLike, WalletProvider, WalletProviderLike } from '../interfaces';
 
 export function isWalletProvider(provider: WalletProviderLike): boolean {
   let result = false;
@@ -11,11 +11,19 @@ export function isWalletProvider(provider: WalletProviderLike): boolean {
         break;
 
       case 'object':
-        result =
-          provider.type &&
-          typeof provider.personalSignMessage === 'function' &&
-          typeof provider.signMessage === 'function' &&
-          typeof provider.signTypedData === 'function';
+        const { privateKey } = provider as WalletLike;
+        if (utils.isHexString(privateKey, 32)) {
+          result = true;
+        } else {
+          const { type, personalSignMessage, signMessage, signTypedData } = provider as WalletProvider;
+
+          result =
+            type &&
+            typeof personalSignMessage === 'function' &&
+            typeof signMessage === 'function' &&
+            typeof signTypedData === 'function';
+        }
+        break;
     }
   }
 
