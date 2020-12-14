@@ -2,14 +2,8 @@ import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
 import { Service, ObjectSubject, UnChainedTypedData } from '../common';
-import {
-  WalletProvider,
-  KeyWalletProvider,
-  KeyWalletProviderOptions,
-  WalletProviderLike,
-  isWalletProvider,
-} from '../wallet-providers';
-import { WalletOptions, Wallet } from './interfaces';
+import { WalletProvider, WalletProviderLike, KeyWalletProvider } from '../wallet-providers';
+import { Wallet, WalletOptions } from './interfaces';
 
 export class WalletService extends Service {
   readonly wallet$ = new ObjectSubject<Wallet>();
@@ -17,7 +11,7 @@ export class WalletService extends Service {
 
   private provider: WalletProvider;
 
-  constructor(private options: WalletOptions) {
+  constructor(private providerLike: WalletProviderLike, private options: WalletOptions) {
     super();
 
     this.walletAddress$ = this.wallet$.observeKey('address');
@@ -31,14 +25,17 @@ export class WalletService extends Service {
     return this.wallet ? this.wallet.address : null;
   }
 
-  switchWalletProvider(options: WalletOptions): void {
+  switchWalletProvider(providerLike: WalletProviderLike): void {
     let provider: WalletProvider = null;
 
-    if (options && typeof options === 'object') {
-      if (isWalletProvider(options as WalletProviderLike)) {
-        provider = options as WalletProvider;
-      } else {
-        provider = new KeyWalletProvider(options as KeyWalletProviderOptions);
+    if (providerLike) {
+      switch (typeof providerLike) {
+        case 'object':
+          provider = providerLike as WalletProvider;
+          break;
+        case 'string':
+          provider = new KeyWalletProvider(providerLike);
+          break;
       }
     }
 
@@ -129,9 +126,9 @@ export class WalletService extends Service {
   }
 
   protected onInit() {
-    if (this.options) {
-      this.switchWalletProvider(this.options);
-      this.options = null;
+    if (this.providerLike) {
+      this.switchWalletProvider(this.providerLike);
+      this.providerLike = null;
     }
   }
 }

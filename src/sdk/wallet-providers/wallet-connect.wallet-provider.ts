@@ -5,7 +5,11 @@ import { DynamicWalletProvider } from './dynamic.wallet-provider';
 import { WalletConnectConnector } from './interfaces';
 
 export class WalletConnectWalletProvider extends DynamicWalletProvider {
-  constructor(readonly connector: WalletConnectConnector) {
+  static connect(connector: WalletConnectConnector): WalletConnectWalletProvider {
+    return new WalletConnectWalletProvider(connector);
+  }
+
+  protected constructor(readonly connector: WalletConnectConnector) {
     super('WalletConnect');
 
     try {

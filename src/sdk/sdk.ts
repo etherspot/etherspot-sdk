@@ -91,7 +91,8 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { State, StateService } from './state';
-import { WalletService, WalletOptions, parseWalletOptions } from './wallet';
+import { WalletService } from './wallet';
+import { WalletProviderLike, isWalletProvider } from './wallet-providers';
 import { SdkOptions } from './interfaces';
 
 /**
@@ -104,18 +105,17 @@ export class Sdk {
   private readonly contracts: Context['contracts'];
   private readonly services: Context['services'];
 
-  constructor(walletOptions: WalletOptions, sdkOptions?: EnvNames | SdkOptions);
+  constructor(walletProvider: WalletProviderLike, sdkOptions?: EnvNames | SdkOptions);
   constructor(sdkOptions?: EnvNames | SdkOptions);
   constructor(...args: any[]) {
-    let walletOptions: WalletOptions = null;
+    let walletProvider: WalletProviderLike = null;
     let sdkOptions: SdkOptions = {};
 
     if (args.length > 0) {
       let optionsIndex = 0;
 
-      walletOptions = parseWalletOptions(args[0]);
-
-      if (walletOptions) {
+      if (isWalletProvider(args[0])) {
+        walletProvider = args[0];
         ++optionsIndex;
       }
 
@@ -136,7 +136,13 @@ export class Sdk {
 
     const env = Env.prepare(sdkOptions.env);
 
-    const { projectKey, projectMetadata, stateStorage } = sdkOptions;
+    const {
+      networkName, //
+      omitWalletProviderNetworkCheck,
+      projectKey,
+      projectMetadata,
+      stateStorage,
+    } = sdkOptions;
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -147,8 +153,10 @@ export class Sdk {
     };
 
     this.services = {
-      networkService: new NetworkService(env.networkOptions),
-      walletService: new WalletService(walletOptions),
+      networkService: new NetworkService(env.networkOptions, networkName),
+      walletService: new WalletService(walletProvider, {
+        omitProviderNetworkCheck: omitWalletProviderNetworkCheck,
+      }),
       accountService: new AccountService(),
       apiService: new ApiService(env.apiOptions),
       assetsService: new AssetsService(),
@@ -210,16 +218,14 @@ export class Sdk {
 
   /**
    * switches wallet provider
-   * @param walletOptions
+   * @param walletProvider
    */
-  switchWalletProvider(walletOptions: WalletOptions): void {
-    walletOptions = parseWalletOptions(walletOptions);
-
-    if (!walletOptions) {
-      throw new Exception('Invalid wallet options');
+  switchWalletProvider(walletProvider: WalletProviderLike): void {
+    if (!isWalletProvider(walletProvider)) {
+      throw new Exception('Invalid wallet provider');
     }
 
-    this.services.walletService.switchWalletProvider(walletOptions);
+    this.services.walletService.switchWalletProvider(walletProvider);
   }
 
   /**

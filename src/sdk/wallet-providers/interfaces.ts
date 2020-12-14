@@ -1,18 +1,18 @@
+import { UniqueSubject } from '../common';
 import { NetworkNames } from '../network';
 
-export interface WalletProviderLike {
-  type: string;
+export interface WalletProvider {
+  readonly type?: string;
+  readonly address: string;
+  readonly address$?: UniqueSubject<string>;
+  readonly networkName?: NetworkNames;
+  readonly networkName$?: UniqueSubject<NetworkNames>;
 
   personalSignMessage(message: any): Promise<string>;
 
   signMessage(message: any): Promise<string>;
 
   signTypedData(typedData: any): Promise<string>;
-}
-
-export interface KeyWalletProviderOptions {
-  privateKey: string;
-  networkName?: NetworkNames;
 }
 
 export interface Web3Provider {
@@ -27,3 +27,5 @@ export interface WalletConnectConnector {
   signTypedData(params: any[]): Promise<any>;
   on(event: string, callback: (error: Error | null, payload: any | null) => void): void;
 }
+
+export type WalletProviderLike = string | WalletProvider;
