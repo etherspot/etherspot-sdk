@@ -14,7 +14,11 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [NetworkNames.Mainnet, NetworkNames.Xdai],
+      supportedNetworkNames: [
+        NetworkNames.Mainnet, //
+        NetworkNames.Xdai,
+        NetworkNames.Bsc,
+      ],
     },
   },
   [EnvNames.TestNets]: {
@@ -23,7 +27,14 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [NetworkNames.Ropsten, NetworkNames.Rinkeby],
+      supportedNetworkNames: [
+        NetworkNames.Ropsten,
+        NetworkNames.Rinkeby,
+        NetworkNames.Goerli,
+        NetworkNames.Kovan,
+        NetworkNames.Sokol,
+        NetworkNames.BscTest,
+      ],
     },
   },
   [EnvNames.LocalNets]: {
@@ -32,7 +43,10 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       port: 4000,
     },
     networkOptions: {
-      supportedNetworkNames: [NetworkNames.LocalA, NetworkNames.LocalB],
+      supportedNetworkNames: [
+        NetworkNames.LocalA, //
+        NetworkNames.LocalB,
+      ],
     },
   },
 };
