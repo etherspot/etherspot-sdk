@@ -1,18 +1,20 @@
+import { BytesLike } from 'ethers';
+import { TypedData } from 'ethers-typed-data';
+import { UniqueSubject } from '../common';
 import { NetworkNames } from '../network';
 
-export interface WalletProviderLike {
-  type: string;
+export interface WalletProvider {
+  readonly type?: string;
+  readonly address: string;
+  readonly address$?: UniqueSubject<string>;
+  readonly networkName?: NetworkNames;
+  readonly networkName$?: UniqueSubject<NetworkNames>;
 
-  personalSignMessage(message: any): Promise<string>;
+  personalSignMessage(message: BytesLike): Promise<string>;
 
-  signMessage(message: any): Promise<string>;
+  signMessage(message: BytesLike): Promise<string>;
 
-  signTypedData(typedData: any): Promise<string>;
-}
-
-export interface KeyWalletProviderOptions {
-  privateKey: string;
-  networkName?: NetworkNames;
+  signTypedData(typedData: TypedData): Promise<string>;
 }
 
 export interface Web3Provider {
@@ -27,3 +29,9 @@ export interface WalletConnectConnector {
   signTypedData(params: any[]): Promise<any>;
   on(event: string, callback: (error: Error | null, payload: any | null) => void): void;
 }
+
+export interface WalletLike {
+  privateKey: string;
+}
+
+export type WalletProviderLike = string | WalletLike | WalletProvider;

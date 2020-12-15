@@ -5,6 +5,9 @@ export enum NetworkNames {
   Goerli = 'goerli',
   Kovan = 'kovan',
   Xdai = 'xdai',
+  Sokol = 'sokol',
+  Bsc = 'bsc',
+  BscTest = 'bscTest',
   LocalA = 'localA',
   LocalB = 'localB',
 }
@@ -18,6 +21,9 @@ export const NETWORK_NAME_TO_CHAIN_ID: {
   [NetworkNames.Goerli]: 5,
   [NetworkNames.Kovan]: 42,
   [NetworkNames.Xdai]: 100,
+  [NetworkNames.Sokol]: 77,
+  [NetworkNames.Bsc]: 56,
+  [NetworkNames.BscTest]: 97,
   [NetworkNames.LocalA]: 9999,
   [NetworkNames.LocalB]: 6666,
 };
