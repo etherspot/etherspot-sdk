@@ -22,7 +22,7 @@
     "compile-watch": "npm run compile -- --watch",
     "predocs:build": "rimraf ./docs",
     "docs:build": "typedoc ./src",
-    "postdocs:build": "cp -r ./.github-pages/files/{.nojekyll,CNAME} ./docs",
+    "postdocs:build": "cp -r ./.github-pages/files/* ./docs && date > ./docs/.nojekyll",
     "docs:serve": "serve ./docs",
     "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/docs.etherspot.dev.git"
   },
