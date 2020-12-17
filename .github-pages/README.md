@@ -30,7 +30,7 @@ const sdk = new Sdk(Wallet.createRandom());
 
 ## Resources
 
-* [playground](https://etherspot.dev)
+* [playground](https://try.etherspot.dev)
 
 [npm-image]: https://badge.fury.io/js/etherspot.svg
 [npm-url]: https://npmjs.org/package/etherspot
