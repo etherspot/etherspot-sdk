@@ -33,7 +33,7 @@ const sdk = new Sdk(Wallet.createRandom());
 
 ## Resources
 
-* [playground](https://etherspot.dev)
+* [playground](https://try.etherspot.dev)
 * [documentation](https://docs.etherspot.dev)
 
 ## License
