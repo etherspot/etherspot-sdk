@@ -20,11 +20,11 @@
     "build": "npm run compile",
     "compile": "tsc -p ./tsconfig.build.json",
     "compile-watch": "npm run compile -- --watch",
-    "predocs:generate": "rimraf ./docs",
-    "postdocs:generate": "cp -r ./.github-pages/files/ ./docs",
-    "docs:generate": "typedoc ./src",
+    "predocs:build": "rimraf ./docs",
+    "docs:build": "typedoc ./src",
+    "postdocs:build": "cp -r ./.github-pages/files/ ./docs",
     "docs:serve": "serve ./docs",
-    "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/etherspot-docs.git"
+    "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/docs.etherspot.dev.git"
   },
   "dependencies": {
     "@apollo/client": "3.1.3",
