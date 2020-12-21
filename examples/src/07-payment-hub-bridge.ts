@@ -10,24 +10,36 @@ async function main(): Promise<void> {
     privateKey: hubPrivateKey,
   });
 
-  const hubLocalBSdk = new Sdk({
-    privateKey: hubPrivateKey,
-    networkName: NetworkNames.LocalB,
-  });
+  const hubLocalBSdk = new Sdk(
+    {
+      privateKey: hubPrivateKey,
+    },
+    {
+      networkName: NetworkNames.LocalB,
+    },
+  );
 
   const senderLocalASdk = new Sdk({
     privateKey: senderPrivateKey,
   });
 
-  const senderLocalBSdk = new Sdk({
-    privateKey: senderPrivateKey,
-    networkName: NetworkNames.LocalB,
-  });
+  const senderLocalBSdk = new Sdk(
+    {
+      privateKey: senderPrivateKey,
+    },
+    {
+      networkName: NetworkNames.LocalB,
+    },
+  );
 
-  const recipientLocalBSdk = new Sdk({
-    privateKey: randomPrivateKey(),
-    networkName: NetworkNames.LocalB,
-  });
+  const recipientLocalBSdk = new Sdk(
+    {
+      privateKey: randomPrivateKey(),
+    },
+    {
+      networkName: NetworkNames.LocalB,
+    },
+  );
 
   await recipientLocalBSdk.computeContractAccount();
 
