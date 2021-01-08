@@ -66,7 +66,7 @@ type Accounts {
 }
 
 type BlockStats {
-  currentOnchainBlockNumber: Int
+  currentBlockNumber: Int
   lastProcessedBlockNumber: Int
 }
 

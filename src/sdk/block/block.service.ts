@@ -3,7 +3,9 @@ import { Service } from '../common';
 import { BlockStats } from './classes';
 
 export class BlockService extends Service {
-  async getBlockStats(): Promise<BlockStats> {
+  async getCurrentBlockNumber(): Promise<number> {
+    let result = 1;
+
     const { apiService } = this.services;
 
     const { blockStats } = await apiService.query<{
@@ -12,7 +14,7 @@ export class BlockService extends Service {
       gql`
         query($chainId: Int) {
           blockStats(chainId: $chainId) {
-            currentOnchainBlockNumber
+            currentBlockNumber
             lastProcessedBlockNumber
           }
         }
@@ -24,10 +26,10 @@ export class BlockService extends Service {
       },
     );
 
-    if (!blockStats.currentOnchainBlockNumber) {
-      blockStats.currentOnchainBlockNumber = 1;
+    if (blockStats && blockStats.currentBlockNumber) {
+      result = blockStats.currentBlockNumber;
     }
 
-    return blockStats;
+    return result;
   }
 }

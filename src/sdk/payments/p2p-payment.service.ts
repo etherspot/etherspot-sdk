@@ -227,7 +227,7 @@ export class P2pPaymentService extends Service {
     const uid = createPaymentChannelUid(uidSalt);
     const sender = accountService.accountAddress;
 
-    const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
+    const blockNumber = await blockService.getCurrentBlockNumber();
 
     const typedMessage = paymentRegistryContract.buildTypedData(
       'PaymentChannelCommit',

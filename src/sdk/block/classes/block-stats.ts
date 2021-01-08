@@ -1,5 +1,5 @@
 export class BlockStats {
-  currentOnchainBlockNumber: number;
+  currentBlockNumber: number;
 
   lastProcessedBlockNumber: number;
 }

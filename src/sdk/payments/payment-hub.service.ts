@@ -462,7 +462,7 @@ export class PaymentHubService extends Service {
 
     const sender = accountService.accountAddress;
 
-    const { currentOnchainBlockNumber: blockNumber } = await blockService.getBlockStats();
+    const blockNumber = await blockService.getCurrentBlockNumber();
 
     const paymentHubDeposit = await this.getPaymentHubDeposit(hub, token, sender);
 
