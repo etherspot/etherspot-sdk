@@ -1,8 +1,7 @@
 import { Type } from 'class-transformer';
-import { WithTypename } from '../../common';
 import { AccountBalance } from './account-balance';
 
-export class AccountBalances extends WithTypename {
+export class AccountBalances {
   @Type(() => AccountBalance)
   items: AccountBalance[];
 }

@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 
-export class PaymentHub extends WithTypename {
+export class PaymentHub {
   address: string;
 
   token: string;

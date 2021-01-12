@@ -1,9 +1,9 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 import { P2PPaymentDepositStates } from '../constants';
 
-export class P2PPaymentDeposit extends WithTypename {
+export class P2PPaymentDeposit {
   address: string;
 
   owner: string;

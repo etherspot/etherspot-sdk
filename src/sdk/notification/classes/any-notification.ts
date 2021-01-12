@@ -1,7 +1,6 @@
-import { WithTypename } from '../../common';
 import { BaseNotification } from '../interfaces';
 
-export class AnyNotification extends WithTypename implements BaseNotification<any, any> {
+export class AnyNotification implements BaseNotification {
   type: any;
 
   recipient: string;

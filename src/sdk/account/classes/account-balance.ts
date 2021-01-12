@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 
-export class AccountBalance extends WithTypename {
+export class AccountBalance {
   token: string;
 
   @TransformBigNumber()

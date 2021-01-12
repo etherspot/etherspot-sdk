@@ -1,9 +1,7 @@
-import { WithTypename } from './with-typename';
-
 /**
  * @ignore
  */
-export abstract class PaginationResult<T = any> extends WithTypename {
+export abstract class PaginationResult<T = any> {
   items?: T[];
 
   currentPage: number;

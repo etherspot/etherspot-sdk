@@ -1,8 +1,7 @@
 import { Type } from 'class-transformer';
-import { WithTypename } from '../../common';
 import { PaymentHubDeposit } from './payment-hub-deposit';
 
-export class PaymentHubDeposits extends WithTypename {
+export class PaymentHubDeposits {
   @Type(() => PaymentHubDeposit)
   items: PaymentHubDeposit[];
 }

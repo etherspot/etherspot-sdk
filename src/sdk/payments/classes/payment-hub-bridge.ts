@@ -1,10 +1,9 @@
 import { Type } from 'class-transformer';
-import { WithTypename } from '../../common';
 import { prepareNetworkName } from '../../network';
 import { PaymentHubBridgeStates } from '../constants';
 import { PaymentHub } from './payment-hub';
 
-export class PaymentHubBridge extends WithTypename {
+export class PaymentHubBridge {
   @Type(() => PaymentHub)
   hub: Partial<PaymentHub>;
 
