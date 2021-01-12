@@ -6,7 +6,6 @@ export function mapApiResult<T extends {}, K extends keyof T>(
     [key in K]: { new (...args: any): T[K] };
   },
 ): T {
-  console.log(data);
   if (models) {
     const keys = Object.keys(models);
 
@@ -15,7 +14,7 @@ export function mapApiResult<T extends {}, K extends keyof T>(
       const model = models[key];
 
       if (model && plain && !(plain instanceof model)) {
-        data[key] = plainToClass(models[key], data[key]);
+        data[key] = plainToClass(model, plain);
       }
     }
   }
