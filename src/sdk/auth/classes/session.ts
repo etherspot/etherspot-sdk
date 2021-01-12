@@ -1,8 +1,7 @@
 import { Type } from 'class-transformer';
-import { WithTypename } from '../../common';
 import { Account } from '../../account';
 
-export class Session extends WithTypename {
+export class Session {
   static TTL_MARGIN = 3000;
 
   token: string;

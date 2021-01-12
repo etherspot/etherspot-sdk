@@ -1,10 +1,10 @@
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 import { GatewayBatchStates } from '../constants';
 import { GatewayTransaction } from './gateway-transaction';
 
-export class GatewaySubmittedBatch extends WithTypename {
+export class GatewaySubmittedBatch {
   @Type(() => GatewayTransaction)
   transaction: Partial<GatewayTransaction>;
 

@@ -1,9 +1,9 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { WithTypename, TransformBigNumber } from '../../common';
+import { TransformBigNumber } from '../../common';
 import { PaymentHub } from './payment-hub';
 
-export class PaymentHubPayment extends WithTypename {
+export class PaymentHubPayment {
   @Type(() => PaymentHub)
   hub?: Partial<PaymentHub>;
 

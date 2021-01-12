@@ -147,6 +147,7 @@ export class ApiService extends Service {
       link,
       cache: new InMemoryCache({
         resultCaching: false,
+        addTypename: false,
       }),
     });
   }

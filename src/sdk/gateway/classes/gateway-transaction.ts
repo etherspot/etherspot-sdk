@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 import { GatewayTransactionStates } from '../constants';
 
-export class GatewayTransaction extends WithTypename {
+export class GatewayTransaction {
   hash: string;
 
   state: GatewayTransactionStates;

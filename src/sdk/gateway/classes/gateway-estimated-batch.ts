@@ -1,8 +1,8 @@
-import { TransformBigNumber, WithTypename } from '../../common';
+import { TransformBigNumber } from '../../common';
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
 
-export class GatewayEstimatedBatch extends WithTypename {
+export class GatewayEstimatedBatch {
   @TransformBigNumber()
   refundAmount: BigNumber;
 

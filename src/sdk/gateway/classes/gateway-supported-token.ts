@@ -1,6 +1,4 @@
-import { WithTypename } from '../../common';
-
-export class GatewaySupportedToken extends WithTypename {
+export class GatewaySupportedToken {
   address: string;
 
   exchangeRate: number;
