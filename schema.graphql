@@ -77,14 +77,22 @@ type ENSNode {
   hash: String!
   label: String
   name: String
+  rootNode: ENSRootNode
   state: ENSNodeStates
-  type: ENSNodeTypes
   updatedAt: DateTime
 }
 
-type ENSNodes {
+type ENSRootNode {
+  createdAt: DateTime!
+  hash: String!
+  name: String
+  state: ENSRootNodeStates!
+  updatedAt: DateTime!
+}
+
+type ENSRootNodes {
   currentPage: Int!
-  items: [ENSNode!]!
+  items: [ENSRootNode!]!
   nextPage: Int
 }
 
@@ -158,22 +166,24 @@ type GatewayTransaction {
 type Mutation {
   activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
-  createENSSubNode(address: String!, chainId: Int, name: String!): ENSNode!
   createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!, chainId: Int): String!
   deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
   estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
+  p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
+  reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
   submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
   syncAccount(chainId: Int): Account!
   syncAccountMember(account: String!, chainId: Int): AccountMember!
-  syncPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
+  syncP2PPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
   touchSession(chainId: Int): Boolean!
   transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
+  updateP2PPaymentDeposit(chainId: Int, owner: String!, token: String, totalAmount: BigNumber): P2PPaymentDeposit
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
   updateProject(chainId: Int, endpoint: String!, key: String!, owner: String!, privateKey: String!): Project!
@@ -193,6 +203,7 @@ type Notification {
 type P2PPaymentChannel {
   committedAmount: BigNumber!
   createdAt: DateTime!
+  endangered: Boolean!
   hash: String!
   latestPayment: P2PPaymentChannelPayment
   recipient: String!
@@ -231,13 +242,24 @@ type P2PPaymentDeposit {
   address: String!
   availableAmount: BigNumber!
   createdAt: DateTime
+  exitState: P2PPaymentDepositExitStates!
+  latestWithdrawal: P2PPaymentDepositWithdrawal
   lockedAmount: BigNumber!
   owner: String!
   pendingAmount: BigNumber!
-  state: P2PPaymentDepositStates!
   token: String
   totalAmount: BigNumber!
   updatedAt: DateTime
+  withdrawAmount: BigNumber!
+}
+
+type P2PPaymentDepositWithdrawal {
+  createdAt: DateTime!
+  guardianSignature: String
+  state: P2PPaymentDepositWithdrawalStates!
+  totalAmount: BigNumber!
+  updatedAt: DateTime!
+  value: BigNumber!
 }
 
 type P2PPaymentDeposits {
@@ -331,7 +353,8 @@ type Query {
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
-  ensRootNodes(chainId: Int): ENSNodes!
+  ensRootNode(chainId: Int, name: String!): ENSNode
+  ensRootNodes(chainId: Int): ENSRootNodes!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
@@ -455,9 +478,10 @@ enum ENSNodeStates {
   Reserved
 }
 
-enum ENSNodeTypes {
-  Root
-  Sub
+enum ENSRootNodeStates {
+  Released
+  Submitted
+  Verified
 }
 
 enum GatewayBatchStates {
@@ -499,12 +523,16 @@ enum NotificationTypes {
   AccountMemberCreated
   AccountMemberUpdated
   AccountUpdated
-  ENSSubNodeCreated
-  ENSSubNodeUpdated
+  ENSNodeCreated
+  ENSNodeUpdated
+  ENSRootNodeCreated
+  ENSRootNodeUpdated
   GatewayBatchCreated
   GatewayBatchUpdated
   P2PPaymentChannelCreated
   P2PPaymentChannelUpdated
+  P2PPaymentDepositCreated
+  P2PPaymentDepositUpdated
   PaymentHubBridgeCreated
   PaymentHubBridgeUpdated
   PaymentHubCreated
@@ -516,20 +544,25 @@ enum NotificationTypes {
 
 enum P2PPaymentChannelPaymentStates {
   Committed
-  Created
   Expired
+  Reserved
   Signed
 }
 
 enum P2PPaymentChannelStates {
-  Endangered
   Opened
   Signed
 }
 
-enum P2PPaymentDepositStates {
-  Locked
-  Unlocked
+enum P2PPaymentDepositExitStates {
+  Completed
+  Rejected
+  Requested
+}
+
+enum P2PPaymentDepositWithdrawalStates {
+  Signed
+  Withdrawn
 }
 
 enum PaymentHubBridgeStates {
