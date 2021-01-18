@@ -21,8 +21,8 @@ export type AccountMemberNotification = BaseNotification<
   }
 >;
 
-export type ENSSubNodeNotification = BaseNotification<
-  NotificationTypes.ENSSubNodeCreated | NotificationTypes.ENSSubNodeUpdated,
+export type ENSNodeNotification = BaseNotification<
+  NotificationTypes.ENSNodeCreated | NotificationTypes.ENSNodeUpdated,
   {
     hash: string;
   }
@@ -37,6 +37,13 @@ export type GatewayBatchNotification = BaseNotification<
 
 export type P2PPaymentChannelNotification = BaseNotification<
   NotificationTypes.P2PPaymentChannelCreated | NotificationTypes.P2PPaymentChannelUpdated,
+  {
+    hash: string;
+  }
+>;
+
+export type P2PPaymentDepositNotification = BaseNotification<
+  NotificationTypes.P2PPaymentDepositCreated | NotificationTypes.P2PPaymentDepositUpdated,
   {
     hash: string;
   }
@@ -79,9 +86,10 @@ export type PaymentHubPaymentNotification = BaseNotification<
 export type Notification =
   | AccountNotification
   | AccountMemberNotification
-  | ENSSubNodeNotification
+  | ENSNodeNotification
   | GatewayBatchNotification
   | P2PPaymentChannelNotification
+  | P2PPaymentDepositNotification
   | PaymentHubNotification
   | PaymentHubBridgeNotification
   | PaymentHubDepositNotification

@@ -1,25 +1,26 @@
 import { Type } from 'class-transformer';
-import { Synchronized } from '../../common';
-import { ENSNodeTypes, ENSNodeStates } from '../constants';
+import { ENSNodeStates } from '../constants';
+import { ENSRootNode } from './ens-root-node';
 
-export class ENSNode extends Synchronized {
+export class ENSNode {
+  @Type(() => ENSRootNode)
+  rootNode: Partial<ENSRootNode>;
+
   hash: string;
 
-  name?: string;
+  name: string;
+
+  label: string;
 
   address: string;
 
-  label?: string;
+  state: ENSNodeStates;
 
-  type?: ENSNodeTypes;
-
-  state?: ENSNodeStates;
-
-  guardianSignature?: string;
+  guardianSignature: string;
 
   @Type(() => Date)
-  createdAt?: Date;
+  createdAt: Date;
 
   @Type(() => Date)
-  updatedAt?: Date;
+  updatedAt: Date;
 }

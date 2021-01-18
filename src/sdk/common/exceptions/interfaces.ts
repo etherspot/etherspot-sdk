@@ -4,5 +4,5 @@ export interface ValidationError {
   constraints?: {
     [type: string]: string;
   };
-  children: ValidationError[];
+  children?: ValidationError[];
 }

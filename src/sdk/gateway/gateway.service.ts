@@ -312,7 +312,8 @@ export class GatewayService extends Service {
       refundTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, refundAmount);
     }
 
-    const typedMessage = gatewayContract.hashDelegatedBatch(
+    const typedMessage = gatewayContract.buildDelegatedBatchTypedData(
+      account,
       nonce,
       [...to, refundTransactionRequest.to],
       [...data, refundTransactionRequest.data],
@@ -420,7 +421,7 @@ export class GatewayService extends Service {
     if (delegate) {
       const nonce = uniqueNonce();
 
-      const typedMessage = gatewayContract.hashDelegatedBatch(nonce, to, data);
+      const typedMessage = gatewayContract.buildDelegatedBatchTypedData(account, nonce, to, data);
       const senderSignature = await walletService.signTypedData(typedMessage);
 
       result = gatewayContract.encodeDelegateBatch(account, nonce, to, data, senderSignature);
