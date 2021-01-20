@@ -3,7 +3,7 @@ import { NetworkOptions } from '../network';
 import { EnvNames, SUPPORTED_ENVS } from './constants';
 
 export class Env {
-  static defaultName: EnvNames = EnvNames.TestNets;
+  static defaultName: EnvNames = EnvNames.MainNets;
 
   static prepare(env: EnvNames | Env): Env {
     let partial: Env = null;
