@@ -2,15 +2,35 @@ import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { prepareAddress, Service, UniqueSubject } from '../common';
-import { P2PPaymentChannel, P2PPaymentChannelPayments, P2PPaymentChannels, P2PPaymentDeposits } from './classes';
+import { Exception, prepareAddress, Service, TransactionRequest, UniqueSubject, ValidationException } from '../common';
+import {
+  P2PPaymentChannel,
+  P2PPaymentChannelPayments,
+  P2PPaymentChannels,
+  P2PPaymentDeposit,
+  P2PPaymentDeposits,
+} from './classes';
 import { computePaymentChannelHash, createPaymentChannelUid } from './utils';
 
-export class P2pPaymentService extends Service {
+export class P2PPaymentService extends Service {
   readonly p2pPaymentDepositAddress$ = new UniqueSubject<string>();
 
   get p2pPaymentDepositAddress(): string {
     return this.p2pPaymentDepositAddress$.value;
+  }
+
+  async syncP2PPaymentDeposit(owner: string, token: string): Promise<P2PPaymentDeposit> {
+    let result: P2PPaymentDeposit = null;
+
+    token = prepareAddress(token);
+
+    const deposits = await this.syncP2PPaymentDeposits(owner, token ? [token] : []);
+
+    if (deposits && deposits.items) {
+      result = deposits.items.find((deposit) => deposit.token === token);
+    }
+
+    return result || null;
   }
 
   async syncP2PPaymentDeposits(owner: string, tokens: string[]): Promise<P2PPaymentDeposits> {
@@ -21,17 +41,27 @@ export class P2pPaymentService extends Service {
     }>(
       gql`
         mutation($chainId: Int, $owner: String!, $tokens: [String!]) {
-          result: syncPaymentDeposits(chainId: $chainId, owner: $owner, tokens: $tokens) {
+          result: syncP2PPaymentDeposits(chainId: $chainId, owner: $owner, tokens: $tokens) {
             items {
+              latestWithdrawal {
+                createdAt
+                guardianSignature
+                state
+                totalAmount
+                updatedAt
+                value
+              }
               address
               availableAmount
               createdAt
+              exitState
               lockedAmount
               owner
-              state
+              pendingAmount
               token
               totalAmount
               updatedAt
+              withdrawAmount
             }
           }
         }
@@ -69,6 +99,7 @@ export class P2pPaymentService extends Service {
             totalAmount
             uid
             updatedAt
+            endangered
             latestPayment {
               blockNumber
               guardianSignature
@@ -123,6 +154,7 @@ export class P2pPaymentService extends Service {
               totalAmount
               uid
               updatedAt
+              endangered
               latestPayment {
                 blockNumber
                 guardianSignature
@@ -191,6 +223,69 @@ export class P2pPaymentService extends Service {
     return result;
   }
 
+  async decreaseP2PPaymentDeposit(token: string, amount: BigNumber): Promise<P2PPaymentDeposit> {
+    const { accountService } = this.services;
+    const owner = accountService.accountAddress;
+
+    const deposit = await this.syncP2PPaymentDeposit(owner, token);
+
+    if (!deposit || deposit.availableAmount.lt(amount)) {
+      ValidationException.throw('amount', {
+        tooHigh: 'Not enough funds',
+      });
+    }
+
+    return this.updateP2PPaymentDeposit(token, deposit.withdrawAmount.add(amount));
+  }
+
+  async updateP2PPaymentDeposit(token: string, totalAmount: BigNumber): Promise<P2PPaymentDeposit> {
+    const { apiService, accountService } = this.services;
+
+    const owner = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: P2PPaymentDeposit;
+    }>(
+      gql`
+        mutation($chainId: Int, $owner: String!, $token: String, $totalAmount: BigNumber!) {
+          result: updateP2PPaymentDeposit(chainId: $chainId, owner: $owner, token: $token, totalAmount: $totalAmount) {
+            latestWithdrawal {
+              createdAt
+              guardianSignature
+              state
+              totalAmount
+              updatedAt
+              value
+            }
+            address
+            availableAmount
+            createdAt
+            exitState
+            lockedAmount
+            owner
+            pendingAmount
+            token
+            totalAmount
+            updatedAt
+            withdrawAmount
+          }
+        }
+      `,
+      {
+        models: {
+          result: P2PPaymentDeposit,
+        },
+        variables: {
+          owner,
+          token,
+          totalAmount,
+        },
+      },
+    );
+
+    return result;
+  }
+
   async increaseP2PPaymentChannelAmount(
     recipient: string,
     token: string,
@@ -229,24 +324,13 @@ export class P2pPaymentService extends Service {
 
     const blockNumber = await blockService.getCurrentBlockNumber();
 
-    const typedMessage = paymentRegistryContract.buildTypedData(
-      'PaymentChannelCommit',
-      [
-        { name: 'sender', type: 'address' }, //
-        { name: 'recipient', type: 'address' },
-        { name: 'token', type: 'address' },
-        { name: 'uid', type: 'bytes32' },
-        { name: 'blockNumber', type: 'uint256' },
-        { name: 'amount', type: 'uint256' },
-      ],
-      {
-        sender, //
-        recipient,
-        token: prepareAddress(token, true),
-        uid,
-        blockNumber,
-        amount: totalAmount.toHexString(),
-      },
+    const typedMessage = paymentRegistryContract.buildPaymentChannelCommitTypedData(
+      sender, //
+      recipient,
+      token,
+      uid,
+      blockNumber,
+      totalAmount,
     );
 
     const senderSignature = await walletService.signTypedData(typedMessage);
@@ -340,24 +424,13 @@ export class P2pPaymentService extends Service {
 
     const { paymentRegistryContract } = this.contracts;
 
-    const typedMessage = paymentRegistryContract.buildTypedData(
-      'PaymentChannelCommit',
-      [
-        { name: 'sender', type: 'address' }, //
-        { name: 'recipient', type: 'address' },
-        { name: 'token', type: 'address' },
-        { name: 'uid', type: 'bytes32' },
-        { name: 'blockNumber', type: 'uint256' },
-        { name: 'amount', type: 'uint256' },
-      ],
-      {
-        sender, //
-        recipient,
-        token: prepareAddress(token, true),
-        uid,
-        blockNumber,
-        amount: totalAmount.toHexString(),
-      },
+    const typedMessage = paymentRegistryContract.buildPaymentChannelCommitTypedData(
+      sender, //
+      recipient,
+      token,
+      uid,
+      blockNumber,
+      totalAmount,
     );
 
     const senderSignature = await walletService.signTypedData(typedMessage);
@@ -402,6 +475,20 @@ export class P2pPaymentService extends Service {
     );
 
     return result;
+  }
+
+  buildP2PPaymentDepositWithdrawalTransactionRequest(deposit: P2PPaymentDeposit): TransactionRequest {
+    if (!deposit || !deposit.latestWithdrawal) {
+      throw new Exception('Payment deposit withdrawal not found');
+    }
+    const { paymentRegistryContract } = this.contracts;
+
+    const {
+      token,
+      latestWithdrawal: { totalAmount, guardianSignature },
+    } = deposit;
+
+    return paymentRegistryContract.encodeWithdrawDeposit(token, totalAmount, guardianSignature);
   }
 
   protected onInit() {

@@ -35,16 +35,18 @@ export class GatewayContract extends Contract<GatewayFunctionsNames> {
     );
   }
 
-  hashDelegatedBatch(nonce: number, to: string[], data: string[]): TypedData {
+  buildDelegatedBatchTypedData(account: string, nonce: number, to: string[], data: string[]): TypedData {
     return this.buildTypedData(
       'DelegatedBatch',
       [
-        { name: 'nonce', type: 'uint256' }, //
+        { name: 'account', type: 'address' }, //
+        { name: 'nonce', type: 'uint256' },
         { name: 'to', type: 'address[]' },
         { name: 'data', type: 'bytes[]' },
       ],
       {
-        nonce, //
+        account, //
+        nonce,
         to,
         data,
       },

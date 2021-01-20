@@ -3,6 +3,8 @@ export * from './p2p-payment-channel-payment';
 export * from './p2p-payment-channel-payments';
 export * from './p2p-payment-channels';
 export * from './p2p-payment-deposit';
+export * from './p2p-payment-deposit-withdrawal';
+export * from './p2p-payment-deposit-withdrawals';
 export * from './p2p-payment-deposits';
 export * from './payment-hub';
 export * from './payment-hub-bridge';

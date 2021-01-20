@@ -4,6 +4,7 @@ import { Account, AccountBalances, AccountMembers, Accounts, AccountService, Acc
 import { ApiService } from './api';
 import { AssetsService, TokenList, TokenListToken } from './assets';
 import { AuthService, Session } from './auth';
+import { P2PPaymentDepositWithdrawalDto } from './dto/p2p-payment-deposit-withdrawal.dto';
 import {
   GatewayService,
   GatewayBatch,
@@ -38,10 +39,12 @@ import {
   GetAccountDto,
   GetAccountMembersDto,
   GetENSNodeDto,
+  GetENSRootNodeDto,
   GetGatewaySubmittedBatchDto,
   GetGatewaySupportedTokenDto,
   GetP2PPaymentChannelDto,
   GetP2PPaymentChannelsDto,
+  GetP2PPaymentDepositsDto,
   GetPaymentHubBridgeDto,
   GetPaymentHubBridgesDto,
   GetPaymentHubDepositDto,
@@ -61,7 +64,6 @@ import {
   SignMessageDto,
   SignP2PPaymentChannelDto,
   SwitchCurrentProjectDto,
-  SyncP2PPaymentDepositsDto,
   TransferPaymentHubDepositDto,
   UpdateP2PPaymentChannelDto,
   UpdatePaymentHubBridgeDto,
@@ -69,13 +71,14 @@ import {
   UpdatePaymentHubDto,
   UpdateProjectDto,
   validateDto,
+  WithdrawP2PPaymentDepositDto,
 } from './dto';
-import { ENSNode, ENSService, parseENSName, ENSNodeStates } from './ens';
+import { ENSNode, ENSService, parseENSName, ENSNodeStates, ENSRootNode } from './ens';
 import { Env, EnvNames } from './env';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
-  P2pPaymentService,
+  P2PPaymentService,
   P2PPaymentChannel,
   P2PPaymentChannels,
   P2PPaymentDeposits,
@@ -88,6 +91,7 @@ import {
   PaymentHubPayments,
   PaymentHubBridge,
   PaymentHubBridges,
+  P2PPaymentDeposit,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { State, StateService } from './state';
@@ -101,9 +105,9 @@ import { SdkOptions } from './interfaces';
  * @category Sdk
  */
 export class Sdk {
-  private readonly context: Context;
-  private readonly contracts: Context['contracts'];
-  private readonly services: Context['services'];
+  protected readonly context: Context;
+  protected readonly contracts: Context['contracts'];
+  protected readonly services: Context['services'];
 
   constructor(walletProvider: WalletProviderLike, sdkOptions?: EnvNames | SdkOptions);
   constructor(sdkOptions?: EnvNames | SdkOptions);
@@ -165,7 +169,7 @@ export class Sdk {
       ensService: new ENSService(),
       gatewayService: new GatewayService(),
       notificationService: new NotificationService(),
-      p2pPaymentsService: new P2pPaymentService(),
+      p2pPaymentsService: new P2PPaymentService(),
       paymentHubService: new PaymentHubService(),
       projectService: new ProjectService({
         key: projectKey,
@@ -215,18 +219,6 @@ export class Sdk {
   }
 
   // wallet
-
-  /**
-   * switches wallet provider
-   * @param walletProvider
-   */
-  switchWalletProvider(walletProvider: WalletProviderLike): void {
-    if (!isWalletProvider(walletProvider)) {
-      throw new Exception('Invalid wallet provider');
-    }
-
-    this.services.walletService.switchWalletProvider(walletProvider);
-  }
 
   /**
    * personal signs message
@@ -725,7 +717,7 @@ export class Sdk {
       session: true,
     });
 
-    return this.services.ensService.createENSSubNode(name);
+    return this.services.ensService.reserveENSNode(name);
   }
 
   /**
@@ -734,7 +726,7 @@ export class Sdk {
    * @return Promise<ENSNode>
    */
   async getENSNode(dto: GetENSNodeDto = {}): Promise<ENSNode> {
-    const { nameOrHashOrAddress } = await validateDto(dto, ClaimENSNodeDto);
+    const { nameOrHashOrAddress } = await validateDto(dto, GetENSNodeDto);
 
     await this.require({
       wallet: !nameOrHashOrAddress,
@@ -745,6 +737,23 @@ export class Sdk {
     return ensService.getENSNode(
       this.prepareAccountAddress(nameOrHashOrAddress), //
     );
+  }
+
+  /**
+   * gets ens root node
+   * @param dto
+   * @return Promise<ENSRootNode>
+   */
+  async getENSRootNode(dto: GetENSRootNodeDto): Promise<ENSRootNode> {
+    const { name } = await validateDto(dto, GetENSRootNodeDto);
+
+    await this.require({
+      wallet: false,
+    });
+
+    const { ensService } = this.services;
+
+    return ensService.getENSRootNode(name);
   }
 
   /**
@@ -814,12 +823,12 @@ export class Sdk {
   // p2p payments
 
   /**
-   * syncs p2p payment deposits
+   * gets p2p payment deposits
    * @param dto
    * @return Promise<P2PPaymentDeposits>
    */
-  async syncP2PPaymentDeposits(dto: SyncP2PPaymentDepositsDto = {}): Promise<P2PPaymentDeposits> {
-    const { tokens } = await validateDto(dto, SyncP2PPaymentDepositsDto);
+  async getP2PPaymentDeposits(dto: GetP2PPaymentDepositsDto = {}): Promise<P2PPaymentDeposits> {
+    const { tokens } = await validateDto(dto, GetP2PPaymentDepositsDto);
 
     await this.require({
       session: true,
@@ -930,6 +939,45 @@ export class Sdk {
   // p2p payments (encode)
 
   /**
+   * encodes withdraw p2p payment deposit
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeWithdrawP2PPaymentDeposit(dto: WithdrawP2PPaymentDepositDto): Promise<TransactionRequest> {
+    const { token, amount } = await validateDto(dto, WithdrawP2PPaymentDepositDto);
+
+    await this.require({
+      session: true,
+    });
+
+    const { p2pPaymentsService } = this.services;
+
+    return p2pPaymentsService.buildP2PPaymentDepositWithdrawalTransactionRequest(
+      await p2pPaymentsService.decreaseP2PPaymentDeposit(token, BigNumber.from(amount)),
+    );
+  }
+
+  /**
+   * encodes p2p payment deposit withdrawal
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeP2PPaymentDepositWithdrawal(dto: P2PPaymentDepositWithdrawalDto): Promise<TransactionRequest> {
+    const { token } = await validateDto(dto, P2PPaymentDepositWithdrawalDto);
+
+    await this.require({
+      session: true,
+    });
+
+    const { accountService, p2pPaymentsService } = this.services;
+    const { accountAddress } = accountService;
+
+    return p2pPaymentsService.buildP2PPaymentDepositWithdrawalTransactionRequest(
+      await p2pPaymentsService.syncP2PPaymentDeposit(accountAddress, token),
+    );
+  }
+
+  /**
    * encodes commit p2p payment channel
    * @param dto
    * @return Promise<TransactionRequest>
@@ -979,6 +1027,32 @@ export class Sdk {
   }
 
   // p2p payments (batch)
+
+  /**
+   * batch withdraw p2p payment deposit
+   * @param dto
+   * @return Promise<GatewayBatch>
+   */
+  async batchWithdrawP2PPaymentDeposit(dto: WithdrawP2PPaymentDepositDto): Promise<GatewayBatch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.batchGatewayTransactionRequest(await this.encodeWithdrawP2PPaymentDeposit(dto));
+  }
+
+  /**
+   * batch p2p payment deposit withdrawal
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async batchP2PPaymentDepositWithdrawal(dto: P2PPaymentDepositWithdrawalDto): Promise<GatewayBatch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.batchGatewayTransactionRequest(await this.encodeP2PPaymentDepositWithdrawal(dto));
+  }
 
   /**
    * batch commit p2p payment channel
