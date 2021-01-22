@@ -16,7 +16,7 @@
     "test:unit": "jest",
     "test:unit-watch": "jest --watch",
     "test:unit-cov": "jest --coverage",
-    "test:cucumber": "cucumber-js --require-module ts-node/register --require test/world.ts --require test/steps/**/*.ts test/features/**/*.feature",
+    "test:cucumber": "cucumber-js",
     "prebuild": "rimraf ./dist",
     "build": "npm run compile",
     "compile": "tsc -p ./tsconfig.build.json",
@@ -39,7 +39,7 @@
     "validator": "13.0.0"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "7.0.0",
+    "@cucumber/cucumber": "7.0.0-rc.0",
     "@types/graphql": "14.5.0",
     "@types/jest": "25.2.3",
     "@types/node": "13.13.9",
