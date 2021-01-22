@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-* Start [local backend](https://github.com/etherspot/etherspot-backend-monorepo) 
+* Start [local infra](https://github.com/etherspot/etherspot-infra) 
 
 ## Usage
 
