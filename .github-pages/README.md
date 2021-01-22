@@ -20,7 +20,7 @@ import { Sdk, randomPrivateKey } from 'etherspot';
 
 const PRIVATE_KEY = randomPrivateKey();
 
-async function main(): Promise<void> {
+async function main() {
   const sdk = new Sdk(PRIVATE_KEY);
 
   sdk.notifications$.subscribe(notification => console.log('notification:', notification))
