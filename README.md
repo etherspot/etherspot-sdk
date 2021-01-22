@@ -26,15 +26,21 @@ const PRIVATE_KEY = randomPrivateKey();
 async function main() {
   const sdk = new Sdk(PRIVATE_KEY);
 
-  sdk.notifications$.subscribe(notification => console.log('notification:', notification))
+  sdk.notifications$.subscribe(notification => console.log('notification:', notification));
   
   await sdk.computeContractAccount();
-
+  
+  const { account } = sdk.state;
+  
+  console.log('contract account:', account);
+  
+  // top-up contract account (account.address)
+  
   // add transaction to gateway batch
   await sdk.batchExecuteAccountTransaction({
-    to: '0x...',
-    value: 100,
-  })
+    to: '0xEEb4801FBc9781EEF20801853C1Cb25faB8A7a3b',
+    value: 100, // 100 wei
+  });
   
   console.log('gateway batch estimation:', await sdk.estimateGatewayBatch());
 
