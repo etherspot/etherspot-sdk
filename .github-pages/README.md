@@ -3,13 +3,8 @@
 [![NPM version][npm-image]][npm-url]
 
 ```bash
-$ npm i etherspot -S
-```
-
-install `peerDependencies`:
-
-```bash
 $ npm i ethers@^5.0.8 reflect-metadata@^0.1.13 rxjs@^6.6.2 -S
+$ npm i etherspot -S
 ```
 
 install `ws` (node.js only):
@@ -21,11 +16,29 @@ $ npm i ws -S
 ## Usage
 
 ```typescript
-import { Sdk } from 'etherspot';
-import { Wallet } from 'ethers';
+import { Sdk, randomPrivateKey } from 'etherspot';
 
-const sdk = new Sdk(Wallet.createRandom());
+const PRIVATE_KEY = randomPrivateKey();
 
+async function main(): Promise<void> {
+  const sdk = new Sdk(PRIVATE_KEY);
+
+  sdk.notifications$.subscribe(notification => console.log('notification:', notification))
+  
+  await sdk.computeContractAccount();
+
+  // add transaction to gateway batch
+  await sdk.batchExecuteAccountTransaction({
+    to: '0x...',
+    value: 100,
+  })
+  
+  console.log('gateway batch estimation:', await sdk.estimateGatewayBatch());
+
+  console.log('submitted gateway batch:', await sdk.submitGatewayBatch());
+}
+
+main().catch(console.error);
 ```
 
 ## Resources
