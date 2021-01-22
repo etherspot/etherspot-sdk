@@ -16,7 +16,7 @@
     "test:unit": "jest",
     "test:unit-watch": "jest --watch",
     "test:unit-cov": "jest --coverage",
-    "test:cucumber": "cucumber-js --require-module ts-node/register --require test/**/*.ts test/**/*.feature",
+    "test:cucumber": "cucumber-js --require-module ts-node/register --require test/world.ts --require test/steps/**/*.ts test/features/**/*.feature",
     "prebuild": "rimraf ./dist",
     "build": "npm run compile",
     "compile": "tsc -p ./tsconfig.build.json",
