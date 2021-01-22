@@ -91,7 +91,6 @@ import {
   PaymentHubPayments,
   PaymentHubBridge,
   PaymentHubBridges,
-  P2PPaymentDeposit,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { State, StateService } from './state';

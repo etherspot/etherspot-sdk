@@ -18,7 +18,7 @@ export function isWalletProvider(provider: WalletProviderLike): boolean {
           const { type, personalSignMessage, signMessage, signTypedData } = provider as WalletProvider;
 
           result =
-            type &&
+            !!type &&
             typeof personalSignMessage === 'function' &&
             typeof signMessage === 'function' &&
             typeof signTypedData === 'function';
