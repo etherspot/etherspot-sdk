@@ -8,12 +8,7 @@
 ```bash
 $ npm i ethers@^5.0.8 reflect-metadata@^0.1.13 rxjs@^6.6.2 -S
 $ npm i etherspot -S
-```
-
-install `ws` (node.js only):
-
-```bash
-$ npm i ws -S
+$ npm i ws -s # node.js only
 ```
 
 ## Usage
