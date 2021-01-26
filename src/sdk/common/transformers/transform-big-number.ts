@@ -6,7 +6,9 @@ import { isBigNumber } from '../utils';
  * @ignore
  */
 export function TransformBigNumber(): Function {
-  return Transform((value: any, obj: any, type: TransformationType) => {
+  return Transform((params) => {
+    const { type, value } = params;
+
     let result: any = null;
 
     switch (type) {
