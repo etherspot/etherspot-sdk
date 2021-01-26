@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { utils } from 'ethers';
-import { Exception, Service, TransactionRequest, UniqueSubject, uniqueNonce } from '../common';
+import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
   GatewaySubmittedBatch,
@@ -9,6 +9,7 @@ import {
   GatewaySupportedTokens,
 } from './classes';
 import { GatewayBatch } from './interfaces';
+import { uniqueNonce } from './utils';
 
 export class GatewayService extends Service {
   readonly gatewayBatch$ = new UniqueSubject<GatewayBatch>(null);

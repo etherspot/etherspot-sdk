@@ -1,6 +1,9 @@
 import { validate } from 'class-validator';
 import { ValidationException } from '../../common';
 
+/**
+ * @ignore
+ */
 export async function validateDto<T extends {}>(dto: Partial<T>, DtoConstructor: { new (): T }): Promise<T> {
   const result = new DtoConstructor();
 

@@ -1,5 +1,8 @@
 import { plainToClass } from 'class-transformer';
 
+/**
+ * @ignore
+ */
 export function mapApiResult<T extends {}, K extends keyof T>(
   data: T,
   models?: {
