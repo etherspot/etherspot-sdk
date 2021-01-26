@@ -1,3 +1,6 @@
+/**
+ * @ignore
+ */
 export enum HeaderNames {
   AuthToken = 'x-auth-token',
   ProjectKey = 'x-project-key',

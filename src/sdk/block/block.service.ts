@@ -15,7 +15,6 @@ export class BlockService extends Service {
         query($chainId: Int) {
           blockStats(chainId: $chainId) {
             currentBlockNumber
-            lastProcessedBlockNumber
           }
         }
       `,

@@ -8,6 +8,7 @@
     "./examples/**/*.ts",
     "./test/**/*.ts",
     "./src/**/*.spec.ts",
-    "./src/**/__mocks__/*.ts"
+    "./src/**/__mocks__/*.ts",
+    "./src/testing/**/*.ts"
   ]
 }

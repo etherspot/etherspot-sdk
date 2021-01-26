@@ -91,7 +91,6 @@ import {
   PaymentHubPayments,
   PaymentHubBridge,
   PaymentHubBridges,
-  P2PPaymentDeposit,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { State, StateService } from './state';
@@ -105,9 +104,9 @@ import { SdkOptions } from './interfaces';
  * @category Sdk
  */
 export class Sdk {
-  protected readonly context: Context;
-  protected readonly contracts: Context['contracts'];
-  protected readonly services: Context['services'];
+  readonly context: Context;
+  readonly contracts: Context['contracts'];
+  readonly services: Context['services'];
 
   constructor(walletProvider: WalletProviderLike, sdkOptions?: EnvNames | SdkOptions);
   constructor(sdkOptions?: EnvNames | SdkOptions);

@@ -4,7 +4,7 @@ import { isHex, keccak256, toHex } from '../common';
 import { WalletProvider } from './interfaces';
 
 export class KeyWalletProvider implements WalletProvider {
-  readonly type: 'Key';
+  readonly type = 'Key';
   readonly address: string;
 
   private readonly wallet: Wallet;
