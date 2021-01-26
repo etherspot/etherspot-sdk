@@ -81,7 +81,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "./coverage",
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "setupFiles": [
       "./node_modules/reflect-metadata/Reflect.js"
     ]

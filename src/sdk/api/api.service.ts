@@ -11,6 +11,7 @@ import {
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { BigNumber } from 'ethers';
+import fetch from 'cross-fetch';
 import { isBigNumber, Service } from '../common';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri, catchApiError, mapApiResult } from './utils';

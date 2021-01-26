@@ -1,5 +1,3 @@
-import fetch from 'cross-fetch';
-
 /**
  * @ignore
  */
@@ -15,10 +13,4 @@ try {
   throw new Error('WebSocket not found. Please install `ws` for node.js');
 }
 
-/**
- * @ignore
- */
-const self: any = global;
-
-self.fetch = fetch;
-self.WebSocket = WebSocketConstructor;
+(global as any).WebSocket = WebSocketConstructor;
