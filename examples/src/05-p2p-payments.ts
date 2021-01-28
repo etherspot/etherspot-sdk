@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { Sdk } from '../../src';
+import { Sdk, sleep } from '../../src';
 import { logger, topUpAccount } from './common';
 
 async function main(): Promise<void> {
@@ -54,6 +54,17 @@ async function main(): Promise<void> {
   logger.log('estimated batch', await recipientSdk.estimateGatewayBatch());
 
   logger.log('submitted batch', await recipientSdk.submitGatewayBatch());
+
+  logger.log(
+    'batch',
+    await senderSdk.batchWithdrawP2PPaymentDeposit({
+      amount: 100,
+    }),
+  );
+
+  logger.log('estimated batch', await senderSdk.estimateGatewayBatch());
+
+  logger.log('submitted batch', await senderSdk.submitGatewayBatch());
 }
 
 main()
