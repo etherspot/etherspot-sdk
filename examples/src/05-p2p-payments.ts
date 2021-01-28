@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { Sdk, sleep } from '../../src';
+import { Sdk } from '../../src';
 import { logger, topUpAccount } from './common';
 
 async function main(): Promise<void> {
