@@ -12,6 +12,7 @@ const mocked = {
   getGatewaySubmittedBatch: jest.fn(),
   getGatewaySubmittedBatches: jest.fn(),
   estimateGatewayBatch: jest.fn(),
+  estimateGatewayKnownOp: jest.fn(),
   submitGatewayBatch: jest.fn(),
   encodeGatewayBatch: jest.fn(),
 };
