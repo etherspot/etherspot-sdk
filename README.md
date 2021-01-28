@@ -49,6 +49,17 @@ main().catch(console.error);
 
 * [playground](https://try.etherspot.dev)
 * [documentation](https://docs.etherspot.dev)
+* examples:
+    * [session](./examples/src/01-session.ts)
+    * [state storage](./examples/src/02-state-storage.ts)
+    * [contract account](./examples/src/03-contract-account.ts)
+    * [ens](./examples/src/04-ens.ts)
+    * [p2p payments](./examples/src/05-p2p-payments.ts)
+    * [payment hub](./examples/src/06-payment-hub.ts)
+    * [payment hub bridge](./examples/src/07-payment-hub-bridge.ts)
+    * [gateway](./examples/src/08-gateway.ts)
+    * [projects](./examples/src/09-projects.ts)
+    * [assets](./examples/src/10-assets.ts)
 
 ## License
 
