@@ -130,6 +130,12 @@ type GatewayEstimatedBatch {
     signature: String!
 }
 
+type GatewayEstimatedKnownOp {
+    estimatedGas: Int!
+    estimatedGasPrice: BigNumber!
+    refundAmount: BigNumber!
+}
+
 type GatewaySender {
     address: String!
     balance: BigNumber!
@@ -172,7 +178,7 @@ type Mutation {
     deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
     destroySession(chainId: Int): Boolean!
     estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
-    estimateGatewayKnownOp(account: String!, chainId: Int, op: GatewayKnownOps!, refundToken: String): GatewayEstimatedBatch!
+    estimateGatewayKnownOp(account: String!, chainId: Int, op: GatewayKnownOps!, refundToken: String): GatewayEstimatedKnownOp!
     p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
     reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
     signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
