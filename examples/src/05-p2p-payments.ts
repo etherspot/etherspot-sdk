@@ -1,5 +1,5 @@
 import { Wallet } from 'ethers';
-import { Sdk } from '../../src';
+import { GatewayKnownOps, Sdk } from '../../src';
 import { logger, topUpAccount } from './common';
 
 async function main(): Promise<void> {
@@ -23,6 +23,7 @@ async function main(): Promise<void> {
   );
 
   await topUpAccount(recipientState.accountAddress, '0.5');
+  await topUpAccount(senderState.accountAddress, '0.5');
   await topUpAccount(senderState.p2pPaymentDepositAddress, '2');
 
   const partialPaymentValue = 100;
@@ -54,6 +55,22 @@ async function main(): Promise<void> {
   logger.log('estimated batch', await recipientSdk.estimateGatewayBatch());
 
   logger.log('submitted batch', await recipientSdk.submitGatewayBatch());
+
+  logger.log(
+    'batch',
+    await senderSdk.batchWithdrawP2PPaymentDeposit({
+      amount: 100,
+    }),
+  );
+
+  logger.log('estimated batch', await senderSdk.estimateGatewayBatch());
+
+  logger.log(
+    'estimated op',
+    await senderSdk.estimateGatewayKnownOp({
+      op: GatewayKnownOps.WithdrawP2PDeposit,
+    }),
+  );
 }
 
 main()

@@ -13,3 +13,7 @@ export enum GatewayTransactionStates {
   Canceled = 'Canceled',
   Reverted = 'Reverted',
 }
+
+export enum GatewayKnownOps {
+  WithdrawP2PDeposit = 'WithdrawP2PDeposit',
+}

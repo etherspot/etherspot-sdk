@@ -130,6 +130,12 @@ type GatewayEstimatedBatch {
     signature: String!
 }
 
+type GatewayEstimatedKnownOp {
+    estimatedGas: Int!
+    estimatedGasPrice: BigNumber!
+    refundAmount: BigNumber!
+}
+
 type GatewaySender {
     address: String!
     balance: BigNumber!
@@ -172,6 +178,7 @@ type Mutation {
     deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
     destroySession(chainId: Int): Boolean!
     estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
+    estimateGatewayKnownOp(account: String!, chainId: Int, op: GatewayKnownOps!, refundToken: String): GatewayEstimatedKnownOp!
     p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
     reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
     signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
@@ -242,7 +249,7 @@ type P2PPaymentDeposit {
     address: String!
     availableAmount: BigNumber!
     createdAt: DateTime
-    exitState: P2PPaymentDepositExitStates!
+    exitState: P2PPaymentDepositExitStates
     latestWithdrawal: P2PPaymentDepositWithdrawal
     lockedAmount: BigNumber!
     owner: String!
@@ -492,6 +499,10 @@ enum GatewayBatchStates {
     Sent
 }
 
+enum GatewayKnownOps {
+    WithdrawP2PDeposit
+}
+
 enum GatewaySenderStates {
     Busy
     Ready
@@ -525,8 +536,6 @@ enum NotificationTypes {
     AccountUpdated
     ENSNodeCreated
     ENSNodeUpdated
-    ENSRootNodeCreated
-    ENSRootNodeUpdated
     GatewayBatchCreated
     GatewayBatchUpdated
     P2PPaymentChannelCreated

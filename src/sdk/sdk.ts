@@ -11,6 +11,7 @@ import {
   GatewaySubmittedBatch,
   GatewaySupportedToken,
   GatewaySubmittedBatches,
+  GatewayEstimatedKnownOp,
 } from './gateway';
 import { BlockService } from './block';
 import { Context } from './context';
@@ -34,6 +35,7 @@ import {
   CustomProjectMetadataDto,
   EncodeGatewayBatchDto,
   EstimateGatewayBatchDto,
+  EstimateGatewayKnownOpDto,
   ExecuteAccountTransactionDto,
   GetAccountBalancesDto,
   GetAccountDto,
@@ -343,6 +345,21 @@ export class Sdk {
       to,
       data,
     });
+  }
+
+  /**
+   * estimates gateway known op
+   * @param dto
+   * @return Promise<GatewayEstimatedKnownOp>
+   */
+  async estimateGatewayKnownOp(dto: EstimateGatewayKnownOpDto): Promise<GatewayEstimatedKnownOp> {
+    const { op, refundToken } = await validateDto(dto, EstimateGatewayKnownOpDto);
+
+    await this.require({
+      session: true,
+    });
+
+    return this.services.gatewayService.estimateGatewayKnownOp(op, refundToken);
   }
 
   /**

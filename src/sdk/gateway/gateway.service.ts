@@ -3,11 +3,13 @@ import { utils } from 'ethers';
 import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
+  GatewayEstimatedKnownOp,
   GatewaySubmittedBatch,
   GatewaySubmittedBatches,
   GatewaySupportedToken,
   GatewaySupportedTokens,
 } from './classes';
+import { GatewayKnownOps } from './constants';
 import { GatewayBatch } from './interfaces';
 import { uniqueNonce } from './utils';
 
@@ -273,6 +275,38 @@ export class GatewayService extends Service {
     });
 
     return this.gatewayBatch;
+  }
+
+  async estimateGatewayKnownOp(op: GatewayKnownOps, refundToken: string = null): Promise<GatewayEstimatedKnownOp> {
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: GatewayEstimatedKnownOp;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!, $op: GatewayKnownOps!, $refundToken: String) {
+          result: estimateGatewayKnownOp(chainId: $chainId, account: $account, op: $op, refundToken: $refundToken) {
+            refundAmount
+            estimatedGas
+            estimatedGasPrice
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewayEstimatedKnownOp,
+        },
+        variables: {
+          account,
+          op,
+          refundToken,
+        },
+      },
+    );
+
+    return result;
   }
 
   async submitGatewayBatch(): Promise<GatewaySubmittedBatch> {
