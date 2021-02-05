@@ -3,19 +3,9 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
 import { ApiService } from './api';
 import { AssetsService, TokenList, TokenListToken } from './assets';
-import { AuthService, Session } from './auth';
-import { P2PPaymentDepositWithdrawalDto } from './dto/p2p-payment-deposit-withdrawal.dto';
-import {
-  GatewayService,
-  GatewayBatch,
-  GatewaySubmittedBatch,
-  GatewaySupportedToken,
-  GatewaySubmittedBatches,
-  GatewayEstimatedKnownOp,
-} from './gateway';
 import { BlockService } from './block';
-import { Context } from './context';
 import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
+import { Context } from './context';
 import {
   ENSControllerContract,
   ERC20TokenContract,
@@ -75,30 +65,40 @@ import {
   validateDto,
   WithdrawP2PPaymentDepositDto,
 } from './dto';
-import { ENSNode, ENSService, parseENSName, ENSNodeStates, ENSRootNode } from './ens';
+import { P2PPaymentDepositWithdrawalDto } from './dto/p2p-payment-deposit-withdrawal.dto';
+import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
+import {
+  GatewayBatch,
+  GatewayEstimatedKnownOp,
+  GatewayService,
+  GatewaySubmittedBatch,
+  GatewaySubmittedBatches,
+  GatewaySupportedToken,
+} from './gateway';
+import { SdkOptions } from './interfaces';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
-  P2PPaymentService,
   P2PPaymentChannel,
   P2PPaymentChannels,
   P2PPaymentDeposits,
-  PaymentHubPayment,
-  PaymentHubService,
+  P2PPaymentService,
   PaymentHub,
-  PaymentHubs,
-  PaymentHubDeposit,
-  PaymentHubDeposits,
-  PaymentHubPayments,
   PaymentHubBridge,
   PaymentHubBridges,
+  PaymentHubDeposit,
+  PaymentHubDeposits,
+  PaymentHubPayment,
+  PaymentHubPayments,
+  PaymentHubs,
+  PaymentHubService,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
+import { Session, SessionService } from './session';
 import { State, StateService } from './state';
 import { WalletService } from './wallet';
-import { WalletProviderLike, isWalletProvider } from './wallet-providers';
-import { SdkOptions } from './interfaces';
+import { isWalletProvider, WalletProviderLike } from './wallet-providers';
 
 /**
  * Sdk
@@ -106,40 +106,33 @@ import { SdkOptions } from './interfaces';
  * @category Sdk
  */
 export class Sdk {
-  readonly context: Context;
   readonly contracts: Context['contracts'];
   readonly services: Context['services'];
 
-  constructor(walletProvider: WalletProviderLike, sdkOptions?: EnvNames | SdkOptions);
-  constructor(sdkOptions?: EnvNames | SdkOptions);
-  constructor(...args: any[]) {
-    let walletProvider: WalletProviderLike = null;
-    let sdkOptions: SdkOptions = {};
+  protected context: Context;
 
-    if (args.length > 0) {
-      let optionsIndex = 0;
+  constructor(walletProvider: WalletProviderLike, optionsLike?: EnvNames | SdkOptions) {
+    let options: SdkOptions = {};
 
-      if (isWalletProvider(args[0])) {
-        walletProvider = args[0];
-        ++optionsIndex;
-      }
+    if (!isWalletProvider(walletProvider)) {
+      throw new Exception('Invalid wallet provider');
+    }
 
-      if (args[optionsIndex]) {
-        switch (typeof args[optionsIndex]) {
-          case 'string':
-            sdkOptions = {
-              env: args[optionsIndex],
-            };
-            break;
+    if (optionsLike) {
+      switch (typeof optionsLike) {
+        case 'string':
+          options = {
+            env: optionsLike,
+          };
+          break;
 
-          case 'object':
-            sdkOptions = args[optionsIndex];
-            break;
-        }
+        case 'object':
+          options = optionsLike;
+          break;
       }
     }
 
-    const env = Env.prepare(sdkOptions.env);
+    const env = Env.prepare(options.env);
 
     const {
       networkName, //
@@ -147,7 +140,10 @@ export class Sdk {
       projectKey,
       projectMetadata,
       stateStorage,
-    } = sdkOptions;
+      sessionStorage,
+    } = options;
+
+    const { apiOptions, networkOptions } = env;
 
     this.contracts = {
       ensControllerContract: new ENSControllerContract(),
@@ -158,14 +154,16 @@ export class Sdk {
     };
 
     this.services = {
-      networkService: new NetworkService(env.networkOptions, networkName),
+      networkService: new NetworkService(networkOptions, networkName),
       walletService: new WalletService(walletProvider, {
         omitProviderNetworkCheck: omitWalletProviderNetworkCheck,
       }),
+      sessionService: new SessionService({
+        storage: sessionStorage,
+      }),
       accountService: new AccountService(),
-      apiService: new ApiService(env.apiOptions),
+      apiService: new ApiService(apiOptions),
       assetsService: new AssetsService(),
-      authService: new AuthService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
       gatewayService: new GatewayService(),
@@ -274,7 +272,7 @@ export class Sdk {
 
     await this.require();
 
-    return this.services.authService.createSession(ttl);
+    return this.services.sessionService.createSession(ttl);
   }
 
   // gateway
@@ -1466,7 +1464,7 @@ export class Sdk {
       ...options,
     };
 
-    const { accountService, authService, networkService, walletService, projectService } = this.services;
+    const { accountService, networkService, walletService, sessionService, projectService } = this.services;
 
     if (options.network && !networkService.chainId) {
       throw new Exception('Unknown network');
@@ -1477,7 +1475,7 @@ export class Sdk {
     }
 
     if (options.session) {
-      await authService.verifySession();
+      await sessionService.verifySession();
     }
 
     if (options.contractAccount && (!accountService.account || accountService.account.type !== AccountTypes.Contract)) {

@@ -1,7 +1,8 @@
 import { Type } from 'class-transformer';
 import { Account } from '../../account';
+import { BaseClass } from '../../common';
 
-export class Session {
+export class Session extends BaseClass<Session> {
   static TTL_MARGIN = 3000;
 
   token: string;

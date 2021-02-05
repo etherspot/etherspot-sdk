@@ -5,6 +5,7 @@ export abstract class Service {
   protected context: Context;
   private inited = false;
   private destroyed = false;
+  private attachedCounter = 0;
   private subscriptions: Subscription[] = [];
 
   init(context: Context): void {
@@ -20,10 +21,18 @@ export abstract class Service {
         this.addSubscriptions(this.error$.subscribe());
       }
     }
+
+    ++this.attachedCounter;
   }
 
   destroy(): void {
-    if (!this.destroyed) {
+    if (!this.attachedCounter) {
+      return;
+    }
+
+    --this.attachedCounter;
+
+    if (!this.attachedCounter && !this.destroyed) {
       this.destroyed = true;
 
       this.removeSubscriptions();

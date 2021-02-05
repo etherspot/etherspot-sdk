@@ -26,7 +26,45 @@ export class WalletService extends Service {
     return this.wallet ? this.wallet.address : null;
   }
 
-  switchWalletProvider(providerLike: WalletProviderLike): void {
+  async personalSignMessage(message: BytesLike): Promise<string> {
+    return this.provider ? this.provider.personalSignMessage(message) : null;
+  }
+
+  async signMessage(message: BytesLike): Promise<string> {
+    return this.provider ? this.provider.signMessage(message) : null;
+  }
+
+  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
+    let result: string = null;
+
+    if (this.provider) {
+      const { networkName } = this.provider;
+      const { networkService } = this.services;
+      const { chainId, network } = networkService;
+
+      if (chainId) {
+        const { domain, ...typedDataWithoutDomain } = unChainedTypedData;
+
+        const typedData: TypedData = {
+          domain: {
+            ...domain,
+            chainId,
+          },
+          ...typedDataWithoutDomain,
+        };
+
+        if (network.name === networkName) {
+          result = await this.provider.signTypedData(typedData);
+        } else {
+          result = await this.provider.signMessage(hashTypedData(typedData));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  protected switchWalletProvider(providerLike: WalletProviderLike): void {
     let provider: WalletProvider = null;
 
     if (providerLike) {
@@ -103,44 +141,6 @@ export class WalletService extends Service {
     }
 
     this.provider = provider;
-  }
-
-  async personalSignMessage(message: BytesLike): Promise<string> {
-    return this.provider ? this.provider.personalSignMessage(message) : null;
-  }
-
-  async signMessage(message: BytesLike): Promise<string> {
-    return this.provider ? this.provider.signMessage(message) : null;
-  }
-
-  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
-    let result: string = null;
-
-    if (this.provider) {
-      const { networkName } = this.provider;
-      const { networkService } = this.services;
-      const { chainId, network } = networkService;
-
-      if (chainId) {
-        const { domain, ...typedDataWithoutDomain } = unChainedTypedData;
-
-        const typedData: TypedData = {
-          domain: {
-            ...domain,
-            chainId,
-          },
-          ...typedDataWithoutDomain,
-        };
-
-        if (network.name === networkName) {
-          result = await this.provider.signTypedData(typedData);
-        } else {
-          result = await this.provider.signMessage(hashTypedData(typedData));
-        }
-      }
-    }
-
-    return result;
   }
 
   protected onInit() {

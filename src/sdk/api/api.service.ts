@@ -5,9 +5,9 @@ import {
   DocumentNode,
   HttpLink,
   split,
-  ApolloLink,
   Observable,
 } from '@apollo/client/core';
+import { setContext } from '@apollo/client/link/context';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { BigNumber } from 'ethers';
@@ -121,17 +121,15 @@ export class ApiService extends Service {
       },
     });
 
-    const authLink = new ApolloLink((operation, forward) => {
-      const { authService, projectService } = this.services;
+    const authLink = setContext(async () => {
+      const { sessionService, projectService } = this.services;
 
-      operation.setContext({
+      return {
         headers: {
-          ...authService.headers,
+          ...sessionService.headers,
           ...projectService.headers,
         },
-      });
-
-      return forward(operation);
+      };
     });
 
     const link = split(

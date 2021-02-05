@@ -3,7 +3,6 @@ import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 import { Service } from '../common';
 import { Account, AccountMember } from '../account';
-import { Session } from '../auth';
 import { GatewayBatch } from '../gateway';
 import { Network } from '../network';
 import { Wallet } from '../wallet';
@@ -69,14 +68,6 @@ export class StateService extends Service implements State {
     return this.services.p2pPaymentsService.p2pPaymentDepositAddress;
   }
 
-  get session$(): BehaviorSubject<Session> {
-    return this.services.authService.session$;
-  }
-
-  get session(): Session {
-    return this.services.authService.session;
-  }
-
   get gatewayBatch$(): BehaviorSubject<GatewayBatch> {
     return this.services.gatewayService.gatewayBatch$;
   }
@@ -97,17 +88,15 @@ export class StateService extends Service implements State {
     const {
       accountService: { account$, accountMember$ },
       p2pPaymentsService: { p2pPaymentDepositAddress$ },
-      authService: { session$ },
     } = this.services;
 
     if (state) {
       state = plainToClass(State, state);
-      const { account, accountMember, p2pPaymentDepositAddress, session } = state;
+      const { account, accountMember, p2pPaymentDepositAddress } = state;
 
       account$.next(account);
       accountMember$.next(accountMember);
       p2pPaymentDepositAddress$.next(p2pPaymentDepositAddress);
-      session$.next(session);
     }
 
     return this;
@@ -118,7 +107,6 @@ export class StateService extends Service implements State {
       account: this.account,
       accountMember: this.accountMember,
       p2pPaymentDepositAddress: this.p2pPaymentDepositAddress,
-      session: this.session,
     };
   }
 
@@ -129,7 +117,6 @@ export class StateService extends Service implements State {
       walletService: { wallet$, wallet },
       accountService: { account$, accountMember$ },
       p2pPaymentsService: { p2pPaymentDepositAddress$ },
-      authService: { session$ },
       gatewayService: { gatewayBatch$ },
       networkService: { network$, network },
     } = this.services;
@@ -141,7 +128,6 @@ export class StateService extends Service implements State {
           account$,
           accountMember$,
           p2pPaymentDepositAddress$,
-          session$,
           gatewayBatch$,
           network$,
         ])
@@ -152,7 +138,6 @@ export class StateService extends Service implements State {
                 account,
                 accountMember,
                 p2pPaymentDepositAddress,
-                session,
                 gatewayBatch,
                 network,
               ]: [
@@ -160,7 +145,6 @@ export class StateService extends Service implements State {
                 State['account'],
                 State['accountMember'],
                 State['p2pPaymentDepositAddress'],
-                State['session'],
                 State['gatewayBatch'],
                 State['network'],
               ]) => ({
@@ -168,7 +152,6 @@ export class StateService extends Service implements State {
                 account,
                 accountMember,
                 p2pPaymentDepositAddress,
-                session,
                 gatewayBatch,
                 network,
               }),

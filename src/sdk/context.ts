@@ -1,7 +1,6 @@
 import { AccountService } from './account';
 import { ApiService } from './api';
 import { AssetsService } from './assets';
-import { AuthService } from './auth';
 import { BlockService } from './block';
 import { ENSService } from './ens';
 import { GatewayService } from './gateway';
@@ -10,6 +9,7 @@ import { NotificationService } from './notification';
 import { P2PPaymentService, PaymentHubService } from './payments';
 import { ProjectService } from './project';
 import { ErrorSubject, Service } from './common';
+import { SessionService } from './session';
 import { StateService } from './state';
 import { WalletService } from './wallet';
 import {
@@ -38,7 +38,6 @@ export class Context {
       blockService: BlockService;
       apiService: ApiService;
       assetsService: AssetsService;
-      authService: AuthService;
       ensService: ENSService;
       gatewayService: GatewayService;
       networkService: NetworkService;
@@ -47,6 +46,7 @@ export class Context {
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
       stateService: StateService;
+      sessionService: SessionService;
       walletService: WalletService;
     },
   ) {
