@@ -80,6 +80,7 @@ type ENSNode {
     rootNode: ENSRootNode
     state: ENSNodeStates
     updatedAt: DateTime
+    zone: ENSNodeZones!
 }
 
 type ENSRootNode {
@@ -483,6 +484,12 @@ enum AccountTypes {
 enum ENSNodeStates {
     Claimed
     Reserved
+}
+
+enum ENSNodeZones {
+    CNS
+    ENS
+    ZNS
 }
 
 enum ENSRootNodeStates {
