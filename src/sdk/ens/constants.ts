@@ -3,6 +3,12 @@ export enum ENSNodeStates {
   Claimed = 'Claimed',
 }
 
+export enum ENSNodeZones {
+  ENS = 'ENS',
+  CNS = 'CNS',
+  ZNS = 'ZNS',
+}
+
 export enum ENSRootNodeStates {
   Submitted = 'Submitted',
   Verified = 'Verified',

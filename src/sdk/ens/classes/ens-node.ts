@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { ENSNodeStates } from '../constants';
+import { ENSNodeStates, ENSNodeZones } from '../constants';
 import { ENSRootNode } from './ens-root-node';
 
 export class ENSNode {
@@ -15,6 +15,8 @@ export class ENSNode {
   address: string;
 
   state: ENSNodeStates;
+
+  zone: ENSNodeZones;
 
   guardianSignature: string;
 
