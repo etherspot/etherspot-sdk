@@ -49,6 +49,14 @@ async function main(): Promise<void> {
   logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
   logger.log('submitted batch', await sdk.submitGatewayBatch());
+
+  // unstoppable domains support
+  logger.log(
+    'ens node',
+    await sdk.getENSNode({
+      nameOrHashOrAddress: 'brad.crypto',
+    }),
+  );
 }
 
 main()
