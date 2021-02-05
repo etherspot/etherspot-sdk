@@ -19,6 +19,7 @@ export class ENSService extends Service {
             address
             label
             state
+            zone
             guardianSignature
             createdAt
             updatedAt
@@ -53,6 +54,7 @@ export class ENSService extends Service {
             address
             label
             state
+            zone
             guardianSignature
             createdAt
             updatedAt
