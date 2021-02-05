@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import { Account, AccountMember } from '../../account';
-import { Session } from '../../auth';
 import { GatewayBatch } from '../../gateway';
 import { Network } from '../../network';
 import { Wallet } from '../../wallet';
@@ -15,9 +14,6 @@ export class State {
   accountMember: AccountMember;
 
   p2pPaymentDepositAddress: string;
-
-  @Type(() => Session)
-  session: Session;
 
   gatewayBatch: GatewayBatch;
 

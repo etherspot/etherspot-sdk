@@ -1,13 +1,10 @@
-import { Wallet } from 'ethers';
-import { Sdk } from '../../src';
+import { Sdk, randomPrivateKey, SessionStorage } from '../../src';
 import { logger } from './common';
 
 async function main(): Promise<void> {
-  const wallet = Wallet.createRandom();
-
-  logger.log('wallet', wallet.address);
-
-  const sdk = new Sdk(wallet);
+  const sdk = new Sdk(randomPrivateKey(), {
+    sessionStorage: new SessionStorage(),
+  });
 
   logger.log('create session', await sdk.createSession());
 
@@ -18,7 +15,7 @@ async function main(): Promise<void> {
     }),
   );
 
-  logger.log('export session', sdk.state.session);
+  logger.log('account', await sdk.syncAccount());
 }
 
 main()

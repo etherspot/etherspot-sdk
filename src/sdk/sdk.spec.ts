@@ -1,4 +1,5 @@
 import { clearAllObjectMocks, getMockedInstances } from '../testing';
+import { randomPrivateKey } from './common';
 import { ApiService } from './api';
 import { NotificationService } from './notification';
 import { Sdk } from './sdk';
@@ -12,7 +13,7 @@ describe('Sdk', () => {
   let notificationService: jest.Mocked<NotificationService>;
 
   beforeAll(() => {
-    sdk = new Sdk();
+    sdk = new Sdk(randomPrivateKey());
     ({ apiService, notificationService } = getMockedInstances(sdk.services));
   });
 

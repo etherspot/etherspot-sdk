@@ -1,15 +1,21 @@
 import { gql } from '@apollo/client/core';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Service, ObjectSubject, HeaderNames } from '../common';
+import { switchMap } from 'rxjs/operators';
+import { Service, HeaderNames } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
+import { SessionOptions, SessionStorageLike } from './interfaces';
+import { SessionStorage } from './session.storage';
 
-export class AuthService extends Service {
-  readonly session$ = new ObjectSubject<Session>();
+export class SessionService extends Service {
+  private readonly storage: SessionStorageLike;
+  private session: Session = null;
 
-  get session(): Session {
-    return this.session$.value;
+  constructor(options: SessionOptions = {}) {
+    super();
+
+    const { storage } = options;
+
+    this.storage = storage ? storage : new SessionStorage();
   }
 
   get headers(): { [key: string]: any } {
@@ -21,15 +27,23 @@ export class AuthService extends Service {
   }
 
   async verifySession(): Promise<void> {
+    await this.restoreSession();
+
     if (this.session && !this.session.verify()) {
-      this.session$.next(null);
+      this.session = null;
     }
 
     if (!this.session) {
       await this.createSession();
     } else {
-      this.session.refresh();
+      await this.refreshSession();
     }
+  }
+
+  async refreshSession(): Promise<void> {
+    this.session.refresh();
+
+    await this.storeSession();
   }
 
   async createSession(ttl?: number): Promise<Session> {
@@ -102,23 +116,48 @@ export class AuthService extends Service {
 
     session.refresh();
 
-    this.session$.next(session);
+    this.session = session;
+
+    await this.storeSession();
 
     return session;
   }
 
   protected onInit() {
-    const { walletService, networkService } = this.services;
+    const { walletAddress$ } = this.services.walletService;
 
     this.addSubscriptions(
-      combineLatest([
-        walletService.walletAddress$, //
-        networkService.chainId$,
-      ])
-        .pipe(
-          map(() => null), //
-        )
-        .subscribe(this.session$),
+      walletAddress$
+        .pipe(switchMap(() => this.restoreSession())) //
+        .subscribe(),
     );
+  }
+
+  private async storeSession(): Promise<void> {
+    const { walletService } = this.services;
+    const { walletAddress } = walletService;
+
+    const { token, ttl, expireAt } = this.session;
+
+    await this.storage.setSession(walletAddress, {
+      token,
+      ttl,
+      expireAt,
+    });
+  }
+
+  private async restoreSession(): Promise<void> {
+    let session: Session = null;
+
+    const { walletService } = this.services;
+    const { walletAddress } = walletService;
+
+    if (walletAddress) {
+      const stored = walletAddress ? await this.storage.getSession(walletAddress) : null;
+
+      session = stored ? new Session(stored) : null;
+    }
+
+    this.session = session;
   }
 }
