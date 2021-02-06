@@ -1,4 +1,4 @@
-import { Sdk } from '../../src';
+import { Sdk, sleep } from '../../src';
 import { logger, topUpAccount, randomAddress, randomWallet } from './common';
 
 async function main(): Promise<void> {
@@ -97,6 +97,8 @@ async function main(): Promise<void> {
     const submittedBatch = await sdk.submitGatewayBatch();
 
     const { hash } = submittedBatch;
+
+    await sleep(5);
 
     logger.log(
       'submitted batch',
