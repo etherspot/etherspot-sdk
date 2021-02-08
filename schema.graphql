@@ -104,6 +104,7 @@ type GatewayBatch {
     estimatedGas: Int!
     estimatedGasPrice: BigNumber!
     hash: String!
+    logs: [GatewayBatchLog!]!
     nonce: Int!
     refundAmount: BigNumber!
     refundData: String!
@@ -113,6 +114,12 @@ type GatewayBatch {
     to: [String!]!
     transaction: GatewayTransaction
     updatedAt: DateTime
+}
+
+type GatewayBatchLog {
+    address: String!
+    data: String!
+    topics: [String!]!
 }
 
 type GatewayBatches {
