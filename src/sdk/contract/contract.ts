@@ -38,7 +38,7 @@ export abstract class Contract extends Service {
   abstract get address(): string;
 
   private defineFunction(fragment: utils.FunctionFragment): void {
-    const { name, constant, inputs } = fragment;
+    const { name, constant, inputs, outputs } = fragment;
 
     const postfix = `${name[0].toUpperCase()}${name.slice(1)}`;
     const method = `${constant ? 'call' : 'encode'}${postfix}`;
@@ -51,9 +51,16 @@ export abstract class Contract extends Service {
           args.map((arg, index) => prepareInputArg(inputs[index].type, arg)),
         );
 
-        let result: any = null;
+        let result: any;
 
-        if (!constant) {
+        if (constant) {
+          const { contractService } = this.services;
+
+          result = contractService.callContract(to, data).then((data) => {
+            const decoded = this.interface.decodeFunctionResult(fragment, data);
+            return outputs.length === 1 ? decoded[0] : decoded;
+          });
+        } else {
           result = {
             to,
             data,

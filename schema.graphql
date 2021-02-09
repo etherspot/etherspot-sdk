@@ -179,6 +179,7 @@ type GatewayTransaction {
 
 type Mutation {
     activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+    callContract(chainId: Int, data: String!, to: String!): String!
     callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
     createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
     createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
@@ -548,6 +549,7 @@ enum NotificationTypes {
     AccountMemberCreated
     AccountMemberUpdated
     AccountUpdated
+    Blocknative
     ENSNodeCreated
     ENSNodeUpdated
     GatewayBatchCreated

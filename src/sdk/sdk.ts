@@ -7,6 +7,9 @@ import { BlockService } from './block';
 import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
 import { Context } from './context';
 import {
+  Contract,
+  ContractAddresses,
+  ContractService,
   ENSControllerContract,
   ERC20TokenContract,
   GatewayContract,
@@ -176,6 +179,7 @@ export class Sdk {
       stateService: new StateService({
         storage: stateStorage,
       }),
+      contractService: new ContractService(),
     };
 
     this.context = new Context(this.internalContracts, this.services);
@@ -1444,6 +1448,23 @@ export class Sdk {
     });
 
     return this.services.assetsService.isTokenOnTokenList(token, name);
+  }
+
+  // utils
+
+  /**
+   * registers contract
+   * @param name
+   * @param abi
+   * @param addresses
+   * @return Contract
+   */
+  registerContract<T extends {} = {}>(
+    name: string,
+    abi: any,
+    addresses: ContractAddresses = null,
+  ): Contract & Partial<T> {
+    return this.services.contractService.registerContract<T>(name, abi, addresses);
   }
 
   // private

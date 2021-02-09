@@ -13,6 +13,7 @@ import { SessionService } from './session';
 import { StateService } from './state';
 import { WalletService } from './wallet';
 import {
+  ContractService,
   ENSControllerContract,
   ERC20TokenContract,
   GatewayContract,
@@ -35,9 +36,10 @@ export class Context {
     },
     readonly services: {
       accountService: AccountService;
-      blockService: BlockService;
       apiService: ApiService;
       assetsService: AssetsService;
+      blockService: BlockService;
+      contractService: ContractService;
       ensService: ENSService;
       gatewayService: GatewayService;
       networkService: NetworkService;
@@ -45,8 +47,8 @@ export class Context {
       p2pPaymentsService: P2PPaymentService;
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
-      stateService: StateService;
       sessionService: SessionService;
+      stateService: StateService;
       walletService: WalletService;
     },
   ) {
