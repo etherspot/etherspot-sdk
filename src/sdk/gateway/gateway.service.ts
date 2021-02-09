@@ -345,9 +345,14 @@ export class GatewayService extends Service {
     let refundTransactionRequest: TransactionRequest;
 
     if (refundToken) {
-      const { to, data } = erc20TokenContract.encodeTransfer(refundToken, refundTokenPayee, refundAmount);
+      const { data } = erc20TokenContract.encodeTransfer(refundTokenPayee, refundAmount);
 
-      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(account, to, 0, data);
+      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(
+        account,
+        refundToken,
+        0,
+        data,
+      );
     } else {
       refundTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, refundAmount);
     }

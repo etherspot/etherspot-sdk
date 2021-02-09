@@ -8,5 +8,5 @@ export class ERC20TokenContract extends InternalContract {
     super(ContractNames.ERC20Token);
   }
 
-  encodeTransfer?(token: string, to: string, value: BigNumberish): TransactionRequest;
+  encodeTransfer?(to: string, value: BigNumberish): TransactionRequest;
 }
