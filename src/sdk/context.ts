@@ -18,7 +18,7 @@ import {
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
-} from './contracts';
+} from './contract';
 
 export class Context {
   readonly error$ = new ErrorSubject();

@@ -1,5 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
-import { mockContract } from '../../../testing';
+import { mockContract } from '../../../../testing';
 
 export const PersonalAccountRegistryContract = mockContract(ContractNames.PersonalAccountRegistry, {
   encodeRefundAccountCall: jest.fn(),

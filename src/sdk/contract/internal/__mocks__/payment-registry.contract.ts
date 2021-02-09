@@ -1,5 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
-import { mockContract } from '../../../testing';
+import { mockContract } from '../../../../testing';
 
 export const PaymentRegistryContract = mockContract(ContractNames.PaymentRegistry, {
   encodeWithdrawDeposit: jest.fn(),

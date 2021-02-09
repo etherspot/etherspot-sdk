@@ -1,25 +1,17 @@
 import { ContractNames } from '@etherspot/contracts';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumberish } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { prepareAddress, TransactionRequest } from '../common';
-import { Contract } from './contract';
-import { PaymentRegistryFunctionsNames } from './constants';
+import { TransactionRequest } from '../../common';
+import { InternalContract } from './internal.contract';
 
-export class PaymentRegistryContract extends Contract<PaymentRegistryFunctionsNames> {
+export class PaymentRegistryContract extends InternalContract {
   constructor() {
     super(ContractNames.PaymentRegistry);
   }
 
-  encodeWithdrawDeposit(token: string, amount: BigNumberish, guardianSignature: string): TransactionRequest {
-    return this.encodeSelfContractTransactionRequest(
-      PaymentRegistryFunctionsNames.WithdrawDeposit,
-      prepareAddress(token, true),
-      amount,
-      guardianSignature,
-    );
-  }
+  encodeWithdrawDeposit?(token: string, amount: BigNumberish, guardianSignature: string): TransactionRequest;
 
-  encodeCommitPaymentChannelAndWithdraw(
+  encodeCommitPaymentChannelAndWithdraw?(
     sender: string,
     token: string,
     uid: string,
@@ -27,20 +19,9 @@ export class PaymentRegistryContract extends Contract<PaymentRegistryFunctionsNa
     amount: BigNumberish,
     senderSignature: string,
     guardianSignature: string,
-  ): TransactionRequest {
-    return this.encodeSelfContractTransactionRequest(
-      PaymentRegistryFunctionsNames.CommitPaymentChannelAndWithdraw,
-      sender,
-      prepareAddress(token, true),
-      uid,
-      blockNumber,
-      amount,
-      senderSignature,
-      guardianSignature,
-    );
-  }
+  ): TransactionRequest;
 
-  encodeCommitPaymentChannelAndDeposit(
+  encodeCommitPaymentChannelAndDeposit?(
     sender: string,
     token: string,
     uid: string,
@@ -48,18 +29,7 @@ export class PaymentRegistryContract extends Contract<PaymentRegistryFunctionsNa
     amount: BigNumberish,
     senderSignature: string,
     guardianSignature: string,
-  ): TransactionRequest {
-    return this.encodeSelfContractTransactionRequest(
-      PaymentRegistryFunctionsNames.CommitPaymentChannelAndDeposit,
-      sender,
-      prepareAddress(token, true),
-      uid,
-      blockNumber,
-      amount,
-      senderSignature,
-      guardianSignature,
-    );
-  }
+  ): TransactionRequest;
 
   buildDepositWithdrawalTypedData(owner: string, token: string, amount: BigNumberish): TypedData {
     return this.buildTypedData(
@@ -71,8 +41,8 @@ export class PaymentRegistryContract extends Contract<PaymentRegistryFunctionsNa
       ],
       {
         owner, //
-        token: prepareAddress(token, true),
-        amount: BigNumber.from(amount).toHexString(),
+        token,
+        amount,
       },
     );
   }
@@ -98,10 +68,10 @@ export class PaymentRegistryContract extends Contract<PaymentRegistryFunctionsNa
       {
         sender, //
         recipient,
-        token: prepareAddress(token, true),
+        token,
         uid,
         blockNumber,
-        amount: BigNumber.from(amount).toHexString(),
+        amount,
       },
     );
   }

@@ -62,7 +62,11 @@ export class NetworkService extends Service {
     return !!this.supportedNetworks.find(({ name }) => name === networkName);
   }
 
-  getContractAddress(contractName: ContractNames): string {
+  getExternalContractAddress(contractName: string): string {
+    return null;
+  }
+
+  getInternalContractAddress(contractName: ContractNames): string {
     let result: string = null;
 
     if (this.network) {
@@ -79,7 +83,7 @@ export class NetworkService extends Service {
     return result;
   }
 
-  getAccountByteCodeHash(): string {
+  getInternalAccountByteCodeHash(): string {
     let result: string = null;
 
     if (this.network) {

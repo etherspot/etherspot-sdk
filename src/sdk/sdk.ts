@@ -12,7 +12,7 @@ import {
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
-} from './contracts';
+} from './contract';
 import {
   AddAccountOwnerDto,
   BatchGatewayTransactionRequestDto,

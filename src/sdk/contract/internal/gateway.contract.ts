@@ -1,39 +1,22 @@
 import { ContractNames } from '@etherspot/contracts';
 import { TypedData } from 'ethers-typed-data';
-import { TransactionRequest } from '../common';
-import { Contract } from './contract';
-import { GatewayFunctionsNames } from './constants';
+import { TransactionRequest } from '../../common';
+import { InternalContract } from './internal.contract';
 
-export class GatewayContract extends Contract<GatewayFunctionsNames> {
+export class GatewayContract extends InternalContract {
   constructor() {
     super(ContractNames.Gateway);
   }
 
-  encodeSendBatchFromAccount(account: string, to: string[], data: string[]): TransactionRequest {
-    return this.encodeSelfContractTransactionRequest(
-      GatewayFunctionsNames.SendBatchFromAccount, //
-      account,
-      to,
-      data,
-    );
-  }
+  encodeSendBatchFromAccount?(account: string, to: string[], data: string[]): TransactionRequest;
 
-  encodeDelegateBatch(
+  encodeDelegateBatch?(
     account: string,
     nonce: number,
     to: string[],
     data: string[],
     senderSignature: string,
-  ): TransactionRequest {
-    return this.encodeSelfContractTransactionRequest(
-      GatewayFunctionsNames.DelegateBatch, //
-      account,
-      nonce,
-      to,
-      data,
-      senderSignature,
-    );
-  }
+  ): TransactionRequest;
 
   buildDelegatedBatchTypedData(account: string, nonce: number, to: string[], data: string[]): TypedData {
     return this.buildTypedData(
