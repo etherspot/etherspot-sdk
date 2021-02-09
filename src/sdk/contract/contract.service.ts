@@ -55,7 +55,11 @@ export class ContractService extends Service {
         const { address } = log;
 
         if (address && contractsMap.has(address)) {
-          result.push(contractsMap.get(address).parseLog(log));
+          const event = contractsMap.get(address).parseLog(log);
+
+          if (event) {
+            result.push(event);
+          }
         }
       }
     }
