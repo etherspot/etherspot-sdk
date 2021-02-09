@@ -7,7 +7,7 @@ export interface Network {
 
 export interface NetworkOptions {
   supportedNetworkNames: NetworkNames[];
-  contracts?: {
+  internalContracts?: {
     [key: string]: {
       addresses?: { [key: string]: string };
       accountByteCodeHash?: string;

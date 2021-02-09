@@ -1,7 +1,7 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { UniqueSubject } from '../common';
-import { NetworkNames } from '../network';
+import { UniqueSubject } from '../../common';
+import { NetworkNames } from '../../network';
 
 export interface WalletProvider {
   readonly type?: string;

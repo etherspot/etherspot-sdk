@@ -338,7 +338,7 @@ export class GatewayService extends Service {
     const { nonce, refundToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.contracts;
+    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
 
     const account = accountService.accountAddress;
 
@@ -452,7 +452,7 @@ export class GatewayService extends Service {
     let result: TransactionRequest;
 
     const { accountService, walletService } = this.services;
-    const { gatewayContract } = this.contracts;
+    const { gatewayContract } = this.internalContracts;
 
     const account = accountService.accountAddress;
 

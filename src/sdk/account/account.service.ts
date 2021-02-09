@@ -30,7 +30,7 @@ export class AccountService extends Service {
 
   computeContractAccount(): void {
     const { walletService } = this.services;
-    const { personalAccountRegistryContract } = this.contracts;
+    const { personalAccountRegistryContract } = this.internalContracts;
 
     const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.walletAddress);
 

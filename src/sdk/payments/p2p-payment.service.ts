@@ -316,7 +316,7 @@ export class P2PPaymentService extends Service {
     totalAmount: BigNumber,
     uidSalt: string = null,
   ): Promise<P2PPaymentChannel> {
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
     const { apiService, accountService, blockService, walletService } = this.services;
 
     const uid = createPaymentChannelUid(uidSalt);
@@ -422,7 +422,7 @@ export class P2PPaymentService extends Service {
       latestPayment: { blockNumber },
     } = paymentChannel;
 
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
 
     const typedMessage = paymentRegistryContract.buildPaymentChannelCommitTypedData(
       sender, //
@@ -481,7 +481,7 @@ export class P2PPaymentService extends Service {
     if (!deposit || !deposit.latestWithdrawal) {
       throw new Exception('Payment deposit withdrawal not found');
     }
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
 
     const {
       token,
@@ -492,7 +492,7 @@ export class P2PPaymentService extends Service {
   }
 
   protected onInit() {
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
     const { accountService, networkService } = this.services;
 
     this.addSubscriptions(

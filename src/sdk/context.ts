@@ -26,7 +26,7 @@ export class Context {
   private readonly attached: Service[] = [];
 
   constructor(
-    readonly contracts: {
+    readonly internalContracts: {
       ensControllerContract: ENSControllerContract;
       erc20TokenContract: ERC20TokenContract;
       gatewayContract: GatewayContract;
@@ -50,7 +50,7 @@ export class Context {
       walletService: WalletService;
     },
   ) {
-    const items = [...Object.values(contracts), ...Object.values(services)];
+    const items = [...Object.values(internalContracts), ...Object.values(services)];
 
     for (const item of items) {
       this.attach(item);

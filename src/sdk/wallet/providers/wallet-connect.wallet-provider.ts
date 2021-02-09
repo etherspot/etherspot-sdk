@@ -1,6 +1,6 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, toHex } from '../common';
+import { isHex, keccak256, toHex } from '../../common';
 import { DynamicWalletProvider } from './dynamic.wallet-provider';
 import { WalletConnectConnector } from './interfaces';
 

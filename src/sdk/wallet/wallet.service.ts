@@ -3,7 +3,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
 import { Service, ObjectSubject, UnChainedTypedData } from '../common';
-import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } from '../wallet-providers';
+import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } from './providers';
 import { Wallet, WalletOptions } from './interfaces';
 
 export class WalletService extends Service {

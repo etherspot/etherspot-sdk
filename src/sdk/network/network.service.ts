@@ -67,10 +67,10 @@ export class NetworkService extends Service {
 
     if (this.network) {
       const { chainId, name } = this.network;
-      const { contracts } = this.options;
+      const { internalContracts } = this.options;
 
-      if (contracts && contracts[name] && contracts[name][contractName]) {
-        result = contracts[name][contractName];
+      if (internalContracts && internalContracts[name] && internalContracts[name][contractName]) {
+        result = internalContracts[name][contractName];
       } else {
         result = getContractAddress(contractName, chainId);
       }
@@ -84,10 +84,10 @@ export class NetworkService extends Service {
 
     if (this.network) {
       const { name } = this.network;
-      const { contracts } = this.options;
+      const { internalContracts } = this.options;
 
-      if (contracts && contracts[name] && contracts[name].accountByteCodeHash) {
-        result = contracts[name].accountByteCodeHash;
+      if (internalContracts && internalContracts[name] && internalContracts[name].accountByteCodeHash) {
+        result = internalContracts[name].accountByteCodeHash;
       } else {
         result = getContractByteCodeHash(ContractNames.Account);
       }
