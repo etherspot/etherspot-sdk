@@ -1,7 +1,8 @@
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BigNumberish } from 'ethers';
-import { randomPrivateKey, Sdk, NetworkNames, TransactionRequest, sleep } from '../../src';
-import { logger, getTokenAddress, topUpAccount } from './common';
+import { filter, take } from 'rxjs/operators';
+import { NetworkNames, NotificationTypes, randomPrivateKey, Sdk, TransactionRequest } from '../../src';
+import { getTokenAddress, logger, topUpAccount } from './common';
 
 export interface ERC20Contract {
   encodeApprove?(spender: string, value: BigNumberish): TransactionRequest;
@@ -10,6 +11,11 @@ export interface ERC20Contract {
 
 async function main(): Promise<void> {
   const sdk = new Sdk(randomPrivateKey());
+
+  const batchUpdatedNotification = sdk.notifications$.pipe(
+    filter(({ type }) => type === NotificationTypes.GatewayBatchUpdated),
+    take(2),
+  );
 
   await sdk.computeContractAccount();
 
@@ -36,7 +42,8 @@ async function main(): Promise<void> {
 
   logger.log('submitted batch', submittedBatch);
 
-  await sleep(5);
+  // wait for batch
+  await batchUpdatedNotification.toPromise();
 
   logger.log(
     'call response',
