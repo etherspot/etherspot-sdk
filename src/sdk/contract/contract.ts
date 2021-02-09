@@ -1,11 +1,12 @@
 import { utils } from 'ethers';
 import { Service } from '../common';
+import { ContractEvent, ContractLog } from './interfaces';
 import { prepareInputArg } from './utils';
 
-export abstract class Contract extends Service {
+export abstract class Contract<N extends string = string> extends Service {
   protected readonly interface: utils.Interface;
 
-  protected constructor(abi: any) {
+  constructor(readonly name: N, abi: any) {
     super();
 
     this.interface = new utils.Interface(abi);
@@ -36,6 +37,24 @@ export abstract class Contract extends Service {
   }
 
   abstract get address(): string;
+
+  parseLog(log: ContractLog): ContractEvent {
+    let result: ContractEvent;
+
+    try {
+      const { name: event, args } = this.interface.parseLog(log);
+
+      result = {
+        contract: this.name,
+        event,
+        args,
+      };
+    } catch (err) {
+      result = null;
+    }
+
+    return result;
+  }
 
   private defineFunction(fragment: utils.FunctionFragment): void {
     const { name, constant, inputs, outputs } = fragment;

@@ -1,6 +1,6 @@
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BigNumberish } from 'ethers';
-import { randomPrivateKey, Sdk, NetworkNames, TransactionRequest } from '../../src';
+import { randomPrivateKey, Sdk, NetworkNames, TransactionRequest, sleep } from '../../src';
 import { logger, getTokenAddress, topUpAccount } from './common';
 
 export interface ERC20Contract {
@@ -28,11 +28,26 @@ async function main(): Promise<void> {
 
   logger.log('gateway batch', await sdk.batchExecuteAccountTransaction(transactionRequest));
 
-  // ... send batch
+  logger.log('estimated batch', await sdk.estimateGatewayBatch());
+
+  const submittedBatch = await sdk.submitGatewayBatch();
+
+  const { hash } = submittedBatch;
+
+  logger.log('submitted batch', submittedBatch);
+
+  await sleep(5);
 
   logger.log(
     'call response',
     await erc20Contract.callAllowance(accountAddress, '0xEEb4801FBc9781EEF20801853C1Cb25faB8A7a3b'),
+  );
+
+  logger.log(
+    'submitted batch',
+    await sdk.getGatewaySubmittedBatch({
+      hash,
+    }),
   );
 }
 

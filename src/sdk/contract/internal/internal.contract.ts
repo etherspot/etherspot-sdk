@@ -10,15 +10,15 @@ import { utils } from 'ethers';
 import { Contract } from '../contract';
 import { prepareInputArg } from '../utils';
 
-export class InternalContract extends Contract {
+export class InternalContract extends Contract<ContractNames> {
   private readonly typedDataDomain: {
     name: string;
     version: string;
     salt: string;
   } = null;
 
-  constructor(private readonly name: ContractNames) {
-    super(getContractAbi(name));
+  constructor(name: ContractNames) {
+    super(name, getContractAbi(name));
 
     const typedDataDomainName = getContractTypedDataDomainName(name);
     const typedDataDomainVersion = getContractTypedDataDomainVersion(name);

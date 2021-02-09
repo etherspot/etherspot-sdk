@@ -2,7 +2,7 @@ import { gql } from '@apollo/client/core';
 import { Service } from '../common';
 import { Contract } from './contract';
 import { ExternalContract } from './external';
-import { ContractAddresses } from './interfaces';
+import { ContractAddresses, ContractEvent, ContractLog } from './interfaces';
 
 export class ContractService extends Service {
   protected registeredContracts = new Map<string, Contract>();
@@ -41,6 +41,40 @@ export class ContractService extends Service {
         },
       },
     );
+
+    return result;
+  }
+
+  processContractsLogs(logs: ContractLog[]): ContractEvent[] {
+    const result: ContractEvent[] = [];
+
+    if (logs && logs.length) {
+      const contractsMap = this.buildContractsMap();
+
+      for (const log of logs) {
+        const { address } = log;
+
+        if (address && contractsMap.has(address)) {
+          result.push(contractsMap.get(address).parseLog(log));
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private buildContractsMap(): Map<string, Contract> {
+    const result = new Map<string, Contract>();
+
+    const contracts = [...this.registeredContracts.values(), ...Object.values(this.internalContracts)];
+
+    for (const contract of contracts) {
+      const { address } = contract;
+
+      if (address) {
+        result.set(address, contract);
+      }
+    }
 
     return result;
   }

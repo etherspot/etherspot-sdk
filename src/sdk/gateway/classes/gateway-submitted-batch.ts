@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import { BigNumber } from 'ethers';
 import { TransformBigNumber } from '../../common';
+import { ContractEvent } from '../../contract';
 import { GatewayBatchStates } from '../constants';
 import { GatewayTransaction } from './gateway-transaction';
 import { GatewaySubmittedBatchLog } from './gateway-submitted-batch-log';
@@ -23,6 +24,8 @@ export class GatewaySubmittedBatch {
 
   @Type(() => GatewaySubmittedBatchLog)
   logs: GatewaySubmittedBatchLog[];
+
+  events?: ContractEvent[];
 
   senderSignature: string;
 

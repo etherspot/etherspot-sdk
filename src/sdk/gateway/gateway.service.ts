@@ -104,7 +104,7 @@ export class GatewayService extends Service {
   }
 
   async getGatewaySubmittedBatch(hash: string): Promise<GatewaySubmittedBatch> {
-    const { apiService } = this.services;
+    const { apiService, contractService } = this.services;
 
     const { result } = await apiService.query<{
       result: GatewaySubmittedBatch;
@@ -153,6 +153,10 @@ export class GatewayService extends Service {
         },
       },
     );
+
+    if (result && result.logs) {
+      result.events = contractService.processContractsLogs(result.logs);
+    }
 
     return result;
   }
