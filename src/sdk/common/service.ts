@@ -51,8 +51,8 @@ export abstract class Service {
     return this.context.error$;
   }
 
-  protected get contracts(): Context['contracts'] {
-    return this.context.contracts;
+  protected get internalContracts(): Context['internalContracts'] {
+    return this.context.internalContracts;
   }
 
   protected get services(): Context['services'] {

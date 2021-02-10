@@ -1,6 +1,6 @@
 import { Wallet, utils, BytesLike } from 'ethers';
 import { hashTypedData, TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, toHex } from '../common';
+import { isHex, keccak256, toHex } from '../../common';
 import { WalletProvider } from './interfaces';
 
 export class KeyWalletProvider implements WalletProvider {

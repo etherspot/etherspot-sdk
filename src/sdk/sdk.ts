@@ -7,12 +7,15 @@ import { BlockService } from './block';
 import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
 import { Context } from './context';
 import {
+  Contract,
+  ContractAddresses,
+  ContractService,
   ENSControllerContract,
   ERC20TokenContract,
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
-} from './contracts';
+} from './contract';
 import {
   AddAccountOwnerDto,
   BatchGatewayTransactionRequestDto,
@@ -97,8 +100,7 @@ import {
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
 import { State, StateService } from './state';
-import { WalletService } from './wallet';
-import { isWalletProvider, WalletProviderLike } from './wallet-providers';
+import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
 /**
  * Sdk
@@ -106,7 +108,7 @@ import { isWalletProvider, WalletProviderLike } from './wallet-providers';
  * @category Sdk
  */
 export class Sdk {
-  readonly contracts: Context['contracts'];
+  readonly internalContracts: Context['internalContracts'];
   readonly services: Context['services'];
 
   protected context: Context;
@@ -145,7 +147,7 @@ export class Sdk {
 
     const { apiOptions, networkOptions } = env;
 
-    this.contracts = {
+    this.internalContracts = {
       ensControllerContract: new ENSControllerContract(),
       erc20TokenContract: new ERC20TokenContract(),
       gatewayContract: new GatewayContract(),
@@ -177,9 +179,10 @@ export class Sdk {
       stateService: new StateService({
         storage: stateStorage,
       }),
+      contractService: new ContractService(),
     };
 
-    this.context = new Context(this.contracts, this.services);
+    this.context = new Context(this.internalContracts, this.services);
   }
 
   // exposes
@@ -641,7 +644,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    const { personalAccountRegistryContract } = this.contracts;
+    const { personalAccountRegistryContract } = this.internalContracts;
     const { accountService } = this.services;
 
     return personalAccountRegistryContract.encodeAddAccountOwner(accountService.accountAddress, owner);
@@ -659,7 +662,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    const { personalAccountRegistryContract } = this.contracts;
+    const { personalAccountRegistryContract } = this.internalContracts;
     const { accountService } = this.services;
 
     return personalAccountRegistryContract.encodeRemoveAccountOwner(accountService.accountAddress, owner);
@@ -677,7 +680,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    const { personalAccountRegistryContract } = this.contracts;
+    const { personalAccountRegistryContract } = this.internalContracts;
     const { accountService } = this.services;
 
     return personalAccountRegistryContract.encodeExecuteAccountTransaction(
@@ -810,7 +813,7 @@ export class Sdk {
 
     const parsedName = parseENSName(name);
 
-    const { ensControllerContract } = this.contracts;
+    const { ensControllerContract } = this.internalContracts;
 
     return ensControllerContract.encodeRegisterSubNode(
       parsedName.root.hash, //
@@ -1017,7 +1020,7 @@ export class Sdk {
       latestPayment: { blockNumber, senderSignature, guardianSignature },
     } = paymentChannel;
 
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
 
     return deposit
       ? paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
@@ -1445,6 +1448,23 @@ export class Sdk {
     });
 
     return this.services.assetsService.isTokenOnTokenList(token, name);
+  }
+
+  // utils
+
+  /**
+   * registers contract
+   * @param name
+   * @param abi
+   * @param addresses
+   * @return Contract
+   */
+  registerContract<T extends {} = {}>(
+    name: string,
+    abi: any,
+    addresses: ContractAddresses = null,
+  ): Contract & Partial<T> {
+    return this.services.contractService.registerContract<T>(name, abi, addresses);
   }
 
   // private

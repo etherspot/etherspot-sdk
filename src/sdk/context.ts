@@ -13,12 +13,13 @@ import { SessionService } from './session';
 import { StateService } from './state';
 import { WalletService } from './wallet';
 import {
+  ContractService,
   ENSControllerContract,
   ERC20TokenContract,
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
-} from './contracts';
+} from './contract';
 
 export class Context {
   readonly error$ = new ErrorSubject();
@@ -26,7 +27,7 @@ export class Context {
   private readonly attached: Service[] = [];
 
   constructor(
-    readonly contracts: {
+    readonly internalContracts: {
       ensControllerContract: ENSControllerContract;
       erc20TokenContract: ERC20TokenContract;
       gatewayContract: GatewayContract;
@@ -35,9 +36,10 @@ export class Context {
     },
     readonly services: {
       accountService: AccountService;
-      blockService: BlockService;
       apiService: ApiService;
       assetsService: AssetsService;
+      blockService: BlockService;
+      contractService: ContractService;
       ensService: ENSService;
       gatewayService: GatewayService;
       networkService: NetworkService;
@@ -45,12 +47,12 @@ export class Context {
       p2pPaymentsService: P2PPaymentService;
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
-      stateService: StateService;
       sessionService: SessionService;
+      stateService: StateService;
       walletService: WalletService;
     },
   ) {
-    const items = [...Object.values(contracts), ...Object.values(services)];
+    const items = [...Object.values(internalContracts), ...Object.values(services)];
 
     for (const item of items) {
       this.attach(item);

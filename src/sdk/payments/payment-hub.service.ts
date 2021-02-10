@@ -457,7 +457,7 @@ export class PaymentHubService extends Service {
       totalAmount = BigNumber.from(0);
     }
 
-    const { paymentRegistryContract } = this.contracts;
+    const { paymentRegistryContract } = this.internalContracts;
     const { apiService, accountService, blockService, walletService } = this.services;
 
     const sender = accountService.accountAddress;

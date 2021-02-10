@@ -1,4 +1,4 @@
-import { randomPrivateKey } from '../../common';
+import { randomPrivateKey } from '../../../common';
 import { KeyWalletProvider } from '../key.wallet-provider';
 import { isWalletProvider } from './is-wallet-provider';
 

@@ -1,5 +1,5 @@
-import { NetworkNames, prepareNetworkName } from '../network';
-import { prepareAddress, UniqueSubject } from '../common';
+import { NetworkNames, prepareNetworkName } from '../../network';
+import { prepareAddress, UniqueSubject } from '../../common';
 import { WalletProvider } from './interfaces';
 
 export abstract class DynamicWalletProvider implements WalletProvider {

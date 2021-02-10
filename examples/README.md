@@ -7,5 +7,5 @@
 ## Usage
 
 ```bash
-$ npm run <example file name> # eg. 01-session
+$ npm run <example name> # eg. 01-session
 ```

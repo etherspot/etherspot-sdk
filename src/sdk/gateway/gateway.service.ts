@@ -104,7 +104,7 @@ export class GatewayService extends Service {
   }
 
   async getGatewaySubmittedBatch(hash: string): Promise<GatewaySubmittedBatch> {
-    const { apiService } = this.services;
+    const { apiService, contractService } = this.services;
 
     const { result } = await apiService.query<{
       result: GatewaySubmittedBatch;
@@ -153,6 +153,10 @@ export class GatewayService extends Service {
         },
       },
     );
+
+    if (result && result.logs) {
+      result.events = contractService.processContractsLogs(result.logs);
+    }
 
     return result;
   }
@@ -338,16 +342,21 @@ export class GatewayService extends Service {
     const { nonce, refundToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.contracts;
+    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
 
     const account = accountService.accountAddress;
 
     let refundTransactionRequest: TransactionRequest;
 
     if (refundToken) {
-      const { to, data } = erc20TokenContract.encodeTransfer(refundToken, refundTokenPayee, refundAmount);
+      const { data } = erc20TokenContract.encodeTransfer(refundTokenPayee, refundAmount);
 
-      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(account, to, 0, data);
+      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(
+        account,
+        refundToken,
+        0,
+        data,
+      );
     } else {
       refundTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, refundAmount);
     }
@@ -452,7 +461,7 @@ export class GatewayService extends Service {
     let result: TransactionRequest;
 
     const { accountService, walletService } = this.services;
-    const { gatewayContract } = this.contracts;
+    const { gatewayContract } = this.internalContracts;
 
     const account = accountService.accountAddress;
 

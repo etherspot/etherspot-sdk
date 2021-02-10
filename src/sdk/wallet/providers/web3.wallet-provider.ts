@@ -1,7 +1,7 @@
 import { BytesLike } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, prepareAddress, toHex } from '../common';
-import { NetworkNames, prepareNetworkName } from '../network';
+import { isHex, keccak256, prepareAddress, toHex } from '../../common';
+import { NetworkNames, prepareNetworkName } from '../../network';
 import { Web3Provider } from './interfaces';
 import { DynamicWalletProvider } from './dynamic.wallet-provider';
 

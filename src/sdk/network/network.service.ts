@@ -1,6 +1,7 @@
 import { ContractNames, getContractAddress, getContractByteCodeHash } from '@etherspot/contracts';
 import { Observable } from 'rxjs';
-import { ObjectSubject, Service } from '../common';
+import { ObjectSubject, prepareAddress, Service, Exception } from '../common';
+import { ContractAddresses } from '../contract';
 import { NETWORK_NAME_TO_CHAIN_ID, NetworkNames } from './constants';
 import { Network, NetworkOptions } from './interfaces';
 
@@ -9,6 +10,7 @@ export class NetworkService extends Service {
   readonly chainId$: Observable<number>;
   readonly defaultNetwork: Network;
   readonly supportedNetworks: Network[];
+  readonly externalContractAddresses = new Map<string, { [key: number]: string }>();
 
   constructor(private options: NetworkOptions, defaultNetworkName?: NetworkNames) {
     super();
@@ -28,7 +30,7 @@ export class NetworkService extends Service {
       .filter((value) => !!value);
 
     if (!this.supportedNetworks.length) {
-      throw new Error('Invalid network config');
+      throw new Exception('Invalid network config');
     }
 
     this.defaultNetwork = defaultNetworkName
@@ -36,7 +38,7 @@ export class NetworkService extends Service {
       : this.supportedNetworks[0];
 
     if (!this.defaultNetwork) {
-      throw new Error('Unsupported network');
+      throw new Exception('Unsupported network');
     }
 
     this.chainId$ = this.network$.observeKey('chainId');
@@ -62,15 +64,56 @@ export class NetworkService extends Service {
     return !!this.supportedNetworks.find(({ name }) => name === networkName);
   }
 
-  getContractAddress(contractName: ContractNames): string {
+  setExternalContractAddresses(contractName: string, addresses: ContractAddresses): void {
+    const chainAddresses = this.externalContractAddresses.get(contractName) || {};
+
+    switch (typeof addresses) {
+      case 'object': {
+        const entries = Object.entries(addresses);
+
+        for (const [networkName, address] of entries) {
+          const network = this.supportedNetworks.find(({ name }) => name === networkName);
+
+          if (network) {
+            chainAddresses[network.chainId] = prepareAddress(address);
+          } else {
+            throw new Exception('Unsupported network');
+          }
+        }
+        break;
+      }
+
+      case 'string':
+        if (!this.network) {
+          throw new Exception('Unsupported network');
+        }
+        chainAddresses[this.chainId] = addresses;
+        break;
+    }
+
+    this.externalContractAddresses.set(contractName, chainAddresses);
+  }
+
+  getExternalContractAddress(contractName: string): string {
+    let result: string = null;
+
+    if (this.network && this.externalContractAddresses.has(contractName)) {
+      const { chainId } = this.network;
+      result = this.externalContractAddresses.get(contractName)[chainId] || null;
+    }
+
+    return result;
+  }
+
+  getInternalContractAddress(contractName: ContractNames): string {
     let result: string = null;
 
     if (this.network) {
       const { chainId, name } = this.network;
-      const { contracts } = this.options;
+      const { internalContracts } = this.options;
 
-      if (contracts && contracts[name] && contracts[name][contractName]) {
-        result = contracts[name][contractName];
+      if (internalContracts && internalContracts[name] && internalContracts[name][contractName]) {
+        result = internalContracts[name][contractName];
       } else {
         result = getContractAddress(contractName, chainId);
       }
@@ -79,15 +122,15 @@ export class NetworkService extends Service {
     return result;
   }
 
-  getAccountByteCodeHash(): string {
+  getInternalAccountByteCodeHash(): string {
     let result: string = null;
 
     if (this.network) {
       const { name } = this.network;
-      const { contracts } = this.options;
+      const { internalContracts } = this.options;
 
-      if (contracts && contracts[name] && contracts[name].accountByteCodeHash) {
-        result = contracts[name].accountByteCodeHash;
+      if (internalContracts && internalContracts[name] && internalContracts[name].accountByteCodeHash) {
+        result = internalContracts[name].accountByteCodeHash;
       } else {
         result = getContractByteCodeHash(ContractNames.Account);
       }
