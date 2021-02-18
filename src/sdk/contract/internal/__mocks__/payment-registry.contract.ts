@@ -5,6 +5,7 @@ export const PaymentRegistryContract = mockContract(ContractNames.PaymentRegistr
   encodeWithdrawDeposit: jest.fn(),
   encodeCommitPaymentChannelAndWithdraw: jest.fn(),
   encodeCommitPaymentChannelAndDeposit: jest.fn(),
+  computePaymentDepositAccountAddress: jest.fn(),
   buildDepositWithdrawalTypedData: jest.fn(),
   buildPaymentChannelCommitTypedData: jest.fn(),
 });

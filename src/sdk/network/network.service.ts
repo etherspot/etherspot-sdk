@@ -1,4 +1,4 @@
-import { ContractNames, getContractAddress, getContractByteCodeHash } from '@etherspot/contracts';
+import { ContractNames, getContractAddress } from '@etherspot/contracts';
 import { Observable } from 'rxjs';
 import { ObjectSubject, prepareAddress, Service, Exception } from '../common';
 import { ContractAddresses } from '../contract';
@@ -116,23 +116,6 @@ export class NetworkService extends Service {
         result = internalContracts[name][contractName];
       } else {
         result = getContractAddress(contractName, chainId);
-      }
-    }
-
-    return result;
-  }
-
-  getInternalAccountByteCodeHash(): string {
-    let result: string = null;
-
-    if (this.network) {
-      const { name } = this.network;
-      const { internalContracts } = this.options;
-
-      if (internalContracts && internalContracts[name] && internalContracts[name].accountByteCodeHash) {
-        result = internalContracts[name].accountByteCodeHash;
-      } else {
-        result = getContractByteCodeHash(ContractNames.Account);
       }
     }
 

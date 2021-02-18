@@ -505,7 +505,7 @@ export class P2PPaymentService extends Service {
             let result: string = null;
 
             if (address) {
-              result = paymentRegistryContract.computeAccountCreate2Address(address);
+              result = paymentRegistryContract.computePaymentDepositAccountAddress(address);
             }
 
             return result;

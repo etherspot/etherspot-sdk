@@ -1,5 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, utils } from 'ethers';
 import { TypedData } from 'ethers-typed-data';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
@@ -30,6 +30,19 @@ export class PaymentRegistryContract extends InternalContract {
     senderSignature: string,
     guardianSignature: string,
   ): TransactionRequest;
+
+  computePaymentDepositAccountAddress(saltOwner: string): string {
+    let result: string = null;
+
+    if (saltOwner) {
+      result = this.computeCreate2Address(
+        ContractNames.PaymentDepositAccount,
+        utils.solidityKeccak256(['address'], [saltOwner]),
+      );
+    }
+
+    return result;
+  }
 
   buildDepositWithdrawalTypedData(owner: string, token: string, amount: BigNumberish): TypedData {
     return this.buildTypedData(

@@ -32,7 +32,7 @@ export class AccountService extends Service {
     const { walletService } = this.services;
     const { personalAccountRegistryContract } = this.internalContracts;
 
-    const address = personalAccountRegistryContract.computeAccountCreate2Address(walletService.walletAddress);
+    const address = personalAccountRegistryContract.computeAccountAddress(walletService.walletAddress);
 
     if (address) {
       this.account$.next(
