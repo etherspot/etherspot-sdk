@@ -15,7 +15,7 @@
     "url": "https://github.com/etherspot/etherspot-sdk.git"
   },
   "license": "MIT",
-  "homepage": "https://docs.etherspot.dev",
+  "homepage": "https://etherspot.dev",
   "main": "./dist/node.js",
   "browser": "./dist/browser.js",
   "types": "./dist/index.d.ts",

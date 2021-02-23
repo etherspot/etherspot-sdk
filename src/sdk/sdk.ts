@@ -633,9 +633,24 @@ export class Sdk {
   // account (encode)
 
   /**
+   * encodes deploy account
+   * @return Promise<TransactionRequest>
+   */
+  async encodeDeployAccount(): Promise<TransactionRequest> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.internalContracts;
+    const { accountService } = this.services;
+
+    return personalAccountRegistryContract.encodeDeployAccount(accountService.accountAddress);
+  }
+
+  /**
    * encodes add account owner
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeAddAccountOwner(dto: AddAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, AddAccountOwnerDto);
@@ -653,7 +668,7 @@ export class Sdk {
   /**
    * encodes remove account owner
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<TransactionRequest> {
     const { owner } = await validateDto(dto, RemoveAccountOwnerDto);
@@ -671,7 +686,7 @@ export class Sdk {
   /**
    * encodes execute account transaction
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<TransactionRequest> {
     const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto);
@@ -692,6 +707,14 @@ export class Sdk {
   }
 
   // account (batch)
+
+  /**
+   * batch deploy account
+   * @return Promise<GatewayBatch>
+   */
+  async batchDeployAccount(): Promise<GatewayBatch> {
+    return this.batchGatewayTransactionRequest(await this.encodeDeployAccount());
+  }
 
   /**
    * batch add account owner
