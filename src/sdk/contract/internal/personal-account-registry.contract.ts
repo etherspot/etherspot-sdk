@@ -29,7 +29,7 @@ export class PersonalAccountRegistryContract extends InternalContract {
     const { networkService } = this.services;
 
     const personalAccountImplementation = networkService.getInternalContractAddress(
-      ContractNames.PersonalAccountImplementation,
+      ContractNames.PersonalAccountImplementationV1,
     );
 
     if (saltOwner && this.address && personalAccountImplementation) {
