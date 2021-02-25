@@ -3,7 +3,7 @@ import { switchMap } from 'rxjs/operators';
 import { Service, HeaderNames } from '../common';
 import { Session } from './classes';
 import { createSessionMessage } from './utils';
-import { SessionOptions, SessionStorageLike, StoredSession } from './interfaces';
+import { SessionOptions, SessionStorageLike } from './interfaces';
 import { SessionStorage } from './session.storage';
 
 export class SessionService extends Service {
@@ -161,19 +161,7 @@ export class SessionService extends Service {
     const { walletService } = this.services;
     const { walletAddress } = walletService;
 
-    let storedSession: StoredSession = null;
-
-    if (this.session) {
-      const { token, ttl, expireAt } = this.session;
-
-      storedSession = {
-        token,
-        ttl,
-        expireAt,
-      };
-    }
-
-    await this.storage.setSession(walletAddress, storedSession);
+    await this.storage.setSession(walletAddress, this.session ? this.session.toStoredSession() : null);
   }
 
   private async restoreSession(): Promise<void> {
@@ -183,9 +171,9 @@ export class SessionService extends Service {
     const { walletAddress } = walletService;
 
     if (walletAddress) {
-      const stored = walletAddress ? await this.storage.getSession(walletAddress) : null;
+      const storedSession = walletAddress ? await this.storage.getSession(walletAddress) : null;
 
-      session = stored ? new Session(stored) : null;
+      session = storedSession ? Session.fromStoredSession(storedSession) : null;
     }
 
     this.session = session;
