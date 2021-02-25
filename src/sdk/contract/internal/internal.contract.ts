@@ -1,12 +1,14 @@
 import {
   ContractNames,
   getContractAbi,
+  getContractByteCode,
   getContractTypedDataDomainName,
   getContractTypedDataDomainVersion,
   TYPED_DATA_DOMAIN_SALT,
 } from '@etherspot/contracts';
 import { TypedData, buildTypedData } from 'ethers-typed-data';
 import { utils } from 'ethers';
+import { concatHex } from '../../common';
 import { Contract } from '../contract';
 import { prepareInputArg } from '../utils';
 
@@ -36,18 +38,6 @@ export class InternalContract extends Contract<ContractNames> {
     return this.services.networkService.getInternalContractAddress(this.name);
   }
 
-  computeAccountCreate2Address(saltKey: string): string {
-    const { networkService } = this.context.services;
-
-    return this.address && saltKey
-      ? utils.getCreate2Address(
-          this.address,
-          utils.solidityKeccak256(['address'], [saltKey]),
-          networkService.getInternalAccountByteCodeHash(),
-        )
-      : null;
-  }
-
   buildTypedData<T extends {} = any>(
     primaryType: string,
     primarySchema: { type: string; name: string }[],
@@ -72,6 +62,26 @@ export class InternalContract extends Contract<ContractNames> {
         primarySchema,
         message,
       );
+    }
+
+    return result;
+  }
+
+  protected computeCreate2Address(
+    contractName: ContractNames.Account | ContractNames.PaymentDepositAccount,
+    salt: string,
+    ...args: string[]
+  ): string {
+    let result: string = null;
+
+    if (this.address) {
+      let byteCode = getContractByteCode(contractName);
+
+      for (const arg of args) {
+        byteCode = concatHex(byteCode, utils.hexZeroPad(arg, 32));
+      }
+
+      result = utils.getCreate2Address(this.address, salt, utils.solidityKeccak256(['bytes'], [byteCode]));
     }
 
     return result;

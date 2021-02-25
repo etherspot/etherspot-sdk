@@ -1,7 +1,7 @@
-export interface StoredSession {
+export interface StoredSession<D = Date> {
   token: string;
   ttl: number;
-  expireAt: Date;
+  expireAt: D;
 }
 
 export interface SessionOptions {

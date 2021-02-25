@@ -286,7 +286,9 @@ export class Sdk {
    * @return Promise<GatewaySupportedToken>
    */
   async getGatewaySupportedToken(dto: GetGatewaySupportedTokenDto): Promise<GatewaySupportedToken> {
-    const { token } = await validateDto(dto, GetGatewaySupportedTokenDto);
+    const { token } = await validateDto(dto, GetGatewaySupportedTokenDto, {
+      addressKeys: ['token'],
+    });
 
     const { gatewayService } = this.services;
 
@@ -334,7 +336,9 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async batchGatewayTransactionRequest(dto: BatchGatewayTransactionRequestDto): Promise<GatewayBatch> {
-    const { to, data } = await validateDto(dto, BatchGatewayTransactionRequestDto);
+    const { to, data } = await validateDto(dto, BatchGatewayTransactionRequestDto, {
+      addressKeys: ['to'],
+    });
 
     await this.require({
       contractAccount: true,
@@ -354,7 +358,9 @@ export class Sdk {
    * @return Promise<GatewayEstimatedKnownOp>
    */
   async estimateGatewayKnownOp(dto: EstimateGatewayKnownOpDto): Promise<GatewayEstimatedKnownOp> {
-    const { op, refundToken } = await validateDto(dto, EstimateGatewayKnownOpDto);
+    const { op, refundToken } = await validateDto(dto, EstimateGatewayKnownOpDto, {
+      addressKeys: ['refundToken'],
+    });
 
     await this.require({
       session: true,
@@ -369,7 +375,9 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async estimateGatewayBatch(dto: EstimateGatewayBatchDto = {}): Promise<GatewayBatch> {
-    const { refundToken } = await validateDto(dto, EstimateGatewayBatchDto);
+    const { refundToken } = await validateDto(dto, EstimateGatewayBatchDto, {
+      addressKeys: ['refundToken'],
+    });
 
     await this.require({
       session: true,
@@ -545,7 +553,9 @@ export class Sdk {
    * @return Promise<Account>
    */
   async joinContractAccount(dto: JoinContractAccountDto): Promise<Account> {
-    const { address, sync } = await validateDto(dto, JoinContractAccountDto);
+    const { address, sync } = await validateDto(dto, JoinContractAccountDto, {
+      addressKeys: ['address'],
+    });
 
     await this.require({
       session: sync,
@@ -583,7 +593,9 @@ export class Sdk {
    * @return Promise<Account>
    */
   async getAccount(dto: GetAccountDto = {}): Promise<Account> {
-    const { address } = await validateDto(dto, GetAccountDto);
+    const { address } = await validateDto(dto, GetAccountDto, {
+      addressKeys: ['address'],
+    });
 
     await this.require({
       wallet: !address,
@@ -600,7 +612,9 @@ export class Sdk {
    * @return Promise<AccountBalances>
    */
   async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
-    const { account, tokens } = await validateDto(dto, GetAccountBalancesDto);
+    const { account, tokens } = await validateDto(dto, GetAccountBalancesDto, {
+      addressKeys: ['account', 'tokens'],
+    });
 
     await this.require({
       wallet: !account,
@@ -618,7 +632,9 @@ export class Sdk {
    * @return Promise<AccountMembers>
    */
   async getAccountMembers(dto: GetAccountMembersDto = {}): Promise<AccountMembers> {
-    const { account, page } = await validateDto(dto, GetAccountMembersDto);
+    const { account, page } = await validateDto(dto, GetAccountMembersDto, {
+      addressKeys: ['account'],
+    });
 
     await this.require({
       wallet: !account,
@@ -633,12 +649,29 @@ export class Sdk {
   // account (encode)
 
   /**
+   * encodes deploy account
+   * @return Promise<TransactionRequest>
+   */
+  async encodeDeployAccount(): Promise<TransactionRequest> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    const { personalAccountRegistryContract } = this.internalContracts;
+    const { accountService } = this.services;
+
+    return personalAccountRegistryContract.encodeDeployAccount(accountService.accountAddress);
+  }
+
+  /**
    * encodes add account owner
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeAddAccountOwner(dto: AddAccountOwnerDto): Promise<TransactionRequest> {
-    const { owner } = await validateDto(dto, AddAccountOwnerDto);
+    const { owner } = await validateDto(dto, AddAccountOwnerDto, {
+      addressKeys: ['owner'],
+    });
 
     await this.require({
       contractAccount: true,
@@ -653,10 +686,12 @@ export class Sdk {
   /**
    * encodes remove account owner
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeRemoveAccountOwner(dto: RemoveAccountOwnerDto): Promise<TransactionRequest> {
-    const { owner } = await validateDto(dto, RemoveAccountOwnerDto);
+    const { owner } = await validateDto(dto, RemoveAccountOwnerDto, {
+      addressKeys: ['owner'],
+    });
 
     await this.require({
       contractAccount: true,
@@ -671,10 +706,12 @@ export class Sdk {
   /**
    * encodes execute account transaction
    * @param dto
-   * @return Promise<GatewayBatch>
+   * @return Promise<TransactionRequest>
    */
   async encodeExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<TransactionRequest> {
-    const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto);
+    const { to, value, data } = await validateDto(dto, ExecuteAccountTransactionDto, {
+      addressKeys: ['to'],
+    });
 
     await this.require({
       contractAccount: true,
@@ -692,6 +729,14 @@ export class Sdk {
   }
 
   // account (batch)
+
+  /**
+   * batch deploy account
+   * @return Promise<GatewayBatch>
+   */
+  async batchDeployAccount(): Promise<GatewayBatch> {
+    return this.batchGatewayTransactionRequest(await this.encodeDeployAccount());
+  }
 
   /**
    * batch add account owner
@@ -845,7 +890,9 @@ export class Sdk {
    * @return Promise<P2PPaymentDeposits>
    */
   async getP2PPaymentDeposits(dto: GetP2PPaymentDepositsDto = {}): Promise<P2PPaymentDeposits> {
-    const { tokens } = await validateDto(dto, GetP2PPaymentDepositsDto);
+    const { tokens } = await validateDto(dto, GetP2PPaymentDepositsDto, {
+      addressKeys: ['tokens'],
+    });
 
     await this.require({
       session: true,
@@ -879,7 +926,9 @@ export class Sdk {
    * @return Promise<P2PPaymentChannels>
    */
   async getP2PPaymentChannels(dto: GetP2PPaymentChannelsDto = {}): Promise<P2PPaymentChannels> {
-    const { senderOrRecipient, uncommittedOnly, page } = await validateDto(dto, GetP2PPaymentChannelsDto);
+    const { senderOrRecipient, uncommittedOnly, page } = await validateDto(dto, GetP2PPaymentChannelsDto, {
+      addressKeys: ['senderOrRecipient'],
+    });
 
     await this.require({
       wallet: !senderOrRecipient,
@@ -900,7 +949,9 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async increaseP2PPaymentChannelAmount(dto: IncreaseP2PPaymentChannelAmountDto): Promise<P2PPaymentChannel> {
-    const { recipient, token, value } = await validateDto(dto, IncreaseP2PPaymentChannelAmountDto);
+    const { recipient, token, value } = await validateDto(dto, IncreaseP2PPaymentChannelAmountDto, {
+      addressKeys: ['recipient', 'token'],
+    });
 
     await this.require({
       session: true,
@@ -921,7 +972,9 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async updateP2PPaymentChannel(dto: UpdateP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
-    const { recipient, token, totalAmount } = await validateDto(dto, UpdateP2PPaymentChannelDto);
+    const { recipient, token, totalAmount } = await validateDto(dto, UpdateP2PPaymentChannelDto, {
+      addressKeys: ['recipient', 'token'],
+    });
 
     await this.require({
       session: true,
@@ -961,7 +1014,9 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeWithdrawP2PPaymentDeposit(dto: WithdrawP2PPaymentDepositDto): Promise<TransactionRequest> {
-    const { token, amount } = await validateDto(dto, WithdrawP2PPaymentDepositDto);
+    const { token, amount } = await validateDto(dto, WithdrawP2PPaymentDepositDto, {
+      addressKeys: ['token'],
+    });
 
     await this.require({
       session: true,
@@ -980,7 +1035,9 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeP2PPaymentDepositWithdrawal(dto: P2PPaymentDepositWithdrawalDto): Promise<TransactionRequest> {
-    const { token } = await validateDto(dto, P2PPaymentDepositWithdrawalDto);
+    const { token } = await validateDto(dto, P2PPaymentDepositWithdrawalDto, {
+      addressKeys: ['token'],
+    });
 
     await this.require({
       session: true,
@@ -1092,7 +1149,9 @@ export class Sdk {
    * @return Promise<PaymentHub>
    */
   async getPaymentHub(dto: GetPaymentHubDto): Promise<PaymentHub> {
-    const { hub, token } = await validateDto(dto, GetPaymentHubDto);
+    const { hub, token } = await validateDto(dto, GetPaymentHubDto, {
+      addressKeys: ['hub', 'token'],
+    });
 
     await this.require({
       wallet: !hub,
@@ -1112,7 +1171,9 @@ export class Sdk {
    * @return Promise<PaymentHubs>
    */
   async getPaymentHubs(dto: GetPaymentHubsDto = {}): Promise<PaymentHubs> {
-    dto = await validateDto(dto, GetPaymentHubsDto);
+    dto = await validateDto(dto, GetPaymentHubsDto, {
+      addressKeys: ['hub', 'token'],
+    });
 
     const { token, page } = dto;
     let { hub } = dto;
@@ -1141,7 +1202,9 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async getPaymentHubBridge(dto: GetPaymentHubBridgeDto = {}): Promise<PaymentHubBridge> {
-    const { hub, token, acceptedNetworkName, acceptedToken } = await validateDto(dto, GetPaymentHubBridgeDto);
+    const { hub, token, acceptedNetworkName, acceptedToken } = await validateDto(dto, GetPaymentHubBridgeDto, {
+      addressKeys: ['hub', 'token', 'acceptedToken'],
+    });
 
     await this.require({
       wallet: !hub,
@@ -1163,7 +1226,9 @@ export class Sdk {
    * @return Promise<PaymentHubBridges>
    */
   async getPaymentHubBridges(dto: GetPaymentHubBridgesDto): Promise<PaymentHubBridges> {
-    const { hub, token, acceptedNetworkName, page } = await validateDto(dto, GetPaymentHubBridgesDto);
+    const { hub, token, acceptedNetworkName, page } = await validateDto(dto, GetPaymentHubBridgesDto, {
+      addressKeys: ['hub', 'token'],
+    });
 
     await this.require({
       wallet: !hub,
@@ -1191,7 +1256,9 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async getPaymentHubDeposit(dto: GetPaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, owner } = await validateDto(dto, GetPaymentHubDepositDto);
+    const { hub, token, owner } = await validateDto(dto, GetPaymentHubDepositDto, {
+      addressKeys: ['hub', 'token', 'owner'],
+    });
 
     await this.require({
       wallet: !owner,
@@ -1208,7 +1275,9 @@ export class Sdk {
    * @return Promise<PaymentHubDeposits>
    */
   async getPaymentHubDeposits(dto: GetPaymentHubDepositsDto): Promise<PaymentHubDeposits> {
-    const { hub, tokens, owner, page } = await validateDto(dto, GetPaymentHubDepositsDto);
+    const { hub, tokens, owner, page } = await validateDto(dto, GetPaymentHubDepositsDto, {
+      addressKeys: ['hub', 'tokens', 'owner'],
+    });
 
     await this.require({
       wallet: !owner,
@@ -1243,7 +1312,9 @@ export class Sdk {
    * @return Promise<PaymentHubPayments>
    */
   async getPaymentHubPayments(dto: GetPaymentHubPaymentsDto): Promise<PaymentHubPayments> {
-    const { hub, token, senderOrRecipient, page } = await validateDto(dto, GetPaymentHubPaymentsDto);
+    const { hub, token, senderOrRecipient, page } = await validateDto(dto, GetPaymentHubPaymentsDto, {
+      addressKeys: ['hub', 'token', 'senderOrRecipient'],
+    });
 
     await this.require({
       session: true,
@@ -1265,7 +1336,9 @@ export class Sdk {
    * @return Promise<PaymentHubPayment>
    */
   async createPaymentHubPayment(dto: CreatePaymentHubPaymentDto): Promise<PaymentHubPayment> {
-    const { hub, token, recipient, value } = await validateDto(dto, CreatePaymentHubPaymentDto);
+    const { hub, token, recipient, value } = await validateDto(dto, CreatePaymentHubPaymentDto, {
+      addressKeys: ['hub', 'token', 'recipient'],
+    });
 
     await this.require({
       session: true,
@@ -1287,7 +1360,9 @@ export class Sdk {
    * @return Promise<PaymentHub>
    */
   async updatePaymentHub(dto: UpdatePaymentHubDto = {}): Promise<PaymentHub> {
-    const { token, liquidity } = await validateDto(dto, UpdatePaymentHubDto);
+    const { token, liquidity } = await validateDto(dto, UpdatePaymentHubDto, {
+      addressKeys: ['token'],
+    });
 
     await this.require({
       session: true,
@@ -1307,7 +1382,9 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async updatePaymentHubDeposit(dto: UpdatePaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, totalAmount } = await validateDto(dto, UpdatePaymentHubDepositDto);
+    const { hub, token, totalAmount } = await validateDto(dto, UpdatePaymentHubDepositDto, {
+      addressKeys: ['hub', 'token'],
+    });
 
     await this.require({
       session: true,
@@ -1331,6 +1408,9 @@ export class Sdk {
     const { hub, token, value, targetNetworkName, targetHub, targetToken } = await validateDto(
       dto,
       TransferPaymentHubDepositDto,
+      {
+        addressKeys: ['hub', 'token', 'targetHub', 'targetToken'],
+      },
     );
 
     await this.require({
@@ -1355,7 +1435,9 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async activatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
-    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto);
+    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
+      addressKeys: ['token', 'acceptedToken'],
+    });
 
     await this.require({
       session: true,
@@ -1376,7 +1458,9 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async deactivatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
-    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto);
+    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
+      addressKeys: ['token', 'acceptedToken'],
+    });
 
     await this.require({
       session: true,
@@ -1441,7 +1525,9 @@ export class Sdk {
    * @return Promise<boolean>
    */
   async isTokenOnTokenList(dto: IsTokenOnTokenListDto): Promise<boolean> {
-    const { token, name } = await validateDto(dto, IsTokenOnTokenListDto);
+    const { token, name } = await validateDto(dto, IsTokenOnTokenListDto, {
+      addressKeys: ['token'],
+    });
 
     await this.require({
       wallet: false,

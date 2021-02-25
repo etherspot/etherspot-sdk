@@ -1,14 +1,21 @@
 {
   "name": "etherspot",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0",
   "description": "ETHERspot sdk",
-  "keywords": ["ether", "ethereum", "sdk", "onboarding", "layer2", "blockchain"],
+  "keywords": [
+    "ether",
+    "ethereum",
+    "sdk",
+    "onboarding",
+    "layer2",
+    "blockchain"
+  ],
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/etherspot/etherspot-sdk.git"
+    "type": "git",
+    "url": "https://github.com/etherspot/etherspot-sdk.git"
   },
   "license": "MIT",
-  "homepage": "https://docs.etherspot.dev",
+  "homepage": "https://etherspot.dev",
   "main": "./dist/node.js",
   "browser": "./dist/browser.js",
   "types": "./dist/index.d.ts",
@@ -33,15 +40,15 @@
     "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/docs.etherspot.dev.git"
   },
   "dependencies": {
-    "@apollo/client": "3.1.3",
-    "@etherspot/contracts": "1.0.0-rc.1",
+    "@apollo/client": "3.3.11",
+    "@etherspot/contracts": "1.0.0",
     "ethers-typed-data": "0.1.0",
-    "class-transformer": "0.3.2",
-    "class-validator": "0.12.2",
+    "class-transformer": "0.4.0",
+    "class-validator": "0.13.1",
     "cross-fetch": "3.0.6",
-    "graphql": "15.3.0",
-    "subscriptions-transport-ws": "0.9.17",
-    "validator": "13.0.0"
+    "graphql": "15.5.0",
+    "subscriptions-transport-ws": "0.9.18",
+    "validator": "13.5.2"
   },
   "devDependencies": {
     "@cucumber/cucumber": "7.0.0-rc.0",

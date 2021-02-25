@@ -9,8 +9,7 @@ export interface NetworkOptions {
   supportedNetworkNames: NetworkNames[];
   internalContracts?: {
     [key: string]: {
-      addresses?: { [key: string]: string };
-      accountByteCodeHash?: string;
+      [key: string]: string;
     };
   };
 }

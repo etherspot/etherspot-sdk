@@ -1,14 +1,22 @@
 import { validate } from 'class-validator';
-import { ValidationException } from '../../common';
+import { ValidationException, prepareAddresses } from '../../common';
 
 /**
  * @ignore
  */
-export async function validateDto<T extends {}>(dto: Partial<T>, DtoConstructor: { new (): T }): Promise<T> {
+export async function validateDto<T extends {}>(
+  dto: Partial<T>,
+  DtoConstructor: { new (): T },
+  options: {
+    addressKeys?: (keyof T)[];
+  } = {},
+): Promise<T> {
   const result = new DtoConstructor();
 
+  const { addressKeys } = options;
+
   try {
-    const dtoWithoutUndefined: {} = Object.entries(dto).reduce((result, [key, value]) => {
+    let dtoWithoutUndefined = Object.entries(dto).reduce((result, [key, value]) => {
       if (typeof value !== 'undefined') {
         result = {
           ...result,
@@ -16,7 +24,11 @@ export async function validateDto<T extends {}>(dto: Partial<T>, DtoConstructor:
         };
       }
       return result;
-    }, {});
+    }, {}) as T;
+
+    if (addressKeys) {
+      dtoWithoutUndefined = prepareAddresses(dtoWithoutUndefined, ...addressKeys);
+    }
 
     Object.assign(result, dtoWithoutUndefined);
   } catch (err) {

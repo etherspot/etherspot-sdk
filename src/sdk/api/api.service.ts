@@ -1,18 +1,19 @@
 import {
   ApolloClient,
-  InMemoryCache,
-  NormalizedCacheObject,
   DocumentNode,
   HttpLink,
-  split,
+  InMemoryCache,
+  NormalizedCacheObject,
   Observable,
+  split,
 } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
-import { getMainDefinition } from '@apollo/client/utilities';
 import { WebSocketLink } from '@apollo/client/link/ws';
-import { BigNumber } from 'ethers';
+import { getMainDefinition } from '@apollo/client/utilities';
 import fetch from 'cross-fetch';
+import { BigNumber } from 'ethers';
 import { isBigNumber, Service } from '../common';
+import { HttpException, HttpExceptionCodes } from './exceptions';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri, catchApiError, mapApiResult } from './utils';
 
@@ -32,8 +33,6 @@ export class ApiService extends Service {
   }
 
   async query<T extends {}>(query: DocumentNode, options?: ApiRequestQueryOptions<T>): Promise<T> {
-    let result: T = null;
-
     options = {
       variables: {},
       fetchPolicy: 'no-cache',
@@ -47,24 +46,18 @@ export class ApiService extends Service {
       models,
     } = options;
 
-    try {
-      const { data } = await this.apolloClient.query<T>({
-        query,
-        fetchPolicy,
-        variables: this.prepareApiVariables(variables, omitChainIdVariable),
-      });
-
-      result = mapApiResult(data, models);
-    } catch (err) {
-      catchApiError(err);
-    }
-
-    return result;
+    return this.wrapCall(
+      () =>
+        this.apolloClient.query<T>({
+          query,
+          fetchPolicy,
+          variables: this.prepareApiVariables(variables, omitChainIdVariable),
+        }),
+      models,
+    );
   }
 
   async mutate<T extends {}>(mutation: DocumentNode, options?: ApiRequestOptions<T>): Promise<T> {
-    let result: T = null;
-
     options = {
       variables: {},
       ...options,
@@ -76,18 +69,14 @@ export class ApiService extends Service {
       models,
     } = options;
 
-    try {
-      const { data } = await this.apolloClient.mutate<T>({
-        mutation,
-        variables: this.prepareApiVariables(variables, omitChainIdVariable),
-      });
-
-      result = mapApiResult(data, models);
-    } catch (err) {
-      catchApiError(err);
-    }
-
-    return result;
+    return this.wrapCall(
+      () =>
+        this.apolloClient.mutate<T>({
+          mutation,
+          variables: this.prepareApiVariables(variables, omitChainIdVariable),
+        }),
+      models,
+    );
   }
 
   subscribe<T extends {}>(query: DocumentNode, options?: ApiRequestOptions<T>): Observable<T> {
@@ -149,6 +138,49 @@ export class ApiService extends Service {
         addTypename: false,
       }),
     });
+  }
+
+  private async wrapCall<T extends {}, K extends keyof T = keyof T>(
+    call: () => Promise<{ data?: T }>,
+    models?: {
+      [key in K]: { new (...args: any): T[K] };
+    },
+  ): Promise<T> {
+    const wrapped = async () => {
+      let result: T;
+
+      try {
+        const { data } = await call();
+        result = mapApiResult(data, models);
+      } catch (err) {
+        catchApiError(err);
+      }
+
+      return result;
+    };
+
+    let result: T;
+
+    try {
+      result = await wrapped();
+    } catch (err) {
+      if (
+        err instanceof HttpException &&
+        (err.code === HttpExceptionCodes.Forbidden || err.code === HttpExceptionCodes.Unauthorized)
+      ) {
+        // create new session
+        const { sessionService } = this.services;
+        const { sessionTtl } = sessionService;
+        await sessionService.createSession(sessionTtl);
+
+        // re-call
+        result = await wrapped();
+      } else {
+        throw err;
+      }
+    }
+
+    return result;
   }
 
   private prepareApiVariables(

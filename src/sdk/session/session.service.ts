@@ -26,6 +26,10 @@ export class SessionService extends Service {
       : {};
   }
 
+  get sessionTtl(): number {
+    return this.session ? this.session.ttl : undefined;
+  }
+
   async verifySession(): Promise<void> {
     await this.restoreSession();
 
@@ -51,74 +55,94 @@ export class SessionService extends Service {
 
     const { walletAddress } = walletService;
 
-    const { code } = await apiService.mutate<{
-      code: string;
-    }>(
-      gql`
-        mutation($chainId: Int, $account: String!) {
-          code: createSessionCode(chainId: $chainId, account: $account)
-        }
-      `,
-      {
-        variables: {
-          account: walletAddress,
+    let session: Session;
+    let error: Error;
+
+    try {
+      const { code } = await apiService.mutate<{
+        code: string;
+      }>(
+        gql`
+          mutation($chainId: Int, $account: String!) {
+            code: createSessionCode(chainId: $chainId, account: $account)
+          }
+        `,
+        {
+          variables: {
+            account: walletAddress,
+          },
         },
-      },
-    );
+      );
 
-    const message = createSessionMessage(code);
-    const signature = await walletService.personalSignMessage(message);
+      const message = createSessionMessage(code);
+      const signature = await walletService.personalSignMessage(message);
 
-    const { session } = await apiService.mutate<{
-      session: Session;
-    }>(
-      gql`
-        mutation($chainId: Int, $account: String!, $code: String!, $signature: String!, $ttl: Int) {
-          session: createSession(chainId: $chainId, account: $account, code: $code, signature: $signature, ttl: $ttl) {
-            token
-            ttl
-            account {
-              address
-              type
-              state
-              store
-              createdAt
-              updatedAt
+      ({ session } = await apiService.mutate<{
+        session: Session;
+      }>(
+        gql`
+          mutation($chainId: Int, $account: String!, $code: String!, $signature: String!, $ttl: Int) {
+            session: createSession(
+              chainId: $chainId
+              account: $account
+              code: $code
+              signature: $signature
+              ttl: $ttl
+            ) {
+              token
+              ttl
+              account {
+                address
+                type
+                state
+                store
+                createdAt
+                updatedAt
+              }
             }
           }
-        }
-      `,
-      {
-        variables: {
-          code,
-          signature,
-          ttl,
-          account: walletAddress,
+        `,
+        {
+          variables: {
+            code,
+            signature,
+            ttl,
+            account: walletAddress,
+          },
+          models: {
+            session: Session,
+          },
         },
-        models: {
-          session: Session,
-        },
-      },
-    );
-
-    const { account } = session;
-
-    delete session.account;
-
-    if (account.address !== walletAddress) {
-      const { providerType } = walletService.wallet;
-
-      walletService.wallet$.next({
-        address: account.address,
-        providerType,
-      });
+      ));
+    } catch (err) {
+      session = null;
+      error = err;
     }
 
-    session.refresh();
+    if (session) {
+      const { account } = session;
+
+      delete session.account;
+
+      if (account.address !== walletAddress) {
+        const { providerType } = walletService.wallet;
+
+        walletService.wallet$.next({
+          address: account.address,
+          providerType,
+        });
+      }
+
+      session.refresh();
+    }
 
     this.session = session;
 
     await this.storeSession();
+
+    if (error) {
+      throw error;
+    }
 
     return session;
   }
@@ -137,13 +161,7 @@ export class SessionService extends Service {
     const { walletService } = this.services;
     const { walletAddress } = walletService;
 
-    const { token, ttl, expireAt } = this.session;
-
-    await this.storage.setSession(walletAddress, {
-      token,
-      ttl,
-      expireAt,
-    });
+    await this.storage.setSession(walletAddress, this.session ? this.session.toStoredSession() : null);
   }
 
   private async restoreSession(): Promise<void> {
@@ -153,9 +171,9 @@ export class SessionService extends Service {
     const { walletAddress } = walletService;
 
     if (walletAddress) {
-      const stored = walletAddress ? await this.storage.getSession(walletAddress) : null;
+      const storedSession = walletAddress ? await this.storage.getSession(walletAddress) : null;
 
-      session = stored ? new Session(stored) : null;
+      session = storedSession ? Session.fromStoredSession(storedSession) : null;
     }
 
     this.session = session;
