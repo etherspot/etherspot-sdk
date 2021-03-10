@@ -47,8 +47,10 @@ async function main(): Promise<void> {
     }),
   );
 
+  // optional
   logger.log('batch', await sdk.batchSetENSRecordName());
 
+  // optional
   logger.log(
     'batch',
     await sdk.batchSetENSRecordText({
@@ -57,6 +59,7 @@ async function main(): Promise<void> {
     }),
   );
 
+  // optional
   logger.log('batch', await sdk.batchClaimENSReverseName());
 
   logger.log('estimated batch', await sdk.estimateGatewayBatch());
