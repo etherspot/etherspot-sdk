@@ -54,14 +54,14 @@ export class SessionService extends Service {
   async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
-    const { walletAddress } = walletService;
-
     let session: Session;
     let error: Error;
 
     try {
       let code: string;
       let signature: string;
+
+      let { walletAddress } = walletService;
 
       for (let i = 0; i < 2; i++) {
         code = await this.createSessionCode();
@@ -82,6 +82,8 @@ export class SessionService extends Service {
             address: signer,
             providerType,
           });
+
+          walletAddress = signer;
         }
       }
 
