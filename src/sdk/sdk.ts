@@ -11,6 +11,7 @@ import {
   ContractAddresses,
   ContractService,
   ENSControllerContract,
+  ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
   PaymentRegistryContract,
@@ -56,6 +57,8 @@ import {
   PaginationDto,
   RemoveAccountOwnerDto,
   ReserveENSNameDto,
+  SetENSRecordNameDto,
+  SetENSRecordTextDto,
   SignMessageDto,
   SignP2PPaymentChannelDto,
   SwitchCurrentProjectDto,
@@ -67,8 +70,8 @@ import {
   UpdateProjectDto,
   validateDto,
   WithdrawP2PPaymentDepositDto,
+  P2PPaymentDepositWithdrawalDto,
 } from './dto';
-import { P2PPaymentDepositWithdrawalDto } from './dto/p2p-payment-deposit-withdrawal.dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
 import {
@@ -149,6 +152,7 @@ export class Sdk {
 
     this.internalContracts = {
       ensControllerContract: new ENSControllerContract(),
+      ensReverseRegistrarContract: new ENSReverseRegistrarContract(),
       erc20TokenContract: new ERC20TokenContract(),
       gatewayContract: new GatewayContract(),
       paymentRegistryContract: new PaymentRegistryContract(),
@@ -867,6 +871,100 @@ export class Sdk {
     );
   }
 
+  /**
+   * encodes set ens record name
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeSetENSRecordName(dto: SetENSRecordNameDto = {}): Promise<TransactionRequest> {
+    let { name } = await validateDto(dto, SetENSRecordNameDto);
+    await this.require();
+
+    const { accountService } = this.services;
+    const { accountAddress } = accountService;
+
+    const ensNode = await this.getENSNode({
+      nameOrHashOrAddress: accountAddress,
+    });
+
+    if (!ensNode) {
+      throw new Exception('Can not set ens record name');
+    }
+
+    const { hash } = ensNode;
+
+    if (!name) {
+      ({ name } = ensNode);
+    }
+
+    const { ensControllerContract } = this.internalContracts;
+
+    return ensControllerContract.encodeSetName(hash, name);
+  }
+
+  /**
+   * encodes set ens record text
+   * @param dto
+   * @return Promise<TransactionRequest>
+   */
+  async encodeSetENSRecordText(dto: SetENSRecordTextDto): Promise<TransactionRequest> {
+    const { key, value } = await validateDto(dto, SetENSRecordTextDto);
+
+    await this.require();
+
+    const { accountService } = this.services;
+    const { accountAddress } = accountService;
+
+    const ensNode = await this.getENSNode({
+      nameOrHashOrAddress: accountAddress,
+    });
+
+    if (!ensNode) {
+      throw new Exception('Can not set ens record text');
+    }
+
+    const { hash } = ensNode;
+
+    const { ensControllerContract } = this.internalContracts;
+
+    return ensControllerContract.encodeSetText(hash, key, value);
+  }
+
+  /**
+   * encodes claim ens reverse name
+   * @return Promise<TransactionRequest>
+   */
+  async encodeClaimENSReverseName(): Promise<TransactionRequest> {
+    await this.require();
+
+    const { accountService, ensService } = this.services;
+    const { accountAddress } = accountService;
+
+    const ensNode = await this.getENSNode({
+      nameOrHashOrAddress: accountAddress,
+    });
+
+    if (!ensNode) {
+      throw new Exception('Can not claim ens reverse name');
+    }
+
+    const { name } = ensNode;
+
+    const { ensReverseRegistrarContract } = this.internalContracts;
+
+    const { data } = ensReverseRegistrarContract.encodeSetName(name);
+    const to = await ensService.ensAddrReversOwner;
+
+    const { personalAccountRegistryContract } = this.internalContracts;
+
+    return personalAccountRegistryContract.encodeExecuteAccountTransaction(
+      accountService.accountAddress, //
+      to,
+      0,
+      data,
+    );
+  }
+
   // ens (batch)
 
   /**
@@ -880,6 +978,44 @@ export class Sdk {
     });
 
     return this.batchGatewayTransactionRequest(await this.encodeClaimENSNode(dto));
+  }
+
+  /**
+   * batch set ens record name
+   * @param dto
+   * @return Promise<GatewayBatch>
+   */
+  async batchSetENSRecordName(dto: SetENSRecordNameDto = {}): Promise<GatewayBatch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.batchGatewayTransactionRequest(await this.encodeSetENSRecordName(dto));
+  }
+
+  /**
+   * batch set ens record text
+   * @param dto
+   * @return Promise<GatewayBatch>
+   */
+  async batchSetENSRecordText(dto: SetENSRecordTextDto): Promise<GatewayBatch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.batchGatewayTransactionRequest(await this.encodeSetENSRecordText(dto));
+  }
+
+  /**
+   * batch claim ens reverse name
+   * @return Promise<GatewayBatch>
+   */
+  async batchClaimENSReverseName(): Promise<GatewayBatch> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.batchGatewayTransactionRequest(await this.encodeClaimENSReverseName());
   }
 
   // p2p payments

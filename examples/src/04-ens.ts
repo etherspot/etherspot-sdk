@@ -46,6 +46,19 @@ async function main(): Promise<void> {
       nameOrHashOrAddress: ensName,
     }),
   );
+
+  logger.log('batch', await sdk.batchSetENSRecordName());
+
+  logger.log(
+    'batch',
+    await sdk.batchSetENSRecordText({
+      key: 'key',
+      value: 'value',
+    }),
+  );
+
+  logger.log('batch', await sdk.batchClaimENSReverseName());
+
   logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
   logger.log('submitted batch', await sdk.submitGatewayBatch());

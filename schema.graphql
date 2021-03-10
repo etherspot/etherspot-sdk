@@ -380,6 +380,7 @@ type Query {
     ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
     ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
     ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+    ensNodeOwner(chainId: Int, name: String!): String
     ensRootNode(chainId: Int, name: String!): ENSRootNode
     ensRootNodes(chainId: Int): ENSRootNodes!
     gatewayBatch(chainId: Int, hash: String!): GatewayBatch

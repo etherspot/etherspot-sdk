@@ -1,4 +1,5 @@
 export * from './ens-controller.contract';
+export * from './ens-reverse-registrar.contract';
 export * from './erc20-token.contract';
 export * from './gateway.contract';
 export * from './internal.contract';

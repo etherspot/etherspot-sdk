@@ -13,17 +13,24 @@ export abstract class Contract<N extends string = string> extends Service {
 
     const { fragments } = this.interface;
 
-    for (const fragment of fragments) {
-      const { type, name } = fragment;
+    const methodsMap: { [key: string]: utils.FunctionFragment[] } = fragments.reduce((result, fragment) => {
+      const { name, type } = fragment;
 
-      if (name) {
-        switch (type) {
-          case 'function': {
-            this.defineFunction(fragment as utils.FunctionFragment);
-            break;
-          }
+      if (type === 'function') {
+        if (!result[name]) {
+          result[name] = [fragment];
+        } else {
+          result[name].push(fragment);
         }
       }
+
+      return result;
+    }, {});
+
+    const methods = Object.values(methodsMap);
+
+    for (const fragments of methods) {
+      this.defineFunctions(fragments);
     }
   }
 
@@ -47,41 +54,49 @@ export abstract class Contract<N extends string = string> extends Service {
     return result;
   }
 
-  private defineFunction(fragment: utils.FunctionFragment): void {
-    const { name, constant, inputs, outputs } = fragment;
+  private defineFunctions(fragments: utils.FunctionFragment[]): void {
+    const { name, constant } = fragments[0];
+    const methodPrefix = constant ? 'call' : 'encode';
+    const methodPostfix = `${name[0].toUpperCase()}${name.slice(1)}`;
 
-    const postfix = `${name[0].toUpperCase()}${name.slice(1)}`;
-    const method = `${constant ? 'call' : 'encode'}${postfix}`;
+    for (const fragment of fragments) {
+      const { inputs, outputs } = fragment;
+      let method = `${methodPrefix}${methodPostfix}`;
 
-    if (!this[method]) {
-      Object.defineProperty(this, method, {
-        value: (...args: any[]) => {
-          const to = this.address;
-          const data = this.interface.encodeFunctionData(
-            name,
-            args.map((arg, index) => prepareInputArg(inputs[index].type, arg)),
-          );
+      if (fragments.length !== 1) {
+        method = `${method}(${inputs.map(({ type }) => type).join(',')})`;
+      }
 
-          let result: any;
+      if (!this[method]) {
+        Object.defineProperty(this, method, {
+          value: (...args: any[]) => {
+            const to = this.address;
+            const data = this.interface.encodeFunctionData(
+              name,
+              args.map((arg, index) => prepareInputArg(inputs[index].type, arg)),
+            );
 
-          if (constant) {
-            const { contractService } = this.services;
+            let result: any;
 
-            result = contractService.callContract(to, data).then((data) => {
-              const decoded = this.interface.decodeFunctionResult(fragment, data);
-              return outputs.length === 1 ? decoded[0] : decoded;
-            });
-          } else {
-            result = {
-              to,
-              data,
-            };
-          }
+            if (constant) {
+              const { contractService } = this.services;
 
-          return result;
-        },
-        writable: false,
-      });
+              result = contractService.callContract(to, data).then((data) => {
+                const decoded = this.interface.decodeFunctionResult(fragment, data);
+                return outputs.length === 1 ? decoded[0] : decoded;
+              });
+            } else {
+              result = {
+                to,
+                data,
+              };
+            }
+
+            return result;
+          },
+          writable: false,
+        });
+      }
     }
   }
 }

@@ -15,6 +15,7 @@ import { WalletService } from './wallet';
 import {
   ContractService,
   ENSControllerContract,
+  ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
   PaymentRegistryContract,
@@ -29,6 +30,7 @@ export class Context {
   constructor(
     readonly internalContracts: {
       ensControllerContract: ENSControllerContract;
+      ensReverseRegistrarContract: ENSReverseRegistrarContract;
       erc20TokenContract: ERC20TokenContract;
       gatewayContract: GatewayContract;
       paymentRegistryContract: PaymentRegistryContract;

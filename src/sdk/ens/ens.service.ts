@@ -1,8 +1,34 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
 import { ENSNode, ENSRootNode, ENSRootNodes } from './classes';
+import { ENS_ADDR_REVERSE_TLD } from './constants';
 
 export class ENSService extends Service {
+  get ensAddrReversOwner(): Promise<string> {
+    return this.getENSNodeOwner(ENS_ADDR_REVERSE_TLD);
+  }
+
+  async getENSNodeOwner(name: string): Promise<string> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: string;
+    }>(
+      gql`
+        query($chainId: Int, $name: String!) {
+          result: ensNodeOwner(chainId: $chainId, name: $name)
+        }
+      `,
+      {
+        variables: {
+          name,
+        },
+      },
+    );
+
+    return result;
+  }
+
   async reserveENSNode(name: string): Promise<ENSNode> {
     const { apiService, accountService } = this.services;
 
