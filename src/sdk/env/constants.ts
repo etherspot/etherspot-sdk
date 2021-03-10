@@ -18,6 +18,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Mainnet, //
         NetworkNames.Xdai,
         NetworkNames.Bsc,
+        NetworkNames.Fantom,
       ],
     },
   },
@@ -34,6 +35,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Kovan,
         NetworkNames.Sokol,
         NetworkNames.BscTest,
+        NetworkNames.FantomTest,
       ],
     },
   },

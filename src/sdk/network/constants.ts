@@ -8,6 +8,8 @@ export enum NetworkNames {
   Sokol = 'sokol',
   Bsc = 'bsc',
   BscTest = 'bscTest',
+  Fantom = 'fantom',
+  FantomTest = 'fantomTest',
   LocalA = 'localA',
   LocalB = 'localB',
 }
@@ -24,6 +26,8 @@ export const NETWORK_NAME_TO_CHAIN_ID: {
   [NetworkNames.Sokol]: 77,
   [NetworkNames.Bsc]: 56,
   [NetworkNames.BscTest]: 97,
+  [NetworkNames.Fantom]: 250,
+  [NetworkNames.FantomTest]: 4002,
   [NetworkNames.LocalA]: 9999,
   [NetworkNames.LocalB]: 6666,
 };
