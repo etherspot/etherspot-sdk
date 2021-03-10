@@ -130,6 +130,56 @@ export class ENSService extends Service {
     return result;
   }
 
+  async ensAddressesLookup(names: string[]): Promise<string[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: {
+        items: string[];
+      };
+    }>(
+      gql`
+        query($chainId: Int, $names: [String!]) {
+          result: ensAddressesLookup(chainId: $chainId, names: $names) {
+            items
+          }
+        }
+      `,
+      {
+        variables: {
+          names,
+        },
+      },
+    );
+
+    return result.items;
+  }
+
+  async ensNamesLookup(addresses: string[]): Promise<string[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: {
+        items: string[];
+      };
+    }>(
+      gql`
+        query($chainId: Int, $addresses: [String!]) {
+          result: ensNamesLookup(chainId: $chainId, addresses: $addresses) {
+            items
+          }
+        }
+      `,
+      {
+        variables: {
+          addresses,
+        },
+      },
+    );
+
+    return result.items;
+  }
+
   async getENSTopLevelDomains(): Promise<string[]> {
     const { apiService } = this.services;
 

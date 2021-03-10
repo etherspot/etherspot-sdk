@@ -8,6 +8,8 @@ export * from './create-payment-hub-payment.dto';
 export * from './create-session.dto';
 export * from './custom-project-metadata.dto';
 export * from './encode-gateway-batch.dto';
+export * from './ens-addresses-lookup.dto';
+export * from './ens-names-lookup.dto';
 export * from './estimate-gateway-batch.dto';
 export * from './estimate-gateway-known-op.dto';
 export * from './execute-account-transaction.dto';

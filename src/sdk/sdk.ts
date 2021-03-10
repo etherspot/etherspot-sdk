@@ -71,6 +71,8 @@ import {
   validateDto,
   WithdrawP2PPaymentDepositDto,
   P2PPaymentDepositWithdrawalDto,
+  ENSAddressesLookupDto,
+  ENSNamesLookupDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -834,6 +836,40 @@ export class Sdk {
     const { ensService } = this.services;
 
     return ensService.getENSTopLevelDomains();
+  }
+
+  /**
+   * ens addresses lookup
+   * @param dto
+   * @return Promise<string[]>
+   */
+  async ensAddressesLookup(dto: ENSAddressesLookupDto): Promise<string[]> {
+    const { names } = await validateDto(dto, ENSAddressesLookupDto);
+
+    await this.require({
+      wallet: false,
+    });
+
+    const { ensService } = this.services;
+
+    return ensService.ensAddressesLookup(names);
+  }
+
+  /**
+   * ens names lookup
+   * @param dto
+   * @return Promise<string[]>
+   */
+  async ensNamesLookup(dto: ENSNamesLookupDto): Promise<string[]> {
+    const { addresses } = await validateDto(dto, ENSNamesLookupDto);
+
+    await this.require({
+      wallet: false,
+    });
+
+    const { ensService } = this.services;
+
+    return ensService.ensNamesLookup(addresses);
   }
 
   // ens (encode)

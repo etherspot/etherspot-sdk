@@ -10,7 +10,7 @@ async function main(): Promise<void> {
 
   const sdk = new Sdk(wallet);
 
-  const { state } = sdk;
+  const { state, notifications$ } = sdk;
 
   const ensTopLevelDomains = await sdk.getENSTopLevelDomains();
 
@@ -19,7 +19,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const notification = sdk.notifications$.pipe(take(1)).toPromise();
+  let notification = notifications$.pipe(take(2)).toPromise();
 
   logger.log(
     'contract account',
@@ -59,6 +59,8 @@ async function main(): Promise<void> {
     }),
   );
 
+  notification = notifications$.pipe(take(4)).toPromise();
+
   // optional
   logger.log('batch', await sdk.batchClaimENSReverseName());
 
@@ -66,11 +68,27 @@ async function main(): Promise<void> {
 
   logger.log('submitted batch', await sdk.submitGatewayBatch());
 
+  await notification;
+
   // unstoppable domains support
   logger.log(
     'ens node',
     await sdk.getENSNode({
       nameOrHashOrAddress: 'brad.crypto',
+    }),
+  );
+
+  logger.log(
+    'ens addresses lookup',
+    await sdk.ensAddressesLookup({
+      names: [ensName],
+    }),
+  );
+
+  logger.log(
+    'ens names lookup',
+    await sdk.ensNamesLookup({
+      addresses: [state.accountAddress],
     }),
   );
 }
