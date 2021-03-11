@@ -6,8 +6,8 @@ import {
   getContractTypedDataDomainVersion,
   TYPED_DATA_DOMAIN_SALT,
 } from '@etherspot/contracts';
-import { TypedData, buildTypedData } from 'ethers-typed-data';
 import { utils } from 'ethers';
+import { buildTypedData, TypedData } from 'ethers-typed-data';
 import { concatHex } from '../../common';
 import { Contract } from '../contract';
 import { prepareInputArg } from '../utils';

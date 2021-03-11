@@ -70,6 +70,14 @@ type BlockStats {
     lastProcessedBlockNumber: Int
 }
 
+type ENSAddresses {
+    items: [String]!
+}
+
+type ENSNames {
+    items: [String]!
+}
+
 type ENSNode {
     address: String!
     createdAt: DateTime
@@ -366,9 +374,13 @@ type Query {
     accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
     accountTokenList(account: String!, chainId: Int, name: String): TokenList
     accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
+    altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
     blockStats(chainId: Int): BlockStats!
     defaultNetwork: Network!
+    ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
+    ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
     ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+    ensNodeOwner(chainId: Int, name: String!): String
     ensRootNode(chainId: Int, name: String!): ENSRootNode
     ensRootNodes(chainId: Int): ENSRootNodes!
     gatewayBatch(chainId: Int, hash: String!): GatewayBatch
@@ -394,7 +406,15 @@ type Query {
     tokenList(chainId: Int, name: String): TokenList
     tokenLists(chainId: Int): TokenLists!
     transaction(chainId: Int, hash: String!): Transaction
-    transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): Transactions!
+    transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): [TransactionData!]
+    wyreExchangeRates(chainId: Int): String!
+    wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
+}
+
+type RawContract {
+    address: String!
+    decimal: String!
+    value: String!
 }
 
 type Session {
@@ -429,31 +449,35 @@ type TokenLists {
 }
 
 type Transaction {
-    accountFrom: String
-    accountTo: String
-    blockNumber: Int
-    createdAt: DateTime!
-    encodedData: String!
-    fee: BigNumber!
+    blockHash: String!
+    blockNumber: Float!
+    contractAddress: String!
+    cumulativeGasUsed: String!
     from: String!
-    gasLimit: Int!
-    gasPrice: BigNumber!
-    gasToken: String
-    gasUsed: Int
+    gas: String!
+    gasPrice: String!
+    gasUsed: String!
     hash: String!
-    index: Int!
-    metadata: String
-    state: TransactionStates!
+    input: String!
+    logs: String!
+    logsBloom: String!
+    nonce: Float!
+    status: String!
     to: String!
-    type: TransactionTypes!
-    updatedAt: DateTime!
-    value: BigNumber!
+    transactionIndex: Float!
+    value: String!
 }
 
-type Transactions {
-    currentPage: Int!
-    items: [Transaction!]!
-    nextPage: Int
+type TransactionData {
+    asset: String!
+    blockNum: String!
+    category: String!
+    erc721TokenId: String!
+    from: String!
+    hash: String!
+    rawContract: RawContract!
+    to: String!
+    value: String!
 }
 
 enum AccountMemberStates {
@@ -534,6 +558,8 @@ enum GatewayTransactionStates {
 enum NetworkNames {
     Bsc
     BscTest
+    Fantom
+    FantomTest
     Goerli
     Kovan
     LocalA
@@ -548,6 +574,7 @@ enum NetworkNames {
 enum NotificationTypes {
     AccountMemberCreated
     AccountMemberUpdated
+    AccountTransactionUpdated
     AccountUpdated
     Blocknative
     ENSNodeCreated
@@ -598,18 +625,6 @@ enum PaymentHubBridgeStates {
 enum ProjectStates {
     Active
     Inactive
-}
-
-enum TransactionStates {
-    Canceled
-    Confirmed
-    Reverted
-}
-
-enum TransactionTypes {
-    ContractCall
-    Erc20
-    EthTransfer
 }
 
 

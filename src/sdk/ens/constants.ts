@@ -1,3 +1,5 @@
+export const ENS_ADDR_REVERSE_TLD = 'addr.reverse';
+
 export enum ENSNodeStates {
   Reserved = 'Reserved',
   Claimed = 'Claimed',

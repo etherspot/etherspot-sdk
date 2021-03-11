@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client/core';
+import { utils } from 'ethers';
 import { switchMap } from 'rxjs/operators';
 import { Service, HeaderNames } from '../common';
 import { Session } from './classes';
@@ -53,29 +54,38 @@ export class SessionService extends Service {
   async createSession(ttl?: number): Promise<Session> {
     const { apiService, walletService } = this.services;
 
-    const { walletAddress } = walletService;
-
     let session: Session;
     let error: Error;
 
     try {
-      const { code } = await apiService.mutate<{
-        code: string;
-      }>(
-        gql`
-          mutation($chainId: Int, $account: String!) {
-            code: createSessionCode(chainId: $chainId, account: $account)
-          }
-        `,
-        {
-          variables: {
-            account: walletAddress,
-          },
-        },
-      );
+      let code: string;
+      let signature: string;
 
-      const message = createSessionMessage(code);
-      const signature = await walletService.personalSignMessage(message);
+      let { walletAddress } = walletService;
+
+      for (let i = 0; i < 2; i++) {
+        code = await this.createSessionCode();
+
+        const message = createSessionMessage(code);
+        const messageHash = utils.arrayify(utils.hashMessage(message));
+
+        signature = await walletService.personalSignMessage(message);
+
+        const signer = utils.recoverAddress(messageHash, signature);
+
+        if (walletAddress === signer) {
+          break;
+        } else {
+          const { providerType } = walletService.wallet;
+
+          walletService.wallet$.next({
+            address: signer,
+            providerType,
+          });
+
+          walletAddress = signer;
+        }
+      }
 
       ({ session } = await apiService.mutate<{
         session: Session;
@@ -120,18 +130,7 @@ export class SessionService extends Service {
     }
 
     if (session) {
-      const { account } = session;
-
       delete session.account;
-
-      if (account.address !== walletAddress) {
-        const { providerType } = walletService.wallet;
-
-        walletService.wallet$.next({
-          address: account.address,
-          providerType,
-        });
-      }
 
       session.refresh();
     }
@@ -155,6 +154,35 @@ export class SessionService extends Service {
         .pipe(switchMap(() => this.restoreSession())) //
         .subscribe(),
     );
+  }
+
+  private async createSessionCode(): Promise<string> {
+    let result: string;
+
+    const { apiService, walletService } = this.services;
+
+    const { walletAddress } = walletService;
+
+    try {
+      ({ result } = await apiService.mutate<{
+        result: string;
+      }>(
+        gql`
+          mutation($chainId: Int, $account: String!) {
+            result: createSessionCode(chainId: $chainId, account: $account)
+          }
+        `,
+        {
+          variables: {
+            account: walletAddress,
+          },
+        },
+      ));
+    } catch (err) {
+      result = null;
+    }
+
+    return result;
   }
 
   private async storeSession(): Promise<void> {
