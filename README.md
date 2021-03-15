@@ -3,6 +3,16 @@
 [![NPM version][npm-image]][npm-url]
 ![MIT licensed][license-image]
 
+Etherspot is a blockchain development framework for EVM-compatible chains that creates direct state channel bridges to provide a seamless user experience across chains and wallets.
+
+With just one deposit you’re able to onboard your users to the entire multichain world.
+
+## Resources
+
+* [playground](https://try.etherspot.dev)
+* [documentation](https://docs.etherspot.dev)
+* [examples](https://github.com/etherspot/etherspot-sdk/tree/develop/examples)
+
 ## Installation
 
 ```bash
@@ -45,10 +55,6 @@ async function main() {
 main().catch(console.error);
 ```
 
-## Resources
-
-* [playground](https://try.etherspot.dev)
-* [documentation](https://docs.etherspot.dev)
 
 ## License
 
