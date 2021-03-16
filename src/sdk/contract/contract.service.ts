@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { Service } from '../common';
+import { prepareAddress, Service } from '../common';
 import { Contract } from './contract';
 import { ExternalContract } from './external';
 import { ContractAddresses, ContractEvent, ContractLog } from './interfaces';
@@ -36,8 +36,8 @@ export class ContractService extends Service {
       `,
       {
         variables: {
-          to,
           data,
+          to: prepareAddress(to),
         },
       },
     );
