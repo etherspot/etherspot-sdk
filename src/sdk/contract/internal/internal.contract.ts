@@ -1,70 +1,61 @@
-import {
-  ContractNames,
-  getContractAbi,
-  getContractByteCode,
-  getContractTypedDataDomainName,
-  getContractTypedDataDomainVersion,
-  TYPED_DATA_DOMAIN_SALT,
-} from '@etherspot/contracts';
-import { utils } from 'ethers';
-import { buildTypedData, TypedData } from 'ethers-typed-data';
-import { concatHex } from '../../common';
+import { ContractNames, getContractAbi, getContractByteCode } from '@etherspot/contracts';
+import { BigNumber, utils } from 'ethers';
+import { concatHex, prepareAddress } from '../../common';
 import { Contract } from '../contract';
-import { prepareInputArg } from '../utils';
 
 export class InternalContract extends Contract<ContractNames> {
-  private readonly typedDataDomain: {
-    name: string;
-    version: string;
-    salt: string;
-  } = null;
-
   constructor(name: ContractNames) {
     super(name, getContractAbi(name));
-
-    const typedDataDomainName = getContractTypedDataDomainName(name);
-    const typedDataDomainVersion = getContractTypedDataDomainVersion(name);
-
-    if (typedDataDomainName && typedDataDomainVersion) {
-      this.typedDataDomain = {
-        name: typedDataDomainName,
-        version: typedDataDomainVersion,
-        salt: TYPED_DATA_DOMAIN_SALT,
-      };
-    }
   }
 
   get address(): string {
     return this.services.networkService.getInternalContractAddress(this.name);
   }
 
-  buildTypedData<T extends {} = any>(
-    primaryType: string,
-    primarySchema: { type: string; name: string }[],
+  protected hashMessagePayload<T extends {} = any>(
+    structName: string,
+    structFields: { type: string; name: string }[],
     message: T,
-  ): TypedData {
-    let result: TypedData = null;
-
+  ): Buffer {
     const { chainId } = this.context.services.networkService;
+    const prefix = `${structName}(${structFields.map(({ type, name }) => `${type} ${name}`).join(',')})`;
 
-    if (chainId && this.address && this.typedDataDomain) {
-      for (const { name, type } of primarySchema) {
-        message[name] = prepareInputArg(type, message[name]);
-      }
+    const types = [
+      'uint256', //
+      'address',
+      'bytes32',
+      ...structFields.map(({ type }) => type),
+    ];
 
-      result = buildTypedData(
-        {
-          verifyingContract: this.address,
-          chainId,
-          ...this.typedDataDomain,
-        },
-        primaryType,
-        primarySchema,
-        message,
-      );
-    }
+    const values = [
+      chainId,
+      this.address,
+      utils.id(prefix), //
+      ...structFields.map(({ name, type }) => {
+        let result: any;
 
-    return result;
+        switch (type) {
+          case 'address':
+            result = prepareAddress(message[name], true);
+            break;
+
+          case 'uint256':
+            result = BigNumber.from(message[name] || 0).toHexString();
+            break;
+
+          case 'address[]':
+            result = (message[name] as string[]).map((address) => prepareAddress(address, true));
+            break;
+
+          default:
+            result = message[name];
+        }
+
+        return result;
+      }),
+    ];
+
+    return Buffer.from(utils.arrayify(utils.solidityKeccak256(types, values)));
   }
 
   protected computeCreate2Address(

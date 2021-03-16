@@ -1,5 +1,4 @@
 import { ContractNames } from '@etherspot/contracts';
-import { TypedData } from 'ethers-typed-data';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
 
@@ -18,8 +17,8 @@ export class GatewayContract extends InternalContract {
     senderSignature: string,
   ): TransactionRequest;
 
-  buildDelegatedBatchTypedData(account: string, nonce: number, to: string[], data: string[]): TypedData {
-    return this.buildTypedData(
+  hashDelegatedBatch(account: string, nonce: number, to: string[], data: string[]): Buffer {
+    return this.hashMessagePayload(
       'DelegatedBatch',
       [
         { name: 'account', type: 'address' }, //

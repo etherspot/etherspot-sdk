@@ -1,6 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
 import { BigNumberish, utils } from 'ethers';
-import { TypedData } from 'ethers-typed-data';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
 
@@ -44,8 +43,8 @@ export class PaymentRegistryContract extends InternalContract {
     return result;
   }
 
-  buildDepositWithdrawalTypedData(owner: string, token: string, amount: BigNumberish): TypedData {
-    return this.buildTypedData(
+  hashDepositWithdrawal(owner: string, token: string, amount: BigNumberish): Buffer {
+    return this.hashMessagePayload(
       'DepositWithdrawal',
       [
         { name: 'owner', type: 'address' }, //
@@ -60,15 +59,15 @@ export class PaymentRegistryContract extends InternalContract {
     );
   }
 
-  buildPaymentChannelCommitTypedData(
+  hashPaymentChannelCommit(
     sender: string,
     recipient: string,
     token: string,
     uid: string,
     blockNumber: number,
     amount: BigNumberish,
-  ): TypedData {
-    return this.buildTypedData(
+  ): Buffer {
+    return this.hashMessagePayload(
       'PaymentChannelCommit',
       [
         { name: 'sender', type: 'address' }, //
