@@ -78,7 +78,7 @@ export class SessionService extends Service {
       const message = createSessionMessage(code);
       const messageHash = utils.arrayify(utils.hashMessage(message));
 
-      const signature = await walletService.personalSignMessage(message);
+      const signature = await walletService.signMessage(message);
 
       signerAddress = utils.recoverAddress(messageHash, signature);
 

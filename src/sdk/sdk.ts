@@ -4,7 +4,7 @@ import { Account, AccountBalances, AccountMembers, Accounts, AccountService, Acc
 import { ApiService } from './api';
 import { AssetsService, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
-import { ErrorSubject, Exception, TransactionRequest, UnChainedTypedData } from './common';
+import { ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
 import {
   Contract,
@@ -229,21 +229,6 @@ export class Sdk {
   // wallet
 
   /**
-   * personal signs message
-   * @param dto
-   * @return Promise<string>
-   */
-  async personalSignMessage(dto: SignMessageDto): Promise<string> {
-    const { message } = await validateDto(dto, SignMessageDto);
-
-    await this.require({
-      network: false,
-    });
-
-    return this.services.walletService.personalSignMessage(message);
-  }
-
-  /**
    * signs message
    * @param dto
    * @return Promise<string>
@@ -256,17 +241,6 @@ export class Sdk {
     });
 
     return this.services.walletService.signMessage(message);
-  }
-
-  /**
-   * sings typed data
-   * @param unChainedTypedData
-   * @return Promise<string>
-   */
-  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
-    await this.require();
-
-    return this.services.walletService.signTypedData(unChainedTypedData);
   }
 
   // session

@@ -1,6 +1,5 @@
 import { BytesLike } from 'ethers';
-import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, toHex } from '../../common';
+import { toHex } from '../../common';
 import { DynamicWalletProvider } from './dynamic.wallet-provider';
 
 declare const window: Window & {
@@ -51,26 +50,10 @@ export class MetaMaskWalletProvider extends DynamicWalletProvider {
     super('MetaMask');
   }
 
-  async personalSignMessage(message: BytesLike): Promise<string> {
+  async signMessage(message: BytesLike): Promise<string> {
     return this.sendRequest('personal_sign', [
       this.address, //
       toHex(message),
-    ]);
-  }
-
-  async signMessage(message: BytesLike): Promise<string> {
-    const hex = toHex(message);
-
-    return this.sendRequest('eth_sign', [
-      this.address, //
-      isHex(hex, 32) ? hex : keccak256(hex),
-    ]);
-  }
-
-  async signTypedData(typedData: TypedData): Promise<string> {
-    return this.sendRequest('eth_signTypedData_v4', [
-      this.address, //
-      JSON.stringify(typedData),
     ]);
   }
 

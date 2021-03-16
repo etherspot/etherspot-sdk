@@ -324,7 +324,7 @@ export class P2PPaymentService extends Service {
 
     const blockNumber = await blockService.getCurrentBlockNumber();
 
-    const typedMessage = paymentRegistryContract.buildPaymentChannelCommitTypedData(
+    const messageHash = paymentRegistryContract.hashPaymentChannelCommit(
       sender, //
       recipient,
       token,
@@ -333,7 +333,7 @@ export class P2PPaymentService extends Service {
       totalAmount,
     );
 
-    const senderSignature = await walletService.signTypedData(typedMessage);
+    const senderSignature = await walletService.signMessage(messageHash);
 
     const { result } = await apiService.mutate<{
       result: P2PPaymentChannel;
@@ -424,7 +424,7 @@ export class P2PPaymentService extends Service {
 
     const { paymentRegistryContract } = this.internalContracts;
 
-    const typedMessage = paymentRegistryContract.buildPaymentChannelCommitTypedData(
+    const messageHash = paymentRegistryContract.hashPaymentChannelCommit(
       sender, //
       recipient,
       token,
@@ -433,7 +433,7 @@ export class P2PPaymentService extends Service {
       totalAmount,
     );
 
-    const senderSignature = await walletService.signTypedData(typedMessage);
+    const senderSignature = await walletService.signMessage(messageHash);
 
     const { result } = await apiService.mutate<{
       result: P2PPaymentChannel;
