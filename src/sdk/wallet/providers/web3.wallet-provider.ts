@@ -1,6 +1,5 @@
 import { BytesLike } from 'ethers';
-import { TypedData } from 'ethers-typed-data';
-import { isHex, keccak256, prepareAddress, toHex } from '../../common';
+import { prepareAddress, toHex } from '../../common';
 import { NetworkNames, prepareNetworkName } from '../../network';
 import { Web3Provider } from './interfaces';
 import { DynamicWalletProvider } from './dynamic.wallet-provider';
@@ -48,36 +47,12 @@ export class Web3WalletProvider extends DynamicWalletProvider {
     return result;
   }
 
-  async personalSignMessage(message: BytesLike): Promise<string> {
+  async signMessage(message: BytesLike): Promise<string> {
     return this.sendRequest(
       'personal_sign',
       [
         this.address, //
         toHex(message),
-      ],
-      this.address,
-    );
-  }
-
-  async signMessage(message: BytesLike): Promise<string> {
-    const hex = toHex(message);
-
-    return this.sendRequest(
-      'eth_sign',
-      [
-        this.address, //
-        isHex(hex, 32) ? hex : keccak256(hex),
-      ],
-      this.address,
-    );
-  }
-
-  async signTypedData(typedData: TypedData): Promise<string> {
-    return this.sendRequest(
-      'eth_signTypedData_v4',
-      [
-        this.address, //
-        JSON.stringify(typedData),
       ],
       this.address,
     );

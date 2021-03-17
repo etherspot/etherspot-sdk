@@ -18,11 +18,7 @@ export abstract class DynamicWalletProvider implements WalletProvider {
     return this.networkName$.value;
   }
 
-  abstract personalSignMessage(message: any): Promise<string>;
-
   abstract signMessage(message: any): Promise<string>;
-
-  abstract signTypedData(typedData: any): Promise<string>;
 
   protected setAddress(address: string): void {
     this.address$.next(prepareAddress(address));

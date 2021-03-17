@@ -15,13 +15,9 @@ export function isWalletProvider(provider: WalletProviderLike): boolean {
         if (utils.isHexString(privateKey, 32)) {
           result = true;
         } else {
-          const { type, personalSignMessage, signMessage, signTypedData } = provider as WalletProvider;
+          const { type, signMessage } = provider as WalletProvider;
 
-          result =
-            !!type &&
-            typeof personalSignMessage === 'function' &&
-            typeof signMessage === 'function' &&
-            typeof signTypedData === 'function';
+          result = !!type && typeof signMessage === 'function';
         }
         break;
     }

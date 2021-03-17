@@ -1,8 +1,7 @@
-import { hashTypedData, TypedData } from 'ethers-typed-data';
 import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { BytesLike } from 'ethers';
-import { Service, ObjectSubject, UnChainedTypedData } from '../common';
+import { Service, ObjectSubject } from '../common';
 import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } from './providers';
 import { Wallet, WalletOptions } from './interfaces';
 
@@ -26,42 +25,8 @@ export class WalletService extends Service {
     return this.wallet ? this.wallet.address : null;
   }
 
-  async personalSignMessage(message: BytesLike): Promise<string> {
-    return this.provider ? this.provider.personalSignMessage(message) : null;
-  }
-
   async signMessage(message: BytesLike): Promise<string> {
     return this.provider ? this.provider.signMessage(message) : null;
-  }
-
-  async signTypedData(unChainedTypedData: UnChainedTypedData): Promise<string> {
-    let result: string = null;
-
-    if (this.provider) {
-      const { networkName } = this.provider;
-      const { networkService } = this.services;
-      const { chainId, network } = networkService;
-
-      if (chainId) {
-        const { domain, ...typedDataWithoutDomain } = unChainedTypedData;
-
-        const typedData: TypedData = {
-          domain: {
-            ...domain,
-            chainId,
-          },
-          ...typedDataWithoutDomain,
-        };
-
-        if (network.name === networkName) {
-          result = await this.provider.signTypedData(typedData);
-        } else {
-          result = await this.provider.signMessage(hashTypedData(typedData));
-        }
-      }
-    }
-
-    return result;
   }
 
   protected switchWalletProvider(providerLike: WalletProviderLike): void {

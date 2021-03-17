@@ -479,27 +479,16 @@ export class PaymentHubService extends Service {
       const paymentChannel = await p2pPaymentsService.getP2PPaymentChannel(hash);
       const amount = paymentChannel ? paymentChannel.totalAmount.add(diff) : diff;
 
-      const typedMessage = paymentRegistryContract.buildTypedData(
-        'PaymentChannelCommit',
-        [
-          { name: 'sender', type: 'address' }, //
-          { name: 'recipient', type: 'address' },
-          { name: 'token', type: 'address' },
-          { name: 'uid', type: 'bytes32' },
-          { name: 'blockNumber', type: 'uint256' },
-          { name: 'amount', type: 'uint256' },
-        ],
-        {
-          sender, //
-          recipient: hub,
-          token: prepareAddress(token, true),
-          uid: PAYMENT_HUB_P2P_CHANNEL_UID,
-          blockNumber,
-          amount: amount.toHexString(),
-        },
+      const messageHash = paymentRegistryContract.hashPaymentChannelCommit(
+        sender, //
+        hub,
+        prepareAddress(token, true),
+        PAYMENT_HUB_P2P_CHANNEL_UID,
+        blockNumber,
+        amount,
       );
 
-      senderSignature = await walletService.signTypedData(typedMessage);
+      senderSignature = await walletService.signMessage(messageHash);
     }
 
     const { result } = await apiService.mutate<{
