@@ -10,6 +10,7 @@ import { P2PPaymentService, PaymentHubService } from './payments';
 import { ProjectService } from './project';
 import { ErrorSubject, Service } from './common';
 import { SessionService } from './session';
+import { TransactionsService } from './transactions';
 import { StateService } from './state';
 import { WalletService } from './wallet';
 import {
@@ -50,6 +51,7 @@ export class Context {
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
       sessionService: SessionService;
+      transactionsService: TransactionsService;
       stateService: StateService;
       walletService: WalletService;
     },

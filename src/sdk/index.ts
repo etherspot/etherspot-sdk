@@ -17,6 +17,7 @@ export * from './payments';
 export * from './project';
 export * from './session';
 export * from './state';
+export * from './transactions';
 export * from './wallet';
 
 export { Sdk };

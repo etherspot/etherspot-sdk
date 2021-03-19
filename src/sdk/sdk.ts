@@ -104,6 +104,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
+import { Transactions, Transaction, TransactionsService } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -182,6 +183,7 @@ export class Sdk {
         key: projectKey,
         metadata: projectMetadata,
       }),
+      transactionsService: new TransactionsService(),
       stateService: new StateService({
         storage: stateStorage,
       }),
@@ -1681,6 +1683,8 @@ export class Sdk {
 
     return this.services.assetsService.isTokenOnTokenList(token, name);
   }
+
+  // transactions
 
   // utils
 
