@@ -73,6 +73,8 @@ import {
   P2PPaymentDepositWithdrawalDto,
   ENSAddressesLookupDto,
   ENSNamesLookupDto,
+  GetTransactionDto,
+  GetTransactionsDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -1685,6 +1687,40 @@ export class Sdk {
   }
 
   // transactions
+
+  /**
+   * gets transaction
+   * @param dto
+   * @return Promise<Transaction>
+   */
+  async getTransaction(dto: GetTransactionDto): Promise<Transaction> {
+    const { hash } = await validateDto(dto, GetTransactionDto);
+
+    await this.require({
+      wallet: false,
+    });
+
+    return this.services.transactionsService.getTransaction(hash);
+  }
+
+  /**
+   * gets transactions
+   * @param dto
+   * @return Promise<Transactions>
+   */
+  async getTransactions(dto: GetTransactionsDto): Promise<Transactions> {
+    const { account } = await validateDto(dto, GetTransactionsDto, {
+      addressKeys: ['account'],
+    });
+
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.transactionsService.getTransactions(
+      this.prepareAccountAddress(account), //
+    );
+  }
 
   // utils
 
