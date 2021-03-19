@@ -406,15 +406,9 @@ type Query {
     tokenList(chainId: Int, name: String): TokenList
     tokenLists(chainId: Int): TokenLists!
     transaction(chainId: Int, hash: String!): Transaction
-    transactions(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): [TransactionData!]
+    transactions(account: String!, chainId: Int): Transactions!
     wyreExchangeRates(chainId: Int): String!
     wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
-}
-
-type RawContract {
-    address: String!
-    decimal: String!
-    value: String!
 }
 
 type Session {
@@ -449,35 +443,35 @@ type TokenLists {
 }
 
 type Transaction {
-    blockHash: String!
-    blockNumber: Float!
-    contractAddress: String!
-    cumulativeGasUsed: String!
+    asset: TransactionAsset
+    blockHash: String
+    blockNumber: Float
+    cumulativeGasUsed: Float
     from: String!
-    gas: String!
-    gasPrice: String!
-    gasUsed: String!
+    gasLimit: Float
+    gasPrice: BigNumber
+    gasUsed: Float
     hash: String!
-    input: String!
-    logs: String!
-    logsBloom: String!
-    nonce: Float!
-    status: String!
+    input: String
+    logs: JSONObject
+    logsBloom: String
+    nonce: Float
+    status: TransactionStatuses
     to: String!
-    transactionIndex: Float!
-    value: String!
+    transactionIndex: Float
+    value: BigNumber
 }
 
-type TransactionData {
-    asset: String!
-    blockNum: String!
-    category: String!
-    erc721TokenId: String!
-    from: String!
-    hash: String!
-    rawContract: RawContract!
-    to: String!
-    value: String!
+type TransactionAsset {
+    category: TransactionAssetCategories
+    contract: String
+    decimal: Float
+    name: String
+    value: BigNumber
+}
+
+type Transactions {
+    items: [Transaction!]!
 }
 
 enum AccountMemberStates {
@@ -574,7 +568,6 @@ enum NetworkNames {
 enum NotificationTypes {
     AccountMemberCreated
     AccountMemberUpdated
-    AccountTransactionUpdated
     AccountUpdated
     Blocknative
     ENSNodeCreated
@@ -592,6 +585,7 @@ enum NotificationTypes {
     PaymentHubDepositUpdated
     PaymentHubPaymentCreated
     PaymentHubUpdated
+    TransactionUpdated
 }
 
 enum P2PPaymentChannelPaymentStates {
@@ -625,6 +619,18 @@ enum PaymentHubBridgeStates {
 enum ProjectStates {
     Active
     Inactive
+}
+
+enum TransactionAssetCategories {
+    External
+    Internal
+    Token
+}
+
+enum TransactionStatuses {
+    Completed
+    Pending
+    Reverted
 }
 
 
