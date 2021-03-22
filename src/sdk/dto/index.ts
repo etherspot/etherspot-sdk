@@ -33,6 +33,8 @@ export * from './get-payment-hub.dto';
 export * from './get-payment-hubs.dto';
 export * from './get-project.dto';
 export * from './get-token-list.dto';
+export * from './get-transaction.dto';
+export * from './get-transactions.dto';
 export * from './increase-p2p-payment-channel-amount.dto';
 export * from './is-token-on-token-list.dto';
 export * from './join-contract-account.dto';
