@@ -1,4 +1,5 @@
-# ETHERspot sdk examples
+# Etherspot SDK examples
+
 These examples show how to combine the sdk calls to perform common functions.
 
 ## Prerequisites
