@@ -3,13 +3,16 @@
 [![NPM version][npm-image]][npm-url]
 ![MIT licensed][license-image]
 
+<a href="https://www.etherspot.net">
 <img src="https://etherspot.dev/media/logo.png" width="200"/>
+</a>
+ 
 
 Etherspot is a blockchain development framework for EVM-compatible chains that creates direct state channel bridges to provide a seamless user experience across chains and wallets.
 
 With just one deposit you’re able to onboard your users to the entire multichain world.
 
-More information at [etherspot.net](https://www.etherspot.net/)
+More information at [etherspot.net](https://www.etherspot.net)
 
 ## Resources
 
