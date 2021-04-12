@@ -12,7 +12,7 @@ Etherspot is a blockchain development framework for EVM-compatible chains that c
 
 With just one deposit you’re able to onboard your users to the entire multichain world.
 
-More information at [etherspot.net](https://www.etherspot.net)
+More information at [etherspot.io](https://www.etherspot.io)
 
 ## Resources
 
