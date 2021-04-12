@@ -216,6 +216,7 @@ type Mutation {
 type Network {
     chainId: Int!
     name: NetworkNames!
+    nativeCurrency: NetworkNativeCurrencies!
 }
 
 type Notification {
@@ -559,6 +560,26 @@ enum NetworkNames {
     LocalA
     LocalB
     Mainnet
+    Matic
+    Mumbai
+    Rinkeby
+    Ropsten
+    Sokol
+    Xdai
+}
+
+enum NetworkNativeCurrencies {
+    Bsc
+    BscTest
+    Fantom
+    FantomTest
+    Goerli
+    Kovan
+    LocalA
+    LocalB
+    Mainnet
+    Matic
+    Mumbai
     Rinkeby
     Ropsten
     Sokol

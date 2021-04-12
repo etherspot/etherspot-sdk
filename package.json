@@ -1,6 +1,6 @@
 {
   "name": "etherspot",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Etherspot SDK",
   "keywords": [
     "ether",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.3.11",
-    "@etherspot/contracts": "1.2.0",
+    "@etherspot/contracts": "1.2.1",
     "class-transformer": "0.4.0",
     "class-validator": "0.13.1",
     "cross-fetch": "3.0.6",
