@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Service, SynchronizedSubject } from '../common';
+import { HeaderNames, Service, SynchronizedSubject, keccak256 } from '../common';
 import { Account, AccountBalances, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
@@ -26,6 +26,14 @@ export class AccountService extends Service {
 
   get accountMember(): AccountMember {
     return this.accountMember$.value;
+  }
+
+  get headers(): { [key: string]: any } {
+    return this.accountAddress
+      ? {
+          [HeaderNames.AnalyticsToken]: keccak256(this.accountAddress),
+        }
+      : {};
   }
 
   computeContractAccount(): void {

@@ -111,10 +111,11 @@ export class ApiService extends Service {
     });
 
     const authLink = setContext(async () => {
-      const { sessionService, projectService } = this.services;
+      const { accountService, sessionService, projectService } = this.services;
 
       return {
         headers: {
+          ...accountService.headers,
           ...sessionService.headers,
           ...projectService.headers,
         },
