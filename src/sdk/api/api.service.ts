@@ -111,11 +111,15 @@ export class ApiService extends Service {
     });
 
     const authLink = setContext(async () => {
-      const { accountService, sessionService, projectService } = this.services;
+      const {
+        // accountService, TODO: turn on after ms-analytics
+        sessionService, //
+        projectService,
+      } = this.services;
 
       return {
         headers: {
-          ...accountService.headers,
+          // ...accountService.headers,
           ...sessionService.headers,
           ...projectService.headers,
         },
