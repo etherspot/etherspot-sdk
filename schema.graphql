@@ -458,7 +458,7 @@ type Transaction {
     logsBloom: String
     nonce: Float
     status: TransactionStatuses
-    timestamp: Float
+    timestamp: Int
     to: String!
     transactionIndex: Float
     value: BigNumber
