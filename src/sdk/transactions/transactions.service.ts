@@ -25,6 +25,7 @@ export class TransactionsService extends Service {
             logsBloom
             nonce
             status
+            timestamp
             to
             transactionIndex
             value
@@ -63,6 +64,7 @@ export class TransactionsService extends Service {
             items {
               blockHash
               blockNumber
+              timestamp
               cumulativeGasUsed
               from
               gasLimit

@@ -14,6 +14,8 @@ export class Transaction {
 
   blockNumber: number;
 
+  timestamp: number;
+
   from: string;
 
   to: string;
