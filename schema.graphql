@@ -1,658 +1,707 @@
 # This file was generated based on ".graphqlconfig". Do not edit manually.
 
 schema {
-    query: Query
-    mutation: Mutation
-    subscription: Subscription
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
 }
 
 type Account {
-    address: String!
-    createdAt: DateTime!
-    ensNode: ENSNode
-    metadata: AccountMetadata
-    state: AccountStates
-    store: AccountStores
-    type: AccountTypes
-    updatedAt: DateTime!
+  address: String!
+  createdAt: DateTime!
+  ensNode: ENSNode
+  metadata: AccountMetadata
+  state: AccountStates
+  store: AccountStores
+  type: AccountTypes
+  updatedAt: DateTime!
 }
 
 type AccountBalance {
-    balance: BigNumber!
-    token: String
+  balance: BigNumber!
+  token: String
 }
 
 type AccountBalances {
-    items: [AccountBalance!]!
+  items: [AccountBalance!]!
+}
+
+type AccountBalancesDataPoint {
+  balance: Float!
+  timestamp: String!
+}
+
+type AccountDashboard {
+  history: [AccountBalancesDataPoint!]!
+  wallet: AccountDashboardChange!
+}
+
+type AccountDashboardChange {
+  balance: Float!
+  netChange: Float!
 }
 
 type AccountMember {
-    account: Account!
-    createdAt: DateTime!
-    member: Account!
-    state: AccountMemberStates!
-    store: AccountMemberStores
-    type: AccountMemberTypes
-    updatedAt: DateTime!
+  account: Account!
+  createdAt: DateTime!
+  member: Account!
+  state: AccountMemberStates!
+  store: AccountMemberStores
+  type: AccountMemberTypes
+  updatedAt: DateTime!
 }
 
 type AccountMembers {
-    currentPage: Int!
-    items: [AccountMember!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [AccountMember!]!
+  nextPage: Int
 }
 
 type AccountMetadata {
-    account: Account!
-    createdAt: DateTime!
-    email: String
-    isEmailVerified: Boolean!
-    isPhoneVerified: Boolean!
-    phone: String
-    updatedAt: DateTime!
+  account: Account!
+  createdAt: DateTime!
+  email: String
+  isEmailVerified: Boolean!
+  isPhoneVerified: Boolean!
+  phone: String
+  updatedAt: DateTime!
 }
 
 type AccountProof {
-    createdAt: DateTime!
-    hash: String!
-    state: AccountProofStates!
-    updatedAt: DateTime!
+  createdAt: DateTime!
+  hash: String!
+  state: AccountProofStates!
+  updatedAt: DateTime!
 }
 
 type Accounts {
-    currentPage: Int!
-    items: [Account!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [Account!]!
+  nextPage: Int
 }
 
 type BlockStats {
-    currentBlockNumber: Int
-    lastProcessedBlockNumber: Int
+  currentBlockNumber: Int
+  lastProcessedBlockNumber: Int
 }
 
 type ENSAddresses {
-    items: [String]!
+  items: [String]!
 }
 
 type ENSNames {
-    items: [String]!
+  items: [String]!
 }
 
 type ENSNode {
-    address: String!
-    createdAt: DateTime
-    guardianSignature: String
-    hash: String!
-    label: String
-    name: String
-    rootNode: ENSRootNode
-    state: ENSNodeStates
-    updatedAt: DateTime
-    zone: ENSNodeZones!
+  address: String!
+  createdAt: DateTime
+  guardianSignature: String
+  hash: String!
+  label: String
+  name: String
+  rootNode: ENSRootNode
+  state: ENSNodeStates
+  updatedAt: DateTime
+  zone: ENSNodeZones!
 }
 
 type ENSRootNode {
-    createdAt: DateTime!
-    hash: String!
-    name: String
-    state: ENSRootNodeStates!
-    updatedAt: DateTime!
+  createdAt: DateTime!
+  hash: String!
+  name: String
+  state: ENSRootNodeStates!
+  updatedAt: DateTime!
 }
 
 type ENSRootNodes {
-    currentPage: Int!
-    items: [ENSRootNode!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [ENSRootNode!]!
+  nextPage: Int
+}
+
+type ExchangeOffer {
+  exchangeRate: Float!
+  provider: ExchangeProviders!
+  receiveAmount: BigNumber!
+  transactions: [TransactionData!]!
+}
+
+type ExchangeOffers {
+  items: [ExchangeOffer!]!
 }
 
 type GatewayBatch {
-    account: String!
-    createdAt: DateTime
-    data: [String!]!
-    estimatedGas: Int!
-    estimatedGasPrice: BigNumber!
-    hash: String!
-    logs: [GatewayBatchLog!]!
-    nonce: Int!
-    refundAmount: BigNumber!
-    refundData: String!
-    refundToken: String
-    senderSignature: String!
-    state: GatewayBatchStates!
-    to: [String!]!
-    transaction: GatewayTransaction
-    updatedAt: DateTime
+  account: String!
+  createdAt: DateTime
+  data: [String!]!
+  estimatedGas: Int!
+  estimatedGasPrice: BigNumber!
+  hash: String!
+  logs: [GatewayBatchLog!]!
+  nonce: Int!
+  refundAmount: BigNumber!
+  refundData: String!
+  refundToken: String
+  senderSignature: String!
+  state: GatewayBatchStates!
+  to: [String!]!
+  transaction: GatewayTransaction
+  updatedAt: DateTime
 }
 
 type GatewayBatchLog {
-    address: String!
-    data: String!
-    topics: [String!]!
+  address: String!
+  data: String!
+  topics: [String!]!
 }
 
 type GatewayBatches {
-    currentPage: Int!
-    items: [GatewayBatch!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [GatewayBatch!]!
+  nextPage: Int
 }
 
 type GatewayEstimatedBatch {
-    createdAt: DateTime!
-    estimatedGas: Int!
-    estimatedGasPrice: BigNumber!
-    expiredAt: DateTime!
-    refundAmount: BigNumber!
-    refundTokenPayee: String
-    signature: String!
+  createdAt: DateTime!
+  estimatedGas: Int!
+  estimatedGasPrice: BigNumber!
+  expiredAt: DateTime!
+  refundAmount: BigNumber!
+  refundTokenPayee: String
+  signature: String!
 }
 
 type GatewayEstimatedKnownOp {
-    estimatedGas: Int!
-    estimatedGasPrice: BigNumber!
-    refundAmount: BigNumber!
+  estimatedGas: Int!
+  estimatedGasPrice: BigNumber!
+  refundAmount: BigNumber!
 }
 
 type GatewaySender {
-    address: String!
-    balance: BigNumber!
-    createdAt: DateTime!
-    nonce: Float!
-    state: GatewaySenderStates!
-    updatedAt: DateTime!
+  address: String!
+  balance: BigNumber!
+  createdAt: DateTime!
+  nonce: Float!
+  state: GatewaySenderStates!
+  updatedAt: DateTime!
 }
 
 type GatewaySenders {
-    items: [GatewaySender!]!
+  items: [GatewaySender!]!
 }
 
 type GatewaySupportedToken {
-    address: String!
-    exchangeRate: Float!
+  address: String!
+  exchangeRate: Float!
 }
 
 type GatewaySupportedTokens {
-    items: [GatewaySupportedToken!]!
+  items: [GatewaySupportedToken!]!
 }
 
 type GatewayTransaction {
-    createdAt: DateTime!
-    gasPrice: BigNumber!
-    gasUsed: Int
-    hash: String!
-    sender: String
-    state: GatewayTransactionStates!
-    totalCost: BigNumber!
-    updatedAt: DateTime!
+  createdAt: DateTime!
+  gasPrice: BigNumber!
+  gasUsed: Int
+  hash: String!
+  sender: String
+  state: GatewayTransactionStates!
+  totalCost: BigNumber!
+  updatedAt: DateTime!
 }
 
 type Mutation {
-    activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
-    callContract(chainId: Int, data: String!, to: String!): String!
-    callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
-    createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
-    createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
-    createSessionCode(account: String!, chainId: Int): String!
-    deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
-    destroySession(chainId: Int): Boolean!
-    estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
-    estimateGatewayKnownOp(account: String!, chainId: Int, op: GatewayKnownOps!, refundToken: String): GatewayEstimatedKnownOp!
-    p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
-    reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
-    signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
-    submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
-    syncAccount(chainId: Int): Account!
-    syncAccountMember(account: String!, chainId: Int): AccountMember!
-    syncP2PPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
-    touchSession(chainId: Int): Boolean!
-    transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
-    updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
-    updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
-    updateP2PPaymentDeposit(chainId: Int, owner: String!, token: String, totalAmount: BigNumber): P2PPaymentDeposit
-    updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
-    updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
-    updateProject(chainId: Int, endpoint: String!, key: String!, owner: String!, privateKey: String!): Project!
+  activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+  callContract(chainId: Int, data: String!, to: String!): String!
+  callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
+  createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
+  createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
+  createSessionCode(account: String!, chainId: Int): String!
+  deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+  destroySession(chainId: Int): Boolean!
+  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
+  estimateGatewayKnownOp(account: String!, chainId: Int, op: GatewayKnownOps!, refundToken: String): GatewayEstimatedKnownOp!
+  p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
+  reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
+  signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
+  submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, nonce: Int!, refundAmount: BigNumber!, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
+  syncAccount(chainId: Int): Account!
+  syncAccountMember(account: String!, chainId: Int): AccountMember!
+  syncP2PPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
+  touchSession(chainId: Int): Boolean!
+  transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
+  updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
+  updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
+  updateP2PPaymentDeposit(chainId: Int, owner: String!, token: String, totalAmount: BigNumber): P2PPaymentDeposit
+  updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
+  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
+  updateProject(chainId: Int, endpoint: String!, key: String!, owner: String!, privateKey: String!): Project!
 }
 
 type Network {
-    chainId: Int!
-    name: NetworkNames!
-    nativeCurrency: NetworkNativeCurrencies!
+  chainId: Int!
+  name: NetworkNames!
+  nativeCurrency: NetworkNativeCurrencies!
 }
 
 type Notification {
-    payload: JSONObject
-    recipient: String!
-    type: NotificationTypes!
+  payload: JSONObject
+  recipient: String!
+  type: NotificationTypes!
 }
 
 type P2PPaymentChannel {
-    committedAmount: BigNumber!
-    createdAt: DateTime!
-    endangered: Boolean!
-    hash: String!
-    latestPayment: P2PPaymentChannelPayment
-    recipient: String!
-    sender: String!
-    state: P2PPaymentChannelStates!
-    token: String
-    totalAmount: BigNumber!
-    uid: String!
-    updatedAt: DateTime!
+  committedAmount: BigNumber!
+  createdAt: DateTime!
+  endangered: Boolean!
+  hash: String!
+  latestPayment: P2PPaymentChannelPayment
+  recipient: String!
+  sender: String!
+  state: P2PPaymentChannelStates!
+  token: String
+  totalAmount: BigNumber!
+  uid: String!
+  updatedAt: DateTime!
 }
 
 type P2PPaymentChannelPayment {
-    blockNumber: Int!
-    createdAt: DateTime!
-    guardianSignature: String
-    senderSignature: String
-    state: P2PPaymentChannelPaymentStates!
-    totalAmount: BigNumber!
-    updatedAt: DateTime!
-    value: BigNumber!
+  blockNumber: Int!
+  createdAt: DateTime!
+  guardianSignature: String
+  senderSignature: String
+  state: P2PPaymentChannelPaymentStates!
+  totalAmount: BigNumber!
+  updatedAt: DateTime!
+  value: BigNumber!
 }
 
 type P2PPaymentChannelPayments {
-    currentPage: Int!
-    items: [P2PPaymentChannelPayment!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [P2PPaymentChannelPayment!]!
+  nextPage: Int
 }
 
 type P2PPaymentChannels {
-    currentPage: Int!
-    items: [P2PPaymentChannel!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [P2PPaymentChannel!]!
+  nextPage: Int
 }
 
 type P2PPaymentDeposit {
-    address: String!
-    availableAmount: BigNumber!
-    createdAt: DateTime
-    exitState: P2PPaymentDepositExitStates
-    latestWithdrawal: P2PPaymentDepositWithdrawal
-    lockedAmount: BigNumber!
-    owner: String!
-    pendingAmount: BigNumber!
-    token: String
-    totalAmount: BigNumber!
-    updatedAt: DateTime
-    withdrawAmount: BigNumber!
+  address: String!
+  availableAmount: BigNumber!
+  createdAt: DateTime
+  exitState: P2PPaymentDepositExitStates
+  latestWithdrawal: P2PPaymentDepositWithdrawal
+  lockedAmount: BigNumber!
+  owner: String!
+  pendingAmount: BigNumber!
+  token: String
+  totalAmount: BigNumber!
+  updatedAt: DateTime
+  withdrawAmount: BigNumber!
 }
 
 type P2PPaymentDepositWithdrawal {
-    createdAt: DateTime!
-    guardianSignature: String
-    state: P2PPaymentDepositWithdrawalStates!
-    totalAmount: BigNumber!
-    updatedAt: DateTime!
-    value: BigNumber!
+  createdAt: DateTime!
+  guardianSignature: String
+  state: P2PPaymentDepositWithdrawalStates!
+  totalAmount: BigNumber!
+  updatedAt: DateTime!
+  value: BigNumber!
 }
 
 type P2PPaymentDeposits {
-    items: [P2PPaymentDeposit!]!
+  items: [P2PPaymentDeposit!]!
 }
 
 type PaymentHub {
-    address: String!
-    createdAt: DateTime
-    liquidity: BigNumber!
-    token: String
-    updatedAt: DateTime
+  address: String!
+  createdAt: DateTime
+  liquidity: BigNumber!
+  token: String
+  updatedAt: DateTime
 }
 
 type PaymentHubBridge {
-    acceptedChainId: Int!
-    acceptedToken: String
-    createdAt: DateTime
-    hub: PaymentHub!
-    state: PaymentHubBridgeStates!
-    updatedAt: DateTime
+  acceptedChainId: Int!
+  acceptedToken: String
+  createdAt: DateTime
+  hub: PaymentHub!
+  state: PaymentHubBridgeStates!
+  updatedAt: DateTime
 }
 
 type PaymentHubBridges {
-    currentPage: Int!
-    items: [PaymentHubBridge!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [PaymentHubBridge!]!
+  nextPage: Int
 }
 
 type PaymentHubDeposit {
-    createdAt: DateTime
-    hub: PaymentHub!
-    owner: String!
-    totalAmount: BigNumber!
-    updatedAt: DateTime
+  createdAt: DateTime
+  hub: PaymentHub!
+  owner: String!
+  totalAmount: BigNumber!
+  updatedAt: DateTime
 }
 
 type PaymentHubDeposits {
-    currentPage: Int!
-    items: [PaymentHubDeposit!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [PaymentHubDeposit!]!
+  nextPage: Int
 }
 
 type PaymentHubPayment {
-    createdAt: DateTime!
-    hash: String!
-    hub: PaymentHub!
-    recipient: String
-    sender: String
-    value: BigNumber!
+  createdAt: DateTime!
+  hash: String!
+  hub: PaymentHub!
+  recipient: String
+  sender: String
+  value: BigNumber!
 }
 
 type PaymentHubPayments {
-    currentPage: Int!
-    items: [PaymentHubPayment!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [PaymentHubPayment!]!
+  nextPage: Int
 }
 
 type PaymentHubs {
-    currentPage: Int!
-    items: [PaymentHub!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [PaymentHub!]!
+  nextPage: Int
 }
 
 type Project {
-    address: String!
-    createdAt: DateTime
-    key: String!
-    owner: String!
-    state: ProjectStates!
-    updatedAt: DateTime
+  address: String!
+  createdAt: DateTime
+  key: String!
+  owner: String!
+  state: ProjectStates!
+  updatedAt: DateTime
 }
 
 type ProjectResponse {
-    data: JSONObject
+  data: JSONObject
 }
 
 type Projects {
-    currentPage: Int!
-    items: [Project!]!
-    nextPage: Int
+  currentPage: Int!
+  items: [Project!]!
+  nextPage: Int
 }
 
 type Query {
-    account(account: String!, chainId: Int): Account
-    accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
-    accountMember(account: String!, chainId: Int, member: String!): AccountMember
-    accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
-    accountTokenList(account: String!, chainId: Int, name: String): TokenList
-    accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
-    altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
-    blockStats(chainId: Int): BlockStats!
-    defaultNetwork: Network!
-    ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
-    ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
-    ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
-    ensNodeOwner(chainId: Int, name: String!): String
-    ensRootNode(chainId: Int, name: String!): ENSRootNode
-    ensRootNodes(chainId: Int): ENSRootNodes!
-    gatewayBatch(chainId: Int, hash: String!): GatewayBatch
-    gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
-    gatewaySenders(chainId: Int): GatewaySenders!
-    gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
-    gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
-    isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
-    p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
-    p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
-    p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
-    paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
-    paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
-    paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, token: String): PaymentHubBridges!
-    paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
-    paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
-    paymentHubPayment(hash: String!): PaymentHubPayment
-    paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
-    paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
-    project(chainId: Int, key: String!): Project
-    projects(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1): Projects!
-    supportedNetworks: [Network!]!
-    tokenList(chainId: Int, name: String): TokenList
-    tokenLists(chainId: Int): TokenLists!
-    transaction(chainId: Int, hash: String!): Transaction
-    transactions(account: String!, chainId: Int): Transactions!
-    wyreExchangeRates(chainId: Int): String!
-    wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
+  account(account: String!, chainId: Int): Account
+  accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
+  accountDashboard(account: String!, chainId: Int, currency: String!, days: Float!): AccountDashboard
+  accountMember(account: String!, chainId: Int, member: String!): AccountMember
+  accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
+  accountTokenList(account: String!, chainId: Int, name: String): TokenList
+  accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
+  altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
+  blockStats(chainId: Int): BlockStats!
+  defaultNetwork: Network!
+  ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
+  ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
+  ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
+  ensNodeOwner(chainId: Int, name: String!): String
+  ensRootNode(chainId: Int, name: String!): ENSRootNode
+  ensRootNodes(chainId: Int): ENSRootNodes!
+  exchangeOffers(account: String!, chainId: Int, fromAmount: BigNumber!, fromTokenAddress: String!, toTokenAddress: String!): ExchangeOffers!
+  exchangeSupportedAssets(account: String!, chainId: Int): TokenListTokens!
+  gatewayBatch(chainId: Int, hash: String!): GatewayBatch
+  gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
+  gatewaySenders(chainId: Int): GatewaySenders!
+  gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
+  gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
+  getContractAbi(address: String!, chainId: Int): JSONObject
+  isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
+  p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
+  p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
+  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
+  paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
+  paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
+  paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, token: String): PaymentHubBridges!
+  paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
+  paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
+  paymentHubPayment(hash: String!): PaymentHubPayment
+  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
+  paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
+  project(chainId: Int, key: String!): Project
+  projects(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1): Projects!
+  supportedNetworks: [Network!]!
+  tokenList(chainId: Int, name: String): TokenList
+  tokenLists(chainId: Int): TokenLists!
+  transaction(chainId: Int, hash: String!): Transaction
+  transactions(account: String!, chainId: Int): Transactions!
+  wyreExchangeRates(chainId: Int): String!
+  wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
 }
 
 type Session {
-    account: Account!
-    token: String!
-    ttl: Int!
+  account: Account!
+  token: String!
+  ttl: Int!
 }
 
 type Subscription {
-    newNotification(address: String!, chainId: Int): Notification
+  newNotification(address: String!, chainId: Int): Notification
 }
 
 type TokenList {
-    createdAt: DateTime!
-    endpoint: String!
-    isDefault: Boolean!
-    name: String!
-    tokens: [TokenListToken!]
-    updatedAt: DateTime!
+  createdAt: DateTime!
+  endpoint: String!
+  isDefault: Boolean!
+  name: String!
+  tokens: [TokenListToken!]
+  updatedAt: DateTime!
 }
 
 type TokenListToken {
-    address: String!
-    decimals: Float
-    logoURI: String
-    name: String!
-    symbol: String!
+  address: String!
+  chainId: Float!
+  decimals: Float
+  logoURI: String
+  name: String!
+  symbol: String!
+}
+
+type TokenListTokens {
+  items: [TokenListToken!]!
 }
 
 type TokenLists {
-    items: [TokenList!]!
+  items: [TokenList!]!
 }
 
 type Transaction {
-    asset: TransactionAsset
-    blockHash: String
-    blockNumber: Float
-    cumulativeGasUsed: Float
-    from: String!
-    gasLimit: Float
-    gasPrice: BigNumber
-    gasUsed: Float
-    hash: String!
-    input: String
-    logs: JSONObject
-    logsBloom: String
-    nonce: Float
-    status: TransactionStatuses
-    timestamp: Int
-    to: String!
-    transactionIndex: Float
-    value: BigNumber
+  asset: TransactionAsset
+  blockExplorerUrl: String!
+  blockHash: String
+  blockNumber: Float
+  contractMethodCalled: String!
+  cumulativeGasUsed: Float
+  from: String!
+  gasLimit: Float
+  gasPrice: BigNumber
+  gasUsed: Float
+  hash: String!
+  input: String
+  logs: JSONObject
+  logsBloom: String
+  nonce: Float
+  status: TransactionStatuses
+  timestamp: Float
+  to: String!
+  transactionIndex: Float
+  value: BigNumber
 }
 
 type TransactionAsset {
-    category: TransactionAssetCategories
-    contract: String
-    decimal: Float
-    name: String
-    value: BigNumber
+  category: TransactionAssetCategories
+  contract: String
+  decimal: Float
+  name: String
+  value: BigNumber
+}
+
+type TransactionData {
+  data: String
+  to: String!
+  value: BigNumber
 }
 
 type Transactions {
-    items: [Transaction!]!
+  items: [Transaction!]!
 }
 
 enum AccountMemberStates {
-    Added
-    Removed
+  Added
+  Removed
 }
 
 enum AccountMemberStores {
-    AccountOwnerRegistry
-    PersonalAccountRegistry
+  AccountOwnerRegistry
+  PersonalAccountRegistry
 }
 
 enum AccountMemberTypes {
-    Owner
+  Owner
 }
 
 enum AccountProofStates {
-    Added
-    Removed
+  Added
+  Removed
 }
 
 enum AccountStates {
-    Deployed
-    UnDeployed
+  Deployed
+  UnDeployed
 }
 
 enum AccountStores {
-    PersonalAccountRegistry
+  PersonalAccountRegistry
 }
 
 enum AccountTypes {
-    Contract
-    Key
+  Contract
+  Key
 }
 
 enum ENSNodeStates {
-    Claimed
-    Reserved
+  Claimed
+  Reserved
 }
 
 enum ENSNodeZones {
-    CNS
-    ENS
-    ZNS
+  CNS
+  ENS
+  ZNS
 }
 
 enum ENSRootNodeStates {
-    Released
-    Submitted
-    Verified
+  Released
+  Submitted
+  Verified
+}
+
+enum ExchangeProviders {
+  OneInch
+  Synthetix
+  Uniswap
 }
 
 enum GatewayBatchStates {
-    Queued
-    Resending
-    Reverted
-    Sending
-    Sent
+  Queued
+  Resending
+  Reverted
+  Sending
+  Sent
 }
 
 enum GatewayKnownOps {
-    WithdrawP2PDeposit
+  WithdrawP2PDeposit
 }
 
 enum GatewaySenderStates {
-    Busy
-    Ready
+  Busy
+  Ready
 }
 
 enum GatewayTransactionStates {
-    Canceled
-    Canceling
-    Reverted
-    Sending
-    Sent
+  Canceled
+  Canceling
+  Reverted
+  Sending
+  Sent
 }
 
 enum NetworkNames {
-    Bsc
-    BscTest
-    Fantom
-    FantomTest
-    Goerli
-    Kovan
-    LocalA
-    LocalB
-    Mainnet
-    Matic
-    Mumbai
-    Rinkeby
-    Ropsten
-    Sokol
-    Xdai
+  Bsc
+  BscTest
+  Fantom
+  FantomTest
+  Goerli
+  Kovan
+  LocalA
+  LocalB
+  Mainnet
+  Matic
+  Mumbai
+  Rinkeby
+  Ropsten
+  Sokol
+  Xdai
 }
 
 enum NetworkNativeCurrencies {
-    Bsc
-    BscTest
-    Fantom
-    FantomTest
-    Goerli
-    Kovan
-    LocalA
-    LocalB
-    Mainnet
-    Matic
-    Mumbai
-    Rinkeby
-    Ropsten
-    Sokol
-    Xdai
+  Bsc
+  BscTest
+  Fantom
+  FantomTest
+  Goerli
+  Kovan
+  LocalA
+  LocalB
+  Mainnet
+  Matic
+  Mumbai
+  Rinkeby
+  Ropsten
+  Sokol
+  Xdai
 }
 
 enum NotificationTypes {
-    AccountMemberCreated
-    AccountMemberUpdated
-    AccountUpdated
-    Blocknative
-    ENSNodeCreated
-    ENSNodeUpdated
-    GatewayBatchCreated
-    GatewayBatchUpdated
-    P2PPaymentChannelCreated
-    P2PPaymentChannelUpdated
-    P2PPaymentDepositCreated
-    P2PPaymentDepositUpdated
-    PaymentHubBridgeCreated
-    PaymentHubBridgeUpdated
-    PaymentHubCreated
-    PaymentHubDepositCreated
-    PaymentHubDepositUpdated
-    PaymentHubPaymentCreated
-    PaymentHubUpdated
-    TransactionUpdated
+  AccountMemberCreated
+  AccountMemberUpdated
+  AccountUpdated
+  Blocknative
+  ENSNodeCreated
+  ENSNodeUpdated
+  GatewayBatchCreated
+  GatewayBatchUpdated
+  P2PPaymentChannelCreated
+  P2PPaymentChannelUpdated
+  P2PPaymentDepositCreated
+  P2PPaymentDepositUpdated
+  PaymentHubBridgeCreated
+  PaymentHubBridgeUpdated
+  PaymentHubCreated
+  PaymentHubDepositCreated
+  PaymentHubDepositUpdated
+  PaymentHubPaymentCreated
+  PaymentHubUpdated
+  TransactionUpdated
 }
 
 enum P2PPaymentChannelPaymentStates {
-    Committed
-    Expired
-    Reserved
-    Signed
+  Committed
+  Expired
+  Reserved
+  Signed
 }
 
 enum P2PPaymentChannelStates {
-    Opened
-    Signed
+  Opened
+  Signed
 }
 
 enum P2PPaymentDepositExitStates {
-    Completed
-    Rejected
-    Requested
+  Completed
+  Rejected
+  Requested
 }
 
 enum P2PPaymentDepositWithdrawalStates {
-    Signed
-    Withdrawn
+  Signed
+  Withdrawn
 }
 
 enum PaymentHubBridgeStates {
-    Active
-    Inactive
+  Active
+  Inactive
 }
 
 enum ProjectStates {
-    Active
-    Inactive
+  Active
+  Inactive
 }
 
 enum TransactionAssetCategories {
-    External
-    Internal
-    Token
+  External
+  Internal
+  Token
 }
 
 enum TransactionStatuses {
-    Completed
-    Pending
-    Reverted
+  Completed
+  Pending
+  Reverted
 }
 
 

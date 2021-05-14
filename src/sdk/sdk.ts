@@ -36,6 +36,7 @@ import {
   GetAccountMembersDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
+  GetExchangeOffersDto,
   GetGatewaySubmittedBatchDto,
   GetGatewaySupportedTokenDto,
   GetP2PPaymentChannelDto,
@@ -78,6 +79,7 @@ import {
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
+import { ExchangeOffer, ExchangeService } from './exchange';
 import {
   GatewayBatch,
   GatewayEstimatedKnownOp,
@@ -177,6 +179,7 @@ export class Sdk {
       assetsService: new AssetsService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
+      exchangeService: new ExchangeService(),
       gatewayService: new GatewayService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2PPaymentService(),
@@ -1030,6 +1033,41 @@ export class Sdk {
     });
 
     return this.batchGatewayTransactionRequest(await this.encodeClaimENSReverseName());
+  }
+
+  // exchange
+
+  /**
+   * gets exchange supported tokens
+   * @return Promise<TokenListToken[]>
+   */
+  async getExchangeSupportedAssets(): Promise<TokenListToken[]> {
+    await this.require({
+      session: true,
+    });
+
+    return this.services.exchangeService.getExchangeSupportedAssets();
+  }
+
+  /**
+   * gets exchange offers
+   * @param dto
+   * @return Promise<ExchangeOffer[]>
+   */
+  async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
+    const { fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeOffersDto, {
+      addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+    });
+
+    await this.require({
+      session: true,
+    });
+
+    return this.services.exchangeService.getExchangeOffers(
+      fromTokenAddress, //
+      toTokenAddress,
+      BigNumber.from(fromAmount),
+    );
   }
 
   // p2p payments
