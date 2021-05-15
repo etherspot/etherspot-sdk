@@ -10,8 +10,7 @@ export class ExchangeOffer {
   @TransformBigNumber()
   receiveAmount: BigNumber;
 
-  @TransformBigNumber()
-  exchangeRate: BigNumber;
+  exchangeRate: number;
 
   @Type(() => TransactionData)
   transactions: TransactionData[];
