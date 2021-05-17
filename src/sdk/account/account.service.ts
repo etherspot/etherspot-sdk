@@ -2,7 +2,7 @@ import { gql } from '@apollo/client/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HeaderNames, Service, SynchronizedSubject, keccak256 } from '../common';
-import { Account, AccountBalances, AccountMember, AccountMembers, Accounts } from './classes';
+import { Account, AccountBalances, AccountDashboard, AccountMember, AccountMembers, Accounts } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes } from './constants';
 
 export class AccountService extends Service {
@@ -235,6 +235,49 @@ export class AccountService extends Service {
         },
         models: {
           result: AccountBalances,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getAccountDashboard(account: string, currency: string, days: number = null): Promise<AccountDashboard> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: AccountDashboard;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $currency: String!, $days: Int) {
+          result: accountDashboard(chainId: $chainId, account: $account, tokens: $tokens) {
+            history {
+              balance
+              timestamp
+            }
+            wallet{
+              balance
+              netChange
+            }
+            liquidityPools{
+              balance
+              netChange
+            }
+            investments {
+              balance
+              netChange
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          currency,
+          days,
+        },
+        models: {
+          result: AccountDashboard,
         },
       },
     );
