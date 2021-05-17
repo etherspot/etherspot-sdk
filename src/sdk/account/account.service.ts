@@ -242,14 +242,14 @@ export class AccountService extends Service {
     return result;
   }
 
-  async getAccountDashboard(account: string, currency: string, days: number = null): Promise<AccountDashboard> {
+  async getAccountDashboard(account: string, currency: string, days: number): Promise<AccountDashboard> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: AccountDashboard;
     }>(
       gql`
-        query($chainId: Int, $account: String!, $currency: String!, $days: Int) {
+        query($chainId: Int, $account: String!, $currency: String!, $days: Int!) {
           result: accountDashboard(chainId: $chainId, account: $account, tokens: $tokens) {
             history {
               balance

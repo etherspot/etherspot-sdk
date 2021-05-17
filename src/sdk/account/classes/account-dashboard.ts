@@ -8,13 +8,4 @@ export class AccountDashboard {
 
   @Type(() => AccountDashboardChange)
   wallet: AccountDashboardChange;
-
-  @Type(() => AccountDashboardChange)
-  liquidityPools: AccountDashboardChange;
-
-  @Type(() => AccountDashboardChange)
-  deposits: AccountDashboardChange;
-
-  @Type(() => AccountDashboardChange)
-  investments: AccountDashboardChange;
 }
