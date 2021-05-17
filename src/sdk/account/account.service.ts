@@ -249,21 +249,13 @@ export class AccountService extends Service {
       result: AccountDashboard;
     }>(
       gql`
-        query($chainId: Int, $account: String!, $currency: String!, $days: Int!) {
-          result: accountDashboard(chainId: $chainId, account: $account, tokens: $tokens) {
+        query($chainId: Int, $account: String!, $currency: String!, $days: Float!) {
+          result: accountDashboard(chainId: $chainId, account: $account, currency: $currency, days: $days) {
             history {
               balance
               timestamp
             }
-            wallet{
-              balance
-              netChange
-            }
-            liquidityPools{
-              balance
-              netChange
-            }
-            investments {
+            wallet {
               balance
               netChange
             }
