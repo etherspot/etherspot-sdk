@@ -264,11 +264,11 @@ export class Sdk {
    * @return Promise<Session>
    */
   async createSession(dto: CreateSessionDto = {}): Promise<Session> {
-    const { ttl } = await validateDto(dto, CreateSessionDto);
+    const { ttl, fcmToken } = await validateDto(dto, CreateSessionDto);
 
     await this.require();
 
-    return this.services.sessionService.createSession(ttl);
+    return this.services.sessionService.createSession(ttl, fcmToken);
   }
 
   // gateway

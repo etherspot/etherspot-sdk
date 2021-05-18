@@ -51,7 +51,7 @@ export class SessionService extends Service {
     await this.storeSession();
   }
 
-  async createSession(ttl?: number): Promise<Session> {
+  async createSession(ttl?: number, fcmToken?: string): Promise<Session> {
     const { apiService, walletService } = this.services;
     const { walletAddress } = walletService;
 
@@ -86,13 +86,21 @@ export class SessionService extends Service {
         session: Session;
       }>(
         gql`
-          mutation($chainId: Int, $account: String!, $code: String!, $signature: String!, $ttl: Int) {
+          mutation(
+            $chainId: Int
+            $account: String!
+            $code: String!
+            $signature: String!
+            $ttl: Int
+            $fcmToken: String
+          ) {
             session: createSession(
               chainId: $chainId
               account: $account
               code: $code
               signature: $signature
               ttl: $ttl
+              fcmToken: $fcmToken
             ) {
               token
               ttl
@@ -113,6 +121,7 @@ export class SessionService extends Service {
             signature,
             ttl,
             account: walletAddress,
+            fcmToken,
           },
           models: {
             session: Session,
