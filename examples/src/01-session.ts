@@ -15,6 +15,13 @@ async function main(): Promise<void> {
     }),
   );
 
+  logger.log(
+    'create session with fcm token',
+    await sdk.createSession({
+      fcmToken: '',
+    }),
+  );
+
   logger.log('account', await sdk.syncAccount());
 }
 
