@@ -14,6 +14,7 @@ export * from './estimate-gateway-batch.dto';
 export * from './estimate-gateway-known-op.dto';
 export * from './execute-account-transaction.dto';
 export * from './get-account-balances.dto';
+export * from './get-account-dashboard.dto';
 export * from './get-account-members.dto';
 export * from './get-account.dto';
 export * from './get-ens-node.dto';

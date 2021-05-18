@@ -41,6 +41,21 @@ type AccountDashboardChange {
   netChange: Float!
 }
 
+type AccountDashboard {
+  history: [AccountDashboardDataPoint!]!
+  wallet: AccountDashboardChange!
+}
+
+type AccountDashboardDataPoint {
+  timestamp: String!
+  balance: Float!
+}
+
+type AccountDashboardChange {
+  balance: Float!
+  netChange: Float!
+}
+
 type AccountMember {
   account: Account!
   createdAt: DateTime!

@@ -1,6 +1,14 @@
 import { BigNumber } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { Account, AccountBalances, AccountMembers, Accounts, AccountService, AccountTypes } from './account';
+import {
+  Account,
+  AccountBalances,
+  AccountDashboard,
+  AccountMembers,
+  Accounts,
+  AccountService,
+  AccountTypes,
+} from './account';
 import { ApiService } from './api';
 import { AssetsService, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
@@ -33,6 +41,7 @@ import {
   ExecuteAccountTransactionDto,
   GetAccountBalancesDto,
   GetAccountDto,
+  GetAccountDashboardDto,
   GetAccountMembersDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
@@ -258,11 +267,11 @@ export class Sdk {
    * @return Promise<Session>
    */
   async createSession(dto: CreateSessionDto = {}): Promise<Session> {
-    const { ttl } = await validateDto(dto, CreateSessionDto);
+    const { ttl, fcmToken } = await validateDto(dto, CreateSessionDto);
 
     await this.require();
 
-    return this.services.sessionService.createSession(ttl);
+    return this.services.sessionService.createSession(ttl, fcmToken);
   }
 
   // gateway
@@ -610,6 +619,27 @@ export class Sdk {
     return this.services.accountService.getAccountBalances(
       this.prepareAccountAddress(account), //
       tokens,
+    );
+  }
+
+  /**
+   * gets account dashboard
+   * @param dto
+   * @return Promise<AccountDashboard>
+   */
+  async getAccountDashboard(dto: GetAccountDashboardDto): Promise<AccountDashboard> {
+    const { account, currency, days } = await validateDto(dto, GetAccountDashboardDto, {
+      addressKeys: ['account', 'currency', 'days'],
+    });
+
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.accountService.getAccountDashboard(
+      this.prepareAccountAddress(account), //
+      currency,
+      days,
     );
   }
 
