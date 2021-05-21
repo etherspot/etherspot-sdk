@@ -12,7 +12,7 @@ import {
 import { ApiService } from './api';
 import { AssetsService, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
-import { ErrorSubject, Exception, TransactionRequest } from './common';
+import { addressesEqual, ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
 import {
   Contract,
@@ -736,6 +736,10 @@ export class Sdk {
 
     const { personalAccountRegistryContract } = this.internalContracts;
     const { accountService } = this.services;
+
+    if (addressesEqual(accountService.accountAddress, to)) {
+      throw new Exception('Destination address should not be the same as sender address');
+    }
 
     return personalAccountRegistryContract.encodeExecuteAccountTransaction(
       accountService.accountAddress, //
