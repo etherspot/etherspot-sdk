@@ -47,6 +47,7 @@ export class AssetsService extends Service {
               symbol
               decimals
               logoURI
+              chainId
             }
           }
         }
@@ -81,6 +82,7 @@ export class AssetsService extends Service {
               symbol
               decimals
               logoURI
+              chainId
             }
           }
         }
