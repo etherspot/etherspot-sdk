@@ -16,6 +16,8 @@ export function isAddress(value: string): boolean {
     } catch (err) {
       result = false;
     }
+  } else if (value === constants.AddressZero) {
+    result = true;
   }
 
   return result;
