@@ -566,6 +566,7 @@ enum ENSRootNodeStates {
 }
 
 enum ExchangeProviders {
+    Aave
     OneInch
     PoolTogether
     Sushiswap
