@@ -89,6 +89,7 @@ import {
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
 import { ExchangeOffer, ExchangeService } from './exchange';
+import { FaucetService } from './faucet';
 import {
   GatewayBatch,
   GatewayEstimatedKnownOp,
@@ -189,6 +190,7 @@ export class Sdk {
       blockService: new BlockService(),
       ensService: new ENSService(),
       exchangeService: new ExchangeService(),
+      faucetService: new FaucetService(),
       gatewayService: new GatewayService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2PPaymentService(),
@@ -661,6 +663,16 @@ export class Sdk {
       this.prepareAccountAddress(account), //
       page || 1,
     );
+  }
+
+  /**
+   * top-up account
+   * @return Promise<string>
+   */
+  async topUpAccount(): Promise<string> {
+    await this.require();
+
+    return this.services.faucetService.topUpAccount();
   }
 
   // account (encode)
