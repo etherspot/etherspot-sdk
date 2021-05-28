@@ -32,4 +32,34 @@ export class FaucetService extends Service {
 
     return result;
   }
+
+  async topUpPaymentDepositAccount(): Promise<string> {
+    const { apiService, networkService, accountService } = this.services;
+    const {
+      network: { name },
+    } = networkService;
+
+    if (!SUPPORTED_FAUCET_NETWORKS[name]) {
+      throw new Exception('Faucet not supported on current network');
+    }
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: string;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!) {
+          result: topUpPaymentDepositAccount(chainId: $chainId, account: $account)
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+      },
+    );
+
+    return result;
+  }
 }

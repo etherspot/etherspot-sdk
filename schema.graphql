@@ -233,6 +233,7 @@ type Mutation {
     syncAccountMember(account: String!, chainId: Int): AccountMember!
     syncP2PPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
     topUpAccount(account: String!, chainId: Int): String
+    topUpPaymentDepositAccount(account: String!, chainId: Int): String
     touchSession(chainId: Int): Boolean!
     transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
     updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!

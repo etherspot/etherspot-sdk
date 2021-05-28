@@ -665,16 +665,6 @@ export class Sdk {
     );
   }
 
-  /**
-   * top-up account
-   * @return Promise<string>
-   */
-  async topUpAccount(): Promise<string> {
-    await this.require();
-
-    return this.services.faucetService.topUpAccount();
-  }
-
   // account (encode)
 
   /**
@@ -1807,6 +1797,26 @@ export class Sdk {
   }
 
   // utils
+
+  /**
+   * top-up account
+   * @return Promise<string>
+   */
+  async topUpAccount(): Promise<string> {
+    await this.require();
+
+    return this.services.faucetService.topUpAccount();
+  }
+
+  /**
+   * top-up account
+   * @return Promise<string>
+   */
+  async topUpPaymentDepositAccount(): Promise<string> {
+    await this.require();
+
+    return this.services.faucetService.topUpPaymentDepositAccount();
+  }
 
   /**
    * registers contract
