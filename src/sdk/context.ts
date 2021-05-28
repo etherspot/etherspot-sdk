@@ -4,6 +4,7 @@ import { AssetsService } from './assets';
 import { BlockService } from './block';
 import { ENSService } from './ens';
 import { ExchangeService } from './exchange';
+import { FaucetService } from './faucet';
 import { GatewayService } from './gateway';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
@@ -46,6 +47,7 @@ export class Context {
       contractService: ContractService;
       ensService: ENSService;
       exchangeService: ExchangeService;
+      faucetService: FaucetService;
       gatewayService: GatewayService;
       networkService: NetworkService;
       notificationService: NotificationService;
