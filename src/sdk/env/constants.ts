@@ -38,6 +38,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.BscTest,
         NetworkNames.FantomTest,
         NetworkNames.Mumbai,
+        NetworkNames.Etherspot,
       ],
     },
   },
@@ -50,6 +51,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       supportedNetworkNames: [
         NetworkNames.LocalA, //
         NetworkNames.LocalB,
+        NetworkNames.LocalH,
       ],
     },
   },
