@@ -9,8 +9,8 @@ async function main(): Promise<void> {
     networkName: NetworkNames.Mainnet,
   });
 
-  const exchangeSupportedAssets = await sdk.getExchangeSupportedAssets();
-  logger.log('found exchange supported assets', exchangeSupportedAssets.length);
+  const exchangeSupportedAssets = await sdk.getExchangeSupportedAssets({ page: 1, limit: 100 });
+  logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
 
   // NOTE: use ethers.constants.AddressZero for ETH
   // const fromTokenAddress = '0xD71eCFF9342A5Ced620049e616c5035F1dB98620'; // sEUR

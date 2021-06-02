@@ -10,7 +10,7 @@ import {
   AccountTypes,
 } from './account';
 import { ApiService } from './api';
-import { AssetsService, TokenList, TokenListToken } from './assets';
+import { AssetsService, PaginatedTokens, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
 import { addressesEqual, ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
@@ -1075,14 +1075,17 @@ export class Sdk {
 
   /**
    * gets exchange supported tokens
-   * @return Promise<TokenListToken[]>
+   * @param dto
+   * @return Promise<PaginatedTokens>
    */
-  async getExchangeSupportedAssets(): Promise<TokenListToken[]> {
+  async getExchangeSupportedAssets(dto: PaginationDto = {}): Promise<PaginatedTokens> {
+    const { page, limit } = await validateDto(dto, PaginationDto);
+
     await this.require({
       session: true,
     });
 
-    return this.services.exchangeService.getExchangeSupportedAssets();
+    return this.services.exchangeService.getExchangeSupportedAssets(page, limit);
   }
 
   /**
