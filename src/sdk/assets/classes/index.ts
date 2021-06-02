@@ -1,3 +1,4 @@
+export * from './paginated-tokens';
 export * from './token-list';
 export * from './token-list-token';
 export * from './token-list-tokens';

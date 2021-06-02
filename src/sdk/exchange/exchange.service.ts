@@ -2,20 +2,20 @@ import { BigNumber } from 'ethers';
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
 import { ExchangeOffers, ExchangeOffer } from './classes';
-import { TokenListToken, TokenListTokens } from '../assets';
+import { PaginatedTokens } from '../assets';
 
 export class ExchangeService extends Service {
-  async getExchangeSupportedAssets(): Promise<TokenListToken[]> {
+  async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
 
     const { result } = await apiService.query<{
-      result: TokenListTokens;
+      result: PaginatedTokens;
     }>(
       gql`
-        query($chainId: Int, $account: String!) {
-          result: exchangeSupportedAssets(chainId: $chainId, account: $account) {
+        query($chainId: Int, $account: String!, $page: Int, $limit: Int) {
+          result: exchangeSupportedAssets(chainId: $chainId, account: $account, page: $page, limit: $limit) {
             items {
               address
               name
@@ -23,20 +23,24 @@ export class ExchangeService extends Service {
               decimals
               logoURI
             }
+            currentPage
+            nextPage
           }
         }
       `,
       {
         variables: {
           account,
+          page: page || 1,
+          limit: limit || 100,
         },
         models: {
-          result: TokenListTokens,
+          result: PaginatedTokens,
         },
       },
     );
 
-    return result ? result.items : null;
+    return result;
   }
 
   async getExchangeOffers(
