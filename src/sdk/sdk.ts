@@ -631,7 +631,7 @@ export class Sdk {
    */
   async getAccountDashboard(dto: GetAccountDashboardDto): Promise<AccountDashboard> {
     const { account, currency, days } = await validateDto(dto, GetAccountDashboardDto, {
-      addressKeys: ['account', 'currency', 'days'],
+      addressKeys: ['account'],
     });
 
     await this.require({
