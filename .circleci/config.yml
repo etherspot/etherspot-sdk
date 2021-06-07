@@ -60,7 +60,7 @@ jobs:
 
 workflows:
   version: 2.1
-  test_and_publish:
+  install_and_publish:
     jobs:
       - install:
           context: general-vars
