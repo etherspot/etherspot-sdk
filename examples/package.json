@@ -14,7 +14,9 @@
     "08-gateway": "../node_modules/.bin/ts-node ./src/08-gateway",
     "09-projects": "../node_modules/.bin/ts-node ./src/09-projects",
     "10-assets": "../node_modules/.bin/ts-node ./src/10-assets",
-    "11-external-contracts": "../node_modules/.bin/ts-node ./src/11-external-contracts"
+    "11-external-contracts": "../node_modules/.bin/ts-node ./src/11-external-contracts",
+    "12-exchange": "../node_modules/.bin/ts-node ./src/12-exchange",
+    "13-transactions": "../node_modules/.bin/ts-node ./src/13-transactions"
   },
   "dependencies": {}
 }

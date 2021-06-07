@@ -1,3 +1,4 @@
+export * from './addresses-equal';
 export * from './concat-hex';
 export * from './deep-compare';
 export * from './is-address';

@@ -12,8 +12,10 @@ export enum NetworkNames {
   FantomTest = 'fantomTest',
   Matic = 'matic',
   Mumbai = 'mumbai',
+  Etherspot = 'etherspot',
   LocalA = 'localA',
   LocalB = 'localB',
+  LocalH = 'localH',
 }
 
 export const NETWORK_NAME_TO_CHAIN_ID: {
@@ -32,8 +34,10 @@ export const NETWORK_NAME_TO_CHAIN_ID: {
   [NetworkNames.FantomTest]: 4002,
   [NetworkNames.Matic]: 137,
   [NetworkNames.Mumbai]: 80001,
+  [NetworkNames.Etherspot]: 4386,
   [NetworkNames.LocalA]: 9999,
   [NetworkNames.LocalB]: 6666,
+  [NetworkNames.LocalH]: 3333,
 };
 
 export const CHAIN_ID_TO_NETWORK_NAME: { [key: number]: NetworkNames } = Object.entries(

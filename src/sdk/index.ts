@@ -9,6 +9,8 @@ export * from './contract';
 export * from './dto';
 export * from './ens';
 export * from './env';
+export * from './exchange';
+export * from './faucet';
 export * from './gateway';
 export * from './interfaces';
 export * from './network';

@@ -10,9 +10,9 @@ import {
   AccountTypes,
 } from './account';
 import { ApiService } from './api';
-import { AssetsService, TokenList, TokenListToken } from './assets';
+import { AssetsService, PaginatedTokens, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
-import { ErrorSubject, Exception, TransactionRequest } from './common';
+import { addressesEqual, ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
 import {
   Contract,
@@ -45,6 +45,7 @@ import {
   GetAccountMembersDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
+  GetExchangeOffersDto,
   GetGatewaySubmittedBatchDto,
   GetGatewaySupportedTokenDto,
   GetP2PPaymentChannelDto,
@@ -87,6 +88,8 @@ import {
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
+import { ExchangeOffer, ExchangeService } from './exchange';
+import { FaucetService } from './faucet';
 import {
   GatewayBatch,
   GatewayEstimatedKnownOp,
@@ -186,6 +189,8 @@ export class Sdk {
       assetsService: new AssetsService(),
       blockService: new BlockService(),
       ensService: new ENSService(),
+      exchangeService: new ExchangeService(),
+      faucetService: new FaucetService(),
       gatewayService: new GatewayService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2PPaymentService(),
@@ -264,11 +269,11 @@ export class Sdk {
    * @return Promise<Session>
    */
   async createSession(dto: CreateSessionDto = {}): Promise<Session> {
-    const { ttl } = await validateDto(dto, CreateSessionDto);
+    const { ttl, fcmToken } = await validateDto(dto, CreateSessionDto);
 
     await this.require();
 
-    return this.services.sessionService.createSession(ttl);
+    return this.services.sessionService.createSession(ttl, fcmToken);
   }
 
   // gateway
@@ -626,7 +631,7 @@ export class Sdk {
    */
   async getAccountDashboard(dto: GetAccountDashboardDto): Promise<AccountDashboard> {
     const { account, currency, days } = await validateDto(dto, GetAccountDashboardDto, {
-      addressKeys: ['account', 'currency', 'days'],
+      addressKeys: ['account'],
     });
 
     await this.require({
@@ -733,6 +738,10 @@ export class Sdk {
 
     const { personalAccountRegistryContract } = this.internalContracts;
     const { accountService } = this.services;
+
+    if (addressesEqual(accountService.accountAddress, to)) {
+      throw new Exception('Destination address should not be the same as sender address');
+    }
 
     return personalAccountRegistryContract.encodeExecuteAccountTransaction(
       accountService.accountAddress, //
@@ -1060,6 +1069,44 @@ export class Sdk {
     });
 
     return this.batchGatewayTransactionRequest(await this.encodeClaimENSReverseName());
+  }
+
+  // exchange
+
+  /**
+   * gets exchange supported tokens
+   * @param dto
+   * @return Promise<PaginatedTokens>
+   */
+  async getExchangeSupportedAssets(dto: PaginationDto = {}): Promise<PaginatedTokens> {
+    const { page, limit } = await validateDto(dto, PaginationDto);
+
+    await this.require({
+      session: true,
+    });
+
+    return this.services.exchangeService.getExchangeSupportedAssets(page, limit);
+  }
+
+  /**
+   * gets exchange offers
+   * @param dto
+   * @return Promise<ExchangeOffer[]>
+   */
+  async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
+    const { fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeOffersDto, {
+      addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+    });
+
+    await this.require({
+      session: true,
+    });
+
+    return this.services.exchangeService.getExchangeOffers(
+      fromTokenAddress, //
+      toTokenAddress,
+      BigNumber.from(fromAmount),
+    );
   }
 
   // p2p payments
@@ -1753,6 +1800,26 @@ export class Sdk {
   }
 
   // utils
+
+  /**
+   * top-up account
+   * @return Promise<string>
+   */
+  async topUpAccount(): Promise<string> {
+    await this.require();
+
+    return this.services.faucetService.topUpAccount();
+  }
+
+  /**
+   * top-up account
+   * @return Promise<string>
+   */
+  async topUpPaymentDepositAccount(): Promise<string> {
+    await this.require();
+
+    return this.services.faucetService.topUpPaymentDepositAccount();
+  }
 
   /**
    * registers contract

@@ -19,6 +19,7 @@ export * from './get-account-members.dto';
 export * from './get-account.dto';
 export * from './get-ens-node.dto';
 export * from './get-ens-root-node.dto';
+export * from './get-exchange-offers.dto';
 export * from './get-gateway-submitted-batch.dto';
 export * from './get-gateway-supported-token.dto';
 export * from './get-p2p-payment-channel.dto';
