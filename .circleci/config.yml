@@ -45,6 +45,9 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
       - run:
+          name: Build Etherpot-SDK
+          command: npm run build
+      - run:
           name: Publish package to npm
           command: npm publish
       - run:
