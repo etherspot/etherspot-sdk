@@ -30,3 +30,9 @@ export enum AccountProofStates {
   Added = 'Added',
   Removed = 'Removed',
 }
+
+export enum Currencies {
+  USD = 'USD',
+  EUR = 'EUR',
+  GBP = 'GBP',
+}
