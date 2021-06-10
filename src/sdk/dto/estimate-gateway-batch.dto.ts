@@ -4,5 +4,5 @@ import { IsAddress } from './validators';
 export class EstimateGatewayBatchDto {
   @IsOptional()
   @IsAddress()
-  refundToken?: string = null;
+  feeToken?: string = null;
 }

@@ -4,9 +4,9 @@ import { BigNumber } from 'ethers';
 
 export class GatewayEstimatedBatch {
   @TransformBigNumber()
-  refundAmount: BigNumber;
+  feeAmount: BigNumber;
 
-  refundTokenPayee: string;
+  feeTokenReceiver: string;
 
   estimatedGas: number;
 

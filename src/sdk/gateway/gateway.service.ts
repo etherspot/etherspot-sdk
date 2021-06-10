@@ -18,7 +18,7 @@ export class GatewayService extends Service {
 
   private estimationOptions: {
     nonce: number;
-    refundToken: string;
+    feeToken: string;
   } = null;
 
   get gatewayBatch(): GatewayBatch {
@@ -136,9 +136,9 @@ export class GatewayService extends Service {
             senderSignature
             estimatedGas
             estimatedGasPrice
-            refundToken
-            refundAmount
-            refundData
+            feeToken
+            feeAmount
+            feeData
             createdAt
             updatedAt
           }
@@ -192,9 +192,9 @@ export class GatewayService extends Service {
               senderSignature
               estimatedGas
               estimatedGasPrice
-              refundToken
-              refundAmount
-              refundData
+              feeToken
+              feeAmount
+              feeData
               createdAt
               updatedAt
             }
@@ -217,7 +217,7 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async estimateGatewayBatch(refundToken: string): Promise<GatewayBatch> {
+  async estimateGatewayBatch(feeToken: string): Promise<GatewayBatch> {
     if (!this.gatewayBatch) {
       throw new Exception('Can not estimate empty batch');
     }
@@ -239,7 +239,7 @@ export class GatewayService extends Service {
           $nonce: Int!
           $to: [String!]!
           $data: [String!]!
-          $refundToken: String
+          $feeToken: String
         ) {
           estimation: estimateGatewayBatch(
             chainId: $chainId
@@ -247,10 +247,10 @@ export class GatewayService extends Service {
             nonce: $nonce
             to: $to
             data: $data
-            refundToken: $refundToken
+            feeToken: $feeToken
           ) {
-            refundAmount
-            refundTokenPayee
+            feeAmount
+            feeTokenReceiver
             estimatedGas
             estimatedGasPrice
             signature
@@ -268,14 +268,14 @@ export class GatewayService extends Service {
           nonce,
           to,
           data,
-          refundToken,
+          feeToken,
         },
       },
     );
 
     this.estimationOptions = {
       nonce,
-      refundToken,
+      feeToken,
     };
 
     this.gatewayBatch$.next({
@@ -286,7 +286,7 @@ export class GatewayService extends Service {
     return this.gatewayBatch;
   }
 
-  async estimateGatewayKnownOp(op: GatewayKnownOps, refundToken: string = null): Promise<GatewayEstimatedKnownOp> {
+  async estimateGatewayKnownOp(op: GatewayKnownOps, feeToken: string = null): Promise<GatewayEstimatedKnownOp> {
     const { accountService, apiService } = this.services;
 
     const account = accountService.accountAddress;
@@ -295,9 +295,9 @@ export class GatewayService extends Service {
       result: GatewayEstimatedKnownOp;
     }>(
       gql`
-        mutation($chainId: Int, $account: String!, $op: GatewayKnownOps!, $refundToken: String) {
-          result: estimateGatewayKnownOp(chainId: $chainId, account: $account, op: $op, refundToken: $refundToken) {
-            refundAmount
+        mutation($chainId: Int, $account: String!, $op: GatewayKnownOps!, $feeToken: String) {
+          result: estimateGatewayKnownOp(chainId: $chainId, account: $account, op: $op, feeToken: $feeToken) {
+            feeAmount
             estimatedGas
             estimatedGasPrice
           }
@@ -310,7 +310,7 @@ export class GatewayService extends Service {
         variables: {
           account,
           op,
-          refundToken,
+          feeToken,
         },
       },
     );
@@ -331,41 +331,41 @@ export class GatewayService extends Service {
 
     const { to, data } = this.extractToAndData();
     const {
-      refundTokenPayee,
-      refundAmount,
+      feeTokenReceiver,
+      feeAmount,
       estimatedGas,
       estimatedGasPrice,
       expiredAt: estimationExpiredAt,
       signature: estimationSignature,
     } = estimation;
 
-    const { nonce, refundToken } = this.estimationOptions;
+    const { nonce, feeToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
     const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
 
     const account = accountService.accountAddress;
 
-    let refundTransactionRequest: TransactionRequest;
+    let feeTransactionRequest: TransactionRequest;
 
-    if (refundToken) {
-      const { data } = erc20TokenContract.encodeTransfer(refundTokenPayee, refundAmount);
+    if (feeToken) {
+      const { data } = erc20TokenContract.encodeTransfer(feeTokenReceiver, feeAmount);
 
-      refundTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(
+      feeTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(
         account,
-        refundToken,
+        feeToken,
         0,
         data,
       );
     } else {
-      refundTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, refundAmount);
+      feeTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, feeAmount);
     }
 
     const messageHash = gatewayContract.hashDelegatedBatch(
       account,
       nonce,
-      [...to, refundTransactionRequest.to],
-      [...data, refundTransactionRequest.data],
+      [...to, feeTransactionRequest.to],
+      [...data, feeTransactionRequest.data],
     );
     const senderSignature = await walletService.signMessage(messageHash);
 
@@ -379,8 +379,8 @@ export class GatewayService extends Service {
           $nonce: Int!
           $to: [String!]!
           $data: [String!]!
-          $refundToken: String
-          $refundAmount: BigNumber!
+          $feeToken: String
+          $feeAmount: BigNumber!
           $senderSignature: String!
           $estimatedGas: Int!
           $estimatedGasPrice: BigNumber!
@@ -393,8 +393,8 @@ export class GatewayService extends Service {
             nonce: $nonce
             to: $to
             data: $data
-            refundToken: $refundToken
-            refundAmount: $refundAmount
+            feeToken: $feeToken
+            feeAmount: $feeAmount
             senderSignature: $senderSignature
             estimatedGas: $estimatedGas
             estimatedGasPrice: $estimatedGasPrice
@@ -420,9 +420,9 @@ export class GatewayService extends Service {
             senderSignature
             estimatedGas
             estimatedGasPrice
-            refundToken
-            refundAmount
-            refundData
+            feeToken
+            feeAmount
+            feeData
             createdAt
             updatedAt
           }
@@ -437,8 +437,8 @@ export class GatewayService extends Service {
           nonce,
           to,
           data,
-          refundToken,
-          refundAmount,
+          feeToken,
+          feeAmount,
           senderSignature,
           estimatedGas,
           estimatedGasPrice,
