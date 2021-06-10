@@ -36,3 +36,10 @@ export enum Currencies {
   EUR = 'EUR',
   GBP = 'GBP',
 }
+
+export enum AccountDashboardProtocols {
+  Investments = 'Investments',
+  LiquidityPools = 'LiquidityPools',
+  Deposits = 'Deposits',
+  Rewards = 'Rewards',
+}
