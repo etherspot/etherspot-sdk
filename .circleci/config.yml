@@ -1,0 +1,77 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@3.4.2
+
+jobs:
+  install:
+    working_directory: ~/etherspot-sdk
+    docker:
+      - image: circleci/node:14.17.0
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - slack/status:
+          fail_only: true
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+          webhook: "${SLACK_WEBHOOK_URL}"
+
+  publish:
+    working_directory: ~/etherspot-sdk
+    docker:
+      - image: circleci/node:14.17.0
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
+      - run:
+          name: Build Etherpot-SDK
+          command: npm run build
+      - run:
+          name: Publish package to npm
+          command: npm publish
+      - run:
+          name: Announce Publish
+          command: |
+            chmod +x .circleci/announcePublish.sh
+            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').name)")@$(node -e "console.log(require('./package.json').version)")"
+      - slack/status:
+          fail_only: true
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+          only_for_branches: master
+          webhook: "${SLACK_WEBHOOK_URL}"
+
+workflows:
+  version: 2.1
+  install_and_publish:
+    jobs:
+      - install:
+          context: general-vars
+      - publish:
+          context: general-vars
+          requires:
+            - install
+          filters:
+            branches:
+              only:
+                  - master
