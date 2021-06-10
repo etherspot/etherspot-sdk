@@ -76,7 +76,7 @@ type AccountTotalBalances {
 type AccountTotalBalancesItem {
   balance: Float
   balances: [AccountTotalBalancesMetadata!]!
-  category: String
+  category: AccountDashboardProtocols
   chainId: Float!
   protocol: String
   service: String
@@ -529,6 +529,13 @@ type TransactionData {
 
 type Transactions {
   items: [Transaction!]!
+}
+
+enum AccountDashboardProtocols {
+  Deposits
+  Investments
+  LiquidityPools
+  Rewards
 }
 
 enum AccountMemberStates {
