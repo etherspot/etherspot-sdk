@@ -26,14 +26,6 @@ type AccountBalances {
   items: [AccountBalance!]!
 }
 
-type AccountDashboard {
-  deposits: AccountDashboardChange
-  history: [AccountDashboardDataPoint!]!
-  investments: AccountDashboardChange
-  liquidityPools: AccountDashboardChange
-  wallet: AccountDashboardChange
-}
-
 type AccountDashboardChange {
   balance: Float!
   netChange: Float!
@@ -75,6 +67,27 @@ type AccountProof {
   hash: String!
   state: AccountProofStates!
   updatedAt: DateTime!
+}
+
+type AccountTotalBalances {
+  totalBalances: [AccountTotalBalancesItem!]!
+}
+
+type AccountTotalBalancesItem {
+  balance: Float
+  balances: [AccountTotalBalancesMetadata!]!
+  category: String
+  chainId: Float!
+  protocol: String
+  service: String
+}
+
+type AccountTotalBalancesMetadata {
+  iconUrl: String!
+  key: String!
+  share: Float
+  title: String!
+  value: Float!
 }
 
 type Accounts {
@@ -400,10 +413,10 @@ type ProjectResponse {
 type Query {
   account(account: String!, chainId: Int): Account
   accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
-  accountDashboard(account: String!, chainId: Int, currency: String!, days: Float): AccountDashboard
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accountTokenList(account: String!, chainId: Int, name: String): TokenList
+  accountTotalBalances(account: String!, chainId: Int, currency: Currencies!): AccountTotalBalances
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
   blockStats(chainId: Int): BlockStats!
@@ -551,6 +564,12 @@ enum AccountTypes {
   Key
 }
 
+enum Currencies {
+  EUR
+  GBP
+  USD
+}
+
 enum ENSNodeStates {
   Claimed
   Reserved
@@ -572,6 +591,7 @@ enum ExchangeProviders {
   Aave
   OneInch
   PoolTogether
+  Rari
   Sushiswap
   Synthetix
   Uniswap
@@ -597,6 +617,7 @@ enum GatewaySenderStates {
 enum GatewayTransactionStates {
   Canceled
   Canceling
+  Replaced
   Reverted
   Sending
   Sent
