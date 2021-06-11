@@ -14,7 +14,7 @@ cat <<EOM
             "pretext": "A new version of $applicationName is available for use. :circleci-pass:",
             "title": "$CIRCLE_PROJECT_REPONAME",
             "title_link": "https://github.com/etherspot/etherspot-sdk/releases/tag/$package",
-            "text": "Version: $package",
+            "text": "Version: etherspot@$package",
             "ts": $(date '+%s')
         }
     ]
