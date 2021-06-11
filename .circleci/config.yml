@@ -54,7 +54,7 @@ jobs:
           name: Announce Publish
           command: |
             chmod +x .circleci/announcePublish.sh
-            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').name)")@$(node -e "console.log(require('./package.json').version)")"
+            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
       - slack/status:
           fail_only: true
           failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
