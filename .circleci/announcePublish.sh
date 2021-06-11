@@ -13,8 +13,8 @@ cat <<EOM
             "color": "#33CC66",
             "pretext": "A new version of $applicationName is available for use. :circleci-pass:",
             "title": "$CIRCLE_PROJECT_REPONAME",
-            "title_link": "https://circleci.com/workflow-run/$CIRCLE_WORKFLOW_WORKSPACE_ID",
-            "text": "artifact published: $package",
+            "title_link": "https://github.com/etherspot/etherspot-sdk/releases/tag/$PACKAGE_VERSION",
+            "text": "Version: $package",
             "ts": $(date '+%s')
         }
     ]
