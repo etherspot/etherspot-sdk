@@ -62,7 +62,7 @@ jobs:
           webhook: "${SLACK_WEBHOOK_URL}"
   publish-github-release:
     docker:
-      - image: cibuilds/github:0.10
+      - image: tsub/ghr
     steps:
       - checkout
       - run:
