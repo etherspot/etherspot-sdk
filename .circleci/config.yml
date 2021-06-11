@@ -60,6 +60,17 @@ jobs:
           failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
           only_for_branches: master
           webhook: "${SLACK_WEBHOOK_URL}"
+  publish-github-release:
+    docker:
+      - image: ardd97/ghr
+    steps:
+      - checkout
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            PACKAGE_VERSION="$(jq .version package.json -r)"
+            echo $PACKAGE_VERSION
+            ghr -t "${GITHUB_TOKEN}" -u "${CIRCLE_PROJECT_USERNAME}" -r "${CIRCLE_PROJECT_REPONAME}" -c "${CIRCLE_SHA1}" "$PACKAGE_VERSION"
 
 workflows:
   version: 2.1
@@ -71,6 +82,12 @@ workflows:
           context: general-vars
           requires:
             - install
+          filters:
+            branches:
+              only:
+                  - master
+      - publish-github-release:
+          context: general-vars
           filters:
             branches:
               only:

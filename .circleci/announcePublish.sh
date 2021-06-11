@@ -23,3 +23,4 @@ EOM
 )
 
 curl -X POST --data-urlencode payload="$payload" "$SLACK_WEBHOOK_URL"
+curl -X POST --data-urlencode payload="$payload" "$SLACK_WEBHOOK_FRONTEND"
