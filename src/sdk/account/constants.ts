@@ -30,3 +30,16 @@ export enum AccountProofStates {
   Added = 'Added',
   Removed = 'Removed',
 }
+
+export enum Currencies {
+  USD = 'USD',
+  EUR = 'EUR',
+  GBP = 'GBP',
+}
+
+export enum AccountDashboardProtocols {
+  Investments = 'Investments',
+  LiquidityPools = 'LiquidityPools',
+  Deposits = 'Deposits',
+  Rewards = 'Rewards',
+}

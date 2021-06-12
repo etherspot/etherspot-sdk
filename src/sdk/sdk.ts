@@ -3,10 +3,10 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
   AccountBalances,
-  AccountDashboard,
   AccountMembers,
   Accounts,
   AccountService,
+  AccountTotalBalances,
   AccountTypes,
 } from './account';
 import { ApiService } from './api';
@@ -41,7 +41,6 @@ import {
   ExecuteAccountTransactionDto,
   GetAccountBalancesDto,
   GetAccountDto,
-  GetAccountDashboardDto,
   GetAccountMembersDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
@@ -85,6 +84,7 @@ import {
   ENSNamesLookupDto,
   GetTransactionDto,
   GetTransactionsDto,
+  GetAccountTotalBalancesDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -625,12 +625,12 @@ export class Sdk {
   }
 
   /**
-   * gets account dashboard
+   * gets account total balances
    * @param dto
-   * @return Promise<AccountDashboard>
+   * @return Promise<AccountTotalBalances>
    */
-  async getAccountDashboard(dto: GetAccountDashboardDto): Promise<AccountDashboard> {
-    const { account, currency, days } = await validateDto(dto, GetAccountDashboardDto, {
+  async getAccountTotalBalances(dto: GetAccountTotalBalancesDto): Promise<AccountTotalBalances> {
+    const { account, currency } = await validateDto(dto, GetAccountTotalBalancesDto, {
       addressKeys: ['account'],
     });
 
@@ -638,10 +638,9 @@ export class Sdk {
       wallet: !account,
     });
 
-    return this.services.accountService.getAccountDashboard(
+    return this.services.accountService.getAccountTotalBalances(
       this.prepareAccountAddress(account), //
       currency,
-      days,
     );
   }
 
