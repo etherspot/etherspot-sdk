@@ -356,15 +356,15 @@ export class Sdk {
    * @return Promise<GatewayEstimatedKnownOp>
    */
   async estimateGatewayKnownOp(dto: EstimateGatewayKnownOpDto): Promise<GatewayEstimatedKnownOp> {
-    const { op, refundToken } = await validateDto(dto, EstimateGatewayKnownOpDto, {
-      addressKeys: ['refundToken'],
+    const { op, feeToken } = await validateDto(dto, EstimateGatewayKnownOpDto, {
+      addressKeys: ['feeToken'],
     });
 
     await this.require({
       session: true,
     });
 
-    return this.services.gatewayService.estimateGatewayKnownOp(op, refundToken);
+    return this.services.gatewayService.estimateGatewayKnownOp(op, feeToken);
   }
 
   /**
@@ -373,8 +373,8 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async estimateGatewayBatch(dto: EstimateGatewayBatchDto = {}): Promise<GatewayBatch> {
-    const { refundToken } = await validateDto(dto, EstimateGatewayBatchDto, {
-      addressKeys: ['refundToken'],
+    const { feeToken } = await validateDto(dto, EstimateGatewayBatchDto, {
+      addressKeys: ['feeToken'],
     });
 
     await this.require({
@@ -382,7 +382,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    return this.services.gatewayService.estimateGatewayBatch(refundToken);
+    return this.services.gatewayService.estimateGatewayBatch(feeToken);
   }
 
   /**

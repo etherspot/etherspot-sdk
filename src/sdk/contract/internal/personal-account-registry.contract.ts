@@ -10,7 +10,7 @@ export class PersonalAccountRegistryContract extends InternalContract {
 
   encodeDeployAccount?(account: string): TransactionRequest;
 
-  encodeRefundAccountCall?(account: string, refundToken: string, refundAmount: BigNumberish): TransactionRequest;
+  encodeRefundAccountCall?(account: string, feeToken: string, feeAmount: BigNumberish): TransactionRequest;
 
   encodeAddAccountOwner?(account: string, owner: string): TransactionRequest;
 

@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers';
 
 export class GatewayEstimatedKnownOp {
   @TransformBigNumber()
-  refundAmount: BigNumber;
+  feeAmount: BigNumber;
 
   estimatedGas: number;
 

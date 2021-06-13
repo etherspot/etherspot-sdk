@@ -34,12 +34,12 @@ export class GatewaySubmittedBatch {
   @TransformBigNumber()
   estimatedGasPrice: BigNumber;
 
-  refundToken: string;
+  feeToken: string;
 
   @TransformBigNumber()
-  refundAmount: BigNumber;
+  feeAmount: BigNumber;
 
-  refundData: string;
+  feeData: string;
 
   @Type(() => Date)
   createdAt: Date;

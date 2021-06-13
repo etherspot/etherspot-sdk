@@ -8,5 +8,5 @@ export class EstimateGatewayKnownOpDto {
 
   @IsOptional()
   @IsAddress()
-  refundToken?: string = null;
+  feeToken?: string = null;
 }
