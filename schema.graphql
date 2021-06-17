@@ -261,6 +261,18 @@ type Mutation {
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
 }
 
+type NativeCurrenciesItem {
+  name: string!
+  symbol: string!
+  decimals: number!
+  chainId: number!
+  logoURI: string!
+}
+
+type NativeCurrencies {
+  items: NativeCurrenciesItem[]!
+}
+
 type Network {
   chainId: Int!
   name: NetworkNames!

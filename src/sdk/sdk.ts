@@ -10,7 +10,7 @@ import {
   AccountTypes,
 } from './account';
 import { ApiService } from './api';
-import { AssetsService, PaginatedTokens, TokenList, TokenListToken } from './assets';
+import { AssetsService, NativeCurrenciesItem, PaginatedTokens, TokenList, TokenListToken } from './assets';
 import { BlockService } from './block';
 import { addressesEqual, ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
@@ -1728,6 +1728,18 @@ export class Sdk {
     });
 
     return this.services.assetsService.getTokenListTokens(name);
+  }
+
+  /**
+   * gets native currencies
+   * @return Promise<NativeCurrenciesItem[]>
+   */
+  async getNativeCurrencies(): Promise<NativeCurrenciesItem[]> {
+    await this.require({
+      wallet: false,
+    });
+
+    return this.services.assetsService.getNativeCurrencies();
   }
 
   /**
