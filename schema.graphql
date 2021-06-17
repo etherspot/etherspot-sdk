@@ -74,12 +74,12 @@ type AccountTotalBalances {
 }
 
 type AccountTotalBalancesItem {
-  balance: Float
+  totalBalance: Float
   balances: [AccountTotalBalancesMetadata!]!
   category: AccountDashboardProtocols
   chainId: Float!
   protocol: String
-  service: String
+  serviceTitle: String
 }
 
 type AccountTotalBalancesMetadata {

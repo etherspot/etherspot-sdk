@@ -7,11 +7,11 @@ export class AccountTotalBalancesItem {
 
   protocol: string;
 
-  service: string;
+  serviceTitle: string;
 
   category: AccountDashboardProtocols;
 
-  balance: number;
+  totalBalance: number;
 
   @Type(() => AccountTotalBalancesMetadata)
   balances: AccountTotalBalancesMetadata[];

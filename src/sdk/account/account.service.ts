@@ -297,9 +297,9 @@ export class AccountService extends Service {
             totalBalances {
               chainId
               category
-              service
+              serviceTitle
               protocol
-              balance
+              totalBalance
               balances {
                 iconUrl
                 key
