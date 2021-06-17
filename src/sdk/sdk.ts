@@ -1735,10 +1735,6 @@ export class Sdk {
    * @return Promise<NativeCurrenciesItem[]>
    */
   async getNativeCurrencies(): Promise<NativeCurrenciesItem[]> {
-    await this.require({
-      wallet: false,
-    });
-
     return this.services.assetsService.getNativeCurrencies();
   }
 
