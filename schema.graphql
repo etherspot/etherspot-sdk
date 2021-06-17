@@ -74,16 +74,16 @@ type AccountTotalBalances {
 }
 
 type AccountTotalBalancesItem {
-  totalBalance: Float
   balances: [AccountTotalBalancesMetadata!]!
   category: AccountDashboardProtocols
   chainId: Float!
   protocol: String
   serviceTitle: String
+  totalBalance: Float
 }
 
 type AccountTotalBalancesMetadata {
-  iconUrl: String!
+  iconUrl: String
   key: String!
   share: Float
   title: String!
