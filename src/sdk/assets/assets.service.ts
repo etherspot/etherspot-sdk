@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
 import { TokenList, TokenLists, TokenListToken } from './classes';
+import { NativeCurrencies } from './classes/native-currencies';
+import { NativeCurrenciesItem } from './classes/native-currencies-item';
 
 export class AssetsService extends Service {
   async getTokenLists(): Promise<TokenList[]> {
@@ -63,6 +65,35 @@ export class AssetsService extends Service {
     );
 
     return result ? result.tokens : null;
+  }
+
+  async getNativeCurrencies(): Promise<NativeCurrenciesItem[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: NativeCurrencies;
+    }>(
+      gql`
+        query {
+          result: nativeCurrencies {
+            items {
+              name
+              symbol
+              decimals
+              logoURI
+              chainId
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: NativeCurrencies,
+        },
+      },
+    );
+
+    return result.items;
   }
 
   async getAccountTokenListTokens(name: string = null): Promise<TokenListToken[]> {

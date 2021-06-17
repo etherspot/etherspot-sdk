@@ -261,6 +261,18 @@ type Mutation {
   updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
 }
 
+type NativeCurrencies {
+  items: [NativeCurrenciesItem!]!
+}
+
+type NativeCurrenciesItem {
+  chainId: Float!
+  decimals: Float!
+  logoURI: String!
+  name: String!
+  symbol: String!
+}
+
 type Network {
   chainId: Int!
   name: NetworkNames!
@@ -441,6 +453,7 @@ type Query {
   gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
+  nativeCurrencies: NativeCurrencies!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
@@ -725,11 +738,11 @@ enum TransactionStatuses {
 }
 
 
-"BigNumber.js"
-scalar BigNumber
-
 "A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
 scalar DateTime
+
+"BigNumber.js"
+scalar BigNumber
 
 "JSONObject"
 scalar JSONObject
