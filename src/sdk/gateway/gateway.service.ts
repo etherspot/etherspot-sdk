@@ -4,6 +4,7 @@ import { Exception, Service, TransactionRequest, UniqueSubject } from '../common
 import {
   GatewayEstimatedBatch,
   GatewayEstimatedKnownOp,
+  GatewayGasInfo,
   GatewaySubmittedBatch,
   GatewaySubmittedBatches,
   GatewaySupportedToken,
@@ -266,6 +267,31 @@ export class GatewayService extends Service {
         variables: {
           account,
           page: page || 1,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getGatewayGasInfo(): Promise<GatewayGasInfo> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: GatewayGasInfo;
+    }>(
+      gql`
+        query($chainId: Int) {
+          result: gatewayGasInfo(chainId: $chainId) {
+            standard
+            fast
+            instant
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewayGasInfo,
         },
       },
     );

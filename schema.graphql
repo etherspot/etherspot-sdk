@@ -199,6 +199,12 @@ type GatewayEstimatedKnownOp {
   feeAmount: BigNumber!
 }
 
+type GatewayGasInfo {
+  fast: BigNumber!
+  instant: BigNumber!
+  standard: BigNumber!
+}
+
 type GatewaySender {
   address: String!
   balance: BigNumber!
@@ -448,6 +454,7 @@ type Query {
   exchangeSupportedAssets(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): PaginatedTokens!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
+  gatewayGasInfo(chainId: Int): GatewayGasInfo!
   gatewayPendingBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
   gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
