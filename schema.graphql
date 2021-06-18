@@ -448,6 +448,7 @@ type Query {
   exchangeSupportedAssets(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): PaginatedTokens!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
+  gatewayPendingBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewaySenders(chainId: Int): GatewaySenders!
   gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
   gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
@@ -624,7 +625,6 @@ enum ExchangeProviders {
 
 enum GatewayBatchStates {
   Queued
-  Resending
   Reverted
   Sending
   Sent
@@ -738,11 +738,11 @@ enum TransactionStatuses {
 }
 
 
-"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
-scalar DateTime
-
 "BigNumber.js"
 scalar BigNumber
+
+"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
+scalar DateTime
 
 "JSONObject"
 scalar JSONObject

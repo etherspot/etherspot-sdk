@@ -217,6 +217,62 @@ export class GatewayService extends Service {
     return result;
   }
 
+  async getGatewaySubmittedPendingBatches(page: number = null): Promise<GatewaySubmittedBatches> {
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: GatewaySubmittedBatches;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!, $page: Int) {
+          result: gatewayPendingBatches(chainId: $chainId, account: $account, page: $page) {
+            items {
+              transaction {
+                hash
+                state
+                sender
+                gasPrice
+                gasUsed
+                totalCost
+                createdAt
+                updatedAt
+              }
+              hash
+              state
+              account
+              nonce
+              to
+              data
+              senderSignature
+              estimatedGas
+              estimatedGasPrice
+              feeToken
+              feeAmount
+              feeData
+              createdAt
+              updatedAt
+            }
+            currentPage
+            nextPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatches,
+        },
+        variables: {
+          account,
+          page: page || 1,
+        },
+      },
+    );
+
+    return result;
+  }
+
   async estimateGatewayBatch(feeToken: string): Promise<GatewayBatch> {
     if (!this.gatewayBatch) {
       throw new Exception('Can not estimate empty batch');

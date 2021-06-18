@@ -3,7 +3,6 @@ export enum GatewayBatchStates {
   Sending = 'Sending',
   Sent = 'Sent',
   Reverted = 'Reverted',
-  Resending = 'Resending',
 }
 
 export enum GatewayTransactionStates {
