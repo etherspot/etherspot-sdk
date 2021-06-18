@@ -96,6 +96,7 @@ import {
   GatewayService,
   GatewaySubmittedBatch,
   GatewaySubmittedBatches,
+  GatewaySubmittedPendingBatches,
   GatewaySupportedToken,
 } from './gateway';
 import { SdkOptions } from './interfaces';
@@ -326,6 +327,22 @@ export class Sdk {
     });
 
     return this.services.gatewayService.getGatewaySubmittedBatches(page || 1);
+  }
+
+  /**
+   * gets gateway submitted pending batches
+   * @param dto
+   * @return Promise<GatewaySubmittedPendingBatches>
+   */
+  async getGatewaySubmittedPendingBatches(dto: PaginationDto = {}): Promise<GatewaySubmittedPendingBatches> {
+    const { page } = await validateDto(dto, PaginationDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    return this.services.gatewayService.getGatewaySubmittedPendingBatches(page || 1);
   }
 
   /**
