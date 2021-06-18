@@ -93,6 +93,7 @@ import { FaucetService } from './faucet';
 import {
   GatewayBatch,
   GatewayEstimatedKnownOp,
+  GatewayGasInfo,
   GatewayService,
   GatewaySubmittedBatch,
   GatewaySubmittedBatches,
@@ -343,6 +344,13 @@ export class Sdk {
     });
 
     return this.services.gatewayService.getGatewaySubmittedPendingBatches(page || 1);
+  }
+  /**
+   * gets gateway's gas info
+   * @return Promise<GatewayGasInfo>
+   */
+  async getGatewayGasInfo(): Promise<GatewayGasInfo> {
+    return this.services.gatewayService.getGatewayGasInfo();
   }
 
   /**

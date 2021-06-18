@@ -1,5 +1,6 @@
 export * from './gateway-estimated-batch';
 export * from './gateway-estimated-known-op';
+export * from './gateway-gas-info';
 export * from './gateway-submitted-batch';
 export * from './gateway-submitted-batch-log';
 export * from './gateway-submitted-batches';
