@@ -15,7 +15,17 @@ export class ApiService extends Service {
   private readonly options: ApiOptions;
 
   private apolloClient: ApolloClient<NormalizedCacheObject>;
-  private cache: InvalidationPolicyCache = null;
+  private cache = new InvalidationPolicyCache({
+    resultCaching: true,
+    addTypename: true,
+    invalidationPolicies: {
+      types: {
+        TokenList: {
+          timeToLive: CacheExpiration.TokenList,
+        },
+      },
+    },
+  });
 
   constructor(options: ApiOptions) {
     super();
@@ -130,18 +140,6 @@ export class ApiService extends Service {
       wsLink,
       authLink.concat(httpLink),
     );
-
-    this.cache = new InvalidationPolicyCache({
-      resultCaching: true,
-      addTypename: true,
-      invalidationPolicies: {
-        types: {
-          TokenList: {
-            timeToLive: CacheExpiration.TokenList,
-          },
-        },
-      },
-    });
 
     this.apolloClient = new ApolloClient({
       link,
