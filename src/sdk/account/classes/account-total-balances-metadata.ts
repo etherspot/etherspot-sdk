@@ -1,4 +1,8 @@
 export class AccountTotalBalancesMetadata {
+  protocol: string;
+
+  serviceTitle: string;
+
   key: string;
 
   title: string;
