@@ -42,6 +42,7 @@
   "dependencies": {
     "@apollo/client": "3.3.11",
     "@etherspot/contracts": "1.2.3",
+    "@nerdwallet/apollo-cache-policies": "1.2.1",
     "class-transformer": "0.4.0",
     "class-validator": "0.13.1",
     "cross-fetch": "3.0.6",

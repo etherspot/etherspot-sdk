@@ -1,18 +1,12 @@
-import {
-  ApolloClient,
-  DocumentNode,
-  HttpLink,
-  InMemoryCache,
-  NormalizedCacheObject,
-  Observable,
-  split,
-} from '@apollo/client/core';
+import { ApolloClient, DocumentNode, HttpLink, NormalizedCacheObject, Observable, split } from '@apollo/client/core';
 import { setContext } from '@apollo/client/link/context';
 import { WebSocketLink } from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { InvalidationPolicyCache } from '@nerdwallet/apollo-cache-policies';
 import fetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
 import { isBigNumber, Service } from '../common';
+import { CacheExpiration } from './constants';
 import { HttpException, HttpExceptionCodes } from './exceptions';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri, catchApiError, mapApiResult } from './utils';
@@ -21,6 +15,7 @@ export class ApiService extends Service {
   private readonly options: ApiOptions;
 
   private apolloClient: ApolloClient<NormalizedCacheObject>;
+  private cache: InvalidationPolicyCache = null;
 
   constructor(options: ApiOptions) {
     super();
@@ -136,12 +131,21 @@ export class ApiService extends Service {
       authLink.concat(httpLink),
     );
 
+    this.cache = new InvalidationPolicyCache({
+      resultCaching: true,
+      addTypename: true,
+      invalidationPolicies: {
+        types: {
+          TokenList: {
+            timeToLive: CacheExpiration.TokenList,
+          },
+        },
+      },
+    });
+
     this.apolloClient = new ApolloClient({
       link,
-      cache: new InMemoryCache({
-        resultCaching: false,
-        addTypename: false,
-      }),
+      cache: this.cache,
     });
   }
 
@@ -167,6 +171,7 @@ export class ApiService extends Service {
     let result: T;
 
     try {
+      this.cache.expire();
       result = await wrapped();
     } catch (err) {
       if (
