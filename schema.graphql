@@ -481,6 +481,7 @@ type Query {
   tokenLists(chainId: Int): TokenLists!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, noCache: Boolean): Transactions!
+  validateENSNode(address: String!, chainId: Int, name: String!): Boolean!
   wyreExchangeRates(chainId: Int): String!
   wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
 }
