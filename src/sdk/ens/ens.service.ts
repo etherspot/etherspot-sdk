@@ -71,7 +71,7 @@ export class ENSService extends Service {
 
     const address = accountService.accountAddress;
 
-    const { result } = await apiService.mutate<{
+    const { result } = await apiService.query<{
       result: boolean;
     }>(
       gql`
