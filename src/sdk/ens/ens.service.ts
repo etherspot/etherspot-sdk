@@ -66,6 +66,30 @@ export class ENSService extends Service {
     return result;
   }
 
+  async validateENSNode(name: string): Promise<boolean> {
+    const { apiService, accountService } = this.services;
+
+    const address = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: boolean;
+    }>(
+      gql`
+        mutation($chainId: Int, $address: String!, $name: String!) {
+          result: validateENSNode(chainId: $chainId, address: $address, name: $name)
+        }
+      `,
+      {
+        variables: {
+          name,
+          address,
+        },
+      },
+    );
+
+    return result;
+  }
+
   async getENSNode(nameOrHashOrAddress: string): Promise<ENSNode> {
     const { apiService } = this.services;
 

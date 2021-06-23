@@ -57,4 +57,5 @@ export * from './update-payment-hub-deposit.dto';
 export * from './update-payment-hub.dto';
 export * from './update-project.dto';
 export * from './utils';
+export * from './validate-ens-name.dto';
 export * from './withdraw-p2p-payment-deposit.dto';
