@@ -1,4 +1,8 @@
 export class AccountTotalBalancesMetadata {
+  protocol: string;
+
+  serviceTitle: string;
+
   key: string;
 
   title: string;
@@ -8,4 +12,8 @@ export class AccountTotalBalancesMetadata {
   share: number;
 
   value: number;
+
+  address: number;
+
+  tokenAddress: number;
 }
