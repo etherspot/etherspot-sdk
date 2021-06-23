@@ -75,21 +75,21 @@ type AccountTotalBalances {
 
 type AccountTotalBalancesItem {
   balances: [AccountTotalBalancesMetadata!]!
-  category: AccountDashboardProtocols
+  category: AccountTotalBalancesCategories
   chainId: Float!
   totalBalance: Float
 }
 
 type AccountTotalBalancesMetadata {
+  address: String
   iconUrl: String
   key: String!
-  share: Float
-  title: String!
-  value: Float!
   protocol: String
   serviceTitle: String
-  address: String
+  share: Float
+  title: String!
   tokenAddress: String
+  value: Float!
 }
 
 type Accounts {
@@ -559,13 +559,6 @@ type Transactions {
   items: [Transaction!]!
 }
 
-enum AccountDashboardProtocols {
-  Deposits
-  Investments
-  LiquidityPools
-  Rewards
-}
-
 enum AccountMemberStates {
   Added
   Removed
@@ -592,6 +585,13 @@ enum AccountStates {
 
 enum AccountStores {
   PersonalAccountRegistry
+}
+
+enum AccountTotalBalancesCategories {
+  Deposits
+  Investments
+  LiquidityPools
+  Rewards
 }
 
 enum AccountTypes {
@@ -747,11 +747,11 @@ enum TransactionStatuses {
 }
 
 
-"BigNumber.js"
-scalar BigNumber
-
 "A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
 scalar DateTime
+
+"BigNumber.js"
+scalar BigNumber
 
 "JSONObject"
 scalar JSONObject
