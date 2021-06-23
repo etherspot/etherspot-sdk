@@ -75,7 +75,7 @@ export class ENSService extends Service {
       result: boolean;
     }>(
       gql`
-        mutation($chainId: Int, $address: String!, $name: String!) {
+        query($chainId: Int, $address: String!, $name: String!) {
           result: validateENSNode(chainId: $chainId, address: $address, name: $name)
         }
       `,
