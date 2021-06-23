@@ -12,4 +12,8 @@ export class AccountTotalBalancesMetadata {
   share: number;
 
   value: number;
+
+  address: number;
+
+  tokenAddress: number;
 }

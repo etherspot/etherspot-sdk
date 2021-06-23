@@ -299,6 +299,8 @@ export class AccountService extends Service {
               category
               totalBalance
               balances {
+                address
+                tokenAddress
                 serviceTitle
                 protocol
                 iconUrl
