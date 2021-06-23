@@ -5,10 +5,6 @@ import { AccountTotalBalancesMetadata } from './account-total-balances-metadata'
 export class AccountTotalBalancesItem {
   chainId: number;
 
-  protocol: string;
-
-  serviceTitle: string;
-
   category: AccountDashboardProtocols;
 
   totalBalance: number;
