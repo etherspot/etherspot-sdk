@@ -85,7 +85,7 @@ import {
   GetTransactionDto,
   GetTransactionsDto,
   GetAccountTotalBalancesDto,
-  ValidateENSNameDto,
+  ReserveENSNameDto as ValidateENSNameDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
