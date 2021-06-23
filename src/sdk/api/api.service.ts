@@ -6,7 +6,7 @@ import { InvalidationPolicyCache } from '@nerdwallet/apollo-cache-policies';
 import fetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
 import { isBigNumber, Service } from '../common';
-import { CacheExpiration } from './constants';
+import { сacheSettings } from './constants';
 import { HttpException, HttpExceptionCodes } from './exceptions';
 import { ApiOptions, ApiRequestOptions, ApiRequestQueryOptions } from './interfaces';
 import { buildApiUri, catchApiError, mapApiResult } from './utils';
@@ -19,11 +19,7 @@ export class ApiService extends Service {
     resultCaching: true,
     addTypename: true,
     invalidationPolicies: {
-      types: {
-        TokenList: {
-          timeToLive: CacheExpiration.TokenList,
-        },
-      },
+      types: сacheSettings,
     },
   });
 
@@ -157,6 +153,9 @@ export class ApiService extends Service {
       let result: T;
 
       try {
+        // checks and removes outdated cache entries
+        this.cache.expire();
+
         const { data } = await call();
         result = mapApiResult(data, models);
       } catch (err) {
@@ -169,7 +168,6 @@ export class ApiService extends Service {
     let result: T;
 
     try {
-      this.cache.expire();
       result = await wrapped();
     } catch (err) {
       if (
