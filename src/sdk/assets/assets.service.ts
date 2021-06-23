@@ -61,6 +61,7 @@ export class AssetsService extends Service {
         models: {
           result: TokenList,
         },
+        fetchPolicy: 'cache-first',
       },
     );
 
