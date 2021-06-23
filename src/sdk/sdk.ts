@@ -85,6 +85,7 @@ import {
   GetTransactionDto,
   GetTransactionsDto,
   GetAccountTotalBalancesDto,
+  ReserveENSNameDto as ValidateENSNameDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -827,6 +828,21 @@ export class Sdk {
     });
 
     return this.services.ensService.reserveENSNode(name);
+  }
+
+  /**
+   * validate ens name
+   * @param dto
+   * @return Promise<ENSNode>
+   */
+  async validateENSName(dto: ValidateENSNameDto): Promise<boolean> {
+    const { name } = await validateDto(dto, ValidateENSNameDto);
+
+    await this.require({
+      session: true,
+    });
+
+    return this.services.ensService.validateENSNode(name);
   }
 
   /**
