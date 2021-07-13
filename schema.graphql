@@ -230,6 +230,7 @@ type GatewaySupportedTokens {
 }
 
 type GatewayTransaction {
+  batches: [GatewayBatch!]!
   createdAt: DateTime!
   gasPrice: BigNumber!
   gasUsed: Int
@@ -461,6 +462,7 @@ type Query {
   gatewaySenders(chainId: Int): GatewaySenders!
   gatewaySupportedToken(chainId: Int, token: String!): GatewaySupportedToken
   gatewaySupportedTokens(chainId: Int): GatewaySupportedTokens!
+  gatewayTransaction(chainId: Int, hash: String!): GatewayTransaction
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
   nativeCurrencies: NativeCurrencies!
