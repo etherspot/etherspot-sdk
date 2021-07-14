@@ -9,6 +9,7 @@ import {
   GatewaySubmittedBatches,
   GatewaySupportedToken,
   GatewaySupportedTokens,
+  GatewayTransaction,
 } from './classes';
 import { GatewayKnownOps } from './constants';
 import { GatewayBatch } from './interfaces';
@@ -270,6 +271,69 @@ export class GatewayService extends Service {
         },
       },
     );
+
+    return result;
+  }
+
+  async getGatewayTransaction(hash: string): Promise<GatewayTransaction> {
+    const { apiService, contractService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: GatewayTransaction;
+    }>(
+      gql`
+        query($chainId: Int, $hash: String!) {
+          result: gatewayTransaction(chainId: $chainId, hash: $hash) {
+            hash
+            state
+            sender
+            gasPrice
+            gasUsed
+            totalCost
+            createdAt
+            updatedAt
+            batches {
+              logs {
+                address
+                data
+                topics
+              }
+              hash
+              state
+              account
+              nonce
+              to
+              data
+              senderSignature
+              estimatedGas
+              estimatedGasPrice
+              feeToken
+              feeAmount
+              feeData
+              createdAt
+              updatedAt
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewayTransaction,
+        },
+        variables: {
+          hash,
+        },
+      },
+    );
+
+    if (result && result.batches && Array.isArray(result.batches)) {
+      result.batches = result.batches.map((batch) => {
+        if (batch.logs) {
+          batch.events = contractService.processContractsLogs(batch.logs);
+        }
+        return batch;
+      });
+    }
 
     return result;
   }

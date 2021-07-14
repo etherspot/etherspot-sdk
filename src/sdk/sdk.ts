@@ -46,6 +46,7 @@ import {
   GetENSRootNodeDto,
   GetExchangeOffersDto,
   GetGatewaySubmittedBatchDto,
+  GetGatewaySubmittedBatchDto as GetGatewayTransactionDto,
   GetGatewaySupportedTokenDto,
   GetP2PPaymentChannelDto,
   GetP2PPaymentChannelsDto,
@@ -100,6 +101,7 @@ import {
   GatewaySubmittedBatches,
   GatewaySubmittedPendingBatches,
   GatewaySupportedToken,
+  GatewayTransaction,
 } from './gateway';
 import { SdkOptions } from './interfaces';
 import { Network, NetworkNames, NetworkService } from './network';
@@ -346,6 +348,18 @@ export class Sdk {
 
     return this.services.gatewayService.getGatewaySubmittedPendingBatches(page || 1);
   }
+
+  /**
+   * gets gateway transaction details
+   * @param dto
+   * @return Promise<GatewayTransaction>
+   */
+  async getGatewayTransaction(dto: GetGatewayTransactionDto): Promise<GatewayTransaction> {
+    const { hash } = await validateDto(dto, GetGatewayTransactionDto);
+
+    return this.services.gatewayService.getGatewayTransaction(hash);
+  }
+
   /**
    * gets gateway's gas info
    * @return Promise<GatewayGasInfo>
@@ -980,7 +994,7 @@ export class Sdk {
     });
 
     if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
-      throw new Exception('Can not clime ens node');
+      throw new Exception('Can not claim ens node');
     }
 
     const { name, guardianSignature } = ensNode;
