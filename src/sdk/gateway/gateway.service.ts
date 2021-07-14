@@ -299,8 +299,8 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async estimateGatewayBatch(feeToken: string): Promise<GatewayBatch> {
-    if (!this.gatewayBatch) {
+  async estimateGatewayBatch(feeToken: string, statelessBatch?: GatewayBatch): Promise<GatewayBatch> {
+    if (!this.gatewayBatch || !statelessBatch) {
       throw new Exception('Can not estimate empty batch');
     }
 
@@ -355,6 +355,13 @@ export class GatewayService extends Service {
       },
     );
 
+    if (statelessBatch) {
+      return {
+        ...statelessBatch,
+        estimation,
+      };
+    }
+
     this.estimationOptions = {
       nonce,
       feeToken,
@@ -400,18 +407,18 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async submitGatewayBatch(): Promise<GatewaySubmittedBatch> {
-    if (!this.gatewayBatch) {
+  async submitGatewayBatch(statelessBatch?: GatewayBatch): Promise<GatewaySubmittedBatch> {
+    if (!this.gatewayBatch || !statelessBatch) {
       throw new Exception('Can not submit empty batch');
     }
 
-    const { estimation } = this.gatewayBatch;
+    const { estimation } = statelessBatch ? statelessBatch : this.gatewayBatch;
 
     if (!estimation || estimation.expiredAt.getTime() < estimation.createdAt.getTime()) {
       throw new Exception('Can not submit not estimated batch');
     }
 
-    const { to, data } = this.extractToAndData();
+    const { to, data } = this.extractToAndData(statelessBatch);
     const {
       feeTokenReceiver,
       feeAmount,
@@ -530,7 +537,9 @@ export class GatewayService extends Service {
       },
     );
 
-    this.clearGatewayBatch();
+    if (!statelessBatch) {
+      this.clearGatewayBatch();
+    }
 
     return result;
   }
@@ -565,8 +574,8 @@ export class GatewayService extends Service {
     return result;
   }
 
-  private extractToAndData(): { to: string[]; data: string[] } {
-    return this.gatewayBatch.requests.reduce(
+  private extractToAndData(statelessBatch?: GatewayBatch): { to: string[]; data: string[] } {
+    return (statelessBatch || this.gatewayBatch).requests.reduce(
       (result, { to, data }) => {
         result.to.push(to);
         result.data.push(data);
