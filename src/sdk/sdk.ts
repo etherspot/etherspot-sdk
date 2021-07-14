@@ -962,7 +962,7 @@ export class Sdk {
     });
 
     if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
-      throw new Exception('Can not clime ens node');
+      throw new Exception('Can not claim ens node');
     }
 
     const { name, guardianSignature } = ensNode;
