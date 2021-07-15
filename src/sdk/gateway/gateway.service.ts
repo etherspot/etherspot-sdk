@@ -364,7 +364,7 @@ export class GatewayService extends Service {
   }
 
   async estimateGatewayBatch(feeToken: string, statelessBatch?: GatewayBatch): Promise<GatewayBatch> {
-    if (!this.gatewayBatch || !statelessBatch) {
+    if (!this.gatewayBatch && !statelessBatch) {
       throw new Exception('Can not estimate empty batch');
     }
 
@@ -472,7 +472,7 @@ export class GatewayService extends Service {
   }
 
   async submitGatewayBatch(statelessBatch?: GatewayBatch): Promise<GatewaySubmittedBatch> {
-    if (!this.gatewayBatch || !statelessBatch) {
+    if (!this.gatewayBatch && !statelessBatch) {
       throw new Exception('Can not submit empty batch');
     }
 
