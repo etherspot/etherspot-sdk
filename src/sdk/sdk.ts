@@ -426,7 +426,7 @@ export class Sdk {
   }
 
   /**
-   * estimates stateless account transaction
+   * estimates stateless account transactions
    * @param dto
    * @return Promise<GatewayBatch>
    */

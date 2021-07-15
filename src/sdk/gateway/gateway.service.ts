@@ -368,7 +368,7 @@ export class GatewayService extends Service {
       throw new Exception('Can not estimate empty batch');
     }
 
-    const { to, data } = this.extractToAndData();
+    const { to, data } = this.extractToAndData(statelessBatch);
     const nonce = uniqueNonce();
 
     const { accountService, apiService } = this.services;
@@ -476,7 +476,7 @@ export class GatewayService extends Service {
       throw new Exception('Can not submit empty batch');
     }
 
-    const { estimation } = statelessBatch ? statelessBatch : this.gatewayBatch;
+    const { estimation } = statelessBatch || this.gatewayBatch;
 
     if (!estimation || estimation.expiredAt.getTime() < estimation.createdAt.getTime()) {
       throw new Exception('Can not submit not estimated batch');
