@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
@@ -423,6 +423,38 @@ export class Sdk {
     });
 
     return this.services.gatewayService.estimateGatewayBatch(feeToken);
+  }
+
+  /**
+   * estimates stateless account transactions
+   * @param dto
+   * @return Promise<GatewayBatch>
+   */
+  async estimateStatelessAccountTransactions(
+    transactionsDto: ExecuteAccountTransactionDto[],
+    estimationDto: EstimateGatewayBatchDto = {},
+  ): Promise<GatewayBatch> {
+    const { gatewayService } = this.services;
+
+    const gatewayBatch: GatewayBatch = {
+      requests: [],
+      estimation: null,
+    };
+
+    const { feeToken } = await validateDto(estimationDto, EstimateGatewayBatchDto, {
+      addressKeys: ['feeToken'],
+    });
+
+    for (const transactionDto of transactionsDto) {
+      const encodedAccountTransaction = await this.encodeExecuteAccountTransaction(transactionDto);
+      const { to, data } = encodedAccountTransaction;
+      gatewayBatch.requests.push({
+        to,
+        data: utils.hexlify(data),
+      });
+    }
+
+    return gatewayService.estimateGatewayBatch(feeToken, gatewayBatch);
   }
 
   /**
