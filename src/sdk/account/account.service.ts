@@ -198,6 +198,16 @@ export class AccountService extends Service {
       gql`
         query($chainId: Int, $account: String!) {
           result: account(chainId: $chainId, account: $account) {
+            ensNode {
+              hash
+              name
+              label
+              address
+              state
+              zone
+              createdAt
+              updatedAt
+            }
             address
             type
             state
