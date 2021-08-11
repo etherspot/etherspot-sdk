@@ -147,7 +147,7 @@ export class TransactionsService extends Service {
     }>(
       gql`
         query($chainId: Int, $account: String!) {
-          result: collectibles(chainId: $chainId, account: $account) {
+          result: collectiblesTransactionHistory(chainId: $chainId, account: $account) {
             items {
               asset {
                 name
