@@ -50,6 +50,7 @@ type AccountMembers {
   currentPage: Int!
   items: [AccountMember!]!
   nextPage: Int
+  total: Int
 }
 
 type AccountMetadata {
@@ -96,11 +97,13 @@ type Accounts {
   currentPage: Int!
   items: [Account!]!
   nextPage: Int
+  total: Int
 }
 
 type BlockStats {
   currentBlockNumber: Int
   lastProcessedBlockNumber: Int
+  reConsumeBlockNumber: Int
 }
 
 type ENSAddresses {
@@ -136,6 +139,7 @@ type ENSRootNodes {
   currentPage: Int!
   items: [ENSRootNode!]!
   nextPage: Int
+  total: Int
 }
 
 type ExchangeOffer {
@@ -159,7 +163,7 @@ type GatewayBatch {
   feeData: String!
   feeToken: String
   hash: String!
-  logs: [GatewayBatchLog!]!
+  logs: [TransactionLog!]!
   nonce: Int!
   refundAmount: BigNumber!
   refundData: String!
@@ -171,16 +175,11 @@ type GatewayBatch {
   updatedAt: DateTime
 }
 
-type GatewayBatchLog {
-  address: String!
-  data: String!
-  topics: [String!]!
-}
-
 type GatewayBatches {
   currentPage: Int!
   items: [GatewayBatch!]!
   nextPage: Int
+  total: Int
 }
 
 type GatewayEstimatedBatch {
@@ -231,14 +230,25 @@ type GatewaySupportedTokens {
 
 type GatewayTransaction {
   batches: [GatewayBatch!]!
+  blockNumber: Int
   createdAt: DateTime!
+  gasLimit: Float!
   gasPrice: BigNumber!
   gasUsed: Int
   hash: String!
+  internalTransactions: [InternalTransaction!]!
+  internalTransactionsFetched: Boolean!
   sender: String
   state: GatewayTransactionStates!
+  timestamp: Int
   totalCost: BigNumber!
   updatedAt: DateTime!
+}
+
+type InternalTransaction {
+  from: String!
+  to: String!
+  value: BigNumber!
 }
 
 type Mutation {
@@ -294,6 +304,46 @@ type Notification {
   type: NotificationTypes!
 }
 
+type OpenSeaAsset {
+  assetContract: OpenSeaAssetContract!
+  description: String
+  imagePreviewUrl: String
+  imageUrl: String
+  name: String
+  tokenId: String!
+}
+
+type OpenSeaAssetAccount {
+  address: String!
+}
+
+type OpenSeaAssetContract {
+  address: String!
+  name: String!
+}
+
+type OpenSeaAssetTransaction {
+  blockNumber: String!
+  id: Float!
+  timestamp: String!
+  transactionHash: String!
+}
+
+type OpenSeaAssets {
+  items: [OpenSeaAsset!]!
+}
+
+type OpenSeaHistory {
+  items: [OpenSeaHistoryItem!]!
+}
+
+type OpenSeaHistoryItem {
+  asset: OpenSeaAsset!
+  fromAccount: OpenSeaAssetAccount!
+  toAccount: OpenSeaAssetAccount!
+  transaction: OpenSeaAssetTransaction!
+}
+
 type P2PPaymentChannel {
   committedAmount: BigNumber!
   createdAt: DateTime!
@@ -324,12 +374,14 @@ type P2PPaymentChannelPayments {
   currentPage: Int!
   items: [P2PPaymentChannelPayment!]!
   nextPage: Int
+  total: Int
 }
 
 type P2PPaymentChannels {
   currentPage: Int!
   items: [P2PPaymentChannel!]!
   nextPage: Int
+  total: Int
 }
 
 type P2PPaymentDeposit {
@@ -364,6 +416,7 @@ type PaginatedTokens {
   currentPage: Int!
   items: [TokenListToken!]!
   nextPage: Int
+  total: Int
 }
 
 type PaymentHub {
@@ -387,6 +440,7 @@ type PaymentHubBridges {
   currentPage: Int!
   items: [PaymentHubBridge!]!
   nextPage: Int
+  total: Int
 }
 
 type PaymentHubDeposit {
@@ -401,6 +455,7 @@ type PaymentHubDeposits {
   currentPage: Int!
   items: [PaymentHubDeposit!]!
   nextPage: Int
+  total: Int
 }
 
 type PaymentHubPayment {
@@ -416,12 +471,14 @@ type PaymentHubPayments {
   currentPage: Int!
   items: [PaymentHubPayment!]!
   nextPage: Int
+  total: Int
 }
 
 type PaymentHubs {
   currentPage: Int!
   items: [PaymentHub!]!
   nextPage: Int
+  total: Int
 }
 
 type Project {
@@ -446,6 +503,8 @@ type Query {
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
   blockStats(chainId: Int): BlockStats!
+  collectibles(account: String!, chainId: Int): OpenSeaAssets!
+  collectiblesTransactionHistory(account: String!, chainId: Int): OpenSeaHistory!
   defaultNetwork: Network!
   ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
   ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
@@ -499,8 +558,10 @@ type Subscription {
 }
 
 type TokenList {
+  chainId: Float!
   createdAt: DateTime!
   endpoint: String!
+  id: Float!
   isDefault: Boolean!
   name: String!
   tokens: [TokenListToken!]
@@ -556,6 +617,12 @@ type TransactionData {
   data: String
   to: String!
   value: BigNumber
+}
+
+type TransactionLog {
+  address: String!
+  data: String!
+  topics: [String!]!
 }
 
 type Transactions {
