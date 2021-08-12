@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { Transaction, Transactions } from './classes';
+import { OpenSeaAssets, OpenSeaHistory, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -96,6 +96,92 @@ export class TransactionsService extends Service {
         },
         models: {
           result: Transactions,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getCollectibles(account: string): Promise<OpenSeaAssets> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: OpenSeaAssets;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!) {
+          result: collectibles(chainId: $chainId, account: $account) {
+            items {
+              name
+              tokenId
+              description
+              imageUrl
+              imagePreviewUrl
+              assetContract {
+                name
+                address
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+        models: {
+          result: OpenSeaAssets,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getCollectiblesTransactionHistory(account: string): Promise<OpenSeaHistory> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: OpenSeaHistory;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!) {
+          result: collectiblesTransactionHistory(chainId: $chainId, account: $account) {
+            items {
+              asset {
+                name
+                tokenId
+                description
+                imageUrl
+                imagePreviewUrl
+                assetContract {
+                  name
+                  address
+                }
+              }
+              transaction {
+                transactionHash
+                blockNumber
+                timestamp
+                id
+              }
+              toAccount {
+                address
+              }
+              fromAccount {
+                address
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+        models: {
+          result: OpenSeaHistory,
         },
       },
     );
