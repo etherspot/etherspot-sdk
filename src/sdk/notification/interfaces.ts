@@ -83,6 +83,13 @@ export type PaymentHubPaymentNotification = BaseNotification<
   }
 >;
 
+export type TransactionUpdatedNotification = BaseNotification<
+  NotificationTypes.TransactionUpdated,
+  {
+    hash: string;
+  }
+>;
+
 export type Notification =
   | AccountNotification
   | AccountMemberNotification
@@ -93,4 +100,5 @@ export type Notification =
   | PaymentHubNotification
   | PaymentHubBridgeNotification
   | PaymentHubDepositNotification
-  | PaymentHubPaymentNotification;
+  | PaymentHubPaymentNotification
+  | TransactionUpdatedNotification;

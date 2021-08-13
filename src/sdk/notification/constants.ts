@@ -17,4 +17,5 @@ export enum NotificationTypes {
   PaymentHubDepositCreated = 'PaymentHubDepositCreated',
   PaymentHubDepositUpdated = 'PaymentHubDepositUpdated',
   PaymentHubPaymentCreated = 'PaymentHubPaymentCreated',
+  TransactionUpdated = 'TransactionUpdated',
 }
