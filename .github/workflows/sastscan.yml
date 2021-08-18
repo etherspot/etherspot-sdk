@@ -1,0 +1,27 @@
+name: ShiftLeft Scan
+
+on:
+  push:
+    branches:
+      - master
+      - feature/*
+  schedule:
+    - cron: "0 */4 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Perform ShiftLeft Scan
+      uses: ShiftLeftSecurity/scan-action@master
+      with:
+        output: reports
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SCAN_AUTO_BUILD: true
+    - name: Upload scan reports
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: shiftleft-scan-reports
+        path: reports
