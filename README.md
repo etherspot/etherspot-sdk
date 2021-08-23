@@ -2,9 +2,10 @@
 
 [![NPM version][npm-image]][npm-url]
 ![MIT licensed][license-image]
+[![DeepScan grade](https://deepscan.io/api/teams/11652/projects/18326/branches/446846/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=11652&pid=18326&bid=446846)
 
-<a href="https://www.etherspot.net">
-<img src="https://etherspot.dev/media/logo.png" width="200"/>
+<a href="https://www.etherspot.io">
+<img src=".github/logo.png" width="100"/>
 </a>
  
 
