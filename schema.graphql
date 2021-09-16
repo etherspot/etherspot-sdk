@@ -8,6 +8,7 @@ schema {
 
 type Account {
   address: String!
+  chainId: Float!
   createdAt: DateTime!
   ensNode: ENSNode
   metadata: AccountMetadata
@@ -146,7 +147,7 @@ type ExchangeOffer {
   exchangeRate: Float!
   provider: ExchangeProviders!
   receiveAmount: BigNumber!
-  transactions: [TransactionData!]!
+  transactions: [SendTransaction!]!
 }
 
 type ExchangeOffers {
@@ -231,6 +232,7 @@ type GatewaySupportedTokens {
 type GatewayTransaction {
   batches: [GatewayBatch!]!
   blockNumber: Int
+  chainId: Float!
   createdAt: DateTime!
   gasLimit: Float!
   gasPrice: BigNumber!
@@ -481,10 +483,14 @@ type PaymentHubs {
   total: Int
 }
 
-type Project {
+type ProjectPublic {
   address: String!
   createdAt: DateTime
+  endpoint: String!
+  id: Float!
   key: String!
+  owner: Float!
+  privateKey: String!
   state: ProjectStates!
   updatedAt: DateTime
 }
@@ -498,7 +504,7 @@ type Query {
   accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
-  accountTokenList(account: String!, chainId: Int, name: String): TokenList
+  accountTokenList(account: String!, chainId: Int, name: String): TokenListPublic
   accountTotalBalances(account: String!, chainId: Int, currency: Currencies!): AccountTotalBalances
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
@@ -536,15 +542,21 @@ type Query {
   paymentHubPayment(hash: String!): PaymentHubPayment
   paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
-  project(chainId: Int, key: String!): Project
+  project(chainId: Int, key: String!): ProjectPublic
   supportedNetworks: [Network!]!
-  tokenList(chainId: Int, name: String): TokenList
+  tokenList(chainId: Int, name: String): TokenListPublic
   tokenLists(chainId: Int): TokenLists!
   transaction(chainId: Int, hash: String!): Transaction
   transactions(account: String!, chainId: Int, noCache: Boolean): Transactions!
   validateENSNode(address: String!, chainId: Int, name: String!): Boolean!
   wyreExchangeRates(chainId: Int): String!
   wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
+}
+
+type SendTransaction {
+  data: String
+  to: String!
+  value: BigNumber
 }
 
 type Session {
@@ -557,7 +569,7 @@ type Subscription {
   newNotification(address: String!, chainId: Int): Notification
 }
 
-type TokenList {
+type TokenListPublic {
   chainId: Float!
   createdAt: DateTime!
   endpoint: String!
@@ -579,24 +591,31 @@ type TokenListToken {
 }
 
 type TokenLists {
-  items: [TokenList!]!
+  items: [TokenListPublic!]!
 }
 
 type Transaction {
   asset: TransactionAsset
+  batch: JSONObject
   blockExplorerUrl: String!
   blockHash: String
   blockNumber: Float
+  chainId: Float!
   contractMethodCalled: String!
   cumulativeGasUsed: Float
+  direction: TransactionDirections!
   from: String!
   gasLimit: Float
   gasPrice: BigNumber
   gasUsed: Float
   hash: String!
+  id: Float
   input: String
+  internalTransactions: JSONObject
+  internalTransactionsFetched: Boolean!
   logs: JSONObject
   logsBloom: String
+  mainTransactionDataFetched: Boolean!
   nonce: Float
   status: TransactionStatuses
   timestamp: Float
@@ -609,24 +628,30 @@ type TransactionAsset {
   category: TransactionAssetCategories
   contract: String
   decimal: Float
+  decimals: Float
   name: String
-  value: BigNumber
-}
-
-type TransactionData {
-  data: String
-  to: String!
+  symbol: String
   value: BigNumber
 }
 
 type TransactionLog {
   address: String!
   data: String!
+  decoded: TransactionLogDecoded
   topics: [String!]!
 }
 
+type TransactionLogDecoded {
+  name: String!
+  params: JSONObject
+  signature: String!
+}
+
 type Transactions {
+  currentPage: Int!
   items: [Transaction!]!
+  nextPage: Int
+  total: Int
 }
 
 enum AccountMemberStates {
@@ -694,6 +719,7 @@ enum ENSRootNodeStates {
 
 enum ExchangeProviders {
   Aave
+  Honeyswap
   OneInch
   PoolTogether
   Rari
@@ -808,6 +834,11 @@ enum TransactionAssetCategories {
   External
   Internal
   Token
+}
+
+enum TransactionDirections {
+  Receiver
+  Sender
 }
 
 enum TransactionStatuses {
