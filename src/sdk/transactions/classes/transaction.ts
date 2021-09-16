@@ -1,8 +1,11 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
 import { TransformBigNumber } from '../../common';
-import { TransactionStatuses } from '../constants';
+import { TransactionDirections, TransactionStatuses } from '../constants';
 import { TransactionAsset } from './transaction-asset';
+import { TransactionBatch } from './transaction-batch';
+import { TransactionLog } from './transaction-log';
+import { InternalTransaction } from './internal-transaction';
 
 export class Transaction {
   // transaction
@@ -30,22 +33,26 @@ export class Transaction {
 
   input: string;
 
-  // transaction receipt
-
   transactionIndex: number;
-
-  cumulativeGasUsed: number;
 
   gasUsed: number;
 
-  logs: any[];
-
-  logsBloom: string;
+  logs: TransactionLog[];
 
   status: TransactionStatuses;
 
-  // asset
-
   @Type(() => TransactionAsset)
   asset: TransactionAsset;
+
+  blockExplorerUrl: string;
+
+  direction: TransactionDirections;
+
+  mainTransactionDataFetched: boolean;
+
+  internalTransactionsFetched: boolean;
+
+  internalTransactions: InternalTransaction[];
+
+  batch: TransactionBatch;
 }
