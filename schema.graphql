@@ -597,13 +597,13 @@ type TokenLists {
 type Transaction {
   asset: TransactionAsset
   batch: JSONObject
-  blockExplorerUrl: String!
+  blockExplorerUrl: String
   blockHash: String
   blockNumber: Float
   chainId: Float!
-  contractMethodCalled: String!
+  contractMethodCalled: String
   cumulativeGasUsed: Float
-  direction: TransactionDirections!
+  direction: TransactionDirections
   from: String!
   gasLimit: Float
   gasPrice: BigNumber
