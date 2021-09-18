@@ -8,7 +8,7 @@ schema {
 
 type Account {
   address: String!
-  chainId: Float!
+  chainId: Int!
   createdAt: DateTime!
   ensNode: ENSNode
   metadata: AccountMetadata
@@ -232,7 +232,7 @@ type GatewaySupportedTokens {
 type GatewayTransaction {
   batches: [GatewayBatch!]!
   blockNumber: Int
-  chainId: Float!
+  chainId: Int!
   createdAt: DateTime!
   gasLimit: Float!
   gasPrice: BigNumber!
@@ -487,7 +487,7 @@ type ProjectPublic {
   address: String!
   createdAt: DateTime
   endpoint: String!
-  id: Float!
+  id: Int!
   key: String!
   owner: Float!
   privateKey: String!
@@ -600,7 +600,7 @@ type Transaction {
   blockExplorerUrl: String
   blockHash: String
   blockNumber: Float
-  chainId: Float!
+  chainId: Int!
   contractMethodCalled: String
   cumulativeGasUsed: Float
   direction: TransactionDirections
@@ -609,7 +609,7 @@ type Transaction {
   gasPrice: BigNumber
   gasUsed: Float
   hash: String!
-  id: Float
+  id: Int
   input: String
   internalTransactions: JSONObject
   internalTransactionsFetched: Boolean!
@@ -627,8 +627,8 @@ type Transaction {
 type TransactionAsset {
   category: TransactionAssetCategories
   contract: String
-  decimal: Float
-  decimals: Float
+  decimal: Int
+  decimals: Int
   name: String
   symbol: String
   value: BigNumber
