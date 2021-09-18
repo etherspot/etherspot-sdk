@@ -489,7 +489,7 @@ type ProjectPublic {
   endpoint: String!
   id: Int!
   key: String!
-  owner: Float!
+  owner: Int!
   privateKey: String!
   state: ProjectStates!
   updatedAt: DateTime
