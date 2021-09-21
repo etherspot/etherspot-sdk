@@ -56,7 +56,6 @@ export class TransactionsService extends Service {
         query($chainId: Int, $account: String!) {
           result: transactions(chainId: $chainId, account: $account) {
             items {
-              blockHash
               blockNumber
               timestamp
               from
@@ -64,9 +63,7 @@ export class TransactionsService extends Service {
               gasPrice
               gasUsed
               hash
-              input
               logs
-              nonce
               status
               to
               value
