@@ -3,4 +3,5 @@ export enum ExchangeProviders {
   OneInch = 'OneInch',
   Synthetix = 'Synthetix',
   Sushiswap = 'Sushiswap',
+  Honeyswap = 'Honeyswap',
 }

@@ -9,3 +9,8 @@ export enum TransactionAssetCategories {
   Internal = 'internal',
   Token = 'token',
 }
+
+export enum TransactionDirections {
+  Sender = 'Sender',
+  Receiver = 'Receiver',
+}

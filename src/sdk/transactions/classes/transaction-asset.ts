@@ -10,7 +10,10 @@ export class TransactionAsset {
   @TransformBigNumber()
   value: BigNumber;
 
+  // @deprecated
   decimal: number;
+
+  decimals: number;
 
   contract: string;
 }

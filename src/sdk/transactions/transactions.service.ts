@@ -14,7 +14,6 @@ export class TransactionsService extends Service {
           result: transaction(chainId: $chainId, hash: $hash) {
             blockHash
             blockNumber
-            cumulativeGasUsed
             from
             gasLimit
             gasPrice
@@ -22,20 +21,15 @@ export class TransactionsService extends Service {
             hash
             input
             logs
-            logsBloom
             nonce
             status
             timestamp
             to
             transactionIndex
             value
-            asset {
-              name
-              category
-              value
-              decimal
-              contract
-            }
+            blockExplorerUrl
+            mainTransactionDataFetched
+            internalTransactionsFetched
           }
         }
       `,
@@ -65,7 +59,6 @@ export class TransactionsService extends Service {
               blockHash
               blockNumber
               timestamp
-              cumulativeGasUsed
               from
               gasLimit
               gasPrice
@@ -73,12 +66,15 @@ export class TransactionsService extends Service {
               hash
               input
               logs
-              logsBloom
               nonce
               status
               to
-              transactionIndex
               value
+              direction
+              internalTransactions
+              internalTransactionsFetched
+              mainTransactionDataFetched
+              batch
               asset {
                 name
                 category
@@ -86,6 +82,7 @@ export class TransactionsService extends Service {
                 decimal
                 contract
               }
+              blockExplorerUrl
             }
           }
         }
