@@ -238,6 +238,7 @@ type GatewayTransaction {
   gasPrice: BigNumber!
   gasUsed: Int
   hash: String!
+  id: Int!
   internalTransactions: [InternalTransaction!]!
   internalTransactionsFetched: Boolean!
   sender: String
@@ -754,6 +755,8 @@ enum GatewayTransactionStates {
 }
 
 enum NetworkNames {
+  Aurora
+  AuroraTest
   Bsc
   BscTest
   Etherspot
