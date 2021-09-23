@@ -16,4 +16,8 @@ export class TransactionAsset {
   decimals: number;
 
   contract: string;
+
+  from: string;
+
+  to: string;
 }
