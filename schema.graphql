@@ -630,8 +630,10 @@ type TransactionAsset {
   contract: String
   decimal: Int
   decimals: Int
+  from: String
   name: String
   symbol: String
+  to: String
   value: BigNumber
 }
 
