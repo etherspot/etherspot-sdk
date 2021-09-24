@@ -47,7 +47,7 @@
     "class-validator": "0.13.1",
     "cross-fetch": "3.0.6",
     "graphql": "15.5.0",
-    "subscriptions-transport-ws": "0.9.18",
+    "subscriptions-transport-ws": "0.10.0",
     "validator": "13.5.2"
   },
   "devDependencies": {
