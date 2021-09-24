@@ -73,6 +73,8 @@ export class TransactionsService extends Service {
               mainTransactionDataFetched
               batch
               asset {
+                from
+                to
                 name
                 category
                 value
