@@ -54,5 +54,6 @@ export class Transaction {
 
   internalTransactions: InternalTransaction[];
 
+  @Type(() => TransactionBatch)
   batch: TransactionBatch;
 }
