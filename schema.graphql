@@ -634,6 +634,7 @@ type TransactionAsset {
   name: String
   symbol: String
   to: String
+  type: TokenTypes
   value: BigNumber
 }
 
@@ -833,6 +834,12 @@ enum ProjectStates {
   Accepted
   New
   Rejected
+}
+
+enum TokenTypes {
+  Erc20
+  Erc721
+  Native
 }
 
 enum TransactionAssetCategories {

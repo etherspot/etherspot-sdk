@@ -14,3 +14,9 @@ export enum TransactionDirections {
   Sender = 'Sender',
   Receiver = 'Receiver',
 }
+
+export enum TokenTypes {
+  Erc20 = 'Erc20',
+  Erc721 = 'Erc721',
+  Native = 'Native',
+}
