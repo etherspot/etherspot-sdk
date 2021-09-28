@@ -76,7 +76,9 @@ export class TransactionsService extends Service {
                 from
                 to
                 name
+                symbol
                 category
+                type
                 value
                 decimal
                 contract

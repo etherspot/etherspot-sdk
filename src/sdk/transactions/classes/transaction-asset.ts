@@ -1,11 +1,13 @@
 import { BigNumber } from 'ethers';
 import { TransformBigNumber } from '../../common';
-import { TransactionAssetCategories } from '../constants';
+import { TokenTypes, TransactionAssetCategories } from '../constants';
 
 export class TransactionAsset {
   name: string;
 
   category: TransactionAssetCategories;
+
+  type: TokenTypes;
 
   @TransformBigNumber()
   value: BigNumber;
