@@ -183,7 +183,7 @@ export class SessionService extends Service {
     const { walletAddress } = walletService;
 
     if (walletAddress) {
-      const storedSession = walletAddress ? await this.storage.getSession(walletAddress) : null;
+      const storedSession = await this.storage.getSession(walletAddress);
 
       session = storedSession ? Session.fromStoredSession(storedSession) : null;
     }
