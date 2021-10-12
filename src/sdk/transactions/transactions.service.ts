@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { OpenSeaAssets, OpenSeaHistory, Transaction, Transactions } from './classes';
+import { NftList, OpenSeaAssets, OpenSeaHistory, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -180,6 +180,43 @@ export class TransactionsService extends Service {
         },
         models: {
           result: OpenSeaHistory,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getNftList(account: string): Promise<NftList> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: NftList;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!) {
+          result: nftList(chainId: $chainId, account: $account) {
+            items {
+              contractName
+              contractSymbol
+              contractAddress
+              tokenType
+              items {
+                tokenId
+                name
+                amount
+                image
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+        models: {
+          result: NftList,
         },
       },
     );

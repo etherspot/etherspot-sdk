@@ -89,6 +89,7 @@ import {
   GetCollectiblesTransactionHistoryDto,
   GetAccountTotalBalancesDto,
   ReserveENSNameDto as ValidateENSNameDto,
+  GetNftListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -125,7 +126,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, OpenSeaHistory, OpenSeaAssets } from './transactions';
+import { Transactions, Transaction, TransactionsService, OpenSeaHistory, OpenSeaAssets, NftList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -1929,6 +1930,25 @@ export class Sdk {
     });
 
     return this.services.transactionsService.getCollectiblesTransactionHistory(
+      this.prepareAccountAddress(account), //
+    );
+  }
+
+  /**
+   * gets NFT list belonging to account
+   * @param dto
+   * @return Promise<NftList>
+   */
+  async getNftList(dto: GetNftListDto): Promise<NftList> {
+    const { account } = await validateDto(dto, GetNftListDto, {
+      addressKeys: ['account'],
+    });
+
+    await this.require({
+      wallet: !account,
+    });
+
+    return this.services.transactionsService.getNftList(
       this.prepareAccountAddress(account), //
     );
   }
