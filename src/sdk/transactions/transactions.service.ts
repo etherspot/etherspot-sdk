@@ -195,7 +195,7 @@ export class TransactionsService extends Service {
     }>(
       gql`
         query($chainId: Int, $account: String!) {
-          result: NftList(chainId: $chainId, account: $account) {
+          result: nftList(chainId: $chainId, account: $account) {
             items {
               contractName
               contractSymbol
