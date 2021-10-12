@@ -25,6 +25,7 @@ export * from './get-ens-root-node.dto';
 export * from './get-exchange-offers.dto';
 export * from './get-gateway-submitted-batch.dto';
 export * from './get-gateway-supported-token.dto';
+export * from './get-nft-list.dto';
 export * from './get-p2p-payment-channel.dto';
 export * from './get-p2p-payment-channels.dto';
 export * from './get-p2p-payment-deposits.dto';

@@ -18,5 +18,6 @@ export enum TransactionDirections {
 export enum TokenTypes {
   Erc20 = 'Erc20',
   Erc721 = 'Erc721',
+  Erc1155 = 'Erc1155',
   Native = 'Native',
 }
