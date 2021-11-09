@@ -85,8 +85,6 @@ import {
   ENSNamesLookupDto,
   GetTransactionDto,
   GetTransactionsDto,
-  GetCollectiblesDto,
-  GetCollectiblesTransactionHistoryDto,
   GetAccountTotalBalancesDto,
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
@@ -126,7 +124,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, OpenSeaHistory, OpenSeaAssets, NftList } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -1892,44 +1890,6 @@ export class Sdk {
     });
 
     return this.services.transactionsService.getTransactions(
-      this.prepareAccountAddress(account), //
-    );
-  }
-
-  /**
-   * gets collectibles
-   * @param dto
-   * @return Promise<OpenSeaAssets>
-   */
-  async getCollectibles(dto: GetCollectiblesDto): Promise<OpenSeaAssets> {
-    const { account } = await validateDto(dto, GetCollectiblesDto, {
-      addressKeys: ['account'],
-    });
-
-    await this.require({
-      wallet: !account,
-    });
-
-    return this.services.transactionsService.getCollectibles(
-      this.prepareAccountAddress(account), //
-    );
-  }
-
-  /**
-   * gets collectibles transaction history
-   * @param dto
-   * @return Promise<OpenSeaHistory>
-   */
-  async getCollectiblesTransactionHistory(dto: GetCollectiblesTransactionHistoryDto): Promise<OpenSeaHistory> {
-    const { account } = await validateDto(dto, GetCollectiblesTransactionHistoryDto, {
-      addressKeys: ['account'],
-    });
-
-    await this.require({
-      wallet: !account,
-    });
-
-    return this.services.transactionsService.getCollectiblesTransactionHistory(
       this.prepareAccountAddress(account), //
     );
   }
