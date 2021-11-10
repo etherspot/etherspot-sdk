@@ -3,8 +3,6 @@ export * from './internal-transaction';
 export * from './nft-collection';
 export * from './nft-list';
 export * from './nft';
-export * from './opensea-assets';
-export * from './opensea-history';
 export * from './transaction';
 export * from './transaction-asset';
 export * from './transaction-batch';

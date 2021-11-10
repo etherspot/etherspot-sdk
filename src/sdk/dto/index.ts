@@ -18,8 +18,6 @@ export * from './get-account-dashboard.dto';
 export * from './get-account-members.dto';
 export * from './get-account-total-balances.dto';
 export * from './get-account.dto';
-export * from './get-collectibles.dto';
-export * from './get-collectibles-transaction-history.dto';
 export * from './get-ens-node.dto';
 export * from './get-ens-root-node.dto';
 export * from './get-exchange-offers.dto';
