@@ -114,7 +114,9 @@ export class TransactionsService extends Service {
               contractName
               contractSymbol
               contractAddress
+              balance
               tokenType
+              nftVersion
               items {
                 tokenId
                 name

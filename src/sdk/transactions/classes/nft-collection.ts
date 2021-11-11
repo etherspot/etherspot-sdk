@@ -16,5 +16,7 @@ export class NftCollection extends BaseClass<NftCollection> {
 
   tokenType: TokenTypes;
 
+  nftVersion: string;
+
   items: Nft[];
 }
