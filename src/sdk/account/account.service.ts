@@ -9,9 +9,11 @@ import {
   AccountMember,
   AccountMembers,
   Accounts,
+  AccountSettings,
   AccountTotalBalances,
 } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes, Currencies } from './constants';
+import { UpdateAccountSettingsDto } from '../dto';
 
 export class AccountService extends Service {
   readonly account$ = new SynchronizedSubject<Account>();
@@ -373,6 +375,87 @@ export class AccountService extends Service {
         },
         models: {
           result: AccountMembers,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getAccountSettings(): Promise<AccountSettings> {
+    const { apiService, accountService } = this.services;
+
+    const { accountAddress } = accountService;
+
+    const { result } = await apiService.query<{
+      result: AccountSettings;
+    }>(
+      gql`
+        query($chainId: Int, $account: String!) {
+          result: accountSettings(chainId: $chainId, account: $account) {
+            fcmToken
+            delayTransactions
+          }
+        }
+      `,
+      {
+        models: {
+          result: AccountSettings,
+        },
+        variables: {
+          account: accountAddress,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getDelayTransactionOptions(): Promise<number[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: number[];
+    }>(
+      gql`
+        query {
+          result: delayTransactionOptions
+        }
+      `,
+    );
+
+    return result;
+  }
+
+  async updateAccountSettings(dto: UpdateAccountSettingsDto): Promise<AccountSettings> {
+    const { apiService, accountService } = this.services;
+
+    const { accountAddress } = accountService;
+
+    const { result } = await apiService.mutate<{
+      result: AccountSettings;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!, $fcmToken: String, $delayTransactions: Int) {
+          result: updateAccountSettings(
+            chainId: $chainId
+            account: $account
+            fcmToken: $fcmToken
+            delayTransactions: $delayTransactions
+          ) {
+            fcmToken
+            delayTransactions
+          }
+        }
+      `,
+      {
+        models: {
+          result: AccountSettings,
+        },
+        variables: {
+          account: accountAddress,
+          fcmToken: dto.fcmToken,
+          delayTransactions: dto.delayTransactions,
         },
       },
     );

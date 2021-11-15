@@ -42,6 +42,9 @@ export class GatewaySubmittedBatch {
   feeData: string;
 
   @Type(() => Date)
+  delayedUntil?: Date;
+
+  @Type(() => Date)
   createdAt: Date;
 
   @Type(() => Date)

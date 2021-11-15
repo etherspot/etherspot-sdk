@@ -141,6 +141,7 @@ export class GatewayService extends Service {
             feeToken
             feeAmount
             feeData
+            delayedUntil
             createdAt
             updatedAt
           }
@@ -576,6 +577,7 @@ export class GatewayService extends Service {
             feeToken
             feeAmount
             feeData
+            delayedUntil
             createdAt
             updatedAt
           }
@@ -604,6 +606,92 @@ export class GatewayService extends Service {
     if (!statelessBatch) {
       this.clearGatewayBatch();
     }
+
+    return result;
+  }
+
+  async cancelGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: GatewaySubmittedBatch;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!, $hash: String!) {
+          result: cancelGatewayBatch(chainId: $chainId, account: $account, hash: $hash) {
+            hash
+            state
+            account
+            nonce
+            to
+            data
+            senderSignature
+            estimatedGas
+            estimatedGasPrice
+            feeToken
+            feeAmount
+            feeData
+            delayedUntil
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatch,
+        },
+        variables: {
+          account,
+          hash,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async forceGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.mutate<{
+      result: GatewaySubmittedBatch;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!, $hash: String!) {
+          result: forceGatewayBatch(chainId: $chainId, account: $account, hash: $hash) {
+            hash
+            state
+            account
+            nonce
+            to
+            data
+            senderSignature
+            estimatedGas
+            estimatedGasPrice
+            feeToken
+            feeAmount
+            feeData
+            delayedUntil
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatch,
+        },
+        variables: {
+          account,
+          hash,
+        },
+      },
+    );
 
     return result;
   }
