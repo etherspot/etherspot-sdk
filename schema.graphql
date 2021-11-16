@@ -71,6 +71,15 @@ type AccountProof {
   updatedAt: DateTime!
 }
 
+type AccountSettings {
+  account: Account!
+  createdAt: DateTime!
+  defaultTokenListName: String
+  delayTransactions: Float
+  fcmToken: String
+  updatedAt: DateTime!
+}
+
 type AccountTotalBalances {
   totalBalances: [AccountTotalBalancesItem!]!
 }
@@ -105,6 +114,31 @@ type BlockStats {
   currentBlockNumber: Int
   lastProcessedBlockNumber: Int
   reConsumeBlockNumber: Int
+}
+
+type BridgeAsset {
+  address: String!
+  chainId: Int!
+  decimals: Int!
+  icon: String!
+  name: String!
+  symbol: String!
+}
+
+type BridgeInfo {
+  icon: String
+  serviceTime: Int!
+}
+
+type BridgeRoute {
+  bridgeInfo: BridgeInfo!
+  bridgeName: String!
+  fromAsset: BridgeAsset!
+  fromChainId: Int!
+  inputAmount: BigNumber!
+  outputAmount: BigNumber!
+  toAsset: BridgeAsset!
+  toChainId: Int!
 }
 
 type ENSAddresses {
@@ -158,6 +192,7 @@ type GatewayBatch {
   account: String!
   createdAt: DateTime
   data: [String!]!
+  delayedUntil: DateTime
   estimatedGas: Int!
   estimatedGasPrice: BigNumber!
   feeAmount: BigNumber!
@@ -254,10 +289,27 @@ type InternalTransaction {
   value: BigNumber!
 }
 
+type MovrFee {
+  amount: BigNumber!
+  assetAddress: String!
+}
+
+type MovrFees {
+  bridgeFee: MovrFee!
+  gasLimit: MovrFee!
+}
+
+type MovrRoute {
+  bridgeRoute: BridgeRoute!
+  fees: MovrFees!
+  useMiddleware: Boolean!
+}
+
 type Mutation {
   activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
   callContract(chainId: Int, data: String!, to: String!): String!
   callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
+  cancelGatewayBatch(account: String!, chainId: Int, hash: String!): GatewayBatch!
   createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!, chainId: Int): String!
@@ -265,6 +317,7 @@ type Mutation {
   destroySession(chainId: Int): Boolean!
   estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, feeToken: String, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
   estimateGatewayKnownOp(account: String!, chainId: Int, feeToken: String, op: GatewayKnownOps!): GatewayEstimatedKnownOp!
+  forceGatewayBatch(account: String!, chainId: Int, hash: String!): GatewayBatch!
   p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
   reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
@@ -277,6 +330,7 @@ type Mutation {
   touchSession(chainId: Int): Boolean!
   transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
+  updateAccountSettings(account: String!, chainId: Int, delayTransactions: Int, fcmToken: String): AccountSettings!
   updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
   updateP2PPaymentDeposit(chainId: Int, owner: String!, token: String, totalAmount: BigNumber): P2PPaymentDeposit
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
@@ -301,10 +355,72 @@ type Network {
   nativeCurrency: String!
 }
 
+type Nft {
+  amount: Int!
+  image: String
+  name: String
+  tokenId: String!
+}
+
+type NftCollection {
+  balance: Float!
+  contractAddress: String!
+  contractName: String
+  contractSymbol: String
+  items: [Nft!]!
+  tokenType: TokenTypes!
+}
+
+type NftList {
+  currentPage: Int!
+  items: [NftCollection!]!
+  nextPage: Int
+  total: Int
+}
+
 type Notification {
   payload: JSONObject
   recipient: String!
   type: NotificationTypes!
+}
+
+type OpenSeaAsset {
+  assetContract: OpenSeaAssetContract!
+  description: String
+  imagePreviewUrl: String
+  imageUrl: String
+  name: String
+}
+
+type OpenSeaAssetAccount {
+  address: String!
+}
+
+type OpenSeaAssetContract {
+  address: String!
+  name: String!
+}
+
+type OpenSeaAssetTransaction {
+  blockNumber: String!
+  id: Float!
+  timestamp: String!
+  transactionHash: String!
+}
+
+type OpenSeaAssets {
+  items: [OpenSeaAsset!]!
+}
+
+type OpenSeaHistory {
+  items: [OpenSeaHistoryItem!]!
+}
+
+type OpenSeaHistoryItem {
+  asset: OpenSeaAsset!
+  fromAccount: OpenSeaAssetAccount!
+  toAccount: OpenSeaAssetAccount!
+  transaction: OpenSeaAssetTransaction!
 }
 
 type P2PPaymentChannel {
@@ -465,12 +581,16 @@ type Query {
   accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
+  accountSettings(account: String!, chainId: Int): AccountSettings
   accountTokenList(account: String!, chainId: Int, name: String): TokenListPublic
   accountTotalBalances(account: String!, chainId: Int, currency: Currencies!): AccountTotalBalances
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
   blockStats(chainId: Int): BlockStats!
+  collectibles(account: String!, chainId: Int): OpenSeaAssets!
+  collectiblesTransactionHistory(account: String!, chainId: Int): OpenSeaHistory!
   defaultNetwork: Network!
+  delayTransactionOptions: [Int!]!
   ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
   ensNamesLookup(addresses: [String!] = [], chainId: Int): ENSNames!
   ensNode(chainId: Int, nameOrHashOrAddress: String!): ENSNode
@@ -479,6 +599,7 @@ type Query {
   ensRootNodes(chainId: Int): ENSRootNodes!
   exchangeOffers(account: String!, chainId: Int, fromAmount: BigNumber!, fromTokenAddress: String!, toTokenAddress: String!): ExchangeOffers!
   exchangeSupportedAssets(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): PaginatedTokens!
+  findBridgeRoutes(amount: BigNumber!, fromAsset: String!, fromChainId: Int!, toAsset: String!, toChainId: Int!): [MovrRoute!]!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewayGasInfo(chainId: Int): GatewayGasInfo!
@@ -490,6 +611,7 @@ type Query {
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
   nativeCurrencies: NativeCurrencies!
+  nftList(account: String!, chainId: Int): NftList!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
   p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
@@ -502,6 +624,7 @@ type Query {
   paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   project(chainId: Int, key: String!): ProjectPublic
+  supportedBridges: SupportedBridges!
   supportedNetworks: [Network!]!
   tokenList(chainId: Int, name: String): TokenListPublic
   tokenLists(chainId: Int): TokenLists!
@@ -528,6 +651,14 @@ type Subscription {
   newNotification(address: String!, chainId: Int): Notification
 }
 
+type SupportedBridge {
+  bridgeName: String!
+}
+
+type SupportedBridges {
+  items: [SupportedBridge!]!
+}
+
 type TokenListPublic {
   chainId: Float!
   createdAt: DateTime!
@@ -545,8 +676,8 @@ type TokenListToken {
   chainId: Float!
   decimals: Float
   logoURI: String
-  name: String!
-  symbol: String!
+  name: String
+  symbol: String
 }
 
 type TokenLists {
@@ -574,6 +705,7 @@ type Transaction {
   internalTransactionsFetched: Boolean!
   logs: JSONObject
   logsBloom: String
+  logsTrimmed: Boolean
   mainTransactionDataFetched: Boolean!
   nonce: Float
   status: TransactionStatuses
@@ -592,6 +724,7 @@ type TransactionAsset {
   name: String
   symbol: String
   to: String
+  tokenId: BigNumber
   type: TokenTypes
   value: BigNumber
 }
@@ -691,6 +824,8 @@ enum ExchangeProviders {
 }
 
 enum GatewayBatchStates {
+  Canceled
+  Delayed
   Queued
   Reverted
   Sending
@@ -795,6 +930,7 @@ enum ProjectStates {
 }
 
 enum TokenTypes {
+  Erc1155
   Erc20
   Erc721
   Native

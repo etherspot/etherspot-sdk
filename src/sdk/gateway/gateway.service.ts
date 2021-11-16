@@ -613,7 +613,7 @@ export class GatewayService extends Service {
   async cancelGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
     const { accountService, apiService } = this.services;
 
-    const account = accountService.accountAddress;
+    const { accountAddress } = accountService;
 
     const { result } = await apiService.mutate<{
       result: GatewaySubmittedBatch;
@@ -644,7 +644,7 @@ export class GatewayService extends Service {
           result: GatewaySubmittedBatch,
         },
         variables: {
-          account,
+          account: accountAddress,
           hash,
         },
       },
@@ -656,7 +656,7 @@ export class GatewayService extends Service {
   async forceGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
     const { accountService, apiService } = this.services;
 
-    const account = accountService.accountAddress;
+    const { accountAddress } = accountService;
 
     const { result } = await apiService.mutate<{
       result: GatewaySubmittedBatch;
@@ -687,7 +687,7 @@ export class GatewayService extends Service {
           result: GatewaySubmittedBatch,
         },
         variables: {
-          account,
+          account: accountAddress,
           hash,
         },
       },
