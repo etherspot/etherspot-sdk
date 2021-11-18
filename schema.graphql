@@ -75,7 +75,7 @@ type AccountSettings {
   account: Account!
   createdAt: DateTime!
   defaultTokenListName: String
-  delayTransactions: Float
+  delayTransactions: Int
   fcmToken: String
   updatedAt: DateTime!
 }
@@ -368,6 +368,7 @@ type NftCollection {
   contractName: String
   contractSymbol: String
   items: [Nft!]!
+  nftVersion: String
   tokenType: TokenTypes!
 }
 
@@ -382,45 +383,6 @@ type Notification {
   payload: JSONObject
   recipient: String!
   type: NotificationTypes!
-}
-
-type OpenSeaAsset {
-  assetContract: OpenSeaAssetContract!
-  description: String
-  imagePreviewUrl: String
-  imageUrl: String
-  name: String
-}
-
-type OpenSeaAssetAccount {
-  address: String!
-}
-
-type OpenSeaAssetContract {
-  address: String!
-  name: String!
-}
-
-type OpenSeaAssetTransaction {
-  blockNumber: String!
-  id: Float!
-  timestamp: String!
-  transactionHash: String!
-}
-
-type OpenSeaAssets {
-  items: [OpenSeaAsset!]!
-}
-
-type OpenSeaHistory {
-  items: [OpenSeaHistoryItem!]!
-}
-
-type OpenSeaHistoryItem {
-  asset: OpenSeaAsset!
-  fromAccount: OpenSeaAssetAccount!
-  toAccount: OpenSeaAssetAccount!
-  transaction: OpenSeaAssetTransaction!
 }
 
 type P2PPaymentChannel {
@@ -587,8 +549,6 @@ type Query {
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
   altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
   blockStats(chainId: Int): BlockStats!
-  collectibles(account: String!, chainId: Int): OpenSeaAssets!
-  collectiblesTransactionHistory(account: String!, chainId: Int): OpenSeaHistory!
   defaultNetwork: Network!
   delayTransactionOptions: [Int!]!
   ensAddressesLookup(chainId: Int, names: [String!] = []): ENSAddresses!
