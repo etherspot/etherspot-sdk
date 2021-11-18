@@ -1,8 +1,10 @@
 export enum GatewayBatchStates {
   Queued = 'Queued',
+  Delayed = 'Delayed',
   Sending = 'Sending',
   Sent = 'Sent',
   Reverted = 'Reverted',
+  Canceled = 'Canceled',
 }
 
 export enum GatewayTransactionStates {

@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import { Synchronized } from '../../common';
 import { ENSNode } from '../../ens';
 import { AccountTypes, AccountStates, AccountStores } from '../constants';
+import { AccountSettings } from './account-settings';
 
 export class Account extends Synchronized {
   static fromPlain(plain: Partial<Account>): Account {
@@ -19,6 +20,9 @@ export class Account extends Synchronized {
 
   @Type(() => ENSNode)
   ensNode?: ENSNode;
+
+  @Type(() => AccountSettings)
+  settings?: AccountSettings;
 
   @Type(() => Date)
   createdAt: Date;

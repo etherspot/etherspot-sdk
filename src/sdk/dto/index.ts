@@ -1,6 +1,7 @@
 export * from './add-account-owner.dto';
 export * from './batch-gateway-transaction-request.dto';
 export * from './call-current-project.dto';
+export * from './cancel-gateway-batch.dto';
 export * from './claim-ens-node.dto';
 export * from './commit-p2p-payment-channel.dto';
 export * from './compute-contract-account.dto';
@@ -52,6 +53,7 @@ export * from './sign-message.dto';
 export * from './sign-p2p-payment-channel.dto';
 export * from './switch-current-project.dto';
 export * from './transfer-payment-hub-deposit.dto';
+export * from './update-account-settings.dto';
 export * from './update-p2p-payment-channel.dto';
 export * from './update-payment-hub-bridge.dto';
 export * from './update-payment-hub-deposit.dto';

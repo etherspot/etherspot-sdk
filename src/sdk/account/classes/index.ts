@@ -8,5 +8,6 @@ export * from './account-member';
 export * from './account-members';
 export * from './account-proof';
 export * from './account-proofs';
+export * from './account-settings';
 export * from './account-total-balances';
 export * from './accounts';

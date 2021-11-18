@@ -6,6 +6,7 @@ import {
   AccountMembers,
   Accounts,
   AccountService,
+  AccountSettings,
   AccountTotalBalances,
   AccountTypes,
 } from './account';
@@ -29,6 +30,8 @@ import {
   AddAccountOwnerDto,
   BatchGatewayTransactionRequestDto,
   CallCurrentProjectDto,
+  CancelGatewayBatchDto,
+  CancelGatewayBatchDto as ForceGatewayBatchDto,
   ClaimENSNodeDto,
   CommitP2PPaymentChannelDto,
   ComputeContractAccountDto,
@@ -73,6 +76,7 @@ import {
   SignP2PPaymentChannelDto,
   SwitchCurrentProjectDto,
   TransferPaymentHubDepositDto,
+  UpdateAccountSettingsDto,
   UpdateP2PPaymentChannelDto,
   UpdatePaymentHubBridgeDto,
   UpdatePaymentHubDepositDto,
@@ -480,6 +484,42 @@ export class Sdk {
   }
 
   /**
+   * cancels gateway batch
+   * @param dto
+   * @return Promise<GatewaySubmittedBatch>
+   */
+  async cancelGatewayBatch(dto: CancelGatewayBatchDto): Promise<GatewaySubmittedBatch> {
+    const { hash } = await validateDto(dto, CancelGatewayBatchDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    const { gatewayService } = this.services;
+
+    return gatewayService.cancelGatewayBatch(hash);
+  }
+
+  /**
+   * forces gateway batch
+   * @param dto
+   * @return Promise<GatewaySubmittedBatch>
+   */
+  async forceGatewayBatch(dto: ForceGatewayBatchDto): Promise<GatewaySubmittedBatch> {
+    const { hash } = await validateDto(dto, ForceGatewayBatchDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    const { gatewayService } = this.services;
+
+    return gatewayService.forceGatewayBatch(hash);
+  }
+
+  /**
    * encodes gateway batch
    * @param dto
    * @return Promise<TransactionRequest>
@@ -735,6 +775,42 @@ export class Sdk {
       this.prepareAccountAddress(account), //
       page || 1,
     );
+  }
+
+  /**
+   * gets delay transaction options
+   * @return Promise<number[]>
+   */
+  async getDelayTransactionOptions(): Promise<number[]> {
+    await this.require({
+      session: true,
+    });
+
+    return this.services.accountService.getDelayTransactionOptions();
+  }
+
+  /**
+   * gets account settings
+   * @return Promise<AccountSettings>
+   */
+  async getAccountSettings(): Promise<AccountSettings> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.services.accountService.getAccountSettings();
+  }
+
+  /**
+   * updates account settings
+   * @return Promise<AccountSettings>
+   */
+  async updateAccountSettings(dto: UpdateAccountSettingsDto): Promise<AccountSettings> {
+    await this.require({
+      contractAccount: true,
+    });
+
+    return this.services.accountService.updateAccountSettings(dto);
   }
 
   // account (encode)
