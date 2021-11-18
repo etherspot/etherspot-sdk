@@ -186,6 +186,11 @@ export class GatewayService extends Service {
                 createdAt
                 updatedAt
               }
+              logs {
+                address
+                data
+                topics
+              }
               hash
               state
               account
