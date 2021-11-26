@@ -781,6 +781,7 @@ enum ExchangeProviders {
   Sushiswap
   Synthetix
   Uniswap
+  Paraswap
 }
 
 enum GatewayBatchStates {
