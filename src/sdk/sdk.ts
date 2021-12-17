@@ -35,6 +35,7 @@ import {
   ClaimENSNodeDto,
   CommitP2PPaymentChannelDto,
   ComputeContractAccountDto,
+  ComputeContractAccountByAddressDto,
   CreatePaymentHubPaymentDto,
   CreateSessionDto,
   CustomProjectMetadataDto,
@@ -656,6 +657,18 @@ export class Sdk {
     }
 
     return accountService.account;
+  }
+
+  /**
+   * computes contract account by custom address
+   * @param dto
+   * @return Promise<string>
+   */
+  async computeContractAccountByAddress(dto: ComputeContractAccountByAddressDto): Promise<string> {
+    const { address } = await validateDto(dto, ComputeContractAccountByAddressDto);
+
+    const { personalAccountRegistryContract } = this.internalContracts;
+    return personalAccountRegistryContract.computeAccountAddress(address);
   }
 
   /**
