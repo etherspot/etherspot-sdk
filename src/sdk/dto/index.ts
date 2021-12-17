@@ -5,6 +5,7 @@ export * from './cancel-gateway-batch.dto';
 export * from './claim-ens-node.dto';
 export * from './commit-p2p-payment-channel.dto';
 export * from './compute-contract-account.dto';
+export * from './compute-contract-account-by-address.dto';
 export * from './create-payment-hub-payment.dto';
 export * from './create-session.dto';
 export * from './custom-project-metadata.dto';
