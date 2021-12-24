@@ -1276,6 +1276,7 @@ export class Sdk {
 
     await this.require({
       session: true,
+      contractAccount: true,
     });
 
     return this.services.exchangeService.getExchangeOffers(
@@ -1976,6 +1977,7 @@ export class Sdk {
 
     await this.require({
       wallet: !account,
+      contractAccount: true,
     });
 
     return this.services.transactionsService.getTransactions(
