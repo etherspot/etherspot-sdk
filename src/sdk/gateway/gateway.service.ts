@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { utils } from 'ethers';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
@@ -52,7 +53,7 @@ export class GatewayService extends Service {
     this.gatewayBatch$.next(null);
   }
 
-  async getGatewaySupportedToken(token: string): Promise<GatewaySupportedToken> {
+  async getGatewaySupportedToken(token: string, network?: NetworkNames): Promise<GatewaySupportedToken> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -73,13 +74,14 @@ export class GatewayService extends Service {
         variables: {
           token,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getGatewaySupportedTokens(): Promise<GatewaySupportedToken[]> {
+  async getGatewaySupportedTokens(network?: NetworkNames): Promise<GatewaySupportedToken[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -99,13 +101,14 @@ export class GatewayService extends Service {
         models: {
           result: GatewaySupportedTokens,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result.items;
   }
 
-  async getGatewaySubmittedBatch(hash: string): Promise<GatewaySubmittedBatch> {
+  async getGatewaySubmittedBatch(hash: string, network?: NetworkNames): Promise<GatewaySubmittedBatch> {
     const { apiService, contractService } = this.services;
 
     const { result } = await apiService.query<{
@@ -154,6 +157,7 @@ export class GatewayService extends Service {
         variables: {
           hash,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -164,7 +168,7 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async getGatewaySubmittedBatches(page: number = null): Promise<GatewaySubmittedBatches> {
+  async getGatewaySubmittedBatches(page: number = null, network?: NetworkNames): Promise<GatewaySubmittedBatches> {
     const { accountService, apiService } = this.services;
 
     const account = accountService.accountAddress;
@@ -219,13 +223,17 @@ export class GatewayService extends Service {
           account,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getGatewaySubmittedPendingBatches(page: number = null): Promise<GatewaySubmittedBatches> {
+  async getGatewaySubmittedPendingBatches(
+    page: number = null,
+    network?: NetworkNames,
+  ): Promise<GatewaySubmittedBatches> {
     const { accountService, apiService } = this.services;
 
     const account = accountService.accountAddress;
@@ -275,13 +283,14 @@ export class GatewayService extends Service {
           account,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getGatewayTransaction(hash: string): Promise<GatewayTransaction> {
+  async getGatewayTransaction(hash: string, network?: NetworkNames): Promise<GatewayTransaction> {
     const { apiService, contractService } = this.services;
 
     const { result } = await apiService.query<{
@@ -329,6 +338,7 @@ export class GatewayService extends Service {
         variables: {
           hash,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -344,7 +354,7 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async getGatewayGasInfo(): Promise<GatewayGasInfo> {
+  async getGatewayGasInfo(network?: NetworkNames): Promise<GatewayGasInfo> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -363,13 +373,18 @@ export class GatewayService extends Service {
         models: {
           result: GatewayGasInfo,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async estimateGatewayBatch(feeToken: string, statelessBatch?: GatewayBatch): Promise<GatewayBatch> {
+  async estimateGatewayBatch(
+    feeToken: string,
+    statelessBatch?: GatewayBatch,
+    network?: NetworkNames,
+  ): Promise<GatewayBatch> {
     if (!this.gatewayBatch && !statelessBatch) {
       throw new Exception('Can not estimate empty batch');
     }
@@ -422,6 +437,7 @@ export class GatewayService extends Service {
           data,
           feeToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -445,7 +461,11 @@ export class GatewayService extends Service {
     return this.gatewayBatch;
   }
 
-  async estimateGatewayKnownOp(op: GatewayKnownOps, feeToken: string = null): Promise<GatewayEstimatedKnownOp> {
+  async estimateGatewayKnownOp(
+    op: GatewayKnownOps,
+    feeToken: string = null,
+    network?: NetworkNames,
+  ): Promise<GatewayEstimatedKnownOp> {
     const { accountService, apiService } = this.services;
 
     const account = accountService.accountAddress;
@@ -471,13 +491,14 @@ export class GatewayService extends Service {
           op,
           feeToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async submitGatewayBatch(statelessBatch?: GatewayBatch): Promise<GatewaySubmittedBatch> {
+  async submitGatewayBatch(statelessBatch?: GatewayBatch, network?: NetworkNames): Promise<GatewaySubmittedBatch> {
     if (!this.gatewayBatch && !statelessBatch) {
       throw new Exception('Can not submit empty batch');
     }
@@ -605,6 +626,7 @@ export class GatewayService extends Service {
           estimationExpiredAt,
           estimationSignature,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -615,7 +637,7 @@ export class GatewayService extends Service {
     return result;
   }
 
-  async cancelGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
+  async cancelGatewayBatch(hash: string, network?: NetworkNames): Promise<GatewaySubmittedBatch> {
     const { accountService, apiService } = this.services;
 
     const { accountAddress } = accountService;
@@ -652,13 +674,14 @@ export class GatewayService extends Service {
           account: accountAddress,
           hash,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async forceGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
+  async forceGatewayBatch(hash: string, network?: NetworkNames): Promise<GatewaySubmittedBatch> {
     const { accountService, apiService } = this.services;
 
     const { accountAddress } = accountService;
@@ -695,13 +718,14 @@ export class GatewayService extends Service {
           account: accountAddress,
           hash,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async encodeGatewayBatch(delegate: boolean): Promise<TransactionRequest> {
+  async encodeGatewayBatch(delegate: boolean, network?: NetworkNames): Promise<TransactionRequest> {
     if (!this.gatewayBatch) {
       throw new Exception('Can not encode empty batch');
     }
@@ -718,7 +742,7 @@ export class GatewayService extends Service {
     if (delegate) {
       const nonce = uniqueNonce();
 
-      const messageHash = gatewayContract.hashDelegatedBatch(account, nonce, to, data);
+      const messageHash = gatewayContract.hashDelegatedBatch(account, nonce, to, data, network);
       const senderSignature = await walletService.signMessage(messageHash);
 
       result = gatewayContract.encodeDelegateBatch(account, nonce, to, data, senderSignature);

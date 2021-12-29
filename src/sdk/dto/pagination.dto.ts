@@ -1,6 +1,7 @@
 import { IsOptional, IsPositive, IsInt, Max } from 'class-validator';
+import { NetworkNameDto } from './network-name.dto';
 
-export class PaginationDto {
+export class PaginationDto extends NetworkNameDto {
   @IsOptional()
   @IsPositive()
   @IsInt()

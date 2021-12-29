@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client/core';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Service, ObjectSubject, HeaderNames } from '../common';
 import { Project, Projects } from './classes';
 import { CurrentProject } from './interfaces';
@@ -71,7 +72,7 @@ export class ProjectService extends Service {
     return result;
   }
 
-  async getProject(key: string): Promise<Project> {
+  async getProject(key: string, network?: NetworkNames): Promise<Project> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -96,13 +97,14 @@ export class ProjectService extends Service {
         models: {
           result: Project,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getProjects(page: number): Promise<Projects> {
+  async getProjects(page: number, network?: NetworkNames): Promise<Projects> {
     const { apiService, accountService } = this.services;
 
     const owner = accountService.accountAddress;
@@ -134,13 +136,14 @@ export class ProjectService extends Service {
         models: {
           result: Projects,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async updateProject(key: string, privateKey: string, endpoint: string): Promise<Project> {
+  async updateProject(key: string, privateKey: string, endpoint: string, network?: NetworkNames): Promise<Project> {
     const { apiService, accountService } = this.services;
 
     const owner = accountService.accountAddress;
@@ -176,13 +179,14 @@ export class ProjectService extends Service {
         models: {
           result: Project,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async callCurrentProject<T = any, P = any>(payload: P): Promise<T> {
+  async callCurrentProject<T = any, P = any>(payload: P, network?: NetworkNames): Promise<T> {
     const { apiService, accountService } = this.services;
 
     const sender = accountService.accountAddress;
@@ -204,6 +208,7 @@ export class ProjectService extends Service {
           sender,
           payload,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

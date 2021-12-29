@@ -6,6 +6,7 @@ import { Session } from './classes';
 import { createSessionMessage } from './utils';
 import { SessionOptions, SessionStorageLike } from './interfaces';
 import { SessionStorage } from './session.storage';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class SessionService extends Service {
   private readonly storage: SessionStorageLike;
@@ -51,7 +52,7 @@ export class SessionService extends Service {
     await this.storeSession();
   }
 
-  async createSession(ttl?: number, fcmToken?: string): Promise<Session> {
+  async createSession(ttl?: number, fcmToken?: string, network?: NetworkNames): Promise<Session> {
     const { apiService, walletService } = this.services;
     const { walletAddress } = walletService;
 
@@ -72,6 +73,7 @@ export class SessionService extends Service {
           variables: {
             account: walletAddress,
           },
+          chainId: networkNameToChainId(network),
         },
       );
 
@@ -126,6 +128,7 @@ export class SessionService extends Service {
           models: {
             session: Session,
           },
+          chainId: networkNameToChainId(network),
         },
       ));
     } catch (err) {

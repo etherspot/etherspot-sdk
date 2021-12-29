@@ -1,5 +1,6 @@
 import { ContractNames } from '@etherspot/contracts';
 import { BigNumberish, utils } from 'ethers';
+import { NetworkNames } from '../../network';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
 
@@ -43,7 +44,7 @@ export class PaymentRegistryContract extends InternalContract {
     return result;
   }
 
-  hashDepositWithdrawal(owner: string, token: string, amount: BigNumberish): Buffer {
+  hashDepositWithdrawal(owner: string, token: string, amount: BigNumberish, network?: NetworkNames): Buffer {
     return this.hashMessagePayload(
       'DepositWithdrawal',
       [
@@ -56,6 +57,7 @@ export class PaymentRegistryContract extends InternalContract {
         token,
         amount,
       },
+      network,
     );
   }
 
@@ -66,6 +68,7 @@ export class PaymentRegistryContract extends InternalContract {
     uid: string,
     blockNumber: number,
     amount: BigNumberish,
+    network?: NetworkNames,
   ): Buffer {
     return this.hashMessagePayload(
       'PaymentChannelCommit',
@@ -85,6 +88,7 @@ export class PaymentRegistryContract extends InternalContract {
         blockNumber,
         amount,
       },
+      network,
     );
   }
 }

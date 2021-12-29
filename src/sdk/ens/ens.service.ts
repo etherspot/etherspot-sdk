@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client/core';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Service } from '../common';
 import { ENSNode, ENSRootNode, ENSRootNodes } from './classes';
 import { ENS_ADDR_REVERSE_TLD } from './constants';
@@ -8,7 +9,7 @@ export class ENSService extends Service {
     return this.getENSNodeOwner(ENS_ADDR_REVERSE_TLD);
   }
 
-  async getENSNodeOwner(name: string): Promise<string> {
+  async getENSNodeOwner(name: string, network?: NetworkNames): Promise<string> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -23,13 +24,14 @@ export class ENSService extends Service {
         variables: {
           name,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async reserveENSNode(name: string): Promise<ENSNode> {
+  async reserveENSNode(name: string, network?: NetworkNames): Promise<ENSNode> {
     const { apiService, accountService } = this.services;
 
     const address = accountService.accountAddress;
@@ -60,13 +62,14 @@ export class ENSService extends Service {
         models: {
           result: ENSNode,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async validateENSNode(name: string): Promise<boolean> {
+  async validateENSNode(name: string, network?: NetworkNames): Promise<boolean> {
     const { apiService, accountService } = this.services;
 
     const address = accountService.accountAddress;
@@ -84,13 +87,14 @@ export class ENSService extends Service {
           name,
           address,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getENSNode(nameOrHashOrAddress: string): Promise<ENSNode> {
+  async getENSNode(nameOrHashOrAddress: string, network?: NetworkNames): Promise<ENSNode> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -118,13 +122,14 @@ export class ENSService extends Service {
         models: {
           result: ENSNode,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getENSRootNode(name: string): Promise<ENSRootNode> {
+  async getENSRootNode(name: string, network?: NetworkNames): Promise<ENSRootNode> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -148,13 +153,14 @@ export class ENSService extends Service {
         models: {
           result: ENSRootNode,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async ensAddressesLookup(names: string[]): Promise<string[]> {
+  async ensAddressesLookup(names: string[], network?: NetworkNames): Promise<string[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -173,13 +179,14 @@ export class ENSService extends Service {
         variables: {
           names,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result.items;
   }
 
-  async ensNamesLookup(addresses: string[]): Promise<string[]> {
+  async ensNamesLookup(addresses: string[], network?: NetworkNames): Promise<string[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -198,13 +205,14 @@ export class ENSService extends Service {
         variables: {
           addresses,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result.items;
   }
 
-  async getENSTopLevelDomains(): Promise<string[]> {
+  async getENSTopLevelDomains(network?: NetworkNames): Promise<string[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -223,6 +231,7 @@ export class ENSService extends Service {
         models: {
           result: ENSRootNodes,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

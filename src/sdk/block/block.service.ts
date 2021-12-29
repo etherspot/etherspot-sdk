@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client/core';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Service } from '../common';
 import { BlockStats } from './classes';
 
 export class BlockService extends Service {
-  async getCurrentBlockNumber(): Promise<number> {
+  async getCurrentBlockNumber(network?: NetworkNames): Promise<number> {
     let result = 1;
 
     const { apiService } = this.services;
@@ -22,6 +23,7 @@ export class BlockService extends Service {
         models: {
           blockStats: BlockStats,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

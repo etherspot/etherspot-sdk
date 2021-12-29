@@ -13,7 +13,7 @@ import {
   AccountTotalBalances,
 } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes, Currencies } from './constants';
-import { UpdateAccountSettingsDto } from '../dto';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class AccountService extends Service {
   readonly account$ = new SynchronizedSubject<Account>();
@@ -46,11 +46,11 @@ export class AccountService extends Service {
       : {};
   }
 
-  computeContractAccount(): void {
+  computeContractAccount(network?: NetworkNames): void {
     const { walletService } = this.services;
     const { personalAccountRegistryContract } = this.internalContracts;
 
-    const address = personalAccountRegistryContract.computeAccountAddress(walletService.walletAddress);
+    const address = personalAccountRegistryContract.computeAccountAddress(walletService.walletAddress, network);
 
     if (address) {
       this.account$.next(
@@ -81,7 +81,7 @@ export class AccountService extends Service {
     );
   }
 
-  async syncAccount(): Promise<Account> {
+  async syncAccount(network?: NetworkNames): Promise<Account> {
     const { apiService } = this.services;
 
     switch (this.account.type) {
@@ -105,6 +105,7 @@ export class AccountService extends Service {
             models: {
               account: Account,
             },
+            chainId: networkNameToChainId(network),
           },
         );
 
@@ -144,6 +145,7 @@ export class AccountService extends Service {
             models: {
               accountMember: AccountMember,
             },
+            chainId: networkNameToChainId(network),
           },
         );
 
@@ -156,7 +158,7 @@ export class AccountService extends Service {
     return this.account;
   }
 
-  async getConnectedAccounts(page: number): Promise<Accounts> {
+  async getConnectedAccounts(page: number, network?: NetworkNames): Promise<Accounts> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -185,13 +187,14 @@ export class AccountService extends Service {
         models: {
           result: Accounts,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getAccount(account: string): Promise<Account> {
+  async getAccount(account: string, network?: NetworkNames): Promise<Account> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -226,13 +229,14 @@ export class AccountService extends Service {
         models: {
           result: Account,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getAccountBalances(account: string, tokens: string[]): Promise<AccountBalances> {
+  async getAccountBalances(account: string, tokens: string[], network?: NetworkNames): Promise<AccountBalances> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -256,13 +260,19 @@ export class AccountService extends Service {
         models: {
           result: AccountBalances,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getAccountDashboard(account: string, currency: string, days?: number): Promise<AccountDashboard> {
+  async getAccountDashboard(
+    account: string,
+    currency: string,
+    days?: number,
+    network?: NetworkNames,
+  ): Promise<AccountDashboard> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -291,6 +301,7 @@ export class AccountService extends Service {
         models: {
           result: AccountDashboard,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -339,7 +350,7 @@ export class AccountService extends Service {
     return result;
   }
 
-  async getAccountMembers(account: string, page: number): Promise<AccountMembers> {
+  async getAccountMembers(account: string, page: number, network?: NetworkNames): Promise<AccountMembers> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -376,13 +387,14 @@ export class AccountService extends Service {
         models: {
           result: AccountMembers,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getAccountSettings(): Promise<AccountSettings> {
+  async getAccountSettings(network?: NetworkNames): Promise<AccountSettings> {
     const { apiService, accountService } = this.services;
 
     const { accountAddress } = accountService;
@@ -405,6 +417,7 @@ export class AccountService extends Service {
         variables: {
           account: accountAddress,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -427,7 +440,11 @@ export class AccountService extends Service {
     return result;
   }
 
-  async updateAccountSettings(dto: UpdateAccountSettingsDto): Promise<AccountSettings> {
+  async updateAccountSettings(
+    fcmToken?: string,
+    delayTransactions?: number,
+    network?: NetworkNames,
+  ): Promise<AccountSettings> {
     const { apiService, accountService } = this.services;
 
     const { accountAddress } = accountService;
@@ -454,9 +471,10 @@ export class AccountService extends Service {
         },
         variables: {
           account: accountAddress,
-          fcmToken: dto.fcmToken,
-          delayTransactions: dto.delayTransactions,
+          fcmToken,
+          delayTransactions,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

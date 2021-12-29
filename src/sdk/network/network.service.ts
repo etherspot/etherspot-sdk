@@ -4,6 +4,7 @@ import { ObjectSubject, prepareAddress, Service, Exception } from '../common';
 import { ContractAddresses } from '../contract';
 import { NETWORK_NAME_TO_CHAIN_ID, NetworkNames } from './constants';
 import { Network, NetworkOptions } from './interfaces';
+import { networkNameToChainId } from './utils';
 
 export class NetworkService extends Service {
   readonly network$ = new ObjectSubject<Network>(null);
@@ -94,22 +95,23 @@ export class NetworkService extends Service {
     this.externalContractAddresses.set(contractName, chainAddresses);
   }
 
-  getExternalContractAddress(contractName: string): string {
+  getExternalContractAddress(contractName: string, network?: NetworkNames): string {
     let result: string = null;
 
-    if (this.network && this.externalContractAddresses.has(contractName)) {
-      const { chainId } = this.network;
+    if ((network ?? this.network) && this.externalContractAddresses.has(contractName)) {
+      const chainId = networkNameToChainId(network) ?? this.network.chainId;
       result = this.externalContractAddresses.get(contractName)[chainId] || null;
     }
 
     return result;
   }
 
-  getInternalContractAddress(contractName: ContractNames): string {
+  getInternalContractAddress(contractName: ContractNames, network?: NetworkNames): string {
     let result: string = null;
 
-    if (this.network) {
-      const { chainId, name } = this.network;
+    if (network ?? this.network) {
+      const chainId = networkNameToChainId(network) ?? this.network.chainId;
+      const name = network ?? this.network.name;
       const { internalContracts } = this.options;
 
       if (internalContracts && internalContracts[name] && internalContracts[name][contractName]) {

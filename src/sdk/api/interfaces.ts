@@ -12,8 +12,10 @@ export interface ApiRequestOptions<T extends {}, K extends keyof T = keyof T> {
   models?: {
     [key in K]: { new (...args: any): T[K] };
   };
+  chainId?: number;
 }
 
 export interface ApiRequestQueryOptions<T> extends ApiRequestOptions<T> {
   fetchPolicy?: FetchPolicy;
+  chainId?: number;
 }

@@ -1,6 +1,7 @@
 import { IsOptional, IsPositive, IsInt, IsString } from 'class-validator';
+import { NetworkNameDto } from './network-name.dto';
 
-export class CreateSessionDto {
+export class CreateSessionDto extends NetworkNameDto {
   @IsOptional()
   @IsPositive()
   @IsInt()

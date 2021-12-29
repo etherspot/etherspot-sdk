@@ -1,5 +1,6 @@
 import { ContractNames, getContractAbi, getContractByteCode } from '@etherspot/contracts';
 import { BigNumber, utils } from 'ethers';
+import { NetworkNames, networkNameToChainId } from '../../network';
 import { concatHex, prepareAddress } from '../../common';
 import { Contract } from '../contract';
 
@@ -16,8 +17,9 @@ export class InternalContract extends Contract<ContractNames> {
     structName: string,
     structFields: { type: string; name: string }[],
     message: T,
+    network?: NetworkNames,
   ): Buffer {
-    const { chainId } = this.context.services.networkService;
+    const chainId = networkNameToChainId(network) ?? this.context.services.networkService.chainId;
     const prefix = `${structName}(${structFields.map(({ type, name }) => `${type} ${name}`).join(',')})`;
 
     const types = [

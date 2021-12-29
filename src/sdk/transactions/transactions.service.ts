@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client/core';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Service } from '../common';
 import { NftList, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
-  async getTransaction(hash: string): Promise<Transaction> {
+  async getTransaction(hash: string, network?: NetworkNames): Promise<Transaction> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -40,13 +41,14 @@ export class TransactionsService extends Service {
         models: {
           result: Transaction,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getTransactions(account: string): Promise<Transactions> {
+  async getTransactions(account: string, network?: NetworkNames): Promise<Transactions> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -95,13 +97,14 @@ export class TransactionsService extends Service {
         models: {
           result: Transactions,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getNftList(account: string): Promise<NftList> {
+  async getNftList(account: string, network?: NetworkNames): Promise<NftList> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -134,6 +137,7 @@ export class TransactionsService extends Service {
         models: {
           result: NftList,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

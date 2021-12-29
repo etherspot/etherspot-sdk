@@ -1,9 +1,10 @@
 import { IsOptional, IsEnum } from 'class-validator';
 import { BigNumberish } from 'ethers';
 import { NetworkNames } from '../network';
+import { NetworkNameDto } from './network-name.dto';
 import { IsAddress, IsBigNumberish } from './validators';
 
-export class TransferPaymentHubDepositDto {
+export class TransferPaymentHubDepositDto extends NetworkNameDto {
   @IsAddress()
   hub: string;
 

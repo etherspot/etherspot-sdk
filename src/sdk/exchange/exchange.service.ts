@@ -3,9 +3,14 @@ import { gql } from '@apollo/client/core';
 import { Service } from '../common';
 import { ExchangeOffers, ExchangeOffer } from './classes';
 import { PaginatedTokens } from '../assets';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class ExchangeService extends Service {
-  async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
+  async getExchangeSupportedAssets(
+    page: number = null,
+    limit: number = null,
+    network?: NetworkNames,
+  ): Promise<PaginatedTokens> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
@@ -37,6 +42,7 @@ export class ExchangeService extends Service {
         models: {
           result: PaginatedTokens,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -47,6 +53,7 @@ export class ExchangeService extends Service {
     fromTokenAddress: string,
     toTokenAddress: string,
     fromAmount: BigNumber,
+    network?: NetworkNames,
   ): Promise<ExchangeOffer[]> {
     const { apiService, accountService } = this.services;
 
@@ -93,6 +100,7 @@ export class ExchangeService extends Service {
         models: {
           result: ExchangeOffers,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

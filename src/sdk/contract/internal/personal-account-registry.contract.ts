@@ -1,5 +1,6 @@
 import { ContractNames } from '@etherspot/contracts';
 import { BigNumberish, BytesLike, utils } from 'ethers';
+import { NetworkNames } from '../../network';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
 
@@ -23,13 +24,14 @@ export class PersonalAccountRegistryContract extends InternalContract {
     data: BytesLike,
   ): TransactionRequest;
 
-  computeAccountAddress(saltOwner: string): string {
+  computeAccountAddress(saltOwner: string, network?: NetworkNames): string {
     let result: string = null;
 
     const { networkService } = this.services;
 
     const personalAccountImplementation = networkService.getInternalContractAddress(
       ContractNames.PersonalAccountImplementationV1,
+      network,
     );
 
     if (saltOwner && this.address && personalAccountImplementation) {

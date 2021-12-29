@@ -1,9 +1,10 @@
-import { Subject, SubscriptionLike, combineLatest } from 'rxjs';
+import { Subject, SubscriptionLike, combineLatest, Observable } from 'rxjs';
 import { gql } from '@apollo/client/core';
 import { map, tap } from 'rxjs/operators';
 import { Service } from '../common';
 import { AnyNotification } from './classes';
 import { Notification } from './interfaces';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class NotificationService extends Service {
   readonly notification$ = new Subject<AnyNotification>();
@@ -14,16 +15,19 @@ export class NotificationService extends Service {
   private accountSubscription: SubscriptionLike = null;
   private subscribedAccountAddress: string = null;
 
-  subscribeNotifications(): Subject<Notification> {
+  subscribeNotifications(network?: NetworkNames): Subject<Notification> {
     if (!this.subscribed) {
       this.subscribed = true;
 
       const { walletService, accountService, networkService } = this.services;
+      const chainId$ = network
+        ? new Observable<number>((observer) => observer.next(networkNameToChainId(network)))
+        : networkService.chainId$;
 
       this.addSubscriptions(
         combineLatest([
           walletService.walletAddress$, //
-          networkService.chainId$,
+          chainId$,
         ])
           .pipe(
             tap(([address, chainId]) => {
@@ -40,7 +44,7 @@ export class NotificationService extends Service {
 
         combineLatest([
           accountService.accountAddress$, //
-          networkService.chainId$,
+          chainId$,
         ])
           .pipe(
             map(([address, chainId]) => (!chainId || address === walletService.walletAddress ? null : address)),
@@ -78,7 +82,7 @@ export class NotificationService extends Service {
     }
   }
 
-  private createGraphQLSubscription(address: string): SubscriptionLike {
+  private createGraphQLSubscription(address: string, network?: NetworkNames): SubscriptionLike {
     const { apiService } = this.services;
     const observable = apiService.subscribe<{
       notification: AnyNotification;
@@ -99,6 +103,7 @@ export class NotificationService extends Service {
         models: {
           notification: AnyNotification,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

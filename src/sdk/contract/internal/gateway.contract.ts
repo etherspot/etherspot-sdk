@@ -1,4 +1,5 @@
 import { ContractNames } from '@etherspot/contracts';
+import { NetworkNames } from '../../network';
 import { TransactionRequest } from '../../common';
 import { InternalContract } from './internal.contract';
 
@@ -17,7 +18,7 @@ export class GatewayContract extends InternalContract {
     senderSignature: string,
   ): TransactionRequest;
 
-  hashDelegatedBatch(account: string, nonce: number, to: string[], data: string[]): Buffer {
+  hashDelegatedBatch(account: string, nonce: number, to: string[], data: string[], network?: NetworkNames): Buffer {
     return this.hashMessagePayload(
       'DelegatedBatch',
       [
@@ -32,6 +33,7 @@ export class GatewayContract extends InternalContract {
         to,
         data,
       },
+      network,
     );
   }
 }

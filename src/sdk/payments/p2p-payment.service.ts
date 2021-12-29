@@ -2,6 +2,7 @@ import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { NetworkNames, networkNameToChainId } from '../network';
 import { Exception, prepareAddress, Service, TransactionRequest, UniqueSubject, ValidationException } from '../common';
 import {
   P2PPaymentChannel,
@@ -19,12 +20,12 @@ export class P2PPaymentService extends Service {
     return this.p2pPaymentDepositAddress$.value;
   }
 
-  async syncP2PPaymentDeposit(owner: string, token: string): Promise<P2PPaymentDeposit> {
+  async syncP2PPaymentDeposit(owner: string, token: string, network?: NetworkNames): Promise<P2PPaymentDeposit> {
     let result: P2PPaymentDeposit = null;
 
     token = prepareAddress(token);
 
-    const deposits = await this.syncP2PPaymentDeposits(owner, token ? [token] : []);
+    const deposits = await this.syncP2PPaymentDeposits(owner, token ? [token] : [], network);
 
     if (deposits && deposits.items) {
       result = deposits.items.find((deposit) => deposit.token === token);
@@ -33,7 +34,7 @@ export class P2PPaymentService extends Service {
     return result || null;
   }
 
-  async syncP2PPaymentDeposits(owner: string, tokens: string[]): Promise<P2PPaymentDeposits> {
+  async syncP2PPaymentDeposits(owner: string, tokens: string[], network?: NetworkNames): Promise<P2PPaymentDeposits> {
     const { apiService } = this.services;
 
     const { result } = await apiService.mutate<{
@@ -74,13 +75,14 @@ export class P2PPaymentService extends Service {
           owner,
           tokens,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+  async getP2PPaymentChannel(hash: string, network?: NetworkNames): Promise<P2PPaymentChannel> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -119,6 +121,7 @@ export class P2PPaymentService extends Service {
         variables: {
           hash,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -129,6 +132,7 @@ export class P2PPaymentService extends Service {
     senderOrRecipient: string,
     filters: { uncommittedOnly: boolean },
     page: number = null,
+    network?: NetworkNames,
   ): Promise<P2PPaymentChannels> {
     const { apiService } = this.services;
 
@@ -179,13 +183,18 @@ export class P2PPaymentService extends Service {
           page: page || 1,
           ...filters,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getP2PPaymentChannelPayments(channel: string, page: number = null): Promise<P2PPaymentChannelPayments> {
+  async getP2PPaymentChannelPayments(
+    channel: string,
+    page: number = null,
+    network?: NetworkNames,
+  ): Promise<P2PPaymentChannelPayments> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -217,17 +226,22 @@ export class P2PPaymentService extends Service {
           channel,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async decreaseP2PPaymentDeposit(token: string, amount: BigNumber): Promise<P2PPaymentDeposit> {
+  async decreaseP2PPaymentDeposit(
+    token: string,
+    amount: BigNumber,
+    network?: NetworkNames,
+  ): Promise<P2PPaymentDeposit> {
     const { accountService } = this.services;
     const owner = accountService.accountAddress;
 
-    const deposit = await this.syncP2PPaymentDeposit(owner, token);
+    const deposit = await this.syncP2PPaymentDeposit(owner, token, network);
 
     if (!deposit || deposit.availableAmount.lt(amount)) {
       ValidationException.throw('amount', {
@@ -235,10 +249,14 @@ export class P2PPaymentService extends Service {
       });
     }
 
-    return this.updateP2PPaymentDeposit(token, deposit.withdrawAmount.add(amount));
+    return this.updateP2PPaymentDeposit(token, deposit.withdrawAmount.add(amount), network);
   }
 
-  async updateP2PPaymentDeposit(token: string, totalAmount: BigNumber): Promise<P2PPaymentDeposit> {
+  async updateP2PPaymentDeposit(
+    token: string,
+    totalAmount: BigNumber,
+    network?: NetworkNames,
+  ): Promise<P2PPaymentDeposit> {
     const { apiService, accountService } = this.services;
 
     const owner = accountService.accountAddress;
@@ -280,6 +298,7 @@ export class P2PPaymentService extends Service {
           token,
           totalAmount,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -291,6 +310,7 @@ export class P2PPaymentService extends Service {
     token: string,
     value: BigNumber,
     uidSalt: string = null,
+    network?: NetworkNames,
   ): Promise<P2PPaymentChannel> {
     const { accountService } = this.services;
     const hash = computePaymentChannelHash(
@@ -300,13 +320,14 @@ export class P2PPaymentService extends Service {
       createPaymentChannelUid(uidSalt),
     );
 
-    const paymentChannel = await this.getP2PPaymentChannel(hash);
+    const paymentChannel = await this.getP2PPaymentChannel(hash, network);
 
     return this.updateP2PPaymentChannel(
       recipient,
       token,
       paymentChannel ? paymentChannel.totalAmount.add(value) : value,
       uidSalt,
+      network,
     );
   }
 
@@ -315,6 +336,7 @@ export class P2PPaymentService extends Service {
     token: string,
     totalAmount: BigNumber,
     uidSalt: string = null,
+    network?: NetworkNames,
   ): Promise<P2PPaymentChannel> {
     const { paymentRegistryContract } = this.internalContracts;
     const { apiService, accountService, blockService, walletService } = this.services;
@@ -322,7 +344,7 @@ export class P2PPaymentService extends Service {
     const uid = createPaymentChannelUid(uidSalt);
     const sender = accountService.accountAddress;
 
-    const blockNumber = await blockService.getCurrentBlockNumber();
+    const blockNumber = await blockService.getCurrentBlockNumber(network);
 
     const messageHash = paymentRegistryContract.hashPaymentChannelCommit(
       sender, //
@@ -394,15 +416,16 @@ export class P2PPaymentService extends Service {
           totalAmount,
           uid,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async signP2PPaymentChannel(hash: string): Promise<P2PPaymentChannel> {
+  async signP2PPaymentChannel(hash: string, network?: NetworkNames): Promise<P2PPaymentChannel> {
     const { apiService, accountService, walletService } = this.services;
-    const paymentChannel = await this.getP2PPaymentChannel(hash);
+    const paymentChannel = await this.getP2PPaymentChannel(hash, network);
 
     if (
       !paymentChannel ||
@@ -471,6 +494,7 @@ export class P2PPaymentService extends Service {
           hash,
           senderSignature,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

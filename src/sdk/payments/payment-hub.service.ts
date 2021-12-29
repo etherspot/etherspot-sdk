@@ -13,9 +13,10 @@ import {
 } from './classes';
 import { PAYMENT_HUB_P2P_CHANNEL_UID } from './constants';
 import { computePaymentChannelHash } from './utils';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class PaymentHubService extends Service {
-  async getPaymentHub(hub: string, token: string = null): Promise<PaymentHub> {
+  async getPaymentHub(hub: string, token: string = null, network?: NetworkNames): Promise<PaymentHub> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -40,13 +41,19 @@ export class PaymentHubService extends Service {
           hub,
           token,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getPaymentHubs(hub: string = null, token?: string, page: number = null): Promise<PaymentHubs> {
+  async getPaymentHubs(
+    hub: string = null,
+    token?: string,
+    page: number = null,
+    network?: NetworkNames,
+  ): Promise<PaymentHubs> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -76,6 +83,7 @@ export class PaymentHubService extends Service {
           token,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -87,6 +95,7 @@ export class PaymentHubService extends Service {
     token: string,
     acceptedChainId: number,
     acceptedToken: string,
+    network?: NetworkNames,
   ): Promise<PaymentHubBridge> {
     const { apiService } = this.services;
 
@@ -125,6 +134,7 @@ export class PaymentHubService extends Service {
           acceptedChainId,
           acceptedToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -136,6 +146,7 @@ export class PaymentHubService extends Service {
     token: string = null,
     acceptedChainId: number = null,
     page: number = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubBridges> {
     const { apiService } = this.services;
 
@@ -178,13 +189,19 @@ export class PaymentHubService extends Service {
           acceptedChainId,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async getPaymentHubDeposit(hub: string, token: string = null, owner: string): Promise<PaymentHubDeposit> {
+  async getPaymentHubDeposit(
+    hub: string,
+    token: string = null,
+    owner: string,
+    network?: NetworkNames,
+  ): Promise<PaymentHubDeposit> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -214,6 +231,7 @@ export class PaymentHubService extends Service {
           owner,
           token,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -225,6 +243,7 @@ export class PaymentHubService extends Service {
     tokens: string[] = [],
     owner: string,
     page: number = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubDeposits> {
     const { apiService } = this.services;
 
@@ -260,6 +279,7 @@ export class PaymentHubService extends Service {
           tokens,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -306,6 +326,7 @@ export class PaymentHubService extends Service {
     token: string = null,
     senderOrRecipient: string,
     page: number = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubPayments> {
     const { apiService, accountService } = this.services;
 
@@ -352,6 +373,7 @@ export class PaymentHubService extends Service {
           token,
           page: page || 1,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -363,6 +385,7 @@ export class PaymentHubService extends Service {
     token: string,
     recipient: string,
     value: BigNumber,
+    network?: NetworkNames,
   ): Promise<PaymentHubPayment> {
     const { apiService, accountService } = this.services;
 
@@ -412,13 +435,14 @@ export class PaymentHubService extends Service {
           value,
           token,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async updatePaymentHub(liquidity: BigNumber, token: string = null): Promise<PaymentHub> {
+  async updatePaymentHub(liquidity: BigNumber, token: string = null, network?: NetworkNames): Promise<PaymentHub> {
     const { apiService, accountService } = this.services;
 
     const { accountAddress } = accountService;
@@ -446,13 +470,19 @@ export class PaymentHubService extends Service {
           token,
           liquidity,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result;
   }
 
-  async updatePaymentHubDeposit(hub: string, totalAmount: BigNumber, token: string = null): Promise<PaymentHubDeposit> {
+  async updatePaymentHubDeposit(
+    hub: string,
+    totalAmount: BigNumber,
+    token: string = null,
+    network?: NetworkNames,
+  ): Promise<PaymentHubDeposit> {
     if (!totalAmount) {
       totalAmount = BigNumber.from(0);
     }
@@ -462,9 +492,9 @@ export class PaymentHubService extends Service {
 
     const sender = accountService.accountAddress;
 
-    const blockNumber = await blockService.getCurrentBlockNumber();
+    const blockNumber = await blockService.getCurrentBlockNumber(network);
 
-    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, token, sender);
+    const paymentHubDeposit = await this.getPaymentHubDeposit(hub, token, sender, network);
 
     const currentAmount = paymentHubDeposit ? paymentHubDeposit.totalAmount : BigNumber.from(0);
 
@@ -476,7 +506,7 @@ export class PaymentHubService extends Service {
       const { p2pPaymentsService } = this.services;
 
       const hash = computePaymentChannelHash(sender, hub, token, PAYMENT_HUB_P2P_CHANNEL_UID);
-      const paymentChannel = await p2pPaymentsService.getP2PPaymentChannel(hash);
+      const paymentChannel = await p2pPaymentsService.getP2PPaymentChannel(hash, network);
       const amount = paymentChannel ? paymentChannel.totalAmount.add(diff) : diff;
 
       const messageHash = paymentRegistryContract.hashPaymentChannelCommit(
@@ -537,6 +567,7 @@ export class PaymentHubService extends Service {
           sender,
           senderSignature,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -550,6 +581,7 @@ export class PaymentHubService extends Service {
     targetChainId: number,
     targetHub: string = null,
     targetToken = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubDeposit> {
     if (!value) {
       value = BigNumber.from(0);
@@ -608,6 +640,7 @@ export class PaymentHubService extends Service {
           targetHub,
           targetToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -618,6 +651,7 @@ export class PaymentHubService extends Service {
     token: string,
     acceptedChainId: number,
     acceptedToken: string = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubBridge> {
     const {
       apiService,
@@ -659,6 +693,7 @@ export class PaymentHubService extends Service {
           acceptedChainId,
           acceptedToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -669,6 +704,7 @@ export class PaymentHubService extends Service {
     token: string,
     acceptedChainId: number,
     acceptedToken: string = null,
+    network?: NetworkNames,
   ): Promise<PaymentHubBridge> {
     const {
       apiService,
@@ -710,6 +746,7 @@ export class PaymentHubService extends Service {
           acceptedChainId,
           acceptedToken,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 

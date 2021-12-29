@@ -45,14 +45,19 @@ export class ApiService extends Service {
       variables,
       fetchPolicy,
       models,
+      chainId,
     } = options;
+
+    const apiVariables = this.prepareApiVariables(variables, omitChainIdVariable);
+
+    if (chainId) apiVariables.chainId = chainId;
 
     return this.wrapCall(
       () =>
         this.apolloClient.query<T>({
           query,
           fetchPolicy,
-          variables: this.prepareApiVariables(variables, omitChainIdVariable),
+          variables: apiVariables,
         }),
       models,
     );
@@ -68,13 +73,18 @@ export class ApiService extends Service {
       omitChainIdVariable, //
       variables,
       models,
+      chainId,
     } = options;
+
+    const apiVariables = this.prepareApiVariables(variables, omitChainIdVariable);
+
+    if (chainId) apiVariables.chainId = chainId;
 
     return this.wrapCall(
       () =>
         this.apolloClient.mutate<T>({
           mutation,
-          variables: this.prepareApiVariables(variables, omitChainIdVariable),
+          variables: apiVariables,
         }),
       models,
     );

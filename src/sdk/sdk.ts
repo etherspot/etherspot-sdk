@@ -65,6 +65,7 @@ import {
   GetPaymentHubsDto,
   GetProjectDto,
   GetTokenListDto,
+  GetTokenListsDto,
   IncreaseP2PPaymentChannelAmountDto,
   IsTokenOnTokenListDto,
   JoinContractAccountDto,
@@ -93,6 +94,13 @@ import {
   GetAccountTotalBalancesDto,
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
+  TopUpAccountDto,
+  GetGatewaySupportedTokensDto,
+  GetGasInfoDto,
+  SyncAccountDto,
+  GetAccountSettingsDto,
+  GetENSTopLevelDomainsDto,
+  ClaimENSReverseNameDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -280,11 +288,11 @@ export class Sdk {
    * @return Promise<Session>
    */
   async createSession(dto: CreateSessionDto = {}): Promise<Session> {
-    const { ttl, fcmToken } = await validateDto(dto, CreateSessionDto);
+    const { ttl, fcmToken, network } = await validateDto(dto, CreateSessionDto);
 
     await this.require();
 
-    return this.services.sessionService.createSession(ttl, fcmToken);
+    return this.services.sessionService.createSession(ttl, fcmToken, network);
   }
 
   // gateway
@@ -295,21 +303,23 @@ export class Sdk {
    * @return Promise<GatewaySupportedToken>
    */
   async getGatewaySupportedToken(dto: GetGatewaySupportedTokenDto): Promise<GatewaySupportedToken> {
-    const { token } = await validateDto(dto, GetGatewaySupportedTokenDto, {
+    const { token, network } = await validateDto(dto, GetGatewaySupportedTokenDto, {
       addressKeys: ['token'],
     });
 
     const { gatewayService } = this.services;
 
-    return gatewayService.getGatewaySupportedToken(token);
+    return gatewayService.getGatewaySupportedToken(token, network);
   }
 
   /**
    * gets gateway supported tokens
+   * @param dto
    * @return Promise<GatewaySupportedToken[]>
    */
-  async getGatewaySupportedTokens(): Promise<GatewaySupportedToken[]> {
-    return this.services.gatewayService.getGatewaySupportedTokens();
+  async getGatewaySupportedTokens(dto: GetGatewaySupportedTokensDto = {}): Promise<GatewaySupportedToken[]> {
+    const { network } = await validateDto(dto, GetGatewaySupportedTokensDto);
+    return this.services.gatewayService.getGatewaySupportedTokens(network);
   }
 
   /**
@@ -318,9 +328,9 @@ export class Sdk {
    * @return Promise<GatewaySubmittedBatch>
    */
   async getGatewaySubmittedBatch(dto: GetGatewaySubmittedBatchDto): Promise<GatewaySubmittedBatch> {
-    const { hash } = await validateDto(dto, GetGatewaySubmittedBatchDto);
+    const { hash, network } = await validateDto(dto, GetGatewaySubmittedBatchDto);
 
-    return this.services.gatewayService.getGatewaySubmittedBatch(hash);
+    return this.services.gatewayService.getGatewaySubmittedBatch(hash, network);
   }
 
   /**
@@ -329,14 +339,14 @@ export class Sdk {
    * @return Promise<GatewaySubmittedBatches>
    */
   async getGatewaySubmittedBatches(dto: PaginationDto = {}): Promise<GatewaySubmittedBatches> {
-    const { page } = await validateDto(dto, PaginationDto);
+    const { page, network } = await validateDto(dto, PaginationDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.gatewayService.getGatewaySubmittedBatches(page || 1);
+    return this.services.gatewayService.getGatewaySubmittedBatches(page || 1, network);
   }
 
   /**
@@ -345,14 +355,14 @@ export class Sdk {
    * @return Promise<GatewaySubmittedPendingBatches>
    */
   async getGatewaySubmittedPendingBatches(dto: PaginationDto = {}): Promise<GatewaySubmittedPendingBatches> {
-    const { page } = await validateDto(dto, PaginationDto);
+    const { page, network } = await validateDto(dto, PaginationDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.gatewayService.getGatewaySubmittedPendingBatches(page || 1);
+    return this.services.gatewayService.getGatewaySubmittedPendingBatches(page || 1, network);
   }
 
   /**
@@ -361,17 +371,20 @@ export class Sdk {
    * @return Promise<GatewayTransaction>
    */
   async getGatewayTransaction(dto: GetGatewayTransactionDto): Promise<GatewayTransaction> {
-    const { hash } = await validateDto(dto, GetGatewayTransactionDto);
+    const { hash, network } = await validateDto(dto, GetGatewayTransactionDto);
 
-    return this.services.gatewayService.getGatewayTransaction(hash);
+    return this.services.gatewayService.getGatewayTransaction(hash, network);
   }
 
   /**
    * gets gateway's gas info
+   * @param dto
    * @return Promise<GatewayGasInfo>
    */
-  async getGatewayGasInfo(): Promise<GatewayGasInfo> {
-    return this.services.gatewayService.getGatewayGasInfo();
+  async getGatewayGasInfo(dto: GetGasInfoDto = {}): Promise<GatewayGasInfo> {
+    const { network } = await validateDto(dto, GetGasInfoDto);
+
+    return this.services.gatewayService.getGatewayGasInfo(network);
   }
 
   /**
@@ -402,7 +415,7 @@ export class Sdk {
    * @return Promise<GatewayEstimatedKnownOp>
    */
   async estimateGatewayKnownOp(dto: EstimateGatewayKnownOpDto): Promise<GatewayEstimatedKnownOp> {
-    const { op, feeToken } = await validateDto(dto, EstimateGatewayKnownOpDto, {
+    const { op, feeToken, network } = await validateDto(dto, EstimateGatewayKnownOpDto, {
       addressKeys: ['feeToken'],
     });
 
@@ -410,7 +423,7 @@ export class Sdk {
       session: true,
     });
 
-    return this.services.gatewayService.estimateGatewayKnownOp(op, feeToken);
+    return this.services.gatewayService.estimateGatewayKnownOp(op, feeToken, network);
   }
 
   /**
@@ -419,7 +432,7 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async estimateGatewayBatch(dto: EstimateGatewayBatchDto = {}): Promise<GatewayBatch> {
-    const { feeToken } = await validateDto(dto, EstimateGatewayBatchDto, {
+    const { feeToken, network } = await validateDto(dto, EstimateGatewayBatchDto, {
       addressKeys: ['feeToken'],
     });
 
@@ -428,7 +441,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    return this.services.gatewayService.estimateGatewayBatch(feeToken);
+    return this.services.gatewayService.estimateGatewayBatch(feeToken, undefined, network);
   }
 
   /**
@@ -447,7 +460,7 @@ export class Sdk {
       estimation: null,
     };
 
-    const { feeToken } = await validateDto(estimationDto, EstimateGatewayBatchDto, {
+    const { feeToken, network } = await validateDto(estimationDto, EstimateGatewayBatchDto, {
       addressKeys: ['feeToken'],
     });
 
@@ -460,7 +473,7 @@ export class Sdk {
       });
     }
 
-    return gatewayService.estimateGatewayBatch(feeToken, gatewayBatch);
+    return gatewayService.estimateGatewayBatch(feeToken, gatewayBatch, network);
   }
 
   /**
@@ -469,7 +482,7 @@ export class Sdk {
    * @return Promise<GatewaySubmittedBatch>
    */
   async submitGatewayBatch(dto: CustomProjectMetadataDto = {}): Promise<GatewaySubmittedBatch> {
-    const { customProjectMetadata } = await validateDto(dto, CustomProjectMetadataDto);
+    const { customProjectMetadata, network } = await validateDto(dto, CustomProjectMetadataDto);
 
     await this.require({
       session: true,
@@ -480,7 +493,7 @@ export class Sdk {
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => gatewayService.submitGatewayBatch(),
+      () => gatewayService.submitGatewayBatch(undefined, network),
     );
   }
 
@@ -490,7 +503,7 @@ export class Sdk {
    * @return Promise<GatewaySubmittedBatch>
    */
   async cancelGatewayBatch(dto: CancelGatewayBatchDto): Promise<GatewaySubmittedBatch> {
-    const { hash } = await validateDto(dto, CancelGatewayBatchDto);
+    const { hash, network } = await validateDto(dto, CancelGatewayBatchDto);
 
     await this.require({
       session: true,
@@ -499,7 +512,7 @@ export class Sdk {
 
     const { gatewayService } = this.services;
 
-    return gatewayService.cancelGatewayBatch(hash);
+    return gatewayService.cancelGatewayBatch(hash, network);
   }
 
   /**
@@ -508,7 +521,7 @@ export class Sdk {
    * @return Promise<GatewaySubmittedBatch>
    */
   async forceGatewayBatch(dto: ForceGatewayBatchDto): Promise<GatewaySubmittedBatch> {
-    const { hash } = await validateDto(dto, ForceGatewayBatchDto);
+    const { hash, network } = await validateDto(dto, ForceGatewayBatchDto);
 
     await this.require({
       session: true,
@@ -517,7 +530,7 @@ export class Sdk {
 
     const { gatewayService } = this.services;
 
-    return gatewayService.forceGatewayBatch(hash);
+    return gatewayService.forceGatewayBatch(hash, network);
   }
 
   /**
@@ -526,14 +539,14 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeGatewayBatch(dto: EncodeGatewayBatchDto = {}): Promise<TransactionRequest> {
-    const { delegate } = await validateDto(dto, EncodeGatewayBatchDto);
+    const { delegate, network } = await validateDto(dto, EncodeGatewayBatchDto);
 
     await this.require({
       session: true,
       contractAccount: true,
     });
 
-    return this.services.gatewayService.encodeGatewayBatch(delegate);
+    return this.services.gatewayService.encodeGatewayBatch(delegate, network);
   }
 
   /**
@@ -571,13 +584,13 @@ export class Sdk {
       currentProject: true,
     });
 
-    const { payload, customProjectMetadata } = await validateDto(dto, CallCurrentProjectDto);
+    const { payload, customProjectMetadata, network } = await validateDto(dto, CallCurrentProjectDto);
 
     const { projectService } = this.services;
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => projectService.callCurrentProject(payload),
+      () => projectService.callCurrentProject(payload, network),
     );
   }
 
@@ -587,9 +600,9 @@ export class Sdk {
    * @return Promise<Project>
    */
   async getProject(dto: GetProjectDto): Promise<Project> {
-    const { key } = await validateDto(dto, GetProjectDto);
+    const { key, network } = await validateDto(dto, GetProjectDto);
 
-    return this.services.projectService.getProject(key);
+    return this.services.projectService.getProject(key, network);
   }
 
   /**
@@ -602,9 +615,9 @@ export class Sdk {
       session: true,
     });
 
-    const { page } = await validateDto(dto, PaginationDto);
+    const { page, network } = await validateDto(dto, PaginationDto);
 
-    return this.services.projectService.getProjects(page || 1);
+    return this.services.projectService.getProjects(page || 1, network);
   }
 
   /**
@@ -617,23 +630,26 @@ export class Sdk {
       session: true,
     });
 
-    const { key, privateKey, endpoint } = await validateDto(dto, UpdateProjectDto);
+    const { key, privateKey, endpoint, network } = await validateDto(dto, UpdateProjectDto);
 
-    return this.services.projectService.updateProject(key, privateKey, endpoint);
+    return this.services.projectService.updateProject(key, privateKey, endpoint, network);
   }
 
   // account
 
   /**
    * syncs account
+   * @param dto
    * @return Promise<Account>
    */
-  async syncAccount(): Promise<Account> {
+  async syncAccount(dto: SyncAccountDto = {}): Promise<Account> {
+    const { network } = await validateDto(dto, SyncAccountDto);
+
     await this.require({
       session: true,
     });
 
-    return this.services.accountService.syncAccount();
+    return this.services.accountService.syncAccount(network);
   }
 
   /**
@@ -642,7 +658,7 @@ export class Sdk {
    * @return Promise<Account>
    */
   async computeContractAccount(dto: ComputeContractAccountDto = {}): Promise<Account> {
-    const { sync } = await validateDto(dto, ComputeContractAccountDto);
+    const { sync, network } = await validateDto(dto, ComputeContractAccountDto);
 
     await this.require({
       session: sync,
@@ -650,10 +666,10 @@ export class Sdk {
 
     const { accountService } = this.services;
 
-    accountService.computeContractAccount();
+    accountService.computeContractAccount(network);
 
     if (sync) {
-      await accountService.syncAccount();
+      await accountService.syncAccount(network);
     }
 
     return accountService.account;
@@ -665,10 +681,10 @@ export class Sdk {
    * @return Promise<string>
    */
   async computeContractAccountByAddress(dto: ComputeContractAccountByAddressDto): Promise<string> {
-    const { address } = await validateDto(dto, ComputeContractAccountByAddressDto);
+    const { address, network } = await validateDto(dto, ComputeContractAccountByAddressDto);
 
     const { personalAccountRegistryContract } = this.internalContracts;
-    return personalAccountRegistryContract.computeAccountAddress(address);
+    return personalAccountRegistryContract.computeAccountAddress(address, network);
   }
 
   /**
@@ -677,7 +693,7 @@ export class Sdk {
    * @return Promise<Account>
    */
   async joinContractAccount(dto: JoinContractAccountDto): Promise<Account> {
-    const { address, sync } = await validateDto(dto, JoinContractAccountDto, {
+    const { address, sync, network } = await validateDto(dto, JoinContractAccountDto, {
       addressKeys: ['address'],
     });
 
@@ -690,7 +706,7 @@ export class Sdk {
     accountService.joinContractAccount(address);
 
     if (sync) {
-      await accountService.syncAccount();
+      await accountService.syncAccount(network);
     }
 
     return accountService.account;
@@ -702,13 +718,13 @@ export class Sdk {
    * @return Promise<Accounts>
    */
   async getConnectedAccounts(dto: PaginationDto = {}): Promise<Accounts> {
-    const { page } = await validateDto(dto, PaginationDto);
+    const { page, network } = await validateDto(dto, PaginationDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.accountService.getConnectedAccounts(page || 1);
+    return this.services.accountService.getConnectedAccounts(page || 1, network);
   }
 
   /**
@@ -717,7 +733,7 @@ export class Sdk {
    * @return Promise<Account>
    */
   async getAccount(dto: GetAccountDto = {}): Promise<Account> {
-    const { address } = await validateDto(dto, GetAccountDto, {
+    const { address, network } = await validateDto(dto, GetAccountDto, {
       addressKeys: ['address'],
     });
 
@@ -727,6 +743,7 @@ export class Sdk {
 
     return this.services.accountService.getAccount(
       this.prepareAccountAddress(address), //
+      network,
     );
   }
 
@@ -736,7 +753,7 @@ export class Sdk {
    * @return Promise<AccountBalances>
    */
   async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
-    const { account, tokens } = await validateDto(dto, GetAccountBalancesDto, {
+    const { account, tokens, network } = await validateDto(dto, GetAccountBalancesDto, {
       addressKeys: ['account', 'tokens'],
     });
 
@@ -747,6 +764,7 @@ export class Sdk {
     return this.services.accountService.getAccountBalances(
       this.prepareAccountAddress(account), //
       tokens,
+      network,
     );
   }
 
@@ -776,7 +794,7 @@ export class Sdk {
    * @return Promise<AccountMembers>
    */
   async getAccountMembers(dto: GetAccountMembersDto = {}): Promise<AccountMembers> {
-    const { account, page } = await validateDto(dto, GetAccountMembersDto, {
+    const { account, page, network } = await validateDto(dto, GetAccountMembersDto, {
       addressKeys: ['account'],
     });
 
@@ -787,6 +805,7 @@ export class Sdk {
     return this.services.accountService.getAccountMembers(
       this.prepareAccountAddress(account), //
       page || 1,
+      network,
     );
   }
 
@@ -806,12 +825,14 @@ export class Sdk {
    * gets account settings
    * @return Promise<AccountSettings>
    */
-  async getAccountSettings(): Promise<AccountSettings> {
+  async getAccountSettings(dto: GetAccountSettingsDto = {}): Promise<AccountSettings> {
+    const { network } = await validateDto(dto, GetAccountSettingsDto);
+
     await this.require({
       contractAccount: true,
     });
 
-    return this.services.accountService.getAccountSettings();
+    return this.services.accountService.getAccountSettings(network);
   }
 
   /**
@@ -819,11 +840,13 @@ export class Sdk {
    * @return Promise<AccountSettings>
    */
   async updateAccountSettings(dto: UpdateAccountSettingsDto): Promise<AccountSettings> {
+    const { fcmToken, delayTransactions, network } = await validateDto(dto, UpdateAccountSettingsDto);
+
     await this.require({
       contractAccount: true,
     });
 
-    return this.services.accountService.updateAccountSettings(dto);
+    return this.services.accountService.updateAccountSettings(fcmToken, delayTransactions, network);
   }
 
   // account (encode)
@@ -957,13 +980,13 @@ export class Sdk {
    * @return Promise<ENSNode>
    */
   async reserveENSName(dto: ReserveENSNameDto): Promise<ENSNode> {
-    const { name } = await validateDto(dto, ReserveENSNameDto);
+    const { name, network } = await validateDto(dto, ReserveENSNameDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.ensService.reserveENSNode(name);
+    return this.services.ensService.reserveENSNode(name, network);
   }
 
   /**
@@ -972,13 +995,13 @@ export class Sdk {
    * @return Promise<ENSNode>
    */
   async validateENSName(dto: ValidateENSNameDto): Promise<boolean> {
-    const { name } = await validateDto(dto, ValidateENSNameDto);
+    const { name, network } = await validateDto(dto, ValidateENSNameDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.ensService.validateENSNode(name);
+    return this.services.ensService.validateENSNode(name, network);
   }
 
   /**
@@ -987,7 +1010,7 @@ export class Sdk {
    * @return Promise<ENSNode>
    */
   async getENSNode(dto: GetENSNodeDto = {}): Promise<ENSNode> {
-    const { nameOrHashOrAddress } = await validateDto(dto, GetENSNodeDto);
+    const { nameOrHashOrAddress, network } = await validateDto(dto, GetENSNodeDto);
 
     await this.require({
       wallet: !nameOrHashOrAddress,
@@ -997,6 +1020,7 @@ export class Sdk {
 
     return ensService.getENSNode(
       this.prepareAccountAddress(nameOrHashOrAddress), //
+      network,
     );
   }
 
@@ -1006,7 +1030,7 @@ export class Sdk {
    * @return Promise<ENSRootNode>
    */
   async getENSRootNode(dto: GetENSRootNodeDto): Promise<ENSRootNode> {
-    const { name } = await validateDto(dto, GetENSRootNodeDto);
+    const { name, network } = await validateDto(dto, GetENSRootNodeDto);
 
     await this.require({
       wallet: false,
@@ -1014,21 +1038,23 @@ export class Sdk {
 
     const { ensService } = this.services;
 
-    return ensService.getENSRootNode(name);
+    return ensService.getENSRootNode(name, network);
   }
 
   /**
    * gets ens top level domains
    * @return Promise<string[]>
    */
-  async getENSTopLevelDomains(): Promise<string[]> {
+  async getENSTopLevelDomains(dto: GetENSTopLevelDomainsDto = {}): Promise<string[]> {
+    const { network } = await validateDto(dto, GetENSTopLevelDomainsDto);
+
     await this.require({
       wallet: false,
     });
 
     const { ensService } = this.services;
 
-    return ensService.getENSTopLevelDomains();
+    return ensService.getENSTopLevelDomains(network);
   }
 
   /**
@@ -1037,7 +1063,7 @@ export class Sdk {
    * @return Promise<string[]>
    */
   async ensAddressesLookup(dto: ENSAddressesLookupDto): Promise<string[]> {
-    const { names } = await validateDto(dto, ENSAddressesLookupDto);
+    const { names, network } = await validateDto(dto, ENSAddressesLookupDto);
 
     await this.require({
       wallet: false,
@@ -1045,7 +1071,7 @@ export class Sdk {
 
     const { ensService } = this.services;
 
-    return ensService.ensAddressesLookup(names);
+    return ensService.ensAddressesLookup(names, network);
   }
 
   /**
@@ -1054,7 +1080,7 @@ export class Sdk {
    * @return Promise<string[]>
    */
   async ensNamesLookup(dto: ENSNamesLookupDto): Promise<string[]> {
-    const { addresses } = await validateDto(dto, ENSNamesLookupDto);
+    const { addresses, network } = await validateDto(dto, ENSNamesLookupDto);
 
     await this.require({
       wallet: false,
@@ -1062,7 +1088,7 @@ export class Sdk {
 
     const { ensService } = this.services;
 
-    return ensService.ensNamesLookup(addresses);
+    return ensService.ensNamesLookup(addresses, network);
   }
 
   // ens (encode)
@@ -1073,7 +1099,7 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeClaimENSNode(dto: ClaimENSNodeDto = {}): Promise<TransactionRequest> {
-    const { nameOrHashOrAddress } = await validateDto(dto, ClaimENSNodeDto);
+    const { nameOrHashOrAddress, network } = await validateDto(dto, ClaimENSNodeDto);
 
     await this.require({
       wallet: !nameOrHashOrAddress,
@@ -1081,6 +1107,7 @@ export class Sdk {
 
     const ensNode = await this.getENSNode({
       nameOrHashOrAddress,
+      network,
     });
 
     if (!ensNode || ensNode.state !== ENSNodeStates.Reserved) {
@@ -1106,7 +1133,8 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeSetENSRecordName(dto: SetENSRecordNameDto = {}): Promise<TransactionRequest> {
-    let { name } = await validateDto(dto, SetENSRecordNameDto);
+    // eslint-disable-next-line prefer-const
+    let { name, network } = await validateDto(dto, SetENSRecordNameDto);
     await this.require();
 
     const { accountService } = this.services;
@@ -1114,6 +1142,7 @@ export class Sdk {
 
     const ensNode = await this.getENSNode({
       nameOrHashOrAddress: accountAddress,
+      network,
     });
 
     if (!ensNode) {
@@ -1137,7 +1166,7 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeSetENSRecordText(dto: SetENSRecordTextDto): Promise<TransactionRequest> {
-    const { key, value } = await validateDto(dto, SetENSRecordTextDto);
+    const { key, value, network } = await validateDto(dto, SetENSRecordTextDto);
 
     await this.require();
 
@@ -1146,6 +1175,7 @@ export class Sdk {
 
     const ensNode = await this.getENSNode({
       nameOrHashOrAddress: accountAddress,
+      network,
     });
 
     if (!ensNode) {
@@ -1163,7 +1193,8 @@ export class Sdk {
    * encodes claim ens reverse name
    * @return Promise<TransactionRequest>
    */
-  async encodeClaimENSReverseName(): Promise<TransactionRequest> {
+  async encodeClaimENSReverseName(dto: ClaimENSReverseNameDto = {}): Promise<TransactionRequest> {
+    const { network } = dto;
     await this.require();
 
     const { accountService, ensService } = this.services;
@@ -1171,6 +1202,7 @@ export class Sdk {
 
     const ensNode = await this.getENSNode({
       nameOrHashOrAddress: accountAddress,
+      network,
     });
 
     if (!ensNode) {
@@ -1239,12 +1271,12 @@ export class Sdk {
    * batch claim ens reverse name
    * @return Promise<GatewayBatch>
    */
-  async batchClaimENSReverseName(): Promise<GatewayBatch> {
+  async batchClaimENSReverseName(dto: ClaimENSReverseNameDto = {}): Promise<GatewayBatch> {
     await this.require({
       contractAccount: true,
     });
 
-    return this.batchGatewayTransactionRequest(await this.encodeClaimENSReverseName());
+    return this.batchGatewayTransactionRequest(await this.encodeClaimENSReverseName(dto));
   }
 
   // exchange
@@ -1255,13 +1287,13 @@ export class Sdk {
    * @return Promise<PaginatedTokens>
    */
   async getExchangeSupportedAssets(dto: PaginationDto = {}): Promise<PaginatedTokens> {
-    const { page, limit } = await validateDto(dto, PaginationDto);
+    const { page, limit, network } = await validateDto(dto, PaginationDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.exchangeService.getExchangeSupportedAssets(page, limit);
+    return this.services.exchangeService.getExchangeSupportedAssets(page, limit, network);
   }
 
   /**
@@ -1270,7 +1302,7 @@ export class Sdk {
    * @return Promise<ExchangeOffer[]>
    */
   async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
-    const { fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeOffersDto, {
+    const { fromTokenAddress, toTokenAddress, fromAmount, network } = await validateDto(dto, GetExchangeOffersDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
 
@@ -1282,6 +1314,7 @@ export class Sdk {
       fromTokenAddress, //
       toTokenAddress,
       BigNumber.from(fromAmount),
+      network,
     );
   }
 
@@ -1293,7 +1326,7 @@ export class Sdk {
    * @return Promise<P2PPaymentDeposits>
    */
   async getP2PPaymentDeposits(dto: GetP2PPaymentDepositsDto = {}): Promise<P2PPaymentDeposits> {
-    const { tokens } = await validateDto(dto, GetP2PPaymentDepositsDto, {
+    const { tokens, network } = await validateDto(dto, GetP2PPaymentDepositsDto, {
       addressKeys: ['tokens'],
     });
 
@@ -1303,7 +1336,7 @@ export class Sdk {
 
     const { accountService, p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.syncP2PPaymentDeposits(accountService.accountAddress, tokens);
+    return p2pPaymentsService.syncP2PPaymentDeposits(accountService.accountAddress, tokens, network);
   }
 
   /**
@@ -1312,7 +1345,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async getP2PPaymentChannel(dto: GetP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
-    const { hash } = await validateDto(dto, GetP2PPaymentChannelDto);
+    const { hash, network } = await validateDto(dto, GetP2PPaymentChannelDto);
 
     await this.require({
       wallet: false,
@@ -1320,7 +1353,7 @@ export class Sdk {
 
     const { p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.getP2PPaymentChannel(hash);
+    return p2pPaymentsService.getP2PPaymentChannel(hash, network);
   }
 
   /**
@@ -1329,7 +1362,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannels>
    */
   async getP2PPaymentChannels(dto: GetP2PPaymentChannelsDto = {}): Promise<P2PPaymentChannels> {
-    const { senderOrRecipient, uncommittedOnly, page } = await validateDto(dto, GetP2PPaymentChannelsDto, {
+    const { senderOrRecipient, uncommittedOnly, page, network } = await validateDto(dto, GetP2PPaymentChannelsDto, {
       addressKeys: ['senderOrRecipient'],
     });
 
@@ -1343,6 +1376,7 @@ export class Sdk {
       this.prepareAccountAddress(senderOrRecipient), //
       { uncommittedOnly },
       page || 1,
+      network,
     );
   }
 
@@ -1352,7 +1386,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async increaseP2PPaymentChannelAmount(dto: IncreaseP2PPaymentChannelAmountDto): Promise<P2PPaymentChannel> {
-    const { recipient, token, value } = await validateDto(dto, IncreaseP2PPaymentChannelAmountDto, {
+    const { recipient, token, value, network } = await validateDto(dto, IncreaseP2PPaymentChannelAmountDto, {
       addressKeys: ['recipient', 'token'],
     });
 
@@ -1366,6 +1400,7 @@ export class Sdk {
       recipient, //
       token,
       BigNumber.from(value),
+      network,
     );
   }
 
@@ -1375,7 +1410,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async updateP2PPaymentChannel(dto: UpdateP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
-    const { recipient, token, totalAmount } = await validateDto(dto, UpdateP2PPaymentChannelDto, {
+    const { recipient, token, totalAmount, network } = await validateDto(dto, UpdateP2PPaymentChannelDto, {
       addressKeys: ['recipient', 'token'],
     });
 
@@ -1389,6 +1424,7 @@ export class Sdk {
       recipient, //
       token,
       BigNumber.from(totalAmount),
+      network,
     );
   }
 
@@ -1398,7 +1434,7 @@ export class Sdk {
    * @return Promise<P2PPaymentChannel>
    */
   async signP2PPaymentChannel(dto: SignP2PPaymentChannelDto): Promise<P2PPaymentChannel> {
-    const { hash } = await validateDto(dto, SignP2PPaymentChannelDto);
+    const { hash, network } = await validateDto(dto, SignP2PPaymentChannelDto);
 
     await this.require({
       session: true,
@@ -1406,7 +1442,7 @@ export class Sdk {
 
     const { p2pPaymentsService } = this.services;
 
-    return p2pPaymentsService.signP2PPaymentChannel(hash);
+    return p2pPaymentsService.signP2PPaymentChannel(hash, network);
   }
 
   // p2p payments (encode)
@@ -1417,7 +1453,7 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeWithdrawP2PPaymentDeposit(dto: WithdrawP2PPaymentDepositDto): Promise<TransactionRequest> {
-    const { token, amount } = await validateDto(dto, WithdrawP2PPaymentDepositDto, {
+    const { token, amount, network } = await validateDto(dto, WithdrawP2PPaymentDepositDto, {
       addressKeys: ['token'],
     });
 
@@ -1428,7 +1464,7 @@ export class Sdk {
     const { p2pPaymentsService } = this.services;
 
     return p2pPaymentsService.buildP2PPaymentDepositWithdrawalTransactionRequest(
-      await p2pPaymentsService.decreaseP2PPaymentDeposit(token, BigNumber.from(amount)),
+      await p2pPaymentsService.decreaseP2PPaymentDeposit(token, BigNumber.from(amount), network),
     );
   }
 
@@ -1438,7 +1474,7 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeP2PPaymentDepositWithdrawal(dto: P2PPaymentDepositWithdrawalDto): Promise<TransactionRequest> {
-    const { token } = await validateDto(dto, P2PPaymentDepositWithdrawalDto, {
+    const { token, network } = await validateDto(dto, P2PPaymentDepositWithdrawalDto, {
       addressKeys: ['token'],
     });
 
@@ -1450,7 +1486,7 @@ export class Sdk {
     const { accountAddress } = accountService;
 
     return p2pPaymentsService.buildP2PPaymentDepositWithdrawalTransactionRequest(
-      await p2pPaymentsService.syncP2PPaymentDeposit(accountAddress, token),
+      await p2pPaymentsService.syncP2PPaymentDeposit(accountAddress, token, network),
     );
   }
 
@@ -1460,12 +1496,13 @@ export class Sdk {
    * @return Promise<TransactionRequest>
    */
   async encodeCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<TransactionRequest> {
-    const { hash, deposit } = await validateDto(dto, CommitP2PPaymentChannelDto);
+    const { hash, deposit, network } = await validateDto(dto, CommitP2PPaymentChannelDto);
 
     await this.require();
 
     const paymentChannel = await this.getP2PPaymentChannel({
       hash,
+      network,
     });
 
     if (!paymentChannel) {
@@ -1552,7 +1589,7 @@ export class Sdk {
    * @return Promise<PaymentHub>
    */
   async getPaymentHub(dto: GetPaymentHubDto): Promise<PaymentHub> {
-    const { hub, token } = await validateDto(dto, GetPaymentHubDto, {
+    const { hub, token, network } = await validateDto(dto, GetPaymentHubDto, {
       addressKeys: ['hub', 'token'],
     });
 
@@ -1565,6 +1602,7 @@ export class Sdk {
     return paymentHubService.getPaymentHub(
       this.prepareAccountAddress(hub), //
       token,
+      network,
     );
   }
 
@@ -1578,7 +1616,7 @@ export class Sdk {
       addressKeys: ['hub', 'token'],
     });
 
-    const { token, page } = dto;
+    const { token, page, network } = dto;
     let { hub } = dto;
 
     await this.require({
@@ -1596,6 +1634,7 @@ export class Sdk {
       hub, //
       token,
       page || 1,
+      network,
     );
   }
 
@@ -1605,7 +1644,7 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async getPaymentHubBridge(dto: GetPaymentHubBridgeDto = {}): Promise<PaymentHubBridge> {
-    const { hub, token, acceptedNetworkName, acceptedToken } = await validateDto(dto, GetPaymentHubBridgeDto, {
+    const { hub, token, acceptedNetworkName, acceptedToken, network } = await validateDto(dto, GetPaymentHubBridgeDto, {
       addressKeys: ['hub', 'token', 'acceptedToken'],
     });
 
@@ -1620,6 +1659,7 @@ export class Sdk {
       token,
       this.getNetworkChainId(acceptedNetworkName),
       acceptedToken,
+      network,
     );
   }
 
@@ -1629,7 +1669,7 @@ export class Sdk {
    * @return Promise<PaymentHubBridges>
    */
   async getPaymentHubBridges(dto: GetPaymentHubBridgesDto): Promise<PaymentHubBridges> {
-    const { hub, token, acceptedNetworkName, page } = await validateDto(dto, GetPaymentHubBridgesDto, {
+    const { hub, token, acceptedNetworkName, page, network } = await validateDto(dto, GetPaymentHubBridgesDto, {
       addressKeys: ['hub', 'token'],
     });
 
@@ -1650,6 +1690,7 @@ export class Sdk {
       token,
       acceptedChainId,
       page || 1,
+      network,
     );
   }
 
@@ -1659,7 +1700,7 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async getPaymentHubDeposit(dto: GetPaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, owner } = await validateDto(dto, GetPaymentHubDepositDto, {
+    const { hub, token, owner, network } = await validateDto(dto, GetPaymentHubDepositDto, {
       addressKeys: ['hub', 'token', 'owner'],
     });
 
@@ -1669,7 +1710,7 @@ export class Sdk {
 
     const { paymentHubService } = this.services;
 
-    return paymentHubService.getPaymentHubDeposit(hub, token, this.prepareAccountAddress(owner));
+    return paymentHubService.getPaymentHubDeposit(hub, token, this.prepareAccountAddress(owner), network);
   }
 
   /**
@@ -1678,7 +1719,7 @@ export class Sdk {
    * @return Promise<PaymentHubDeposits>
    */
   async getPaymentHubDeposits(dto: GetPaymentHubDepositsDto): Promise<PaymentHubDeposits> {
-    const { hub, tokens, owner, page } = await validateDto(dto, GetPaymentHubDepositsDto, {
+    const { hub, tokens, owner, page, network } = await validateDto(dto, GetPaymentHubDepositsDto, {
       addressKeys: ['hub', 'tokens', 'owner'],
     });
 
@@ -1693,6 +1734,7 @@ export class Sdk {
       tokens || [],
       this.prepareAccountAddress(owner),
       page || 1,
+      network,
     );
   }
 
@@ -1715,7 +1757,7 @@ export class Sdk {
    * @return Promise<PaymentHubPayments>
    */
   async getPaymentHubPayments(dto: GetPaymentHubPaymentsDto): Promise<PaymentHubPayments> {
-    const { hub, token, senderOrRecipient, page } = await validateDto(dto, GetPaymentHubPaymentsDto, {
+    const { hub, token, senderOrRecipient, page, network } = await validateDto(dto, GetPaymentHubPaymentsDto, {
       addressKeys: ['hub', 'token', 'senderOrRecipient'],
     });
 
@@ -1730,6 +1772,7 @@ export class Sdk {
       token,
       this.prepareAccountAddress(senderOrRecipient),
       page || 1,
+      network,
     );
   }
 
@@ -1739,7 +1782,7 @@ export class Sdk {
    * @return Promise<PaymentHubPayment>
    */
   async createPaymentHubPayment(dto: CreatePaymentHubPaymentDto): Promise<PaymentHubPayment> {
-    const { hub, token, recipient, value } = await validateDto(dto, CreatePaymentHubPaymentDto, {
+    const { hub, token, recipient, value, network } = await validateDto(dto, CreatePaymentHubPaymentDto, {
       addressKeys: ['hub', 'token', 'recipient'],
     });
 
@@ -1754,6 +1797,7 @@ export class Sdk {
       token,
       recipient,
       BigNumber.from(value),
+      network,
     );
   }
 
@@ -1763,7 +1807,7 @@ export class Sdk {
    * @return Promise<PaymentHub>
    */
   async updatePaymentHub(dto: UpdatePaymentHubDto = {}): Promise<PaymentHub> {
-    const { token, liquidity } = await validateDto(dto, UpdatePaymentHubDto, {
+    const { token, liquidity, network } = await validateDto(dto, UpdatePaymentHubDto, {
       addressKeys: ['token'],
     });
 
@@ -1776,6 +1820,7 @@ export class Sdk {
     return paymentHubService.updatePaymentHub(
       BigNumber.from(liquidity || 0), //
       token,
+      network,
     );
   }
 
@@ -1785,7 +1830,7 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async updatePaymentHubDeposit(dto: UpdatePaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, totalAmount } = await validateDto(dto, UpdatePaymentHubDepositDto, {
+    const { hub, token, totalAmount, network } = await validateDto(dto, UpdatePaymentHubDepositDto, {
       addressKeys: ['hub', 'token'],
     });
 
@@ -1799,6 +1844,7 @@ export class Sdk {
       hub, //
       BigNumber.from(totalAmount || 0),
       token,
+      network,
     );
   }
 
@@ -1808,7 +1854,7 @@ export class Sdk {
    * @return Promise<PaymentHubDeposit>
    */
   async transferPaymentHubDeposit(dto: TransferPaymentHubDepositDto): Promise<PaymentHubDeposit> {
-    const { hub, token, value, targetNetworkName, targetHub, targetToken } = await validateDto(
+    const { hub, token, value, targetNetworkName, targetHub, targetToken, network } = await validateDto(
       dto,
       TransferPaymentHubDepositDto,
       {
@@ -1829,6 +1875,7 @@ export class Sdk {
       this.getNetworkChainId(targetNetworkName),
       targetHub,
       targetToken,
+      network,
     );
   }
 
@@ -1838,7 +1885,7 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async activatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
-    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
+    const { token, acceptedNetworkName, acceptedToken, network } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
       addressKeys: ['token', 'acceptedToken'],
     });
 
@@ -1852,6 +1899,7 @@ export class Sdk {
       token,
       this.getNetworkChainId(acceptedNetworkName),
       acceptedToken,
+      network,
     );
   }
 
@@ -1861,7 +1909,7 @@ export class Sdk {
    * @return Promise<PaymentHubBridge>
    */
   async deactivatePaymentHubBridge(dto: UpdatePaymentHubBridgeDto): Promise<PaymentHubBridge> {
-    const { token, acceptedNetworkName, acceptedToken } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
+    const { token, acceptedNetworkName, acceptedToken, network } = await validateDto(dto, UpdatePaymentHubBridgeDto, {
       addressKeys: ['token', 'acceptedToken'],
     });
 
@@ -1875,6 +1923,7 @@ export class Sdk {
       token,
       this.getNetworkChainId(acceptedNetworkName),
       acceptedToken,
+      network,
     );
   }
 
@@ -1882,14 +1931,16 @@ export class Sdk {
 
   /**
    * gets token lists
+   * @param dto
    * @return Promise<TokenList[]>
    */
-  async getTokenLists(): Promise<TokenList[]> {
+  async getTokenLists(dto: GetTokenListsDto = {}): Promise<TokenList[]> {
+    const { network } = await validateDto(dto, GetTokenListsDto);
     await this.require({
       wallet: false,
     });
 
-    return this.services.assetsService.getTokenLists();
+    return this.services.assetsService.getTokenLists(network);
   }
 
   /**
@@ -1898,13 +1949,13 @@ export class Sdk {
    * @return Promise<TokenListToken[]>
    */
   async getTokenListTokens(dto: GetTokenListDto = {}): Promise<TokenListToken[]> {
-    const { name } = await validateDto(dto, GetTokenListDto);
+    const { name, network } = await validateDto(dto, GetTokenListDto);
 
     await this.require({
       wallet: false,
     });
 
-    return this.services.assetsService.getTokenListTokens(name);
+    return this.services.assetsService.getTokenListTokens(name, network);
   }
 
   /**
@@ -1921,13 +1972,13 @@ export class Sdk {
    * @return Promise<TokenListToken[]>
    */
   async getAccountTokenListTokens(dto: GetTokenListDto = {}): Promise<TokenListToken[]> {
-    const { name } = await validateDto(dto, GetTokenListDto);
+    const { name, network } = await validateDto(dto, GetTokenListDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.assetsService.getAccountTokenListTokens(name);
+    return this.services.assetsService.getAccountTokenListTokens(name, network);
   }
 
   /**
@@ -1936,7 +1987,7 @@ export class Sdk {
    * @return Promise<boolean>
    */
   async isTokenOnTokenList(dto: IsTokenOnTokenListDto): Promise<boolean> {
-    const { token, name } = await validateDto(dto, IsTokenOnTokenListDto, {
+    const { token, name, network } = await validateDto(dto, IsTokenOnTokenListDto, {
       addressKeys: ['token'],
     });
 
@@ -1944,7 +1995,7 @@ export class Sdk {
       wallet: false,
     });
 
-    return this.services.assetsService.isTokenOnTokenList(token, name);
+    return this.services.assetsService.isTokenOnTokenList(token, name, network);
   }
 
   // transactions
@@ -1955,13 +2006,13 @@ export class Sdk {
    * @return Promise<Transaction>
    */
   async getTransaction(dto: GetTransactionDto): Promise<Transaction> {
-    const { hash } = await validateDto(dto, GetTransactionDto);
+    const { hash, network } = await validateDto(dto, GetTransactionDto);
 
     await this.require({
       wallet: false,
     });
 
-    return this.services.transactionsService.getTransaction(hash);
+    return this.services.transactionsService.getTransaction(hash, network);
   }
 
   /**
@@ -1970,7 +2021,7 @@ export class Sdk {
    * @return Promise<Transactions>
    */
   async getTransactions(dto: GetTransactionsDto): Promise<Transactions> {
-    const { account } = await validateDto(dto, GetTransactionsDto, {
+    const { account, network } = await validateDto(dto, GetTransactionsDto, {
       addressKeys: ['account'],
     });
 
@@ -1980,6 +2031,7 @@ export class Sdk {
 
     return this.services.transactionsService.getTransactions(
       this.prepareAccountAddress(account), //
+      network,
     );
   }
 
@@ -1989,7 +2041,7 @@ export class Sdk {
    * @return Promise<NftList>
    */
   async getNftList(dto: GetNftListDto): Promise<NftList> {
-    const { account } = await validateDto(dto, GetNftListDto, {
+    const { account, network } = await validateDto(dto, GetNftListDto, {
       addressKeys: ['account'],
     });
 
@@ -1999,6 +2051,7 @@ export class Sdk {
 
     return this.services.transactionsService.getNftList(
       this.prepareAccountAddress(account), //
+      network,
     );
   }
 
@@ -2008,20 +2061,23 @@ export class Sdk {
    * top-up account
    * @return Promise<string>
    */
-  async topUpAccount(): Promise<string> {
+  async topUpAccount(dto: TopUpAccountDto): Promise<string> {
+    const { network } = await validateDto(dto, TopUpAccountDto);
+
     await this.require();
 
-    return this.services.faucetService.topUpAccount();
+    return this.services.faucetService.topUpAccount(network);
   }
 
   /**
    * top-up account
    * @return Promise<string>
    */
-  async topUpPaymentDepositAccount(): Promise<string> {
+  async topUpPaymentDepositAccount(dto: TopUpAccountDto): Promise<string> {
+    const { network } = await validateDto(dto, TopUpAccountDto);
     await this.require();
 
-    return this.services.faucetService.topUpPaymentDepositAccount();
+    return this.services.faucetService.topUpPaymentDepositAccount(network);
   }
 
   /**

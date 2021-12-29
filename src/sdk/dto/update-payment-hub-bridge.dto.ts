@@ -1,8 +1,9 @@
 import { IsOptional, IsEnum } from 'class-validator';
 import { NetworkNames } from '../network';
+import { NetworkNameDto } from './network-name.dto';
 import { IsAddress } from './validators';
 
-export class UpdatePaymentHubBridgeDto {
+export class UpdatePaymentHubBridgeDto extends NetworkNameDto {
   @IsOptional()
   @IsAddress()
   token?: string = null;

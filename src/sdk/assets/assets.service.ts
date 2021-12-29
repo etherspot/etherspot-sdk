@@ -3,9 +3,10 @@ import { Service } from '../common';
 import { TokenList, TokenLists, TokenListToken } from './classes';
 import { NativeCurrencies } from './classes/native-currencies';
 import { NativeCurrenciesItem } from './classes/native-currencies-item';
+import { NetworkNames, networkNameToChainId } from '../network';
 
 export class AssetsService extends Service {
-  async getTokenLists(): Promise<TokenList[]> {
+  async getTokenLists(network?: NetworkNames): Promise<TokenList[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -28,13 +29,14 @@ export class AssetsService extends Service {
         models: {
           result: TokenLists,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result.items;
   }
 
-  async getTokenListTokens(name: string = null): Promise<TokenListToken[]> {
+  async getTokenListTokens(name: string = null, network?: NetworkNames): Promise<TokenListToken[]> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -62,6 +64,7 @@ export class AssetsService extends Service {
           result: TokenList,
         },
         fetchPolicy: 'cache-first',
+        chainId: networkNameToChainId(network),
       },
     );
 
@@ -97,7 +100,7 @@ export class AssetsService extends Service {
     return result.items;
   }
 
-  async getAccountTokenListTokens(name: string = null): Promise<TokenListToken[]> {
+  async getAccountTokenListTokens(name: string = null, network?: NetworkNames): Promise<TokenListToken[]> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
@@ -127,13 +130,14 @@ export class AssetsService extends Service {
         models: {
           result: TokenList,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
     return result ? result.tokens : null;
   }
 
-  async isTokenOnTokenList(token: string, name: string = null): Promise<boolean> {
+  async isTokenOnTokenList(token: string, name: string = null, network?: NetworkNames): Promise<boolean> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -149,6 +153,7 @@ export class AssetsService extends Service {
           token,
           name,
         },
+        chainId: networkNameToChainId(network),
       },
     );
 
