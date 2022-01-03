@@ -24,3 +24,6 @@ $ npm run <example name> # eg. 01-session
 * [projects](./src/09-projects.ts) -- call current project and add account owners
 * [assets](./src/10-assets.ts) -- get token list for account
 * [external contracts](./src/11-external-contracts.ts) -- transactions to ERC20 contract accounts
+* [exchange](./src/12-exchange.ts) -- get exchange service swap offers
+* [transactions](./src/13-transactions.ts) -- get smart account transactions
+* [delayed transactions](./src/14-delayed-transactions.ts) -- allow to automatically delay account transactions
