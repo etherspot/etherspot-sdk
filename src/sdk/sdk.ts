@@ -384,9 +384,7 @@ export class Sdk {
       addressKeys: ['to'],
     });
 
-    await this.require({
-      contractAccount: true,
-    });
+    await this.require();
 
     const { gatewayService } = this.services;
 
@@ -528,10 +526,7 @@ export class Sdk {
   async encodeGatewayBatch(dto: EncodeGatewayBatchDto = {}): Promise<TransactionRequest> {
     const { delegate } = await validateDto(dto, EncodeGatewayBatchDto);
 
-    await this.require({
-      session: true,
-      contractAccount: true,
-    });
+    await this.require();
 
     return this.services.gatewayService.encodeGatewayBatch(delegate);
   }
@@ -1538,9 +1533,7 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async batchCommitP2PPaymentChannel(dto: CommitP2PPaymentChannelDto): Promise<GatewayBatch> {
-    await this.require({
-      contractAccount: true,
-    });
+    await this.require();
 
     return this.batchGatewayTransactionRequest(await this.encodeCommitP2PPaymentChannel(dto));
   }

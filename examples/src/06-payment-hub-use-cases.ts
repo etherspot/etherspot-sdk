@@ -29,27 +29,33 @@ async function main(): Promise<void> {
   const { accountAddress: recipient } = recipientState;
 
   // Step 1: Setup
+  logger.log('Step 1', 'topUpAll');
   await topUpAll();
   await logData();
 
   // Step 2: Hub locks 40 ETH as liquidity
+  logger.log('Step 2', 'provideHubLiquidity');
   await provideHubLiquidity();
   await logData();
 
   // Step 3: Alice deposits 10 ETH
+  logger.log('Step 3', 'depositToHub');
   await depositToHub(10);
   await logData();
 
   // Step 4: Hub settles Alice's deposit
   // NOTE: that action is optional, it just updates the liquidity
+  logger.log('Step 4', 'settleDeposit');
   await settleDeposit();
   await logData();
 
-  // Step 5: Alice sends to Bob 10 ETH
+  // Step 5: Alice sends Bob 10 ETH
+  logger.log('Step 5', 'makePayment');
   await makePayment(1, recipient);
   await logData();
 
   // Step 6: Bob withdraws
+  logger.log('Step 6', 'withdrawPayment');
   await withdrawPayment();
   await logData();
 
@@ -86,7 +92,6 @@ async function main(): Promise<void> {
     } = await hubSdk.getP2PPaymentChannels({ uncommittedOnly: true });
 
     const { hash } = paymentChannel;
-    await hubSdk.computeContractAccount({ sync: false });
     const batch = await hubSdk.batchCommitP2PPaymentChannel({ hash });
 
     const encoded = batch.requests[0];
@@ -105,7 +110,7 @@ async function main(): Promise<void> {
   }
 
   async function withdrawPayment() {
-    // NOTE: we can't call it twice
+    // NOTE: we can't call the updatePaymentHubDeposit() twice
     logger.log(
       'payment hub recipient deposit (updated)',
       await recipientSdk.updatePaymentHubDeposit({
@@ -128,9 +133,6 @@ async function main(): Promise<void> {
       }),
     );
 
-    await recipientSdk.computeContractAccount();
-
-    // NOTE: that requires to call the computeContractAccount() first
     const batch = await recipientSdk.batchCommitP2PPaymentChannel({
       hash,
       deposit: false,
@@ -143,8 +145,6 @@ async function main(): Promise<void> {
      * There is an option to send transaction via the Gateway contract
      * that would allow to batch multiple calls.
      * In order to get it working we should avoid calling the recipientSdk.computeContractAccount()
-     * and disable requirement for 'contractAccount: true' in batchCommitP2PPaymentChannel and encodeGatewayBatch
-     * TODO: check if we can pass a flag to override those requirements or maybe call some methods directly
      */
     // const encoded = await recipientSdk.encodeGatewayBatch({ delegate: false });
     // console.log(await recipientWallet.sendTransaction(encoded));
@@ -156,14 +156,14 @@ async function main(): Promise<void> {
     logger.log('hub payment deposits', await hubSdk.getP2PPaymentDeposits());
     logger.log(
       'hub liquidity',
-      await hubSdk.getPaymentHub({ hub }).then(({ liquidity }) => utils.formatEther(liquidity)),
+      await hubSdk.getPaymentHub({ hub }).then((data) => (data ? utils.formatEther(data.liquidity) : null)),
     );
 
     // sender
     logger.log('sender payment deposits', await senderSdk.getP2PPaymentDeposits());
     logger.log(
       'sender total amount on hub',
-      await senderSdk.getPaymentHubDeposit({ hub }).then(({ totalAmount }) => utils.formatEther(totalAmount)),
+      await senderSdk.getPaymentHubDeposit({ hub }).then((data) => (data ? utils.formatEther(data.totalAmount) : null)),
     );
     logger.log('sender P2P balance', await getBalance(senderState.p2pPaymentDepositAddress).then(utils.formatEther));
     logger.log('sender balance', await getBalance(recipient).then(utils.formatEther));
