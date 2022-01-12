@@ -23,7 +23,7 @@ More information at [etherspot.io](https://www.etherspot.io)
 ## Installation
 
 ```bash
-$ npm i ethers@^5.0.8 reflect-metadata@^0.1.13 rxjs@^6.6.2 -S
+$ npm i ethers@^5.5.2 reflect-metadata@^0.1.13 rxjs@^6.6.2 -S
 $ npm i etherspot -S
 $ npm i ws -s # node.js only
 ```
