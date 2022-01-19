@@ -13,7 +13,7 @@ import {
   AccountTotalBalances,
 } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes, Currencies } from './constants';
-import { UpdateAccountSettingsDto } from '../dto';
+import { IsEligibleForAirdropDto, UpdateAccountSettingsDto } from '../dto';
 
 export class AccountService extends Service {
   readonly account$ = new SynchronizedSubject<Account>();
@@ -456,6 +456,28 @@ export class AccountService extends Service {
           account: accountAddress,
           fcmToken: dto.fcmToken,
           delayTransactions: dto.delayTransactions,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async isEligibleForAirdrop(dto: IsEligibleForAirdropDto): Promise<boolean> {
+    const { apiService } = this.services;
+    const { address } = dto;
+
+    const { result } = await apiService.query<{
+      result: boolean;
+    }>(
+      gql`
+        query($address: String!) {
+          result: isEligibleForAirdrop(address: $address)
+        }
+      `,
+      {
+        variables: {
+          address,
         },
       },
     );
