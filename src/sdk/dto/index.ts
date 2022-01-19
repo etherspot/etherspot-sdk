@@ -42,6 +42,7 @@ export * from './get-token-list.dto';
 export * from './get-transaction.dto';
 export * from './get-transactions.dto';
 export * from './increase-p2p-payment-channel-amount.dto';
+export * from './is-eligible-for-airdrop.dto';
 export * from './is-token-on-token-list.dto';
 export * from './join-contract-account.dto';
 export * from './p2p-payment-deposit-withdrawal.dto';

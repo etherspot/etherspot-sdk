@@ -93,6 +93,7 @@ import {
   GetAccountTotalBalancesDto,
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
+  IsEligibleForAirdropDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -819,6 +820,14 @@ export class Sdk {
     });
 
     return this.services.accountService.updateAccountSettings(dto);
+  }
+
+  /**
+   * check if account is eligible for an airdrop
+   * @return Promise<boolean>
+   */
+  async isEligibleForAirdrop(dto: IsEligibleForAirdropDto): Promise<boolean> {
+    return this.services.accountService.isEligibleForAirdrop(dto);
   }
 
   // account (encode)
