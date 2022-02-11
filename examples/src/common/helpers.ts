@@ -9,7 +9,7 @@ import {
   LOCAL_B_PROVIDER_CHAIN_ID,
   LOCAL_B_FAUCET_PRIVATE_KEY,
 } from './config';
-
+import { AssetType } from './specs';
 const localAProvider = new providers.JsonRpcProvider(LOCAL_A_PROVIDER_ENDPOINT);
 const localAWallet = new Wallet(LOCAL_A_FAUCET_PRIVATE_KEY, localAProvider);
 
@@ -81,6 +81,23 @@ export async function topUpAccount(
   await response.wait();
 }
 
+export async function swapTransaction(
+  account: string,
+  value: string,
+  networkName: NetworkNames = NetworkNames.LocalA,
+): Promise<void> {
+  const wallet = getWallet(networkName);
+  const nonce = await wallet.getTransactionCount();
+
+  const response = await wallet.sendTransaction({
+    to: account,
+    value: utils.parseEther(value),
+    nonce,
+  });
+
+  await response.wait();
+}
+
 export async function getBalance(account: string, networkName: NetworkNames = NetworkNames.LocalA): Promise<BigNumber> {
   return getProvider(networkName).getBalance(account);
 }
@@ -96,3 +113,96 @@ export function randomWallet(networkName: NetworkNames = NetworkNames.LocalA): W
 export function randomAddress(): string {
   return randomWallet().address;
 }
+
+
+export const mapToEthereumTransactions = async (
+  transactionPayload: TransactionPayload,
+  fromAddress: string,
+): Promise<EthereumTransaction[]> => {
+  const {
+    to,
+    data,
+    symbol,
+    amount,
+    contractAddress,
+    tokenType,
+    tokenId,
+    decimals = 18,
+    sequentialTransactions = [],
+    chain = CHAIN.ETHEREUM,
+    useLegacyTransferMethod,
+  } = transactionPayload;
+
+  const transaction = await buildEthereumTransaction(
+    to,
+    fromAddress,
+    data,
+    amount.toString(),
+    symbol,
+    decimals,
+    tokenType,
+    contractAddress,
+    tokenId,
+    chain,
+    useLegacyTransferMethod,
+  );
+
+  let transactions = [transaction];
+
+  // important: maintain array sequence, this gets mapped into arrays as well by reusing same method
+  const mappedSequential = await Promise.all(sequentialTransactions.map((sequential) =>
+    mapToEthereumTransactions(sequential, fromAddress),
+  ));
+
+  // append sequential to transactions batch
+  mappedSequential.forEach((sequential) => {
+    transactions = [
+      ...transactions,
+      ...sequential,
+    ];
+  });
+
+  return transactions;
+};
+
+
+export const buildEthereumTransaction = async (
+  to: string,
+  from: string,
+  data: string,
+  amount: string,
+  symbol: string,
+  decimals: number = 18,
+  tokenType: AssetType,
+  contractAddress: string,
+  tokenId: string,
+  chain: Chain,
+  useLegacyTransferMethod?: boolean,
+): Promise<EthereumTransaction> => {
+  let value;
+
+  if (tokenType !== ASSET_TYPES.COLLECTIBLE) {
+    const chainNativeSymbol = nativeAssetPerChain[chain].symbol;
+    value = utils.parseUnits(amount, decimals);
+    if (symbol !== chainNativeSymbol && !data && contractAddress) {
+      data = encodeContractMethod(ERC20_CONTRACT_ABI, 'transfer', [to, value.toString()]);
+      to = contractAddress;
+      value = EthersBigNumber.from(0); // value is in encoded transfer method as data
+    }
+  } else if (contractAddress && tokenId) {
+    data = await buildERC721TransactionData({
+      from,
+      to,
+      tokenId,
+      contractAddress,
+      useLegacyTransferMethod: !!useLegacyTransferMethod,
+    });
+    to = contractAddress;
+    value = EthersBigNumber.from(0);
+  }
+
+  let transaction = { to, value };
+
+  if (data) transaction = { ...transaction, data };
+  return transaction;
+};

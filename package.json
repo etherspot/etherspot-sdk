@@ -46,6 +46,7 @@
     "class-transformer": "0.4.0",
     "class-validator": "0.13.1",
     "cross-fetch": "3.1.4",
+    "etherspot": "^1.26.0",
     "graphql": "15.5.3",
     "subscriptions-transport-ws": "0.9.18",
     "validator": "13.7.0"
@@ -61,25 +62,25 @@
     "eslint": "6.8.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-plugin-import": "2.20.2",
-    "ethers": "5.5.2",
+    "ethers": "^5.5.2",
     "expect": "25.5.0",
     "gh-pages": "3.2.3",
     "jest": "25.5.4",
     "prettier": "2.0.5",
-    "reflect-metadata": "0.1.13",
+    "reflect-metadata": "^0.1.13",
     "rimraf": "3.0.2",
-    "rxjs": "6.6.7",
+    "rxjs": "^6.6.2",
     "serve": "11.3.2",
     "ts-jest": "25.5.1",
     "ts-node": "8.10.2",
     "typedoc": "0.17.4",
     "typescript": "3.9.3",
-    "ws": "7.4.6"
+    "ws": "^7.4.6"
   },
   "peerDependencies": {
-    "ethers": "^5.5.2",
+    "ethers": "^5.5.4",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.6.2"
+    "rxjs": "^6.6.7"
   },
   "jest": {
     "moduleFileExtensions": [
