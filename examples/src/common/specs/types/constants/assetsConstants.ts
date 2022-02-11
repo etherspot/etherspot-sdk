@@ -1,27 +1,5 @@
-// @flow
-/*
-    Pillar Wallet: the personal data locker
-    Copyright (C) 2019 Stiftung Pillar Project
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with this program; if not, write to the Free Software Foundation, Inc.,
-    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-*/
 import { ethers } from 'ethers';
 
-// reducer
-export const SET_SUPPORTED_ASSETS = 'SET_SUPPORTED_ASSETS';
-export const SET_CHAIN_SUPPORTED_ASSETS = 'SET_CHAIN_SUPPORTED_ASSETS';
 
 // // fiat
 // export const USD = ('USD': 'USD');
@@ -74,11 +52,6 @@ const OBTC = 'OBTC';
 const wBTC = 'wBTC'; // testnet
 const testBTC = 'testBTC'; // testnet
 
-export const ASSET_TYPES = {
-  TOKEN: ('TOKENS': 'TOKENS'),
-  COLLECTIBLE: ('COLLECTIBLES': 'COLLECTIBLES'),
-};
-
 export const SYNTHETIC = 'SYNTHETIC';
 export const NONSYNTHETIC = 'NONSYNTHETIC';
 export const ETHEREUM_ADDRESS_PREFIX = 'ethereum';
@@ -130,13 +103,13 @@ export const CURRENCY_SYMBOLS = {
   EUR: '€',
 };
 
-export const ASSET_CATEGORY = {
-  WALLET: ('wallet': 'wallet'),
-  DEPOSITS: ('deposits': 'deposits'),
-  INVESTMENTS: ('investments': 'investments'),
-  LIQUIDITY_POOLS: ('liquidityPools': 'liquidityPools'),
-  COLLECTIBLES: ('collectibles': 'collectibles'),
-  REWARDS: ('rewards': 'rewards'),
+export namespace ASSET_CATEGORY  {
+  export const WALLET = 'wallet';
+  export const DEPOSITS = 'deposits';
+  export const INVESTMENTS = 'investments';
+  export const LIQUIDITY_POOLS = 'liquidityPools';
+  export const COLLECTIBLES = 'collectibles';
+  export const REWARDS = 'rewards';
 };
 
 export const ADDRESS_ZERO = ethers.constants.AddressZero;

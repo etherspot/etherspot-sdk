@@ -22,8 +22,8 @@
 // import { isProdEnv } from 'utils/environment';
 
 // // Constants
-import { ETH, MATIC, BNB, AVAX, XDAI, ADDRESS_ZERO } from 'constants/assetsConstants';
-import { CHAIN, CHAIN_ID } from 'constants/chainConstants';
+import { ETH, MATIC, BNB, AVAX, XDAI, ADDRESS_ZERO } from './constants/assetsConstants';
+import { CHAIN, CHAIN_ID } from './constants/chainConstants';
 
 // // Utils
 // import { isEtherspotAccount } from 'utils/accounts';
