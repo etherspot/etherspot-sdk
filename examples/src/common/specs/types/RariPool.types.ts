@@ -17,7 +17,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-import { getRariPoolsEnv, getEnv } from 'configs/envConfig';
+// import { getRariPoolsEnv, getEnv } from 'configs/envConfig';
 
 export const RARI_DEPOSIT_TRANSACTION = 'RARI_DEPOSIT';
 export const RARI_WITHDRAW_TRANSACTION = 'RARI_WITHDRAW';
@@ -28,39 +28,39 @@ export const RARI_CLAIM_TRANSACTION = 'RARI_CLAIM';
 
 const rariLogo = require('assets/images/rari_logo.png');
 
-export const RARI_TOKENS_DATA = {
-  [RARI_POOLS.STABLE_POOL]: {
-    symbol: 'RSPT',
-    name: 'Rari Stable Pool Token',
-    decimals: 18,
-    contractAddress: getRariPoolsEnv(RARI_POOLS.STABLE_POOL).RARI_FUND_TOKEN_ADDRESS,
-    imageUrl: rariLogo,
-  },
-  [RARI_POOLS.YIELD_POOL]: {
-    symbol: 'RYPT',
-    name: 'Rari Yield Pool Token',
-    decimals: 18,
-    contractAddress: getRariPoolsEnv(RARI_POOLS.YIELD_POOL).RARI_FUND_TOKEN_ADDRESS,
-    imageUrl: rariLogo,
-  },
-  [RARI_POOLS.ETH_POOL]: {
-    symbol: 'REPT',
-    name: 'Rari ETH Pool Token',
-    decimals: 18,
-    contractAddress: getRariPoolsEnv(RARI_POOLS.ETH_POOL).RARI_FUND_TOKEN_ADDRESS,
-    imageUrl: rariLogo,
-  },
-};
+// export const RARI_TOKENS_DATA = {
+//   [RARI_POOLS.STABLE_POOL]: {
+//     symbol: 'RSPT',
+//     name: 'Rari Stable Pool Token',
+//     decimals: 18,
+//     contractAddress: getRariPoolsEnv(RARI_POOLS.STABLE_POOL).RARI_FUND_TOKEN_ADDRESS,
+//     imageUrl: rariLogo,
+//   },
+//   [RARI_POOLS.YIELD_POOL]: {
+//     symbol: 'RYPT',
+//     name: 'Rari Yield Pool Token',
+//     decimals: 18,
+//     contractAddress: getRariPoolsEnv(RARI_POOLS.YIELD_POOL).RARI_FUND_TOKEN_ADDRESS,
+//     imageUrl: rariLogo,
+//   },
+//   [RARI_POOLS.ETH_POOL]: {
+//     symbol: 'REPT',
+//     name: 'Rari ETH Pool Token',
+//     decimals: 18,
+//     contractAddress: getRariPoolsEnv(RARI_POOLS.ETH_POOL).RARI_FUND_TOKEN_ADDRESS,
+//     imageUrl: rariLogo,
+//   },
+// };
 
-export const RARI_GOVERNANCE_TOKEN_DATA = {
-  symbol: 'RGT',
-  name: 'Rari Governance Token',
-  decimals: 18,
-  contractAddress: getEnv().RARI_GOVERNANCE_TOKEN_CONTRACT_ADDRESS,
-  address: getEnv().RARI_GOVERNANCE_TOKEN_CONTRACT_ADDRESS,
-  imageUrl: rariLogo,
-  iconUrl: rariLogo,
-};
+// export const RARI_GOVERNANCE_TOKEN_DATA = {
+//   symbol: 'RGT',
+//   name: 'Rari Governance Token',
+//   decimals: 18,
+//   contractAddress: getEnv().RARI_GOVERNANCE_TOKEN_CONTRACT_ADDRESS,
+//   address: getEnv().RARI_GOVERNANCE_TOKEN_CONTRACT_ADDRESS,
+//   imageUrl: rariLogo,
+//   iconUrl: rariLogo,
+// };
 
 
 export namespace RARI_POOLS  {

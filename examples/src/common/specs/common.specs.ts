@@ -1,19 +1,9 @@
-
-
-// import { BigNumber } from 'bignumber.js';
-
-// // constants
-// import { ERC721_TRANSFER_METHODS } from 'constants/transactionsConstants';
-
-// // types
-import type { RariPool } from './types/';
-import  { LiquidityPool, ERC721_TRANSFER_METHODS } from './types';
-// import type { BigNumber as EthersBigNumber } from '@ethersproject/bignumber/lib/bignumber';
+// types
 import { BigNumber } from 'ethers';
-// import type { AssetData, AssetType } from 'models/Asset';
-// import type { Value } from 'models/Value';
-// import type { Chain } from 'models/Chain';
+import  { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, RariPool} from './types';
 
+
+export type Value = BigNumber | string | number;
 
 export type TxSettlementItem = {
   symbol: string,
@@ -249,20 +239,3 @@ export type TransactionResult = {
   hash?: string,
   batchHash?: string,
 };
-
-
-
-
-// Types
-// import type { Chain, ChainRecord } from 'models/Chain';
-// import type { Collectible } from 'models/Collectible';
-
-
-  export namespace AssetType {
-    export const TOKEN = 'TOKENS';
-    export const COLLECTIBLE = 'COLLECTIBLES';
-  }
-
-
-  export type AssetType = typeof AssetType[keyof typeof AssetType];
-

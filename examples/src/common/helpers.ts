@@ -9,7 +9,10 @@ import {
   LOCAL_B_PROVIDER_CHAIN_ID,
   LOCAL_B_FAUCET_PRIVATE_KEY,
 } from './config';
-import { AssetType } from './specs';
+
+import ERC20_CONTRACT_ABI from '../../../src/sdk/abi/erc20.json';
+
+import { AssetType, EthereumTransaction, TransactionPayload, CHAIN, Chain, ASSET_TYPES, encodeContractMethod, nativeAssetPerChain } from './specs/';
 const localAProvider = new providers.JsonRpcProvider(LOCAL_A_PROVIDER_ENDPOINT);
 const localAWallet = new Wallet(LOCAL_A_FAUCET_PRIVATE_KEY, localAProvider);
 
@@ -118,7 +121,7 @@ export function randomAddress(): string {
 export const mapToEthereumTransactions = async (
   transactionPayload: TransactionPayload,
   fromAddress: string,
-): Promise<EthereumTransaction[]> => {
+): Promise<Partial<EthereumTransaction>[]> => {
   const {
     to,
     data,
@@ -178,7 +181,7 @@ export const buildEthereumTransaction = async (
   tokenId: string,
   chain: Chain,
   useLegacyTransferMethod?: boolean,
-): Promise<EthereumTransaction> => {
+): Promise<Partial<EthereumTransaction>> => {
   let value;
 
   if (tokenType !== ASSET_TYPES.COLLECTIBLE) {
@@ -187,22 +190,23 @@ export const buildEthereumTransaction = async (
     if (symbol !== chainNativeSymbol && !data && contractAddress) {
       data = encodeContractMethod(ERC20_CONTRACT_ABI, 'transfer', [to, value.toString()]);
       to = contractAddress;
-      value = EthersBigNumber.from(0); // value is in encoded transfer method as data
+      value = BigNumber.from(0); // value is in encoded transfer method as data
     }
   } else if (contractAddress && tokenId) {
-    data = await buildERC721TransactionData({
-      from,
-      to,
-      tokenId,
-      contractAddress,
-      useLegacyTransferMethod: !!useLegacyTransferMethod,
-    });
-    to = contractAddress;
-    value = EthersBigNumber.from(0);
+    // TODO other assets
+    // data = await buildERC721TransactionData({
+    //   from,
+    //   to,
+    //   tokenId,
+    //   contractAddress,
+    //   useLegacyTransferMethod: !!useLegacyTransferMethod,
+    // });
+    // to = contractAddress;
+    // value = EthersBigNumber.from(0);
   }
+  type payload = { to:string,value:any, data:string}
+  let transaction:Partial<EthereumTransaction> = { to, value };
 
-  let transaction = { to, value };
-
-  if (data) transaction = { ...transaction, data };
+  if (data) transaction = { to:transaction.to, value:transaction.value , data:data };
   return transaction;
 };
