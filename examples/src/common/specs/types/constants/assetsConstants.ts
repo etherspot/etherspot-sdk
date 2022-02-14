@@ -11,6 +11,8 @@ export namespace ETH {
   export const ETH = 'ETH';
 };
 
+export type ETH = typeof ETH[keyof typeof ETH];
+
 
 export const PLR = 'PLR';
 

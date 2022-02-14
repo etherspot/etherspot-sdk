@@ -1,5 +1,5 @@
 import { ContractNames, getContractAddress } from '@etherspot/contracts';
-import { BigNumber, providers, utils, Wallet } from 'ethers';
+import { BigNumber,FixedNumber, BigNumber as EthersBigNumber,  providers, utils, Wallet } from 'ethers';
 import { NetworkNames } from '../../../src';
 import {
   LOCAL_A_PROVIDER_ENDPOINT,
@@ -10,7 +10,8 @@ import {
   LOCAL_B_FAUCET_PRIVATE_KEY,
 } from './config';
 
-import ERC20_CONTRACT_ABI from '../../../src/sdk/abi/erc20.json';
+
+import ERC20_CONTRACT_ABI from '../abi/erc20.json'; //'./ ../../src/sdk/abi/erc20.json';
 
 import { AssetType, EthereumTransaction, TransactionPayload, CHAIN, Chain, ASSET_TYPES, encodeContractMethod, nativeAssetPerChain } from './specs/';
 const localAProvider = new providers.JsonRpcProvider(LOCAL_A_PROVIDER_ENDPOINT);
@@ -18,6 +19,11 @@ const localAWallet = new Wallet(LOCAL_A_FAUCET_PRIVATE_KEY, localAProvider);
 
 const localBProvider = new providers.JsonRpcProvider(LOCAL_B_PROVIDER_ENDPOINT);
 const localBWallet = new Wallet(LOCAL_B_FAUCET_PRIVATE_KEY, localBProvider);
+
+
+export const fromEthersBigNumber = (value: EthersBigNumber, decimals: number): EthersBigNumber  => {
+  return BigNumber.from(utils.formatUnits(value, decimals));
+};
 
 function getProvider(networkName: NetworkNames = NetworkNames.LocalA): providers.JsonRpcProvider {
   let result: providers.JsonRpcProvider = null;
@@ -118,6 +124,7 @@ export function randomAddress(): string {
 }
 
 
+
 export const mapToEthereumTransactions = async (
   transactionPayload: TransactionPayload,
   fromAddress: string,
@@ -210,3 +217,51 @@ export const buildEthereumTransaction = async (
   if (data) transaction = { to:transaction.to, value:transaction.value , data:data };
   return transaction;
 };
+
+
+// TODO: gas token support
+const mapTransactionToTransactionPayload = (
+  chain: Chain,
+  transaction: EthereumTransaction,
+): TransactionPayload => {
+  const { symbol, decimals } = nativeAssetPerChain[chain];
+  const { to, value, data } = transaction;
+  const amount = FixedNumber.from(value, decimals).toString();
+
+  return { to, amount, symbol, data, decimals };
+};
+
+// TODO: gasToken support
+export const mapTransactionsToTransactionPayload = (
+  chain: Chain,
+  transactions: EthereumTransaction[],
+): TransactionPayload => {
+  let transactionPayload = mapTransactionToTransactionPayload(chain, transactions[0]);
+
+  if (transactions.length > 1) {
+    transactionPayload = {
+      ...transactionPayload,
+      sequentialTransactions: transactions.slice(1).map((
+        transaction,
+      ) => mapTransactionToTransactionPayload(chain, transaction)),
+    };
+  }
+
+  return { ...transactionPayload, chain };
+};
+
+// export const  sendTransaction = async (
+//   transaction: TransactionPayload,
+//   fromAccountAddress: string,
+//   chain: Chain,
+//   isP2P?: boolean,
+// ): Promise<?TransactionResult> {
+//   if (isP2P) {
+//     // TODO: uncomment P2P partial implementation once it's available for Etherspot
+//     // return this.sendP2PTransaction(transaction);
+//   }
+
+//   const etherspotTransactions = await mapToEthereumTransactions(transaction, fromAccountAddress);
+
+//   return this.setTransactionsBatchAndSend(etherspotTransactions, chain);
+// }

@@ -26,7 +26,7 @@ export const RARI_CLAIM_TRANSACTION = 'RARI_CLAIM';
 
 
 
-const rariLogo = require('assets/images/rari_logo.png');
+const rariLogo = "";
 
 // export const RARI_TOKENS_DATA = {
 //   [RARI_POOLS.STABLE_POOL]: {

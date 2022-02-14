@@ -2,7 +2,12 @@
 import {BigNumber} from 'ethers';
 import {Collectible, Chain, ChainRecord} from './'
 
+export namespace ASSET_TYPES  {
+    export const TOKEN = 'TOKENS';
+    export const COLLECTIBLE = 'COLLECTIBLES';
+};
 
+export type AssetType = typeof ASSET_TYPES[keyof typeof ASSET_TYPES];
 
 export type AssetData = TokenData | Collectible;
 

@@ -1,6 +1,6 @@
 // types
 import { BigNumber } from 'ethers';
-import  { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, RariPool} from './types';
+import  { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, AssetData, RariPool, ETH} from './types';
 
 
 export type Value = BigNumber | string | number;
@@ -164,7 +164,7 @@ export type TransactionPayload = {
   note?: string,
   gasToken?: GasToken,
   amount: number | string,
-  symbol: string,
+  symbol: string | ETH,
   decimals: number,
   data?: string,
   tag?: string,

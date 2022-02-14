@@ -71,7 +71,7 @@ export const nativeAssetPerChain = {
     chain: CHAIN.ETHEREUM,
     address: ADDRESS_ZERO,
     name: 'Ethereum',
-    symbol: ETH,
+    symbol: 'ETH',
     decimals: 18,
     iconUrl: 'https://tokens.1inch.exchange/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png',
   },

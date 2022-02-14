@@ -1,6 +1,6 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, topUpAccount, randomAddress } from './common';
+import { logger, topUpAccount, randomAddress, mapTransactionsToTransactionPayload } from './common';
 
 async function main(): Promise<void> {
   const wallet = Wallet.createRandom();
@@ -10,38 +10,6 @@ async function main(): Promise<void> {
   });
 
   await sdk.computeContractAccount();
-
-  // export const mapTransactionsToTransactionPayload = (
-  //   chain: Chain,
-  //   transactions: EthereumTransaction[],
-  // ): TransactionPayload => {
-  //   let transactionPayload = mapTransactionToTransactionPayload(chain, transactions[0]);
-  
-  //   if (transactions.length > 1) {
-  //     transactionPayload = {
-  //       ...transactionPayload,
-  //       sequentialTransactions: transactions.slice(1).map((
-  //         transaction,
-  //       ) => mapTransactionToTransactionPayload(chain, transaction)),
-  //     };
-  //   }
-  
-  //   return { ...transactionPayload, chain };
-  // };
-
-  // const mapDispatchToProps = (dispatch: Dispatch): $Shape<Props> => ({
-  //   sendAsset: (
-  //     transaction: TransactionPayload,
-  //     privateKey: string,
-  //     callback: (status: TransactionStatus) => void,
-  //   ) => dispatch(sendAssetAction(transaction, privateKey, callback)),
-  //   resetIncorrectPassword: () => dispatch(resetIncorrectPasswordAction()),
-  //   logEvent: (name: string, properties: Object) => dispatch(logEventAction(name, properties)),
-  // });
-
-  // const keyBasedWallet = new KeyBasedWallet(privateKey);
-  //         const { transactionEstimate: { feeInfo } } = getState();
-  //         transactionResult = await keyBasedWallet.sendTransaction(transaction, accountAddress, feeInfo);
 
   const exchangeSupportedAssets = await sdk.getExchangeSupportedAssets({ page: 1, limit: 100 });
   logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
@@ -60,37 +28,18 @@ async function main(): Promise<void> {
     fromAmount: BigNumber.from(fromAmount),
   });
   const offerTransactions = offers[0].transactions;
+  const fromAccountAddress = wallet.address;
 
- //1
-  // const mapTransactionToTransactionPayload = (
-  //   chain: Chain,
-  //   transaction: EthereumTransaction,
-  // ): TransactionPayload => {
-  //   const { symbol, decimals } = nativeAssetPerChain[chain];
-  //   const { to, value, data } = transaction;
-  //   const amount = fromEthersBigNumber(value, decimals).toFixed();
-  
-  //   return { to, amount, symbol, data, decimals };
-  // };
+  const etherspotTransactions = await mapTransactionsToTransactionPayload("ethereum",offerTransactions);
 
-  //2 
-  //   let transactionPayload = mapTransactionToTransactionPayload(chain, transactions[0]);
-  
-  //   if (transactions.length > 1) {
-  //     transactionPayload = {
-  //       ...transactionPayload,
-  //       sequentialTransactions: transactions.slice(1).map((
-  //         transaction,
-  //       ) => mapTransactionToTransactionPayload(chain, transaction)),
-  //     };
-  //   }
+  // return sdk.setTransactionsBatchAndSend(etherspotTransactions, );
 
 
   logger.log('exchange offers', offers);
 
-  logger.log('transaction request', offerTransactions);
+  logger.log('transaction request', etherspotTransactions);
 
-  logger.log('gateway batch', await sdk.batchExecuteAccountTransaction(offerTransactions));
+  logger.log('gateway batch', await sdk.batchExecuteAccountTransaction(etherspotTransactions));
 
   logger.log('estimated batch', await sdk.estimateGatewayBatch());
 
@@ -98,35 +47,10 @@ async function main(): Promise<void> {
 
   const { hash } = submittedBatch;
 
-
+  console.log(hash);
 
 }
 
-// main()
-//   .catch(logger.error)
-//   .finally(() => process.exit());
-
-
-// // Submit a random transaction that will be automatically delayed by 20 seconds
-// logger.log(
-//   'batch',
-//   await sdk.batchExecuteAccountTransaction({
-//     to: randomAddress(),
-//     value: utils.parseEther('0.001'),
-//   }),
-// );
-
-// logger.log('estimated batch', await sdk.estimateGatewayBatch());
-
-// const batch = await sdk.submitGatewayBatch();
-// logger.log('submitted batch', batch.hash);
-
-// // Now we can cancel that transaction
-// logger.log('cancel batch', await sdk.cancelGatewayBatch({ hash: batch.hash }));
-
-//   // OR proceed it immediately (uncomment for that and comment out batch canceling section)
-//   // logger.log('force proceed batch', await sdk.forceGatewayBatch({ hash: batch.hash }));
-// }
 
 main()
   .catch(logger.error)
