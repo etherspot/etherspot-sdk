@@ -2,6 +2,25 @@ import { ContractNames, getContractAddress } from '@etherspot/contracts';
 import { BigNumber,FixedNumber, BigNumber as EthersBigNumber,  providers, utils, Wallet } from 'ethers';
 import { NetworkNames } from '../../../src';
 import {
+  Sdk as EtherspotSdk,
+  // NetworkNames,
+  Account as EtherspotAccount,
+  Accounts as EtherspotAccounts,
+  EnvNames,
+  ENSNode,
+  ENSNodeStates,
+  GatewaySubmittedBatch,
+  Notification as EtherspotNotification,
+  IncreaseP2PPaymentChannelAmountDto,
+  NotificationTypes,
+  GatewayTransactionStates,
+  Transaction as EtherspotTransaction,
+  Currencies as EtherspotCurrencies,
+  AccountStates,
+} from 'etherspot';
+
+
+import {
   LOCAL_A_PROVIDER_ENDPOINT,
   LOCAL_A_PROVIDER_CHAIN_ID,
   LOCAL_A_FAUCET_PRIVATE_KEY,
@@ -250,18 +269,3 @@ export const mapTransactionsToTransactionPayload = (
   return { ...transactionPayload, chain };
 };
 
-// export const  sendTransaction = async (
-//   transaction: TransactionPayload,
-//   fromAccountAddress: string,
-//   chain: Chain,
-//   isP2P?: boolean,
-// ): Promise<?TransactionResult> {
-//   if (isP2P) {
-//     // TODO: uncomment P2P partial implementation once it's available for Etherspot
-//     // return this.sendP2PTransaction(transaction);
-//   }
-
-//   const etherspotTransactions = await mapToEthereumTransactions(transaction, fromAccountAddress);
-
-//   return this.setTransactionsBatchAndSend(etherspotTransactions, chain);
-// }

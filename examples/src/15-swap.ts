@@ -1,6 +1,8 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, topUpAccount, randomAddress, mapTransactionsToTransactionPayload } from './common';
+import { logger, topUpAccount, randomAddress, mapTransactionsToTransactionPayload, mapToEthereumTransactions  } from './common';
+import { EtherspotService } from './common/services/etherspot';
+import { CHAIN}  from './common/specs';
 
 async function main(): Promise<void> {
   const wallet = Wallet.createRandom();
@@ -8,8 +10,10 @@ async function main(): Promise<void> {
     env: EnvNames.MainNets,
     networkName: NetworkNames.Mainnet,
   });
-
+  const etherspotService = new EtherspotService();
   await sdk.computeContractAccount();
+
+  
 
   const exchangeSupportedAssets = await sdk.getExchangeSupportedAssets({ page: 1, limit: 100 });
   logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
@@ -27,27 +31,20 @@ async function main(): Promise<void> {
     toTokenAddress,
     fromAmount: BigNumber.from(fromAmount),
   });
-  const offerTransactions = offers[0].transactions;
-  const fromAccountAddress = wallet.address;
-
-  const etherspotTransactions = await mapTransactionsToTransactionPayload("ethereum",offerTransactions);
-
-  // return sdk.setTransactionsBatchAndSend(etherspotTransactions, );
-
 
   logger.log('exchange offers', offers);
 
-  logger.log('transaction request', etherspotTransactions);
+  const offerTransactions = offers[0].transactions;
+  const fromAccountAddress = wallet.address;
 
-  logger.log('gateway batch', await sdk.batchExecuteAccountTransaction(etherspotTransactions));
-
-  logger.log('estimated batch', await sdk.estimateGatewayBatch());
-
-  const submittedBatch = await sdk.submitGatewayBatch();
+  const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum",offerTransactions);
+  logger.log('transaction request', transactionPaylod);
+  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod,fromAccountAddress,CHAIN.ETHEREUM,false);
 
   const { hash } = submittedBatch;
 
   console.log(hash);
+
 
 }
 

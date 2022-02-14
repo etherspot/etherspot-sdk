@@ -17,12 +17,13 @@
       "DOM",
       "ES5",
       "es2015.collection",
-      "es2015.iterable"
+      "es2015.iterable",
+      "es2019"
     ]
   },
   "include": [
     "./examples/**/*.ts",
     "./src/**/*.ts",
     "./test/**/*.ts"
-  ]
+, "src/common/services/utils/history.old"  ]
 }

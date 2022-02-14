@@ -1,7 +1,7 @@
 /**
  * @ignore
  */
-let WebSocketConstructor: { new (endpoint: string): WebSocket } = null;
+// let WebSocketConstructor: { new (endpoint: string): WebSocket } = null;
 
 try {
   if (typeof WebSocket !== 'undefined') {

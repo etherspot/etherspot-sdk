@@ -21,5 +21,8 @@
     "14-delayed-transactions": "../node_modules/.bin/ts-node ./src/14-delayed-transactions",
     "15-swap": "../node_modules/.bin/ts-node ./src/15-swap"
   },
-  "dependencies": {}
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "ethereumjs-util": "^7.1.4"
+  }
 }
