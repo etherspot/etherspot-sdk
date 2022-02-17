@@ -1,21 +1,44 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, topUpAccount, randomAddress, mapTransactionsToTransactionPayload, mapToEthereumTransactions  } from './common';
+import { logger, topUpAccount, randomWallet, randomAddress, mapTransactionsToTransactionPayload, mapToEthereumTransactions } from './common';
 import { EtherspotService } from './common/services/etherspot';
-import { CHAIN}  from './common/specs';
+import { CHAIN } from './common/specs';
 
 async function main(): Promise<void> {
-  const wallet = Wallet.createRandom();
-  const sdk = new Sdk(wallet, {
+  const wallet = Wallet.fromMnemonic("test test test test test test test test test test test junk");
+  const wallet2 = Wallet.createRandom();
+  console.log(wallet.privateKey);
+  console.log(wallet.address);
+  // const sdk = new Sdk(wallet);
+  // logger.info('sending batch using owner wallet');
+
+
+
+  const sdkMainnet = new Sdk(wallet2, {
     env: EnvNames.MainNets,
     networkName: NetworkNames.Mainnet,
   });
+
+  const sdk = new Sdk(wallet, {
+    env: EnvNames.LocalNets,
+    networkName: NetworkNames.LocalA,
+  });
+
+  // logger.log(
+  //   'owner wallet batch #1',
+  //   await sdk.batchAddAccountOwner({
+  //     owner: wallet.address,
+  //   }),
+  // );
+
+
   const etherspotService = new EtherspotService();
   await sdk.computeContractAccount();
+  await sdkMainnet.computeContractAccount();
 
-  
+  await sdk.syncAccount();
 
-  const exchangeSupportedAssets = await sdk.getExchangeSupportedAssets({ page: 1, limit: 100 });
+  const exchangeSupportedAssets = await sdkMainnet.getExchangeSupportedAssets({ page: 1, limit: 100 });
   logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
 
   // NOTE: use ethers.constants.AddressZero for ETH
@@ -26,20 +49,21 @@ async function main(): Promise<void> {
   const fromAmount = '5000000000000000000000';
 
 
-  const offers = await sdk.getExchangeOffers({
+  const offers = await sdkMainnet.getExchangeOffers({
     fromTokenAddress,
     toTokenAddress,
     fromAmount: BigNumber.from(fromAmount),
   });
 
   logger.log('exchange offers', offers);
-
+  logger.log('exchange offers', offers[0].transactions[0]);
   const offerTransactions = offers[0].transactions;
   const fromAccountAddress = wallet.address;
 
-  const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum",offerTransactions);
+  const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum", offerTransactions);
   logger.log('transaction request', transactionPaylod);
-  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod,fromAccountAddress,CHAIN.ETHEREUM,false);
+  await etherspotService.init(sdk);
+  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.ETHEREUM, false);
 
   const { hash } = submittedBatch;
 

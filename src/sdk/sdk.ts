@@ -133,6 +133,7 @@ import { Session, SessionService } from './session';
 import { Transactions, Transaction, TransactionsService, NftList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
+import { exit } from 'process';
 
 /**
  * Sdk
@@ -386,7 +387,7 @@ export class Sdk {
     });
 
     await this.require();
-
+    
     const { gatewayService } = this.services;
 
     return gatewayService.batchGatewayTransactionRequest({

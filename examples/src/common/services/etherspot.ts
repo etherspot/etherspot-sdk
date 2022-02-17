@@ -70,53 +70,54 @@ export class EtherspotService {
   instances: { [network: string]: EtherspotSdk } = {};
   supportedNetworks: Array<string> = [];
 
-  async init(privateKey?: string, fcmToken: string = null): Promise<void> {
-    const isMainnet = isProdEnv();
+  async init(sdk): Promise<void> { // privateKey?: string, fcmToken: string = null): Promise<void> {
+    // const isMainnet = false; //isProdEnv();
 
-    /**
-     * Note: This property is assigned here because
-     * it requires the value of `isProdEnv` which,
-     * if assigned at class method level - crashes
-     * the app due to non-instantiation of the getEnv
-     * function which is called from envConfig.js
-     */
-    this.supportedNetworks = [
-      isMainnet ? NetworkNames.Mainnet : NetworkNames.Kovan,
-      NetworkNames.Bsc,
-      NetworkNames.Matic,
-      NetworkNames.Xdai,
-      isMainnet ? NetworkNames.Avalanche : NetworkNames.Fuji,
-    ];
+    // /**
+    //  * Note: This property is assigned here because
+    //  * it requires the value of `isProdEnv` which,
+    //  * if assigned at class method level - crashes
+    //  * the app due to non-instantiation of the getEnv
+    //  * function which is called from envConfig.js
+    //  */
+    // this.supportedNetworks = [
+    //   isMainnet ? NetworkNames.Mainnet : NetworkNames.Kovan,
+    //   NetworkNames.Bsc,
+    //   NetworkNames.Etherspot,
+    //   NetworkNames.Matic,
+    //   NetworkNames.Xdai,
+    //   isMainnet ? NetworkNames.Avalanche : NetworkNames.Fuji,
+    // ];
 
-    const primaryNetworkName = isMainnet ? NetworkNames.Mainnet : NetworkNames.Kovan;
+    // const primaryNetworkName = isMainnet ? NetworkNames.Mainnet : NetworkNames.Kovan;
 
-    /**
-     * Cycle through the supported networks and build an
-     * array of instantiated instances
-     */
-    await Promise.all(
-      this.supportedNetworks.map(async (networkName:NetworkNames) => {
-        const env =
-          networkName !== NetworkNames.Kovan && networkName !== NetworkNames.Fuji
-            ? EnvNames.MainNets
-            : EnvNames.TestNets;
-        this.instances[networkName] = new EtherspotSdk(privateKey, {
-          env,
-          networkName,
-          projectKey: PROJECT_KEY,
-        });
-        if (fcmToken) {
-          try {
-            await this.instances[networkName].computeContractAccount({ sync: true });
-          } catch (error) {
-            reportErrorLog('EtherspotService network init failed at computeContractAccount', { networkName, error });
-          }
-        }
-      }),
-    );
+    // /**
+    //  * Cycle through the supported networks and build an
+    //  * array of instantiated instances
+    //  */
+    // await Promise.all(
+    //   this.supportedNetworks.map(async (networkName:NetworkNames) => {
+    //     const env =
+    //       networkName !== NetworkNames.Kovan && networkName !== NetworkNames.Fuji
+    //         ? EnvNames.MainNets
+    //         : EnvNames.TestNets;
+    //     this.instances[networkName] = new EtherspotSdk(privateKey, {
+    //       env,
+    //       networkName,
+    //       projectKey: PROJECT_KEY,
+    //     });
+    //     if (fcmToken) {
+    //       try {
+    //         await this.instances[networkName].computeContractAccount({ sync: true });
+    //       } catch (error) {
+    //         reportErrorLog('EtherspotService network init failed at computeContractAccount', { networkName, error });
+    //       }
+    //     }
+    //   }),
+    // );
 
     // Assign the primary instance of the default networkName to `sdk`
-    this.sdk = this.instances[primaryNetworkName];
+    this.sdk = sdk; //this.instances[primaryNetworkName];
   }
 
   // subscribe(callback: (chain: Chain, notification: EtherspotNotification) => mixed) {
@@ -153,26 +154,26 @@ export class EtherspotService {
   // }
 
   getSdkForChain(chain: Chain): EtherspotSdk {
-    const network = networkNameFromChain(chain);
-    if (!network) {
-      reportErrorLog('EtherspotService getSdkForChain failed: no network', { chain });
-      return null;
-    }
+    // const network = networkNameFromChain(chain);
+    // if (!network) {
+    //   reportErrorLog('EtherspotService getSdkForChain failed: no network', { chain });
+    //   return null;
+    // }
+    // console.log(this.instances)
+    // const sdk = this.instances[network];
+    // if (!sdk) {
+    //   reportErrorLog('EtherspotService getSdkForChain failed: cannot get SDK instance', { chain, network });
+    //   return null;
+    // }
 
-    const sdk = this.instances[network];
-    if (!sdk) {
-      reportErrorLog('EtherspotService getSdkForChain failed: cannot get SDK instance', { chain, network });
-      return null;
-    }
-
-    return sdk;
+    return this.sdk;
   }
 
   getAccountAddress(chain: Chain): string {
-    const sdk = this.getSdkForChain(chain);
-    if (!sdk) return null;
+    // const sdk = this.getSdkForChain(chain);
+    // if (!sdk) return null;
 
-    return sdk.state.accountAddress;
+    return this.sdk.state.accountAddress;
   }
 
   getAccount(chain: Chain): Promise<EtherspotAccount> {
@@ -529,7 +530,7 @@ export class EtherspotService {
     }
 
     const etherspotTransactions = await mapToEthereumTransactions(transaction, fromAccountAddress);
-
+    console.log("etherspotTransactions")
     return this.setTransactionsBatchAndSend(etherspotTransactions, chain);
   }
 
