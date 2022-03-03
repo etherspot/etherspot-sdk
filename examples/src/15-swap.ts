@@ -38,6 +38,8 @@ async function main(): Promise<void> {
 
   await sdk.syncAccount();
 
+
+
   const exchangeSupportedAssets = await sdkMainnet.getExchangeSupportedAssets({ page: 1, limit: 100 });
   logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
 
@@ -55,20 +57,35 @@ async function main(): Promise<void> {
     fromAmount: BigNumber.from(fromAmount),
   });
 
+  const offers2 = await sdk.getExchangeOffers({
+    fromTokenAddress,
+    toTokenAddress,
+    fromAmount: BigNumber.from(fromAmount),
+  });
+  console.log("offers2 -----------------");
+  console.log(offers2);
+
+  // if(false) {
   logger.log('exchange offers', offers);
-  logger.log('exchange offers', offers[0].transactions[0]);
-  const offerTransactions = offers[0].transactions;
+  
+  const offerTransactions = offers[1].transactions;
+  logger.log('exchange offers 0', offers[0].transactions[1]);
+  logger.log('exchange offers 1', offers[1].transactions[1]);
+  logger.log('exchange offers 2', offers[2].transactions[1]);
+  logger.log('exchange 3', offers[3]);
+  logger.log('exchange offers 3', offers[3].transactions[1]);
+
   const fromAccountAddress = wallet.address;
 
   const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum", offerTransactions);
   logger.log('transaction request', transactionPaylod);
   await etherspotService.init(sdk);
-  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.ETHEREUM, false);
+  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
 
   const { hash } = submittedBatch;
 
   console.log(hash);
-
+  
 
 }
 
