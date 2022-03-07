@@ -2097,9 +2097,9 @@ export class Sdk {
 
   private async transferTokens(account: string, value: string, contract_address): Promise<void> {
     const provider = <any>this.services.walletService.walletProvider;
-    let numberOfTokens = utils.parseUnits(value, 18)
+    const numberOfTokens = utils.parseUnits(value, 18)
     if (provider) {
-      let contract = new EthersContract(
+      const contract = new EthersContract(
         contract_address,
         this.contractAbiFragment,
         provider
