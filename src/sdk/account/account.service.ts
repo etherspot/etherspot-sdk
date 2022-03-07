@@ -485,6 +485,10 @@ export class AccountService extends Service {
     return result;
   }
 
+  isAccountTypeContract():boolean {
+    return this.account.type === AccountTypes.Contract
+  }
+
   protected onInit(): void {
     const { walletService, networkService } = this.services;
 
