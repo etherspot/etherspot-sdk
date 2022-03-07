@@ -2032,37 +2032,37 @@ export class Sdk {
   async topUp(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+    if (this.services.accountService.isAccountTypeContract()) await this.computeContractAccount({
       sync: false,
     });
-      const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
-      if (!wallet) throw new Exception('The provider is missing');
-      const nonce = await wallet.getTransactionCount();
-      const account = this.state.accountAddress;
-      const response = await wallet.sendTransaction({
-        to: account,
-        value: utils.parseEther(value),
-        nonce,
-      });
-      await response.wait();
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.accountAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
   }
 
   async topUpP2P(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+    if (this.services.accountService.isAccountTypeContract()) await this.computeContractAccount({
       sync: false,
     });
-      const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
-      if (!wallet) throw new Exception('The provider is missing');
-      const nonce = await wallet.getTransactionCount();
-      const account = this.state.p2pPaymentDepositAddress;
-      const response = await wallet.sendTransaction({
-        to: account,
-        value: utils.parseEther(value),
-        nonce,
-      });
-      await response.wait();
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.p2pPaymentDepositAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
   }
 
   contractAbiFragment = [
@@ -2089,19 +2089,19 @@ export class Sdk {
     value: string,
     contractAddress: string
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+    if (this.services.accountService.isAccountTypeContract()) await this.computeContractAccount({
       sync: false,
     });
-      const account = this.state.accountAddress;
-      await this.transferTokens(account, value, contractAddress)
-  
+    const account = this.state.accountAddress;
+    await this.transferTokens(account, value, contractAddress)
+
   }
 
   async topUpTokenP2P(
     value: string,
     contractAddress: string
   ): Promise<void> {
-    if (!this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+    if (!this.services.accountService.isAccountTypeContract()) await this.computeContractAccount({
       sync: false,
     });
 
