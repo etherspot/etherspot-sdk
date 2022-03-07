@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../etherspot-backend-monorepo"
+		},
+		{
+			"path": "../etherspot-infra"
+		},
+		{
+			"path": "../etherspot-contracts"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../pillarwallet"
+		}
+	],
+	"settings": {}
+}

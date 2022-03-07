@@ -1,4 +1,4 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, Wallet, Contract as EthersContract } from 'ethers';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
@@ -1489,23 +1489,23 @@ export class Sdk {
 
     return deposit
       ? paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
-          sender,
-          token,
-          uid,
-          blockNumber,
-          totalAmount,
-          senderSignature,
-          guardianSignature,
-        )
+        sender,
+        token,
+        uid,
+        blockNumber,
+        totalAmount,
+        senderSignature,
+        guardianSignature,
+      )
       : paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
-          sender,
-          token,
-          uid,
-          blockNumber,
-          totalAmount,
-          senderSignature,
-          guardianSignature,
-        );
+        sender,
+        token,
+        uid,
+        blockNumber,
+        totalAmount,
+        senderSignature,
+        guardianSignature,
+      );
   }
 
   // p2p payments (batch)
@@ -2027,6 +2027,94 @@ export class Sdk {
 
     return this.services.faucetService.topUpPaymentDepositAccount();
   }
+
+
+  async topUp(
+    value: string,
+  ): Promise<void> {
+    const wallet: Partial<Wallet> = this.services.walletService.wallet;
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.accountAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+
+    await response.wait();
+  }
+
+  async topUpP2P(
+    value: string,
+  ): Promise<void> {
+    const wallet: Partial<Wallet> = this.services.walletService.wallet;
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.p2pPaymentDepositAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+
+    await response.wait();
+  }
+
+  contractAbiFragment = [
+    {
+      "name": "transfer",
+      "type": "function",
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "type": "uint256",
+          "name": "_tokens"
+        }
+      ],
+      "constant": false,
+      "outputs": [],
+      "payable": false
+    }
+  ];
+
+  async topUpToken(
+    value: string,
+    contract_address: string
+  ): Promise<void> {
+    const account = this.state.p2pPaymentDepositAddress;
+    await this.transferTokens(account, value, contract_address)
+  }
+
+  async topUpTokenP2P(
+    value: string,
+    contract_address: string
+  ): Promise<void> {
+    const account = this.state.accountAddress;
+    await this.transferTokens(account, value, contract_address)
+  }
+
+  private async transferTokens(account: string, value: string, contract_address): Promise<void> {
+    const wallet: Partial<Wallet> = this.services.walletService.wallet;
+    const provider = <any>this.services.walletService.walletProvider;
+    let numberOfTokens = utils.parseUnits(value, 18)
+    if (provider) {
+      const gasPrice = await wallet.getGasPrice();
+      let gas_price = utils.hexlify(gasPrice);
+      let contract = new EthersContract(
+        contract_address,
+        this.contractAbiFragment,
+        provider
+      )
+      contract.transfer(account, numberOfTokens).then((transferResult) => {
+        // console.dir(transferResult)
+      })
+    }
+  }
+
+
+
 
   /**
    * registers contract
