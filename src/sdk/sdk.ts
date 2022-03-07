@@ -2081,26 +2081,26 @@ export class Sdk {
 
   async topUpToken(
     value: string,
-    contract_address: string
+    contractAddress: string
   ): Promise<void> {
     const account = this.state.p2pPaymentDepositAddress;
-    await this.transferTokens(account, value, contract_address)
+    await this.transferTokens(account, value, contractAddress)
   }
 
   async topUpTokenP2P(
     value: string,
-    contract_address: string
+    contractAddress: string
   ): Promise<void> {
     const account = this.state.accountAddress;
-    await this.transferTokens(account, value, contract_address)
+    await this.transferTokens(account, value, contractAddress)
   }
 
-  private async transferTokens(account: string, value: string, contract_address): Promise<void> {
+  private async transferTokens(account: string, value: string, contractAddress): Promise<void> {
     const provider = <any>this.services.walletService.walletProvider;
     const numberOfTokens = utils.parseUnits(value, 18)
     if (provider) {
       const contract = new EthersContract(
-        contract_address,
+        contractAddress,
         this.contractAbiFragment,
         provider
       )
