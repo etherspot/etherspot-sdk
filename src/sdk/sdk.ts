@@ -2121,7 +2121,7 @@ export class Sdk {
         provider
       )
     const tx = await contract.transfer(account, numberOfTokens);
-    await tx.awit();
+    await tx.wait();
   }
 
 
