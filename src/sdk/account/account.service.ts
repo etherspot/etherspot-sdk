@@ -485,7 +485,7 @@ export class AccountService extends Service {
     return result;
   }
 
-  isAccountTypeContract():boolean {
+  isContractAccount():boolean {
     return this.account.type === AccountTypes.Contract
   }
 
