@@ -2096,12 +2096,9 @@ export class Sdk {
   }
 
   private async transferTokens(account: string, value: string, contract_address): Promise<void> {
-    const wallet: Partial<Wallet> = this.services.walletService.wallet;
     const provider = <any>this.services.walletService.walletProvider;
     let numberOfTokens = utils.parseUnits(value, 18)
     if (provider) {
-      const gasPrice = await wallet.getGasPrice();
-      let gas_price = utils.hexlify(gasPrice);
       let contract = new EthersContract(
         contract_address,
         this.contractAbiFragment,
