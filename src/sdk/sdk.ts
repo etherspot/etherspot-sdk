@@ -2083,7 +2083,7 @@ export class Sdk {
     value: string,
     contractAddress: string
   ): Promise<void> {
-    const account = this.state.p2pPaymentDepositAddress;
+    const account = this.state.accountAddress;
     await this.transferTokens(account, value, contractAddress)
   }
 
@@ -2091,7 +2091,7 @@ export class Sdk {
     value: string,
     contractAddress: string
   ): Promise<void> {
-    const account = this.state.accountAddress;
+    const account = this.state.p2pPaymentDepositAddress;
     await this.transferTokens(account, value, contractAddress)
   }
 
