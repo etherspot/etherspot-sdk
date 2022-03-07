@@ -1,6 +1,4 @@
-
-import { Wallet as WalletEthers } from 'ethers';
-export interface Wallet extends WalletEthers {
+export interface Wallet {
   address: string;
   providerType: string;
 }

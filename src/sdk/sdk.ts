@@ -2032,7 +2032,7 @@ export class Sdk {
   async topUp(
     value: string,
   ): Promise<void> {
-    const wallet: Partial<Wallet> = this.services.walletService.wallet;
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
     const nonce = await wallet.getTransactionCount();
     const account = this.state.accountAddress;
     const response = await wallet.sendTransaction({
@@ -2047,7 +2047,7 @@ export class Sdk {
   async topUpP2P(
     value: string,
   ): Promise<void> {
-    const wallet: Partial<Wallet> = this.services.walletService.wallet;
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
     const nonce = await wallet.getTransactionCount();
     const account = this.state.p2pPaymentDepositAddress;
     const response = await wallet.sendTransaction({
@@ -2104,7 +2104,7 @@ export class Sdk {
         this.contractAbiFragment,
         provider
       )
-      contract.transfer(account, numberOfTokens).then((transferResult) => {
+      contract.transfer(account, numberOfTokens).then(() => {
         // console.dir(transferResult)
       })
     }

@@ -6,7 +6,7 @@ import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } fro
 import { Wallet, WalletOptions } from './interfaces';
 
 export class WalletService extends Service {
-  readonly wallet$ = new ObjectSubject<Partial<Wallet>>();
+  readonly wallet$ = new ObjectSubject<Wallet>();
   readonly walletAddress$: Observable<string>;
 
   private provider: WalletProvider;
@@ -17,7 +17,7 @@ export class WalletService extends Service {
     this.walletAddress$ = this.wallet$.observeKey('address');
   }
 
-  get wallet(): Partial<Wallet> {
+  get wallet(): Wallet {
     return this.wallet$.value;
   }
 
@@ -26,7 +26,7 @@ export class WalletService extends Service {
   }
 
   get walletProvider(): WalletProvider {
-    return this.provider;
+    return this.provider? this.provider: null;
   }
 
   async signMessage(message: BytesLike): Promise<string> {
