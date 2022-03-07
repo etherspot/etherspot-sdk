@@ -2114,16 +2114,14 @@ export class Sdk {
   private async transferTokens(account: string, value: string, contractAddress:string, decimals = 18): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
     const numberOfTokens = utils.parseUnits(value, decimals)
-    if (provider) {
+    if(!provider) throw new Exception(`The provider is missing`);
       const contract = new EthersContract(
         contractAddress,
         this.contractAbiFragment,
         provider
       )
-      contract.transfer(account, numberOfTokens).then(() => {
-        // console.dir(transferResult)
-      })
-    }
+    const tx = await contract.transfer(account, numberOfTokens);
+    await tx.awit();
   }
 
 
