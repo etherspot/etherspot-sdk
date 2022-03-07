@@ -2032,9 +2032,11 @@ export class Sdk {
   async topUp(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) {
+    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+      sync: false,
+    });
       const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
-      if(!wallet) throw new Exception('The provider is missing');
+      if (!wallet) throw new Exception('The provider is missing');
       const nonce = await wallet.getTransactionCount();
       const account = this.state.accountAddress;
       const response = await wallet.sendTransaction({
@@ -2043,17 +2045,16 @@ export class Sdk {
         nonce,
       });
       await response.wait();
-    } else {
-      throw new Exception(`Invalid account type`);
-    }
   }
 
   async topUpP2P(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) {
+    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+      sync: false,
+    });
       const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
-      if(!wallet) throw new Exception('The provider is missing');
+      if (!wallet) throw new Exception('The provider is missing');
       const nonce = await wallet.getTransactionCount();
       const account = this.state.p2pPaymentDepositAddress;
       const response = await wallet.sendTransaction({
@@ -2062,9 +2063,6 @@ export class Sdk {
         nonce,
       });
       await response.wait();
-    } else {
-      throw new Exception(`Invalid account type`);
-    }
   }
 
   contractAbiFragment = [
@@ -2091,35 +2089,35 @@ export class Sdk {
     value: string,
     contractAddress: string
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) {
+    if (this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+      sync: false,
+    });
       const account = this.state.accountAddress;
       await this.transferTokens(account, value, contractAddress)
-    } else {
-      throw new Exception(`Invalid account type`);
-    }
+  
   }
 
   async topUpTokenP2P(
     value: string,
     contractAddress: string
   ): Promise<void> {
-    if (this.services.accountService.isAccountTypeContract()) {
-      const account = this.state.p2pPaymentDepositAddress;
-      await this.transferTokens(account, value, contractAddress)
-    } else {
-      throw new Exception(`Invalid account type`);
-    }
+    if (!this.services.accountService.isAccountTypeContract()) this.computeContractAccount({
+      sync: false,
+    });
+
+    const account = this.state.p2pPaymentDepositAddress;
+    await this.transferTokens(account, value, contractAddress)
   }
 
-  private async transferTokens(account: string, value: string, contractAddress:string, decimals = 18): Promise<void> {
+  private async transferTokens(account: string, value: string, contractAddress: string, decimals = 18): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
     const numberOfTokens = utils.parseUnits(value, decimals)
-    if(!provider) throw new Exception(`The provider is missing`);
-      const contract = new EthersContract(
-        contractAddress,
-        this.contractAbiFragment,
-        provider
-      )
+    if (!provider) throw new Exception(`The provider is missing`);
+    const contract = new EthersContract(
+      contractAddress,
+      this.contractAbiFragment,
+      provider
+    )
     const tx = await contract.transfer(account, numberOfTokens);
     await tx.wait();
   }
