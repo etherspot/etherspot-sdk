@@ -2111,7 +2111,7 @@ export class Sdk {
     }
   }
 
-  private async transferTokens(account: string, value: string, contractAddress, decimals:number = 18): Promise<void> {
+  private async transferTokens(account: string, value: string, contractAddress, decimals = 18): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
     const numberOfTokens = utils.parseUnits(value, decimals)
     if (provider) {
