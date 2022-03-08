@@ -13,10 +13,14 @@ async function main(): Promise<void> {
   const sdk = new Sdk(wallet);
   await sdk.computeContractAccount({sync: false});
 
-  await sdk.topUp("10");
+//   await sdk.topUp("10");
 
-  await sdk.topUpP2P("10");
+//   await sdk.topUpP2P("10");
   
+//   await sdk.topUpToken("1","0xdAC17F958D2ee523a2206206994597C13D831ec7",18);
+
+  await sdk.topUpTokenP2P("1","0xdAC17F958D2ee523a2206206994597C13D831ec7",18);
+
 }
 
 main()
