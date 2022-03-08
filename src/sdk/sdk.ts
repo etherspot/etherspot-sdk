@@ -1,4 +1,5 @@
 import { BigNumber, utils, Wallet, Contract as EthersContract } from 'ethers';
+import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
@@ -2065,26 +2066,6 @@ export class Sdk {
     await response.wait();
   }
 
-  contractAbiFragment = [
-    {
-      "name": "transfer",
-      "type": "function",
-      "inputs": [
-        {
-          "name": "_to",
-          "type": "address"
-        },
-        {
-          "type": "uint256",
-          "name": "_tokens"
-        }
-      ],
-      "constant": false,
-      "outputs": [],
-      "payable": false
-    }
-  ];
-
   async topUpToken(
     value: string,
     contractAddress: string
@@ -2111,11 +2092,12 @@ export class Sdk {
 
   private async transferTokens(account: string, value: string, contractAddress: string, decimals = 18): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
-    const numberOfTokens = utils.parseUnits(value, decimals)
+    const numberOfTokens = utils.parseUnits(value, decimals);
+    const abi = getContractAbi(ContractNames.ERC20Token);
     if (!provider) throw new Exception(`The provider is missing`);
     const contract = new EthersContract(
       contractAddress,
-      this.contractAbiFragment,
+      abi,
       provider
     )
     const tx = await contract.transfer(account, numberOfTokens);
