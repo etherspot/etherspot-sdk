@@ -2063,26 +2063,26 @@ export class Sdk {
     await response.wait();
   }
 
-  async topUpToken(value: string, contractAddress: string): Promise<void> {
+  async topUpToken(value: string, contractAddress: string, decimals:number): Promise<void> {
     if (!this.services.accountService.isContractAccount())
       await this.computeContractAccount({
         sync: false,
       });
     const account = this.state.accountAddress;
-    await this.transferTokens(account, value, contractAddress);
+    await this.transferTokens(account, value, contractAddress, decimals);
   }
 
-  async topUpTokenP2P(value: string, contractAddress: string): Promise<void> {
+  async topUpTokenP2P(value: string, contractAddress: string, decimals:number): Promise<void> {
     if (!this.services.accountService.isContractAccount())
       await this.computeContractAccount({
         sync: false,
       });
 
     const account = this.state.p2pPaymentDepositAddress;
-    await this.transferTokens(account, value, contractAddress);
+    await this.transferTokens(account, value, contractAddress, decimals);
   }
 
-  private async transferTokens(account: string, value: string, contractAddress: string, decimals = 18): Promise<void> {
+  private async transferTokens(account: string, value: string, contractAddress: string, decimals:number): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
     const numberOfTokens = utils.parseUnits(value, decimals);
     const abi = getContractAbi(ContractNames.ERC20Token);
