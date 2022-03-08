@@ -1,6 +1,6 @@
 import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { BytesLike } from 'ethers';
+import { BytesLike, Wallet as EtherWallet } from 'ethers';
 import { Service, ObjectSubject } from '../common';
 import { WalletProvider, WalletProviderLike, KeyWalletProvider, WalletLike } from './providers';
 import { Wallet, WalletOptions } from './interfaces';
@@ -21,6 +21,10 @@ export class WalletService extends Service {
     return this.wallet$.value;
   }
 
+  get etherWallet(): Partial<EtherWallet> {
+    return this.wallet$.value;
+  }
+
   get walletAddress(): string {
     return this.wallet ? this.wallet.address : null;
   }
@@ -35,13 +39,13 @@ export class WalletService extends Service {
 
   protected switchWalletProvider(providerLike: WalletProviderLike): void {
     let provider: WalletProvider = null;
-
     if (providerLike) {
       switch (typeof providerLike) {
         case 'object': {
           const { privateKey } = providerLike as WalletLike;
-
-          if (privateKey) {
+          const walletLike = providerLike as EtherWallet;
+          const isNotJsonRpcProvider = walletLike.provider.constructor.name !== 'JsonRpcProvider';
+          if (privateKey && isNotJsonRpcProvider) {
             provider = new KeyWalletProvider(privateKey);
           } else {
             provider = providerLike as WalletProvider;

@@ -1,9 +1,10 @@
-import { BytesLike } from 'ethers';
+import { BytesLike, Wallet } from 'ethers';
 import { UniqueSubject } from '../../common';
 import { NetworkNames } from '../../network';
 
 export interface WalletProvider {
   readonly type?: string;
+  readonly wallet?: Wallet;
   readonly address: string;
   readonly address$?: UniqueSubject<string>;
   readonly networkName?: NetworkNames;
