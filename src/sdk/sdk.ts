@@ -1490,23 +1490,23 @@ export class Sdk {
 
     return deposit
       ? paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
-        sender,
-        token,
-        uid,
-        blockNumber,
-        totalAmount,
-        senderSignature,
-        guardianSignature,
-      )
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        )
       : paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
-        sender,
-        token,
-        uid,
-        blockNumber,
-        totalAmount,
-        senderSignature,
-        guardianSignature,
-      );
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        );
   }
 
   // p2p payments (batch)
@@ -2029,13 +2029,11 @@ export class Sdk {
     return this.services.faucetService.topUpPaymentDepositAccount();
   }
 
-
-  async topUp(
-    value: string,
-  ): Promise<void> {
-    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
-      sync: false,
-    });
+  async topUp(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
     const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
     if (!wallet) throw new Exception('The provider is missing');
     const nonce = await wallet.getTransactionCount();
@@ -2048,12 +2046,11 @@ export class Sdk {
     await response.wait();
   }
 
-  async topUpP2P(
-    value: string,
-  ): Promise<void> {
-    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
-      sync: false,
-    });
+  async topUpP2P(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
     const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
     if (!wallet) throw new Exception('The provider is missing');
     const nonce = await wallet.getTransactionCount();
@@ -2066,28 +2063,23 @@ export class Sdk {
     await response.wait();
   }
 
-  async topUpToken(
-    value: string,
-    contractAddress: string
-  ): Promise<void> {
-    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
-      sync: false,
-    });
+  async topUpToken(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
     const account = this.state.accountAddress;
-    await this.transferTokens(account, value, contractAddress)
-
+    await this.transferTokens(account, value, contractAddress);
   }
 
-  async topUpTokenP2P(
-    value: string,
-    contractAddress: string
-  ): Promise<void> {
-    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
-      sync: false,
-    });
+  async topUpTokenP2P(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
 
     const account = this.state.p2pPaymentDepositAddress;
-    await this.transferTokens(account, value, contractAddress)
+    await this.transferTokens(account, value, contractAddress);
   }
 
   private async transferTokens(account: string, value: string, contractAddress: string, decimals = 18): Promise<void> {
@@ -2095,17 +2087,10 @@ export class Sdk {
     const numberOfTokens = utils.parseUnits(value, decimals);
     const abi = getContractAbi(ContractNames.ERC20Token);
     if (!provider) throw new Exception(`The provider is missing`);
-    const contract = new EthersContract(
-      contractAddress,
-      abi,
-      provider
-    )
+    const contract = new EthersContract(contractAddress, abi, provider);
     const tx = await contract.transfer(account, numberOfTokens);
     await tx.wait();
   }
-
-
-
 
   /**
    * registers contract

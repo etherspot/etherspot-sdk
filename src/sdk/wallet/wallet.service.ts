@@ -26,7 +26,7 @@ export class WalletService extends Service {
   }
 
   get walletProvider(): WalletProvider {
-    return this.provider? this.provider: null;
+    return this.provider ? this.provider : null;
   }
 
   async signMessage(message: BytesLike): Promise<string> {
