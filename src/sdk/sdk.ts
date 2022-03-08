@@ -2032,7 +2032,7 @@ export class Sdk {
   async topUp(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isContractAccount()) await this.computeContractAccount({
+    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
       sync: false,
     });
     const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
@@ -2050,7 +2050,7 @@ export class Sdk {
   async topUpP2P(
     value: string,
   ): Promise<void> {
-    if (this.services.accountService.isContractAccount()) await this.computeContractAccount({
+    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
       sync: false,
     });
     const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
@@ -2089,7 +2089,7 @@ export class Sdk {
     value: string,
     contractAddress: string
   ): Promise<void> {
-    if (this.services.accountService.isContractAccount()) await this.computeContractAccount({
+    if (!this.services.accountService.isContractAccount()) await this.computeContractAccount({
       sync: false,
     });
     const account = this.state.accountAddress;
