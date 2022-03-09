@@ -16,6 +16,14 @@ export interface Web3Provider {
   send(payload: any, callback: (err: any, response?: any) => any): any;
 }
 
+export interface RequestArguments {
+  method: string;
+  params?: unknown[] | object;
+}
+export interface Web3eip1193Provider {
+  request(args: RequestArguments): any;
+}
+
 export interface WalletConnectConnector {
   accounts: string[];
   chainId: number;
