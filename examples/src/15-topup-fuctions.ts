@@ -1,26 +1,28 @@
 import { Wallet, getDefaultProvider, providers } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, randomWallet } from './common';
+import { logger, deployToken, getPrivateKeyWallet, balanceOf } from './common';
 
 async function main(): Promise<void> {
- 
-//   let provider = new providers.JsonRpcProvider("http://127.0.0.1:8545/");
-//   const signer = provider.getSigner();
-  let privateKey = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-//   const wallet = new  Wallet(privateKey);
-//   console.log(wallet);
-  const wallet = randomWallet(NetworkNames.LocalA);
+
+  // default hardhat local network signer privatekey
+  let privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+  const wallet = getPrivateKeyWallet(privateKey,NetworkNames.LocalA);
+
   const sdk = new Sdk(wallet);
   await sdk.computeContractAccount({sync: false});
+  const tokenAddress = await deployToken(wallet);
 
-//   await sdk.topUp("10");
+  await balanceOf(wallet, tokenAddress);
 
-//   await sdk.topUpP2P("10");
+  await sdk.topUp("10");
+
+  await sdk.topUpP2P("10");
   
-//   await sdk.topUpToken("1","0xdAC17F958D2ee523a2206206994597C13D831ec7",18);
+  await sdk.topUpToken("1",tokenAddress);
+  await balanceOf(wallet, tokenAddress);
 
-  await sdk.topUpTokenP2P("1","0xdAC17F958D2ee523a2206206994597C13D831ec7",18);
-
+  await sdk.topUpTokenP2P("1",tokenAddress);
+  await balanceOf(wallet, tokenAddress);
 }
 
 main()
