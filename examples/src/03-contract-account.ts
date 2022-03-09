@@ -4,7 +4,7 @@ import { logger, topUpAccount, getBalance, randomAddress } from './common';
 
 async function main(): Promise<void> {
   const wallet = Wallet.createRandom();
-
+ 
   logger.log('wallet', wallet.address);
 
   const sdk = new Sdk(wallet);

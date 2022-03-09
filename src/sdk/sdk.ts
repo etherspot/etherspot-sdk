@@ -1,4 +1,5 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, Wallet, Contract as EthersContract } from 'ethers';
+import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
@@ -2026,6 +2027,72 @@ export class Sdk {
     await this.require();
 
     return this.services.faucetService.topUpPaymentDepositAccount();
+  }
+
+  async topUp(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.accountAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
+  }
+
+  async topUpP2P(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.p2pPaymentDepositAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
+  }
+
+  async topUpToken(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const account = this.state.accountAddress;
+    await this.transferTokens(account, value, contractAddress);
+  }
+
+  async topUpTokenP2P(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+
+    const account = this.state.p2pPaymentDepositAddress;
+    await this.transferTokens(account, value, contractAddress);
+  }
+
+  private async transferTokens(
+    account: string,
+    value: string,
+    contractAddress: string
+  ): Promise<void> {
+    const provider = this.services.walletService.walletProvider as any;
+    const abi = getContractAbi(ContractNames.ERC20Token);
+    if (!provider) throw new Exception(`The provider is missing`);
+    const contract = new EthersContract(contractAddress, abi, provider);
+    const tx = await contract.transfer(account, value);
+    await tx.wait();
   }
 
   /**

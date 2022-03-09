@@ -14,6 +14,7 @@
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+workspace.code-workspace
 
 # node
 node_modules
