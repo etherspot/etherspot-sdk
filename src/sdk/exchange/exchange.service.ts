@@ -1,8 +1,16 @@
 import { BigNumber } from 'ethers';
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { ExchangeOffers, ExchangeOffer } from './classes';
+import {
+  ExchangeOffers,
+  ExchangeOffer,
+  CrossChainBridgeSupportedChain,
+  CrossChainBridgeSupportedChains,
+  CrossChainBridgeToken,
+  CrossChainBridgeTokenList,
+} from './classes';
 import { PaginatedTokens } from '../assets';
+import { GetCrossChainBridgeTokenListDto } from '../dto';
 
 export class ExchangeService extends Service {
   async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
@@ -92,6 +100,93 @@ export class ExchangeService extends Service {
         },
         models: {
           result: ExchangeOffers,
+        },
+      },
+    );
+
+    return result ? result.items : null;
+  }
+
+  async getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeSupportedChains;
+    }>(
+      gql`
+        query {
+          result: crossChainBridgeSupportedChains {
+            items {
+              chainId
+              name
+              isL1
+              sendingEnabled
+              icon
+              receivingEnabled
+              currency {
+                address
+                icon
+                name
+                symbol
+                decimals
+                minNativeCurrencyForGas
+              }
+              rpcs
+              explorers
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: CrossChainBridgeSupportedChains,
+        },
+      },
+    );
+
+    return result ? result.items : null;
+  }
+
+  async getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
+    const { apiService } = this.services;
+    const  { direction, fromChainId, toChainId, disableSwapping } = dto;
+
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeTokenList;
+    }>(
+      gql`
+        query(
+          $direction: SocketTokenDirection!
+          $fromChainId: Int!
+          $toChainId: Int!
+          $disableSwapping: Boolean
+        ) {
+          result: crossChainBridgeTokenList(
+            direction: $direction
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            disableSwapping: $disableSwapping
+          ) {
+            items {
+              name
+              address
+              chainId
+              decimals
+              symbol
+              icon
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          direction,
+          fromChainId,
+          toChainId,
+          disableSwapping,
+        },
+        models: {
+          result: CrossChainBridgeTokenList,
         },
       },
     );

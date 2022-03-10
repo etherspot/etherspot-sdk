@@ -6,3 +6,8 @@ export enum ExchangeProviders {
   Honeyswap = 'Honeyswap',
   Paraswap = 'Paraswap',
 }
+
+export enum SocketTokenDirection {
+  From = 'From',
+  To = 'To',
+}

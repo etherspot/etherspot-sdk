@@ -95,10 +95,11 @@ import {
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
   IsEligibleForAirdropDto,
+  GetCrossChainBridgeTokenListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
-import { ExchangeOffer, ExchangeService } from './exchange';
+import { CrossChainBridgeSupportedChain, CrossChainBridgeToken, ExchangeOffer, ExchangeService } from './exchange';
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -1289,6 +1290,14 @@ export class Sdk {
       toTokenAddress,
       BigNumber.from(fromAmount),
     );
+  }
+
+  getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    return this.services.exchangeService.getCrossChainBridgeSupportedChains();
+  }
+
+  getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
+    return this.services.exchangeService.getCrossChainBridgeTokenList(dto);
   }
 
   // p2p payments
