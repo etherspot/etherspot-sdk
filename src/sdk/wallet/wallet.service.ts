@@ -44,7 +44,7 @@ export class WalletService extends Service {
         case 'object': {
           const { privateKey } = providerLike as WalletLike;
           const walletLike = providerLike as EtherWallet;
-          const isNotJsonRpcProvider = walletLike.provider.constructor.name !== 'JsonRpcProvider';
+          const isNotJsonRpcProvider = walletLike.provider?.constructor.name !== 'JsonRpcProvider';
           if (privateKey && isNotJsonRpcProvider) {
             provider = new KeyWalletProvider(privateKey);
           } else {
