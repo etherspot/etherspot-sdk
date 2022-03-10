@@ -2082,11 +2082,7 @@ export class Sdk {
     await this.transferTokens(account, value, contractAddress);
   }
 
-  private async transferTokens(
-    account: string,
-    value: string,
-    contractAddress: string
-  ): Promise<void> {
+  private async transferTokens(account: string, value: string, contractAddress: string): Promise<void> {
     const provider = this.services.walletService.walletProvider as any;
     const abi = getContractAbi(ContractNames.ERC20Token);
     if (!provider) throw new Exception(`The provider is missing`);

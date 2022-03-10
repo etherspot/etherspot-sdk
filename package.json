@@ -1,6 +1,6 @@
 {
   "name": "etherspot",
-  "version": "1.28.0",
+  "version": "1.28.1",
   "description": "Etherspot SDK",
   "keywords": [
     "ether",
@@ -21,7 +21,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "start": "exit 1",
-    "format": "prettier --write \"{src,test}/**/*.ts\"",
+    "format": "prettier --write \"{src,test,examples}/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "lint-fix": "npm run lint -- --fix",
     "test": "npm run test:unit",
