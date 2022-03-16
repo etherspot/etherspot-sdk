@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "exit 1",
+    "00-custom": "../node_modules/.bin/ts-node ./src/00-custom",
     "01-session": "../node_modules/.bin/ts-node ./src/01-session",
     "02-state-storage": "../node_modules/.bin/ts-node ./src/02-state-storage",
     "03-contract-account": "../node_modules/.bin/ts-node ./src/03-contract-account",

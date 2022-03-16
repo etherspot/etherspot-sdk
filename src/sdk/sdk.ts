@@ -1300,6 +1300,11 @@ export class Sdk {
     return this.services.exchangeService.getCrossChainBridgeTokenList(dto);
   }
 
+  findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeToken[]> {
+    return this.services.exchangeService.findCrossChainBridgeRoutes(dto);
+  }
+
+
   // p2p payments
 
   /**
