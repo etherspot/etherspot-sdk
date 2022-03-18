@@ -47,6 +47,7 @@ import {
   GetAccountBalancesDto,
   GetAccountDto,
   GetAccountMembersDto,
+  GetCrossChainBridgeRouteDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
   GetExchangeOffersDto,
@@ -99,7 +100,7 @@ import {
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
-import { CrossChainBridgeSupportedChain, CrossChainBridgeToken, ExchangeOffer, ExchangeService } from './exchange';
+import { CrossChainBridgeSupportedChain, CrossChainBridgeToken, CrossChainBridgeRoute, ExchangeOffer, ExchangeService } from './exchange';
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -1300,7 +1301,7 @@ export class Sdk {
     return this.services.exchangeService.getCrossChainBridgeTokenList(dto);
   }
 
-  findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeToken[]> {
+  findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
     return this.services.exchangeService.findCrossChainBridgeRoutes(dto);
   }
 

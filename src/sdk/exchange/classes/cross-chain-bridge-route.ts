@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { BaseClass } from '../../common';
 import { TransformBigNumber } from '../../common';
-import { CrossChainBridgeTransaction, CrossChainBridgeAsset } from './cross-chain-bridge-route-transaction';
+import { CrossChainBridgeTransaction, CrossChainBridgeBridgeAsset } from './cross-chain-bridge-route-transaction';
 
 export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
@@ -15,23 +15,23 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
   usedBridgeNames:String[];
 
-  chainGasBalances
+  chainGasBalances: JSON;
 
-  totalUserTx
+  totalUserTx: number;
 
-  sender
+  sender: string;
 
-  totalGasFeesInUsd
+  totalGasFeesInUsd:number;
 
-  userTxs: CrossChainBridgeTransaction[]
+  userTxs: JSON; //CrossChainBridgeTransaction[]
 
-  fromAsset: CrossChainBridgeAsset
+  fromAsset: CrossChainBridgeBridgeAsset
 
   fromChainId
 
-  toAsset: CrossChainBridgeAsset
+  toAsset: CrossChainBridgeBridgeAsset
 
-  toChainId
+  toChainId: number
 
   routePath: string;
 

@@ -4,13 +4,13 @@ import { IsAddress, IsBigNumberish } from './validators';
 
 
 export class GetCrossChainBridgeRouteDto {
-  @IsAddress()
+  // @IsAddress()
   fromTokenAddress: string;
 
   @IsPositive()
   fromChainId: number;
 
-  @IsAddress()
+  // @IsAddress()
   toTokenAddress: string;
 
   @IsPositive()
@@ -19,7 +19,7 @@ export class GetCrossChainBridgeRouteDto {
   @IsBigNumberish()
   fromAmount?: BigNumberish = null;
 
-  @IsAddress()
+  // @IsAddress()
   userAddress: string;
 
   @IsOptional()

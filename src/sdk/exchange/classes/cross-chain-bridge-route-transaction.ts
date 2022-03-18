@@ -1,30 +1,57 @@
-import { IsNumber } from 'class-validator';
+import { BigNumber } from 'ethers';
 import { BaseClass } from '../../common';
+import { TransformBigNumber } from '../../common';
+import { IsNumber } from 'class-validator';
 
 
 export class approvalData {
-    minimumApprovalAmount
-    approvalTokenAddress
-    allowanceTarget
-    owner
+    @TransformBigNumber()
+    minimumApprovalAmount: BigNumber;
+    approvalTokenAddress: string;
+    allowanceTarget: string;
+    owner: string;
 }
 
-export class CrossChainBridgeAsset {
-    chainId
-    address
-    symbol
-    name
-    decimals
-    icon
+export class CrossChainBridgeBridgeAsset {
+    chainId: number;
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+    icon: string;
 }
 
 export class CrossChainBridgeGasFee {
     @IsNumber()
-    gasLimit:number;
-    asset:CrossChainBridgeAsset
-    feesInUsd
+    gasLimit: number;
+    asset: CrossChainBridgeBridgeAsset;
+    feesInUsd: number;
 }
 
+export class CrossChainBridgeProtocolFees {
+    @IsNumber()
+    amount: number;
+    feesInUsd: number
+    asset: CrossChainBridgeBridgeAsset
+}
+
+export class  Protocol extends BaseClass<Protocol> {
+    name: string
+    displayName: string
+    icon: string
+  }
+
+export class  Step extends BaseClass<Step> {
+    type: string;
+    chainId?: number;
+    fromAmount: string;
+    toAmount: string;
+    protocolFees: CrossChainBridgeProtocolFees
+    gasFees: CrossChainBridgeGasFee
+    toAsset: CrossChainBridgeBridgeAsset
+    fromAsset: CrossChainBridgeBridgeAsset
+    protocol: Protocol
+  }
 
 export class CrossChainBridgeTransaction extends BaseClass<CrossChainBridgeTransaction> {
     userTxType: string;
@@ -34,22 +61,26 @@ export class CrossChainBridgeTransaction extends BaseClass<CrossChainBridgeTrans
     @IsNumber()
     chainId: number;
 
-    fromAsset:CrossChainBridgeAsset;
+    fromAsset: CrossChainBridgeBridgeAsset;
 
-    fromAmount
+    @TransformBigNumber()
+    fromAmount: BigNumber;
 
-    toAmount
+    @TransformBigNumber()
+    toAmount: BigNumber;
 
-    toAsset:CrossChainBridgeAsset
+    toAsset: CrossChainBridgeBridgeAsset
 
-    stepCount
+    stepCount: number;
 
-    routePath
+    routePath: string;
 
-    sender
+    sender: string;
 
     approvalData: approvalData
 
-    steps
+    steps: Step[];
+
+    protocolFees: CrossChainBridgeProtocolFees
 
 }
