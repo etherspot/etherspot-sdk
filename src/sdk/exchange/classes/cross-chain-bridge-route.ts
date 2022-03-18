@@ -13,7 +13,7 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
   @TransformBigNumber()
   toAmount: BigNumber;
 
-  usedBridgeNames:String[];
+  usedBridgeNames:string[];
 
   chainGasBalances: JSON;
 

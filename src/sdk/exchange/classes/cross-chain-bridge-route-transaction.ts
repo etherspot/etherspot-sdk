@@ -4,7 +4,7 @@ import { TransformBigNumber } from '../../common';
 import { IsNumber } from 'class-validator';
 
 
-export class approvalData {
+export class ApprovalData {
     @TransformBigNumber()
     minimumApprovalAmount: BigNumber;
     approvalTokenAddress: string;
@@ -77,7 +77,7 @@ export class CrossChainBridgeTransaction extends BaseClass<CrossChainBridgeTrans
 
     sender: string;
 
-    approvalData: approvalData
+    approvalData: ApprovalData
 
     steps: Step[];
 

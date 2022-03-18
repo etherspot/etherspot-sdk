@@ -1,6 +1,6 @@
-import { IsBoolean, IsEnum, IsPositive, IsOptional } from 'class-validator';
+import { IsBoolean, IsPositive, IsOptional } from 'class-validator';
 import { BigNumberish } from 'ethers';
-import { IsAddress, IsBigNumberish } from './validators';
+import { IsBigNumberish } from './validators';
 
 
 export class GetCrossChainBridgeRouteDto {
