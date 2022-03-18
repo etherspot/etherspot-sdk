@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { BaseClass } from '../../common';
 import { TransformBigNumber } from '../../common';
-import { CrossChainBridgeTransaction, CrossChainBridgeBridgeAsset } from './cross-chain-bridge-route-transaction';
+import { CrossChainBridgeBridgeAsset } from './cross-chain-bridge-route-transaction';
 
 export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
