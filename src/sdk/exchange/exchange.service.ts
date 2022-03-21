@@ -9,7 +9,8 @@ import {
   CrossChainBridgeToken,
   CrossChainBridgeTokenList,
   CrossChainBridgeRoute,
-  CrossChainBridgeRoutes
+  CrossChainBridgeRoutes,
+  CrossChainBridgeBuildTXResponse
 } from './classes';
 import { PaginatedTokens } from '../assets';
 import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
@@ -326,10 +327,9 @@ export class ExchangeService extends Service {
               userTxIndex
         }
             serviceTime
+        }
+        }
       }
-  }
-}
-      
       `,
       {
         variables: {
@@ -348,6 +348,44 @@ export class ExchangeService extends Service {
     );
 
     return result ? result.items : null;
+  }
+
+  
+  async buildCrossChainBridgeTransaction(route: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.mutate<{
+      result: CrossChainBridgeBuildTXResponse;
+    }>(
+      gql`
+        mutation($chainId: Int, $account: String!, $hash: String!) {
+          result: buildCrossChainBridgeTransaction(route: $route) {
+           userTxType: String
+              txType: String
+              txData: String
+              txTarget: String
+              chainId: Int
+              value: String
+              approvalData:{ 
+                minimumApprovalAmount
+                approvalTokenAddress
+                allowanceTarget
+                owner
+              }
+          }
+        }
+      `,
+      {
+        models: {
+          result: CrossChainBridgeBuildTXResponse,
+        },
+        variables: {
+          route: route,
+        },
+      },
+    );
+
+    return result;
   }
 
 

@@ -100,7 +100,7 @@ import {
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
-import { CrossChainBridgeSupportedChain, CrossChainBridgeToken, CrossChainBridgeRoute, ExchangeOffer, ExchangeService } from './exchange';
+import { CrossChainBridgeSupportedChain, CrossChainBridgeToken, CrossChainBridgeRoute, ExchangeOffer, ExchangeService, CrossChainBridgeBuildTXResponse } from './exchange';
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -1303,6 +1303,10 @@ export class Sdk {
 
   findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
     return this.services.exchangeService.findCrossChainBridgeRoutes(dto);
+  }
+
+  buildCrossChainBridgeTransaction(dto:CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+    return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);;
   }
 
 

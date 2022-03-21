@@ -50,6 +50,15 @@ async function main(): Promise<void> {
   console.log(routes);
 
 
+ const callDataPayload = await sdk.buildCrossChainBridgeTransaction(routes[0]);
+
+//  const tx = await signer.sendTransaction({
+//   to: apiReturnData.result.tx.to,
+//   data: apiReturnData.result.tx.data,
+// });
+
+// Initiates transaction on user's frontend which user has to sign
+// const receipt = await tx.wait();
   
 }
 
