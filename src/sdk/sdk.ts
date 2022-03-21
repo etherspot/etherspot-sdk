@@ -1306,7 +1306,7 @@ export class Sdk {
   }
 
   buildCrossChainBridgeTransaction(dto:CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
-    return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);;
+    return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
 
 

@@ -351,27 +351,27 @@ export class ExchangeService extends Service {
   }
 
   
-  async buildCrossChainBridgeTransaction(route: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+  async buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     const { apiService } = this.services;
 
     const { result } = await apiService.mutate<{
       result: CrossChainBridgeBuildTXResponse;
     }>(
       gql`
-        mutation($chainId: Int, $account: String!, $hash: String!) {
+      query($route: JSONObject) {
           result: buildCrossChainBridgeTransaction(route: $route) {
-           userTxType: String
-              txType: String
-              txData: String
-              txTarget: String
-              chainId: Int
-              value: String
-              approvalData:{ 
-                minimumApprovalAmount
-                approvalTokenAddress
-                allowanceTarget
-                owner
-              }
+           userTxType
+           txType
+           txData
+           txTarget
+           chainId
+           value
+           approvalData { 
+            minimumApprovalAmount
+            approvalTokenAddress
+            allowanceTarget
+            owner
+           }
           }
         }
       `,
@@ -380,7 +380,7 @@ export class ExchangeService extends Service {
           result: CrossChainBridgeBuildTXResponse,
         },
         variables: {
-          route: route,
+          route: dto,
         },
       },
     );
