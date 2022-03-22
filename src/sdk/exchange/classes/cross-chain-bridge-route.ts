@@ -54,3 +54,7 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
   routePath: string;
 
 }
+
+export class CrossChainBridgeRouteRoute extends BaseClass<CrossChainBridgeRouteRoute> {
+  route: CrossChainBridgeRoute;
+}

@@ -358,8 +358,8 @@ export class ExchangeService extends Service {
       result: CrossChainBridgeBuildTXResponse;
     }>(
       gql`
-      query($route: JSONObject) {
-          result: buildCrossChainBridgeTransaction(route: $route) {
+      query($route: CrossChainBridgeRouteRoute) {
+          result: callCrossChainBridgeTransaction(route: $route) {
            userTxType
            txType
            txData
@@ -386,6 +386,32 @@ export class ExchangeService extends Service {
     );
 
     return result;
+  }
+
+
+  async getCrossChainBridgeTransaction<T = any, P = any>(payload: P): Promise<T> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.mutate<{
+      result: {
+        data: any;
+      };
+    }>(
+      gql`
+        mutation($chainId: Int, $sender: String!, $payload: JSONObject) {
+          result: getCrossChainBridgeTransaction(payload: $payload) {
+            data
+          }
+        }
+      `,
+      {
+        variables: {
+          payload,
+        },
+      },
+    );
+
+    return result.data;
   }
 
 
