@@ -211,7 +211,7 @@ export class ExchangeService extends Service {
         $fromChainId: Int!
         $toTokenAddress: String!
         $toChainId: Int!
-        $fromAmount: BigNumber!
+        $fromAmount: String!
         $userAddress: String!
         $disableSwapping: Boolean
       ) {
@@ -225,109 +225,112 @@ export class ExchangeService extends Service {
           disableSwapping: $disableSwapping
         ) {
           items {
-            routeId
-            fromAmount
-            toAmount
-            usedBridgeNames
             chainGasBalances
-            totalUserTx
+            fromAmount
+            routeId
             sender
+            serviceTime
+            toAmount
             totalGasFeesInUsd
+            totalUserTx
+            usedBridgeNames
             userTxs {
-              userTxType
-               txType
-              chainId
-              toAmount
-              toAsset {
-                name
-                address
-                chainId
-                decimals
-                symbol
-                icon
-              }
-              stepCount
-              routePath
-              sender
               approvalData {
-                minimumApprovalAmount
-                approvalTokenAddress
                 allowanceTarget
+                approvalTokenAddress
+                minimumApprovalAmount
                 owner
               }
-              steps{
-                type
-                protocol {
+              chainId
+              gasFees {
+                asset {
+                  address
+                  chainId
+                  decimals
+                  icon
                   name
+                  symbol
+                }
+                feesInUsd
+                gasLimit
+              }
+              routePath
+              sender
+              serviceTime
+              stepCount
+              steps {
+                chainId
+                fromChainId
+                fromAmount
+                fromAsset {
+                  address
+                  chainAgnosticId
+                  chainId
+                  createdAt
+                  decimals
+                  icon
+                  id
+                  isEnabled
+                  name
+                  rank
+                  symbol
+                  updatedAt
+                }
+                gasFees {
+                  asset {
+                    address
+                    chainId
+                    decimals
+                    icon
+                    name
+                    symbol
+                  }
+                  feesInUsd
+                  gasLimit
+                }
+                protocol {
                   displayName
                   icon
-                }
-                chainId
-                fromAsset {
                   name
-                  address
-                  chainId
-                  decimals
-                  symbol
-                  icon
-                }
-                fromAmount
-                toAsset {
-                  name
-                  address
-                  chainId
-                  decimals
-                  symbol
-                  icon
                 }
                 toAmount
-                gasFees {
-                  gasLimit
-                  asset {
-                    chainId
-                    address
-                    symbol
-                    name
-                    decimals
-                    icon
-                  }
-                  feesInUsd
+                toAsset {
+                  address
+                  chainAgnosticId
+                  chainId
+                  createdAt
+                  decimals
+                  icon
+                  id
+                  isEnabled
+                  name
+                  rank
+                  symbol
+                  updatedAt
                 }
-                protocolFees {
-                  amount
-                  feesInUsd
-                  asset  {
-                    chainId
-                    address
-                    symbol
-                    name
-                    decimals
-                    icon
-                  }
-                  feesInUsd
-                }
-                serviceTime
+                toChainId
+                type
               }
-              gasFees{
-                feesInUsd
-              }
-              protocolFees {
-                amount
-                feesInUsd
-                asset{
-                name
+              toAmount
+              toAsset {
                 address
+                chainAgnosticId
                 chainId
+                createdAt
                 decimals
-                symbol
                 icon
+                id
+                isEnabled
+                name
+                rank
+                symbol
+                updatedAt
               }
-              }
-              serviceTime
+              txType
               userTxIndex
-        }
-            serviceTime
-        }
+              userTxType
+            }
+          }
         }
       }
       `,
@@ -353,13 +356,13 @@ export class ExchangeService extends Service {
   
   async buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     const { apiService } = this.services;
-
-    const { result } = await apiService.mutate<{
+    console.log(dto);
+    const { result } = await apiService.query<{
       result: CrossChainBridgeBuildTXResponse;
     }>(
       gql`
-      query($route: CrossChainBridgeRouteRoute) {
-          result: callCrossChainBridgeTransaction(route: $route) {
+      query($payload: CrossChainBridgeRouteBuildTransactionRouteArgs!) {
+          result: callCrossChainBridgeTransaction(payload: $payload) {
            userTxType
            txType
            txData
@@ -380,11 +383,11 @@ export class ExchangeService extends Service {
           result: CrossChainBridgeBuildTXResponse,
         },
         variables: {
-          route: dto,
+          payload: {payload: dto},
         },
       },
     );
-
+    console.log(result);
     return result;
   }
 

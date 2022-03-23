@@ -1,6 +1,4 @@
-import { BigNumber } from 'ethers';
 import { BaseClass } from '../../common';
-import { TransformBigNumber } from '../../common';
 import { CrossChainBridgeBridgeAsset } from './cross-chain-bridge-route-transaction';
 
 
@@ -25,11 +23,9 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
   routeId: string;
 
-  @TransformBigNumber()
-  fromAmount: BigNumber;
+  fromAmount: string;
 
-  @TransformBigNumber()
-  toAmount: BigNumber;
+  toAmount: string;
 
   usedBridgeNames:string[];
 
@@ -49,7 +45,7 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
   toAsset: CrossChainBridgeBridgeAsset
 
-  toChainId: number
+  toChainId?: number
 
   routePath: string;
 

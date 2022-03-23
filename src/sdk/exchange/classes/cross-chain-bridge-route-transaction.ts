@@ -1,12 +1,9 @@
-import { BigNumber } from 'ethers';
 import { BaseClass } from '../../common';
-import { TransformBigNumber } from '../../common';
 import { IsNumber } from 'class-validator';
 
 
 export class ApprovalData {
-    @TransformBigNumber()
-    minimumApprovalAmount: BigNumber;
+    minimumApprovalAmount: string;
     approvalTokenAddress: string;
     allowanceTarget: string;
     owner: string;
@@ -19,6 +16,11 @@ export class CrossChainBridgeBridgeAsset {
     name: string;
     decimals: number;
     icon: string;
+    chainAgnosticId?: string;
+    rank:number;
+    updatedAt:string;
+    isEnabled:boolean;
+    createdAt: string;
 }
 
 export class CrossChainBridgeGasFee {
@@ -44,6 +46,7 @@ export class  Protocol extends BaseClass<Protocol> {
 export class  Step extends BaseClass<Step> {
     type: string;
     chainId?: number;
+    fromChainId?:number;
     fromAmount: string;
     toAmount: string;
     protocolFees: CrossChainBridgeProtocolFees
@@ -63,11 +66,9 @@ export class CrossChainBridgeTransaction extends BaseClass<CrossChainBridgeTrans
 
     fromAsset: CrossChainBridgeBridgeAsset;
 
-    @TransformBigNumber()
-    fromAmount: BigNumber;
+    fromAmount: string;
 
-    @TransformBigNumber()
-    toAmount: BigNumber;
+    toAmount: string;
 
     toAsset: CrossChainBridgeBridgeAsset
 

@@ -1,23 +1,20 @@
 import { IsBoolean, IsPositive, IsOptional } from 'class-validator';
-import { BigNumberish } from 'ethers';
-import { IsBigNumberish } from './validators';
 
 
 export class GetCrossChainBridgeRouteDto {
   // @IsAddress()
   fromTokenAddress: string;
 
-  @IsPositive()
-  fromChainId: number;
+  
+  fromChainId?: number;
 
   // @IsAddress()
   toTokenAddress: string;
 
   @IsPositive()
-  toChainId: number;
+  toChainId?: number;
 
-  @IsBigNumberish()
-  fromAmount?: BigNumberish = null;
+  fromAmount: string;
 
   // @IsAddress()
   userAddress: string;

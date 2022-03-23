@@ -9,7 +9,7 @@ export class GetCrossChainBridgeTokenListDto {
   fromChainId: number;
 
   @IsInt()
-  toChainId: number;
+  toChainId?: number;
 
   @IsOptional()
   @IsBoolean()
