@@ -1,7 +1,6 @@
 import { BaseClass } from '../../common';
 import { CrossChainBridgeBridgeAsset } from './cross-chain-bridge-route-transaction';
 
-
 export class CrossChainBridgeApprovalData extends BaseClass<CrossChainBridgeApprovalData> {
   minimumApprovalAmount: string;
   approvalTokenAddress: string;
@@ -20,14 +19,13 @@ export class CrossChainBridgeBuildTXResponse extends BaseClass<CrossChainBridgeB
 }
 
 export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
-
   routeId: string;
 
   fromAmount: string;
 
   toAmount: string;
 
-  usedBridgeNames:string[];
+  usedBridgeNames: string[];
 
   chainGasBalances: JSON;
 
@@ -35,20 +33,19 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
   sender: string;
 
-  totalGasFeesInUsd:number;
+  totalGasFeesInUsd: number;
 
   userTxs: JSON; //CrossChainBridgeTransaction[]
 
-  fromAsset: CrossChainBridgeBridgeAsset
+  fromAsset: CrossChainBridgeBridgeAsset;
 
-  fromChainId
+  fromChainId;
 
-  toAsset: CrossChainBridgeBridgeAsset
+  toAsset: CrossChainBridgeBridgeAsset;
 
-  toChainId?: number
+  toChainId?: number;
 
   routePath: string;
-
 }
 
 export class CrossChainBridgeRouteRoute extends BaseClass<CrossChainBridgeRouteRoute> {

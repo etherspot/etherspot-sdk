@@ -10,7 +10,7 @@ import {
   CrossChainBridgeTokenList,
   CrossChainBridgeRoute,
   CrossChainBridgeRoutes,
-  CrossChainBridgeBuildTXResponse
+  CrossChainBridgeBuildTXResponse,
 } from './classes';
 import { PaginatedTokens } from '../assets';
 import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
@@ -158,12 +158,7 @@ export class ExchangeService extends Service {
       result: CrossChainBridgeTokenList;
     }>(
       gql`
-        query(
-          $direction: SocketTokenDirection!
-          $fromChainId: Int!
-          $toChainId: Int!
-          $disableSwapping: Boolean
-        ) {
+        query($direction: SocketTokenDirection!, $fromChainId: Int!, $toChainId: Int!, $disableSwapping: Boolean) {
           result: crossChainBridgeTokenList(
             direction: $direction
             fromChainId: $fromChainId
@@ -197,7 +192,6 @@ export class ExchangeService extends Service {
     return result ? result.items : null;
   }
 
-
   async findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
     const { apiService } = this.services;
     const { fromTokenAddress, fromChainId, toTokenAddress, toChainId, fromAmount, userAddress, disableSwapping } = dto;
@@ -206,76 +200,42 @@ export class ExchangeService extends Service {
       result: CrossChainBridgeRoutes;
     }>(
       gql`
-      query(
-        $fromTokenAddress: String!
-        $fromChainId: Int!
-        $toTokenAddress: String!
-        $toChainId: Int!
-        $fromAmount: String!
-        $userAddress: String!
-        $disableSwapping: Boolean
-      ) {
-        result: findCrossChainBridgeRoutes(
-          fromTokenAddress: $fromTokenAddress
-          fromChainId: $fromChainId
-          toTokenAddress: $toTokenAddress
-          toChainId: $toChainId
-          fromAmount: $fromAmount
-          userAddress: $userAddress
-          disableSwapping: $disableSwapping
+        query(
+          $fromTokenAddress: String!
+          $fromChainId: Int!
+          $toTokenAddress: String!
+          $toChainId: Int!
+          $fromAmount: String!
+          $userAddress: String!
+          $disableSwapping: Boolean
         ) {
-          items {
-            chainGasBalances
-            fromAmount
-            routeId
-            sender
-            serviceTime
-            toAmount
-            totalGasFeesInUsd
-            totalUserTx
-            usedBridgeNames
-            userTxs {
-              approvalData {
-                allowanceTarget
-                approvalTokenAddress
-                minimumApprovalAmount
-                owner
-              }
-              chainId
-              gasFees {
-                asset {
-                  address
-                  chainId
-                  decimals
-                  icon
-                  name
-                  symbol
-                }
-                feesInUsd
-                gasLimit
-              }
-              routePath
+          result: findCrossChainBridgeRoutes(
+            fromTokenAddress: $fromTokenAddress
+            fromChainId: $fromChainId
+            toTokenAddress: $toTokenAddress
+            toChainId: $toChainId
+            fromAmount: $fromAmount
+            userAddress: $userAddress
+            disableSwapping: $disableSwapping
+          ) {
+            items {
+              chainGasBalances
+              fromAmount
+              routeId
               sender
               serviceTime
-              stepCount
-              steps {
-                chainId
-                fromChainId
-                fromAmount
-                fromAsset {
-                  address
-                  chainAgnosticId
-                  chainId
-                  createdAt
-                  decimals
-                  icon
-                  id
-                  isEnabled
-                  name
-                  rank
-                  symbol
-                  updatedAt
+              toAmount
+              totalGasFeesInUsd
+              totalUserTx
+              usedBridgeNames
+              userTxs {
+                approvalData {
+                  allowanceTarget
+                  approvalTokenAddress
+                  minimumApprovalAmount
+                  owner
                 }
+                chainId
                 gasFees {
                   asset {
                     address
@@ -288,10 +248,62 @@ export class ExchangeService extends Service {
                   feesInUsd
                   gasLimit
                 }
-                protocol {
-                  displayName
-                  icon
-                  name
+                routePath
+                sender
+                serviceTime
+                stepCount
+                steps {
+                  chainId
+                  fromChainId
+                  fromAmount
+                  fromAsset {
+                    address
+                    chainAgnosticId
+                    chainId
+                    createdAt
+                    decimals
+                    icon
+                    id
+                    isEnabled
+                    name
+                    rank
+                    symbol
+                    updatedAt
+                  }
+                  gasFees {
+                    asset {
+                      address
+                      chainId
+                      decimals
+                      icon
+                      name
+                      symbol
+                    }
+                    feesInUsd
+                    gasLimit
+                  }
+                  protocol {
+                    displayName
+                    icon
+                    name
+                  }
+                  toAmount
+                  toAsset {
+                    address
+                    chainAgnosticId
+                    chainId
+                    createdAt
+                    decimals
+                    icon
+                    id
+                    isEnabled
+                    name
+                    rank
+                    symbol
+                    updatedAt
+                  }
+                  toChainId
+                  type
                 }
                 toAmount
                 toAsset {
@@ -308,31 +320,13 @@ export class ExchangeService extends Service {
                   symbol
                   updatedAt
                 }
-                toChainId
-                type
+                txType
+                userTxIndex
+                userTxType
               }
-              toAmount
-              toAsset {
-                address
-                chainAgnosticId
-                chainId
-                createdAt
-                decimals
-                icon
-                id
-                isEnabled
-                name
-                rank
-                symbol
-                updatedAt
-              }
-              txType
-              userTxIndex
-              userTxType
             }
           }
         }
-      }
       `,
       {
         variables: {
@@ -353,7 +347,6 @@ export class ExchangeService extends Service {
     return result ? result.items : null;
   }
 
-  
   async buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     const { apiService } = this.services;
     console.log(dto);
@@ -361,20 +354,20 @@ export class ExchangeService extends Service {
       result: CrossChainBridgeBuildTXResponse;
     }>(
       gql`
-      query($payload: CrossChainBridgeRouteBuildTransactionRouteArgs!) {
+        query($payload: CrossChainBridgeRouteBuildTransactionRouteArgs!) {
           result: callCrossChainBridgeTransaction(payload: $payload) {
-           userTxType
-           txType
-           txData
-           txTarget
-           chainId
-           value
-           approvalData { 
-            minimumApprovalAmount
-            approvalTokenAddress
-            allowanceTarget
-            owner
-           }
+            userTxType
+            txType
+            txData
+            txTarget
+            chainId
+            value
+            approvalData {
+              minimumApprovalAmount
+              approvalTokenAddress
+              allowanceTarget
+              owner
+            }
           }
         }
       `,
@@ -383,14 +376,13 @@ export class ExchangeService extends Service {
           result: CrossChainBridgeBuildTXResponse,
         },
         variables: {
-          payload: {payload: dto},
+          payload: { payload: dto },
         },
       },
     );
     console.log(result);
     return result;
   }
-
 
   async getCrossChainBridgeTransaction<T = any, P = any>(payload: P): Promise<T> {
     const { apiService } = this.services;
@@ -416,6 +408,4 @@ export class ExchangeService extends Service {
 
     return result.data;
   }
-
-
 }

@@ -1,11 +1,9 @@
 import { IsBoolean, IsPositive, IsOptional } from 'class-validator';
 
-
 export class GetCrossChainBridgeRouteDto {
   // @IsAddress()
   fromTokenAddress: string;
 
-  
   fromChainId?: number;
 
   // @IsAddress()
