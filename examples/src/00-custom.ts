@@ -6,28 +6,7 @@ async function main(): Promise<void> {
 
   const sdk = new Sdk(ownerWallet);
 
-  // const result = await sdk.isEligibleForAirdrop({ address: ownerWallet.address });
-
-  // const result = await sdk.getNftList({ account: '0xBc7E056a092938A37412B95fA952fb9Cea8FcD4c' });
-
-  // const result = await sdk.getCrossChainBridgeTokenList({
-  //   direction: SocketTokenDirection.From,
-  //   fromChainId: 1,
-  //   toChainId: 10,
-  // });
-  // console.log(result);
-
-  /**
-   * fromChainId=137
-   * &fromTokenAddress=0x2791bca1f2de4661ed88a30c99a7a9449aa84174&
-   * toChainId=1&
-   * toTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7
-   * &fromAmount=100000000
-   * &userAddress=
-   * &uniqueRoutesPerBridge=true
-   * &sort=gas
-   */
-  /** 
+  /** Example url 
 https://backend.movr.network/v2/quote?
 fromTokenAddress=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
 &fromChainId=56
@@ -38,6 +17,9 @@ fromTokenAddress=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
 &uniqueRoutesPerBridge=true
 &singleTxOnly=true
  */
+
+
+// TODO This route is not supported by Etherspot libs/core/src/socket/socket.service.ts Line 262
   const routes = await sdk.findCrossChainBridgeRoutes({
     fromTokenAddress: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     fromChainId: 56,
@@ -47,16 +29,16 @@ fromTokenAddress=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
     toChainId: 137,
     disableSwapping: false,
   });
-  console.log(JSON.stringify(routes[0]));
-  // console.log(JSON.stringify(routes[0].userTxs[0]));
 
+ 
   const callDataPayload = await sdk.buildCrossChainBridgeTransaction(routes[0]);
-
+  console.log(callDataPayload);
+  
+  // TODO contract call with the cross chain payload
   //  const tx = await signer.sendTransaction({
   //   to: apiReturnData.result.tx.to,
   //   data: apiReturnData.result.tx.data,
   // });
-
   // Initiates transaction on user's frontend which user has to sign
   // const receipt = await tx.wait();
 }
