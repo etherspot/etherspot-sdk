@@ -1,5 +1,4 @@
 import { BaseClass } from '../../common';
-import { IsNumber } from 'class-validator';
 
 export class ApprovalData {
   minimumApprovalAmount: string;
@@ -23,14 +22,12 @@ export class CrossChainBridgeBridgeAsset {
 }
 
 export class CrossChainBridgeGasFee {
-  @IsNumber()
   gasLimit: number;
   asset: CrossChainBridgeBridgeAsset;
   feesInUsd: number;
 }
 
 export class CrossChainBridgeProtocolFees {
-  @IsNumber()
   amount: number;
   feesInUsd: number;
   asset: CrossChainBridgeBridgeAsset;

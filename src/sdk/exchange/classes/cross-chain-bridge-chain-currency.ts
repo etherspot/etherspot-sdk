@@ -11,7 +11,6 @@ export class CrossChainBridgeChainCurrency extends BaseClass<CrossChainBridgeCha
 
   symbol: string;
 
-  @IsNumber()
   decimals: number;
 
   @TransformBigNumber()
