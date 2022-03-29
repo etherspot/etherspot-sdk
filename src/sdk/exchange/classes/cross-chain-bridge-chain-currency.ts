@@ -1,4 +1,3 @@
-import { IsNumber } from 'class-validator';
 import { BigNumber } from 'ethers';
 import { BaseClass, TransformBigNumber } from '../../common';
 
