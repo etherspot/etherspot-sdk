@@ -1,12 +1,12 @@
 import { IsBoolean, IsPositive, IsOptional } from 'class-validator';
-
+import { IsAddress } from './validators';
 export class GetCrossChainBridgeRouteDto {
-  // @IsAddress()
+  @IsAddress()
   fromTokenAddress: string;
 
   fromChainId?: number;
 
-  // @IsAddress()
+  @IsAddress()
   toTokenAddress: string;
 
   @IsPositive()
@@ -14,7 +14,7 @@ export class GetCrossChainBridgeRouteDto {
 
   fromAmount: string;
 
-  // @IsAddress()
+  @IsAddress()
   userAddress: string;
 
   @IsOptional()
