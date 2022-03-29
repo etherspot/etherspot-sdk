@@ -60,7 +60,6 @@ export class CrossChainBridgeTransaction extends BaseClass<CrossChainBridgeTrans
 
   txType: string;
 
-  @IsNumber()
   chainId: number;
 
   fromAsset: CrossChainBridgeBridgeAsset;

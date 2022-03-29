@@ -35,7 +35,7 @@ export class CrossChainBridgeRoute extends BaseClass<CrossChainBridgeRoute> {
 
   totalGasFeesInUsd: number;
 
-  userTxs: JSON; //CrossChainBridgeTransaction[]
+  userTxs: JSON;
 
   fromAsset: CrossChainBridgeBridgeAsset;
 

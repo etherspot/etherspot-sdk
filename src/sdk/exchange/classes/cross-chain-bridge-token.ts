@@ -1,4 +1,3 @@
-import { IsNumber } from 'class-validator';
 import { BaseClass } from '../../common';
 
 export class CrossChainBridgeToken extends BaseClass<CrossChainBridgeToken> {
@@ -6,10 +5,8 @@ export class CrossChainBridgeToken extends BaseClass<CrossChainBridgeToken> {
 
   address: string;
 
-  @IsNumber()
   chainId: number;
 
-  @IsNumber()
   decimals: number;
 
   symbol: string;

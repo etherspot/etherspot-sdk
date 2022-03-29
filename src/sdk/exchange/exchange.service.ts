@@ -349,7 +349,6 @@ export class ExchangeService extends Service {
 
   async buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     const { apiService } = this.services;
-    console.log(dto);
     const { result } = await apiService.query<{
       result: CrossChainBridgeBuildTXResponse;
     }>(
@@ -380,7 +379,6 @@ export class ExchangeService extends Service {
         },
       },
     );
-    console.log(result);
     return result;
   }
 
