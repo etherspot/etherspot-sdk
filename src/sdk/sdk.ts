@@ -47,6 +47,7 @@ import {
   GetAccountBalancesDto,
   GetAccountDto,
   GetAccountMembersDto,
+  GetCrossChainBridgeRouteDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
   GetExchangeOffersDto,
@@ -95,10 +96,18 @@ import {
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
   IsEligibleForAirdropDto,
+  GetCrossChainBridgeTokenListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
-import { ExchangeOffer, ExchangeService } from './exchange';
+import {
+  CrossChainBridgeSupportedChain,
+  CrossChainBridgeToken,
+  CrossChainBridgeRoute,
+  ExchangeOffer,
+  ExchangeService,
+  CrossChainBridgeBuildTXResponse,
+} from './exchange';
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -1289,6 +1298,22 @@ export class Sdk {
       toTokenAddress,
       BigNumber.from(fromAmount),
     );
+  }
+
+  getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    return this.services.exchangeService.getCrossChainBridgeSupportedChains();
+  }
+
+  getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
+    return this.services.exchangeService.getCrossChainBridgeTokenList(dto);
+  }
+
+  findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
+    return this.services.exchangeService.findCrossChainBridgeRoutes(dto);
+  }
+
+  buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+    return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
 
   // p2p payments

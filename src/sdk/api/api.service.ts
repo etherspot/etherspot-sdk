@@ -17,7 +17,7 @@ export class ApiService extends Service {
   private apolloClient: ApolloClient<NormalizedCacheObject>;
   private cache = new InvalidationPolicyCache({
     resultCaching: true,
-    addTypename: true,
+    addTypename: false,
     invalidationPolicies: {
       types: сacheSettings,
     },
