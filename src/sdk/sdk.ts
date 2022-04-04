@@ -1389,14 +1389,20 @@ export class Sdk {
 
     await this.require({
       session: true,
+      currentProject: true,
     });
 
-    const { p2pPaymentsService } = this.services;
+    const { accountService, p2pPaymentsService, projectService } = this.services;
+
+    const now = new Date();
+    const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const saltDate = todayUTC.toISOString().slice(0, 10).replace(/-/g, '');
 
     return p2pPaymentsService.increaseP2PPaymentChannelAmount(
       recipient, //
       token,
       BigNumber.from(value),
+      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`
     );
   }
 
@@ -2166,8 +2172,15 @@ export class Sdk {
       throw new Exception('Require contract account');
     }
 
-    if (options.currentProject && !projectService.currentProject) {
-      throw new Exception('Require project');
+    if (options.currentProject) {
+      if (!projectService.currentProject) {
+        throw new Exception('Require project');
+      }
+
+      const isProjectValid = await projectService.isProjectValid();
+      if (!isProjectValid) {
+        throw new Exception('Invalid project key');
+      }
     }
   }
 

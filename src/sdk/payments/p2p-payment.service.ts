@@ -317,10 +317,11 @@ export class P2PPaymentService extends Service {
     uidSalt: string = null,
   ): Promise<P2PPaymentChannel> {
     const { paymentRegistryContract } = this.internalContracts;
-    const { apiService, accountService, blockService, walletService } = this.services;
+    const { apiService, accountService, blockService, projectService, walletService } = this.services;
 
     const uid = createPaymentChannelUid(uidSalt);
     const sender = accountService.accountAddress;
+    const projectKey = projectService.currentProject.key;
 
     const blockNumber = await blockService.getCurrentBlockNumber();
 
@@ -348,6 +349,7 @@ export class P2PPaymentService extends Service {
           $token: String
           $totalAmount: BigNumber!
           $uid: String!
+          $projectKey: String!
         ) {
           result: updateP2PPaymentChannel(
             chainId: $chainId
@@ -358,16 +360,17 @@ export class P2PPaymentService extends Service {
             token: $token
             totalAmount: $totalAmount
             uid: $uid
+            projectKey: $projectKey
           ) {
+            hash
+            sender
+            recipient
+            token
+            uid
+            state
+            totalAmount
             committedAmount
             createdAt
-            hash
-            recipient
-            sender
-            state
-            token
-            totalAmount
-            uid
             updatedAt
             latestPayment {
               blockNumber
@@ -378,6 +381,7 @@ export class P2PPaymentService extends Service {
               updatedAt
               value
             }
+            projectKey
           }
         }
       `,
@@ -393,6 +397,7 @@ export class P2PPaymentService extends Service {
           token,
           totalAmount,
           uid,
+          projectKey,
         },
       },
     );

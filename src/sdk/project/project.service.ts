@@ -8,7 +8,6 @@ export class ProjectService extends Service {
 
   constructor(currentProject: CurrentProject = null) {
     super();
-
     this.switchCurrentProject(currentProject);
   }
 
@@ -35,6 +34,16 @@ export class ProjectService extends Service {
 
   get currentProject(): CurrentProject {
     return this.currentProject$.value;
+  }
+
+  async isProjectValid(): Promise<boolean> {
+    const project = await this.getProject(this.currentProject.key);
+
+    if (!project) {
+      return false
+    }
+
+    return true;
   }
 
   switchCurrentProject(currentProject: CurrentProject): CurrentProject {
@@ -80,11 +89,10 @@ export class ProjectService extends Service {
       gql`
         query($chainId: Int, $key: String!) {
           result: project(chainId: $chainId, key: $key) {
-            address
-            createdAt
             key
-            owner
+            address
             state
+            createdAt
             updatedAt
           }
         }
