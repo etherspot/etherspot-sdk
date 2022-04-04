@@ -7,8 +7,6 @@ export class Project extends Synchronized {
 
   address: string;
 
-  owner: string;
-
   state: ProjectStates;
 
   @Type(() => Date)
