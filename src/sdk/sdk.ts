@@ -1402,7 +1402,7 @@ export class Sdk {
       recipient, //
       token,
       BigNumber.from(value),
-      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`
+      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`,
     );
   }
 

@@ -1,107 +1,104 @@
 // types
 import { BigNumber } from 'ethers';
-import  { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, AssetData, RariPool, ETH} from './types';
-
+import { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, AssetData, RariPool, ETH } from './types';
 
 export type Value = BigNumber | string | number;
 
 export type TxSettlementItem = {
-  symbol: string,
-  value: string | number,
-  hash: string,
+  symbol: string;
+  value: string | number;
+  hash: string;
 };
 
 export type TxPoolTogetherExtra = {
-  symbol: string,
-  decimals: number,
-  amount: string,
+  symbol: string;
+  decimals: number;
+  amount: string;
 };
 
 type TxWithdrawalExtra = {
-  paymentHash: string,
+  paymentHash: string;
 };
 
 type EnsTransactionExtra = {
-  ensName: string,
+  ensName: string;
 };
 
 export type SyntheticTransaction = {
-  transactionId: string,
-  fromAmount: number,
-  toAmount: number,
-  toAssetCode: string,
-  toAddress: string,
-  receiverEnsName?: string,
+  transactionId: string;
+  fromAmount: number;
+  toAmount: number;
+  toAssetCode: string;
+  toAddress: string;
+  receiverEnsName?: string;
 };
 
 export type SyntheticTransactionExtra = {
-  syntheticTransaction: Partial<SyntheticTransaction>,
+  syntheticTransaction: Partial<SyntheticTransaction>;
 };
 
 export type AaveExtra = {
-  symbol: string,
-  decimals: number,
-  amount: string,
+  symbol: string;
+  decimals: number;
+  amount: string;
 };
 
 export type TxSablierExtra = {
-  assetAddress: string,
-  amount: string,
-  contactAddress: string,
-  streamId: string,
+  assetAddress: string;
+  amount: string;
+  contactAddress: string;
+  streamId: string;
 };
 
 export type RariDepositExtra = {
-  symbol: string,
-  decimals: number,
-  amount: number,
-  rariPool: RariPool,
-  rftMinted: string,
+  symbol: string;
+  decimals: number;
+  amount: number;
+  rariPool: RariPool;
+  rftMinted: string;
 };
 
 export type RariWithdrawExtra = {
-  symbol: string,
-  decimals: number,
-  amount: number,
-  rariPool: RariPool,
-  rftBurned: string,
+  symbol: string;
+  decimals: number;
+  amount: number;
+  rariPool: RariPool;
+  rftBurned: string;
 };
 
 export type RariTransferExtra = {
-  amount: string,
-  rariPool: RariPool,
-  contactAddress: string,
+  amount: string;
+  rariPool: RariPool;
+  contactAddress: string;
 };
 
 export type RariClaimExtra = {
-  amount: string,
-  rgtBurned: string,
+  amount: string;
+  rgtBurned: string;
 };
 
-export type RariExtra = RariDepositExtra
-  | RariWithdrawExtra
-  | RariTransferExtra
-  | RariClaimExtra;
+export type RariExtra = RariDepositExtra | RariWithdrawExtra | RariTransferExtra | RariClaimExtra;
 
 export type LiquidityPoolsExtra = {
-  amount: string,
-  pool: LiquidityPool,
-  tokenAmounts?: string[],
+  amount: string;
+  pool: LiquidityPool;
+  tokenAmounts?: string[];
 };
 
 export type EtherspotTransactionExtra = {
-  batchHash: string,
+  batchHash: string;
 };
 
 export type AllowanceTransactionExtra = {
   allowance: {
-    provider: string,
-    fromAssetCode: string,
-    toAssetCode: string,
-  },
+    provider: string;
+    fromAssetCode: string;
+    toAssetCode: string;
+  };
 };
 
-export type TransactionExtra = TxSettlementItem[]
+export type TransactionExtra =
+  | TxSettlementItem[]
   | TxWithdrawalExtra
   | SyntheticTransactionExtra
   | EnsTransactionExtra
@@ -114,128 +111,127 @@ export type TransactionExtra = TxSettlementItem[]
   | EtherspotTransactionExtra;
 
 export type GasToken = {
-  address: string,
-  decimals: number,
-  symbol: string,
+  address: string;
+  decimals: number;
+  symbol: string;
 };
 
 export type FeeWithGasToken = {
-  feeInWei: BigNumber,
-  gasToken: GasToken,
+  feeInWei: BigNumber;
+  gasToken: GasToken;
 };
 export type Transaction = {
-  _id: string,
-  hash?: string,
-  batchHash?: string,
-  to: string,
-  from: string,
-  createdAt: number,
-  assetSymbol: string,
-  assetAddress: string,
-  nbConfirmations?: number,
-  gasUsed?: number,
-  gasPrice?: number,
-  status: string,
-  value: string,
-  note?: string,
-  signOnly?: boolean,
-  isPPNTransaction?: boolean,
-  tag?: string,
-  extra?: TransactionExtra,
-  stateInPPN?: string,
-  feeWithGasToken?: FeeWithGasToken,
-  type?: string,
-}
-
-export type TransactionPayload = {
-  gasLimit?: number,
-  gasUsed?: number,
-  to: string,
-  receiverEnsName?: string,
-  name?: string,
-  contractAddress?: string,
-  tokenId?: string,
-  tokenType?: AssetType,
-  txSpeed?: string,
-  gasPrice?: number,
-  txFeeInWei?: Value,
-  signOnly?: boolean,
-  signedHash?: string,
-  note?: string,
-  gasToken?: GasToken,
-  amount: number | string,
-  symbol: string | ETH,
-  decimals: number,
-  data?: string,
-  tag?: string,
-  extra?: Object,
-  usePPN?: boolean,
-  useLegacyTransferMethod?: boolean,
-  sequentialTransactions?: TransactionPayload[],
-  chain?: Chain,
+  _id: string;
+  hash?: string;
+  batchHash?: string;
+  to: string;
+  from: string;
+  createdAt: number;
+  assetSymbol: string;
+  assetAddress: string;
+  nbConfirmations?: number;
+  gasUsed?: number;
+  gasPrice?: number;
+  status: string;
+  value: string;
+  note?: string;
+  signOnly?: boolean;
+  isPPNTransaction?: boolean;
+  tag?: string;
+  extra?: TransactionExtra;
+  stateInPPN?: string;
+  feeWithGasToken?: FeeWithGasToken;
+  type?: string;
 };
 
+export type TransactionPayload = {
+  gasLimit?: number;
+  gasUsed?: number;
+  to: string;
+  receiverEnsName?: string;
+  name?: string;
+  contractAddress?: string;
+  tokenId?: string;
+  tokenType?: AssetType;
+  txSpeed?: string;
+  gasPrice?: number;
+  txFeeInWei?: Value;
+  signOnly?: boolean;
+  signedHash?: string;
+  note?: string;
+  gasToken?: GasToken;
+  amount: number | string;
+  symbol: string | ETH;
+  decimals: number;
+  data?: string;
+  tag?: string;
+  extra?: Object;
+  usePPN?: boolean;
+  useLegacyTransferMethod?: boolean;
+  sequentialTransactions?: TransactionPayload[];
+  chain?: Chain;
+};
 
 export type CollectibleTransactionPayload = {
-  to: string,
-  contractAddress: string,
-  tokenId: string,
-  useLegacyTransferMethod: boolean,
-  gasLimit?: number,
-  gasPrice?: number,
-  signOnly?: boolean,
+  to: string;
+  contractAddress: string;
+  tokenId: string;
+  useLegacyTransferMethod: boolean;
+  gasLimit?: number;
+  gasPrice?: number;
+  signOnly?: boolean;
 };
 
 export type TransactionEthers = {
-  from: string,
-  hash?: string,
-  batchHash?: string,
-  to: string,
-  value: string | Object,
-  gasPrice?: Object | number,
-  gasLimit?: Object | number,
-  gasUsed?: Object | number,
-  assetAddress: string,
-  assetSymbol: string,
-  note?: string,
-  status?: string,
-  createdAt?: number,
-  isPPNTransaction?: boolean,
-  tag?: string,
-  extra?: TransactionExtra,
-  stateInPPN?: string,
-  feeWithGasToken?: FeeWithGasToken,
-  type?: string,
+  from: string;
+  hash?: string;
+  batchHash?: string;
+  to: string;
+  value: string | Object;
+  gasPrice?: Object | number;
+  gasLimit?: Object | number;
+  gasUsed?: Object | number;
+  assetAddress: string;
+  assetSymbol: string;
+  note?: string;
+  status?: string;
+  createdAt?: number;
+  isPPNTransaction?: boolean;
+  tag?: string;
+  extra?: TransactionExtra;
+  stateInPPN?: string;
+  feeWithGasToken?: FeeWithGasToken;
+  type?: string;
 };
 
 export type TransactionFeeInfo = {
-  fee: BigNumber,
-  gasToken?: GasToken,
-  gasPrice?: BigNumber,
+  fee: BigNumber;
+  gasToken?: GasToken;
+  gasPrice?: BigNumber;
 };
 
 export type EthereumTransaction = {
-  to: string,
-  value: BigNumber,
-  data?: string,
+  to: string;
+  value: BigNumber;
+  data?: string;
 };
 
 export type TransactionToEstimate = {
-  to: string,
-  value: Value,
-  assetData?: AssetData,
-  data?: string,
+  to: string;
+  value: Value;
+  assetData?: AssetData;
+  data?: string;
 };
 
 export type TransactionStatus = {
-  isSuccess: boolean,
-  error: string,
-  noRetry?: boolean,
-  hash?: string,
-  batchHash?: string,
+  isSuccess: boolean;
+  error: string;
+  noRetry?: boolean;
+  hash?: string;
+  batchHash?: string;
 };
 
 export type TransactionResult = {
-  hash?: string,
-  batchHash?: string,
+  hash?: string;
+  batchHash?: string;
 };

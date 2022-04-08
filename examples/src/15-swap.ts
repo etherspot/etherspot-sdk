@@ -1,16 +1,14 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger,  mapTransactionsToTransactionPayload } from './common';
+import { logger, mapTransactionsToTransactionPayload } from './common';
 
 async function main(): Promise<void> {
-  const wallet = Wallet.fromMnemonic("test test test test test test test test test test test junk");
+  const wallet = Wallet.fromMnemonic('test test test test test test test test test test test junk');
   const wallet2 = Wallet.createRandom();
   console.log(wallet.privateKey);
   console.log(wallet.address);
   // const sdk = new Sdk(wallet);
   // logger.info('sending batch using owner wallet');
-
-
 
   const sdkMainnet = new Sdk(wallet2, {
     env: EnvNames.MainNets,
@@ -29,13 +27,10 @@ async function main(): Promise<void> {
   //   }),
   // );
 
-
   await sdk.computeContractAccount();
   await sdkMainnet.computeContractAccount();
 
   await sdk.syncAccount();
-
-
 
   const exchangeSupportedAssets = await sdkMainnet.getExchangeSupportedAssets({ page: 1, limit: 100 });
   logger.log('found exchange supported assets', exchangeSupportedAssets.items.length);
@@ -46,7 +41,6 @@ async function main(): Promise<void> {
   const fromTokenAddress = '0xe3818504c1b32bf1557b16c238b2e01fd3149c17'; // PLR
   const toTokenAddress = constants.AddressZero; // ETH
   const fromAmount = '5000000000000000000000';
-
 
   const offers = await sdkMainnet.getExchangeOffers({
     fromTokenAddress,
@@ -59,12 +53,12 @@ async function main(): Promise<void> {
     toTokenAddress,
     fromAmount: BigNumber.from(fromAmount),
   });
-  console.log("offers2 -----------------");
+  console.log('offers2 -----------------');
   console.log(offers2);
 
   // if(false) {
   logger.log('exchange offers', offers);
-  
+
   const offerTransactions = offers[1].transactions;
   logger.log('exchange offers 0', offers[0].transactions[1]);
   logger.log('exchange offers 1', offers[1].transactions[1]);
@@ -74,7 +68,7 @@ async function main(): Promise<void> {
 
   const fromAccountAddress = wallet.address;
 
-  const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum", offerTransactions);
+  const transactionPaylod = await mapTransactionsToTransactionPayload('ethereum', offerTransactions);
   logger.log('transaction request', transactionPaylod);
   // await etherspotService.init(sdk);
   // const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
@@ -82,10 +76,7 @@ async function main(): Promise<void> {
   // const { hash } = submittedBatch;
 
   // console.log(hash);
-  
-
 }
-
 
 main()
   .catch(logger.error)

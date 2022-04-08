@@ -24,9 +24,7 @@ export const RARI_WITHDRAW_TRANSACTION = 'RARI_WITHDRAW';
 export const RARI_TRANSFER_TRANSACTION = 'RARI_TRANSFER';
 export const RARI_CLAIM_TRANSACTION = 'RARI_CLAIM';
 
-
-
-const rariLogo = "";
+const rariLogo = '';
 
 // export const RARI_TOKENS_DATA = {
 //   [RARI_POOLS.STABLE_POOL]: {
@@ -62,12 +60,10 @@ const rariLogo = "";
 //   iconUrl: rariLogo,
 // };
 
-
-export namespace RARI_POOLS  {
-  export const STABLE_POOL= "STABLE_POOL";
-  export const YIELD_POOL= "YIELD_POOL";
-  export const ETH_POOL= "ETH_POOL";
-};
+export namespace RARI_POOLS {
+  export const STABLE_POOL = 'STABLE_POOL';
+  export const YIELD_POOL = 'YIELD_POOL';
+  export const ETH_POOL = 'ETH_POOL';
+}
 
 export type RariPool = typeof RARI_POOLS[keyof typeof RARI_POOLS];
-

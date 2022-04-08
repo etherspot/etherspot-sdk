@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 
-
 // // fiat
 // export const USD = ('USD': 'USD');
 // export const EUR = ('EUR': 'EUR');
@@ -9,10 +8,9 @@ import { ethers } from 'ethers';
 // token symbols
 export namespace ETH {
   export const ETH = 'ETH';
-};
+}
 
 export type ETH = typeof ETH[keyof typeof ETH];
-
 
 export const PLR = 'PLR';
 
@@ -105,14 +103,14 @@ export const CURRENCY_SYMBOLS = {
   EUR: '€',
 };
 
-export namespace ASSET_CATEGORY  {
+export namespace ASSET_CATEGORY {
   export const WALLET = 'wallet';
   export const DEPOSITS = 'deposits';
   export const INVESTMENTS = 'investments';
   export const LIQUIDITY_POOLS = 'liquidityPools';
   export const COLLECTIBLES = 'collectibles';
   export const REWARDS = 'rewards';
-};
+}
 
 export const ADDRESS_ZERO = ethers.constants.AddressZero;
 

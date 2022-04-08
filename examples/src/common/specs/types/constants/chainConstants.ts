@@ -1,10 +1,10 @@
-export namespace CHAIN  {
+export namespace CHAIN {
   export const ETHEREUM = 'ethereum';
   export const POLYGON = 'polygon';
   export const BINANCE = 'binance';
   export const XDAI = 'xdai';
   export const AVALANCHE = 'avalanche';
-};
+}
 
 export const CHAIN_NAMES = {
   ETHEREUM: 'ethereum',

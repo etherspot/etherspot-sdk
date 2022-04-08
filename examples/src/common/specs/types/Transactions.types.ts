@@ -1,21 +1,14 @@
-
-
 import ethers from 'ethers';
 
 export namespace ERC721_TRANSFER_METHODS {
   export const TRANSFER = 'transfer';
   export const TRANSFER_FROM = 'transferFrom';
   export const SAFE_TRANSFER_FROM = 'safeTransferFrom';
-};
-
+}
 
 export type ERC721_TRANSFER_METHODS = typeof ERC721_TRANSFER_METHODS[keyof typeof ERC721_TRANSFER_METHODS];
 
-export const encodeContractMethod = (
-  contractAbi: string | Object[],
-  method: string,
-  params: any,
-): string => {
+export const encodeContractMethod = (contractAbi: string | Object[], method: string, params: any): string => {
   const contractInterface = new ethers.utils.Interface(contractAbi);
   return contractInterface.encodeFunctionData(method, params);
 };

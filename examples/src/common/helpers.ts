@@ -11,16 +11,23 @@ import {
   LOCAL_B_FAUCET_PRIVATE_KEY,
 } from './config';
 
-
 import ERC20_CONTRACT_ABI from '../abi/erc20.json'; //'./ ../../src/sdk/abi/erc20.json';
 
-import { AssetType, EthereumTransaction, TransactionPayload, CHAIN, Chain, ASSET_TYPES, encodeContractMethod, nativeAssetPerChain } from './specs/';
+import {
+  AssetType,
+  EthereumTransaction,
+  TransactionPayload,
+  CHAIN,
+  Chain,
+  ASSET_TYPES,
+  encodeContractMethod,
+  nativeAssetPerChain,
+} from './specs/';
 const localAProvider = new providers.JsonRpcProvider(LOCAL_A_PROVIDER_ENDPOINT);
 const localAWallet = new Wallet(LOCAL_A_FAUCET_PRIVATE_KEY, localAProvider);
 
 const localBProvider = new providers.JsonRpcProvider(LOCAL_B_PROVIDER_ENDPOINT);
 const localBWallet = new Wallet(LOCAL_B_FAUCET_PRIVATE_KEY, localBProvider);
-
 
 function getProvider(networkName: NetworkNames = NetworkNames.LocalA): providers.JsonRpcProvider {
   let result: providers.JsonRpcProvider = null;
@@ -124,8 +131,6 @@ export function randomAddress(): string {
   return randomWallet().address;
 }
 
-
-
 export const mapToEthereumTransactions = async (
   transactionPayload: TransactionPayload,
   fromAddress: string,
@@ -161,21 +166,17 @@ export const mapToEthereumTransactions = async (
   let transactions = [transaction];
 
   // important: maintain array sequence, this gets mapped into arrays as well by reusing same method
-  const mappedSequential = await Promise.all(sequentialTransactions.map((sequential) =>
-    mapToEthereumTransactions(sequential, fromAddress),
-  ));
+  const mappedSequential = await Promise.all(
+    sequentialTransactions.map((sequential) => mapToEthereumTransactions(sequential, fromAddress)),
+  );
 
   // append sequential to transactions batch
   mappedSequential.forEach((sequential) => {
-    transactions = [
-      ...transactions,
-      ...sequential,
-    ];
+    transactions = [...transactions, ...sequential];
   });
 
   return transactions;
 };
-
 
 export const buildEthereumTransaction = async (
   to: string,
@@ -212,19 +213,15 @@ export const buildEthereumTransaction = async (
     // to = contractAddress;
     // value = EthersBigNumber.from(0);
   }
-  type payload = { to:string,value:any, data:string}
-  let transaction:Partial<EthereumTransaction> = { to, value };
+  type payload = { to: string; value: any; data: string };
+  let transaction: Partial<EthereumTransaction> = { to, value };
 
-  if (data) transaction = { to:transaction.to, value:transaction.value , data:data };
+  if (data) transaction = { to: transaction.to, value: transaction.value, data: data };
   return transaction;
 };
 
-
 // TODO: gas token support
-const mapTransactionToTransactionPayload = (
-  chain: Chain,
-  transaction: EthereumTransaction,
-): TransactionPayload => {
+const mapTransactionToTransactionPayload = (chain: Chain, transaction: EthereumTransaction): TransactionPayload => {
   const { symbol, decimals } = nativeAssetPerChain[chain];
   const { to, value, data } = transaction;
   const amount = FixedNumber.from(value, decimals).toString();
@@ -242,9 +239,9 @@ export const mapTransactionsToTransactionPayload = (
   if (transactions.length > 1) {
     transactionPayload = {
       ...transactionPayload,
-      sequentialTransactions: transactions.slice(1).map((
-        transaction,
-      ) => mapTransactionToTransactionPayload(chain, transaction)),
+      sequentialTransactions: transactions
+        .slice(1)
+        .map((transaction) => mapTransactionToTransactionPayload(chain, transaction)),
     };
   }
 
