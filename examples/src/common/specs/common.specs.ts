@@ -4,13 +4,11 @@ import { Chain, AssetType, AssetData, ETH } from './types';
 
 export type Value = BigNumber | string | number;
 
-
 export type GasToken = {
   address: string;
   decimals: number;
   symbol: string;
 };
-
 
 export type TransactionPayload = {
   gasLimit?: number;
@@ -40,12 +38,8 @@ export type TransactionPayload = {
   chain?: Chain;
 };
 
-
-
 export type EthereumTransaction = {
   to: string;
   value: BigNumber;
   data?: string;
 };
-
-

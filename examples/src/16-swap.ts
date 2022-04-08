@@ -53,19 +53,28 @@ async function main(): Promise<void> {
   logger.log('exchange offers', offers);
 
   const offerTransactions = offers[1].transactions;
-  logger.log('exchange offers 0', offers[0].transactions[1]);
-  logger.log('exchange offers 1', offers[1].transactions[1]);
-  logger.log('exchange offers 2', offers[2].transactions[1]);
-  logger.log('exchange 3', offers[3]);
-  logger.log('exchange offers 3', offers[3].transactions[1]);
+  // logger.log('exchange offers 0', offers[0].transactions[1]);
+  // logger.log('exchange offers 1', offers[1].transactions[1]);
+  // logger.log('exchange offers 2', offers[2].transactions[1]);
+  // logger.log('exchange 3', offers[3]);
+  // logger.log('exchange offers 3', offers[3].transactions[1]);
 
   const fromAccountAddress = wallet.address;
 
-  const transactionPaylod = await mapTransactionsToTransactionPayload('ethereum', offerTransactions);
-  logger.log('transaction request', transactionPaylod);
+  const transactionPayload = await mapTransactionsToTransactionPayload('ethereum', offerTransactions);
+  logger.log('transaction request', transactionPayload);
 
-  // TODO submittedBatch transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
+  await sdk.batchDeployAccount();
 
+  await sdk.batchExecuteAccountTransaction(transactionPayload);
+
+  // trigger swap bussiness logic
+  logger.log('estimated batch', await sdk.estimateGatewayBatch());
+
+  // submit current batch
+  // const { hash: batchHash } = await sdk.submitGatewayBatch();
+
+  // console.log(batchHash)
 }
 
 main()

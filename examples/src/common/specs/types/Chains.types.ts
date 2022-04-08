@@ -1,7 +1,5 @@
-
 import { ETH, MATIC, BNB, AVAX, XDAI, ADDRESS_ZERO } from './constants/assetsConstants';
 import { CHAIN } from './constants/chainConstants';
-
 
 /* eslint-disable i18next/no-literal-string */
 export const nativeAssetPerChain = {
