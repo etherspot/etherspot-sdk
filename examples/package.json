@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "exit 1",
+    "00-custom": "../node_modules/.bin/ts-node ./src/00-custom",
     "01-session": "../node_modules/.bin/ts-node ./src/01-session",
     "02-state-storage": "../node_modules/.bin/ts-node ./src/02-state-storage",
     "03-contract-account": "../node_modules/.bin/ts-node ./src/03-contract-account",
@@ -19,10 +20,8 @@
     "12-exchange": "../node_modules/.bin/ts-node ./src/12-exchange",
     "13-transactions": "../node_modules/.bin/ts-node ./src/13-transactions",
     "14-delayed-transactions": "../node_modules/.bin/ts-node ./src/14-delayed-transactions",
-    "15-swap": "../node_modules/.bin/ts-node ./src/15-swap --watch"
+    "15-topup-fuctions": "../node_modules/.bin/ts-node ./src/15-topup-fuctions",
+    "16-swap": "../node_modules/.bin/ts-node ./src/15-swap --watch"
   },
-  "dependencies": {
-    "dotenv": "^16.0.0",
-    "ethereumjs-util": "^7.1.4"
-  }
+  "dependencies": {}
 }

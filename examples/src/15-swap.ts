@@ -1,7 +1,6 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, topUpAccount, randomWallet, randomAddress, mapTransactionsToTransactionPayload, mapToEthereumTransactions } from './common';
-import { CHAIN } from './common/specs';
+import { logger,  mapTransactionsToTransactionPayload } from './common';
 
 async function main(): Promise<void> {
   const wallet = Wallet.fromMnemonic("test test test test test test test test test test test junk");
