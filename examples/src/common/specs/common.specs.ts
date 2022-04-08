@@ -1,6 +1,6 @@
 // types
 import { BigNumber } from 'ethers';
-import { LiquidityPool, Chain, AssetType, AssetData, ETH } from './types';
+import { Chain, AssetType, AssetData, ETH } from './types';
 
 export type Value = BigNumber | string | number;
 
@@ -79,11 +79,11 @@ export type RariClaimExtra = {
 
 // export type RariExtra = RariDepositExtra | RariWithdrawExtra | RariTransferExtra | RariClaimExtra;
 
-export type LiquidityPoolsExtra = {
-  amount: string;
-  pool: LiquidityPool;
-  tokenAmounts?: string[];
-};
+// export type LiquidityPoolsExtra = {
+//   amount: string;
+//   pool: LiquidityPool;
+//   tokenAmounts?: string[];
+// };
 
 export type EtherspotTransactionExtra = {
   batchHash: string;
