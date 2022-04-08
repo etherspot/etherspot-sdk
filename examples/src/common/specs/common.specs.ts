@@ -1,6 +1,6 @@
 // types
 import { BigNumber } from 'ethers';
-import { LiquidityPool, ERC721_TRANSFER_METHODS, Chain, AssetType, AssetData, RariPool, ETH } from './types';
+import { LiquidityPool, Chain, AssetType, AssetData, ETH } from './types';
 
 export type Value = BigNumber | string | number;
 
@@ -50,34 +50,34 @@ export type TxSablierExtra = {
   streamId: string;
 };
 
-export type RariDepositExtra = {
-  symbol: string;
-  decimals: number;
-  amount: number;
-  rariPool: RariPool;
-  rftMinted: string;
-};
+// export type RariDepositExtra = {
+//   symbol: string;
+//   decimals: number;
+//   amount: number;
+//   rariPool: RariPool;
+//   rftMinted: string;
+// };
 
-export type RariWithdrawExtra = {
-  symbol: string;
-  decimals: number;
-  amount: number;
-  rariPool: RariPool;
-  rftBurned: string;
-};
+// export type RariWithdrawExtra = {
+//   symbol: string;
+//   decimals: number;
+//   amount: number;
+//   rariPool: RariPool;
+//   rftBurned: string;
+// };
 
-export type RariTransferExtra = {
-  amount: string;
-  rariPool: RariPool;
-  contactAddress: string;
-};
+// export type RariTransferExtra = {
+//   amount: string;
+//   rariPool: RariPool;
+//   contactAddress: string;
+// };
 
 export type RariClaimExtra = {
   amount: string;
   rgtBurned: string;
 };
 
-export type RariExtra = RariDepositExtra | RariWithdrawExtra | RariTransferExtra | RariClaimExtra;
+// export type RariExtra = RariDepositExtra | RariWithdrawExtra | RariTransferExtra | RariClaimExtra;
 
 export type LiquidityPoolsExtra = {
   amount: string;
@@ -97,18 +97,6 @@ export type AllowanceTransactionExtra = {
   };
 };
 
-export type TransactionExtra =
-  | TxSettlementItem[]
-  | TxWithdrawalExtra
-  | SyntheticTransactionExtra
-  | EnsTransactionExtra
-  | AaveExtra
-  | TxPoolTogetherExtra
-  | TxSablierExtra
-  | RariExtra
-  | LiquidityPoolsExtra
-  | AllowanceTransactionExtra
-  | EtherspotTransactionExtra;
 
 export type GasToken = {
   address: string;
@@ -119,29 +107,6 @@ export type GasToken = {
 export type FeeWithGasToken = {
   feeInWei: BigNumber;
   gasToken: GasToken;
-};
-export type Transaction = {
-  _id: string;
-  hash?: string;
-  batchHash?: string;
-  to: string;
-  from: string;
-  createdAt: number;
-  assetSymbol: string;
-  assetAddress: string;
-  nbConfirmations?: number;
-  gasUsed?: number;
-  gasPrice?: number;
-  status: string;
-  value: string;
-  note?: string;
-  signOnly?: boolean;
-  isPPNTransaction?: boolean;
-  tag?: string;
-  extra?: TransactionExtra;
-  stateInPPN?: string;
-  feeWithGasToken?: FeeWithGasToken;
-  type?: string;
 };
 
 export type TransactionPayload = {
@@ -182,27 +147,27 @@ export type CollectibleTransactionPayload = {
   signOnly?: boolean;
 };
 
-export type TransactionEthers = {
-  from: string;
-  hash?: string;
-  batchHash?: string;
-  to: string;
-  value: string | Object;
-  gasPrice?: Object | number;
-  gasLimit?: Object | number;
-  gasUsed?: Object | number;
-  assetAddress: string;
-  assetSymbol: string;
-  note?: string;
-  status?: string;
-  createdAt?: number;
-  isPPNTransaction?: boolean;
-  tag?: string;
-  extra?: TransactionExtra;
-  stateInPPN?: string;
-  feeWithGasToken?: FeeWithGasToken;
-  type?: string;
-};
+// export type TransactionEthers = {
+//   from: string;
+//   hash?: string;
+//   batchHash?: string;
+//   to: string;
+//   value: string | Object;
+//   gasPrice?: Object | number;
+//   gasLimit?: Object | number;
+//   gasUsed?: Object | number;
+//   assetAddress: string;
+//   assetSymbol: string;
+//   note?: string;
+//   status?: string;
+//   createdAt?: number;
+//   isPPNTransaction?: boolean;
+//   tag?: string;
+//   extra?: TransactionExtra;
+//   stateInPPN?: string;
+//   feeWithGasToken?: FeeWithGasToken;
+//   type?: string;
+// };
 
 export type TransactionFeeInfo = {
   fee: BigNumber;
