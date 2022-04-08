@@ -5,7 +5,7 @@ export class KeyWalletProvider implements WalletProvider {
   readonly type = 'Key';
   readonly address: string;
 
-  private readonly wallet: Wallet;
+  readonly wallet: Wallet;
 
   constructor(privateKey: string) {
     this.wallet = new Wallet(privateKey);

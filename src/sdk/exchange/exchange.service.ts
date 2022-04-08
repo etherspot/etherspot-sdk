@@ -1,8 +1,19 @@
 import { BigNumber } from 'ethers';
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { ExchangeOffers, ExchangeOffer } from './classes';
+import {
+  ExchangeOffers,
+  ExchangeOffer,
+  CrossChainBridgeSupportedChain,
+  CrossChainBridgeSupportedChains,
+  CrossChainBridgeToken,
+  CrossChainBridgeTokenList,
+  CrossChainBridgeRoute,
+  CrossChainBridgeRoutes,
+  CrossChainBridgeBuildTXResponse,
+} from './classes';
 import { PaginatedTokens } from '../assets';
+import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
 
 export class ExchangeService extends Service {
   async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
@@ -97,5 +108,302 @@ export class ExchangeService extends Service {
     );
 
     return result ? result.items : null;
+  }
+
+  async getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeSupportedChains;
+    }>(
+      gql`
+        query {
+          result: crossChainBridgeSupportedChains {
+            items {
+              chainId
+              name
+              isL1
+              sendingEnabled
+              icon
+              receivingEnabled
+              currency {
+                address
+                icon
+                name
+                symbol
+                decimals
+                minNativeCurrencyForGas
+              }
+              rpcs
+              explorers
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: CrossChainBridgeSupportedChains,
+        },
+      },
+    );
+
+    return result ? result.items : null;
+  }
+
+  async getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
+    const { apiService } = this.services;
+    const { direction, fromChainId, toChainId, disableSwapping } = dto;
+
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeTokenList;
+    }>(
+      gql`
+        query($direction: SocketTokenDirection!, $fromChainId: Int!, $toChainId: Int!, $disableSwapping: Boolean) {
+          result: crossChainBridgeTokenList(
+            direction: $direction
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            disableSwapping: $disableSwapping
+          ) {
+            items {
+              name
+              address
+              chainId
+              decimals
+              symbol
+              icon
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          direction,
+          fromChainId,
+          toChainId,
+          disableSwapping,
+        },
+        models: {
+          result: CrossChainBridgeTokenList,
+        },
+      },
+    );
+
+    return result ? result.items : null;
+  }
+
+  async findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
+    const { apiService } = this.services;
+    const { fromTokenAddress, fromChainId, toTokenAddress, toChainId, fromAmount, userAddress, disableSwapping } = dto;
+
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeRoutes;
+    }>(
+      gql`
+        query(
+          $fromTokenAddress: String!
+          $fromChainId: Int!
+          $toTokenAddress: String!
+          $toChainId: Int!
+          $fromAmount: String!
+          $userAddress: String!
+          $disableSwapping: Boolean
+        ) {
+          result: findCrossChainBridgeRoutes(
+            fromTokenAddress: $fromTokenAddress
+            fromChainId: $fromChainId
+            toTokenAddress: $toTokenAddress
+            toChainId: $toChainId
+            fromAmount: $fromAmount
+            userAddress: $userAddress
+            disableSwapping: $disableSwapping
+          ) {
+            items {
+              chainGasBalances
+              fromAmount
+              routeId
+              sender
+              serviceTime
+              toAmount
+              totalGasFeesInUsd
+              totalUserTx
+              usedBridgeNames
+              userTxs {
+                approvalData {
+                  allowanceTarget
+                  approvalTokenAddress
+                  minimumApprovalAmount
+                  owner
+                }
+                chainId
+                gasFees {
+                  asset {
+                    address
+                    chainId
+                    decimals
+                    icon
+                    name
+                    symbol
+                  }
+                  feesInUsd
+                  gasLimit
+                }
+                routePath
+                sender
+                serviceTime
+                stepCount
+                steps {
+                  chainId
+                  fromChainId
+                  fromAmount
+                  fromAsset {
+                    address
+                    chainAgnosticId
+                    chainId
+                    createdAt
+                    decimals
+                    icon
+                    id
+                    isEnabled
+                    name
+                    rank
+                    symbol
+                    updatedAt
+                  }
+                  gasFees {
+                    asset {
+                      address
+                      chainId
+                      decimals
+                      icon
+                      name
+                      symbol
+                    }
+                    feesInUsd
+                    gasLimit
+                  }
+                  protocol {
+                    displayName
+                    icon
+                    name
+                  }
+                  toAmount
+                  toAsset {
+                    address
+                    chainAgnosticId
+                    chainId
+                    createdAt
+                    decimals
+                    icon
+                    id
+                    isEnabled
+                    name
+                    rank
+                    symbol
+                    updatedAt
+                  }
+                  toChainId
+                  type
+                }
+                toAmount
+                toAsset {
+                  address
+                  chainAgnosticId
+                  chainId
+                  createdAt
+                  decimals
+                  icon
+                  id
+                  isEnabled
+                  name
+                  rank
+                  symbol
+                  updatedAt
+                }
+                txType
+                userTxIndex
+                userTxType
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          fromTokenAddress,
+          fromChainId,
+          toTokenAddress,
+          toChainId,
+          fromAmount,
+          userAddress,
+          disableSwapping,
+        },
+        models: {
+          result: CrossChainBridgeRoutes,
+        },
+      },
+    );
+
+    return result ? result.items : null;
+  }
+
+  async buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+    const { apiService } = this.services;
+    const { result } = await apiService.query<{
+      result: CrossChainBridgeBuildTXResponse;
+    }>(
+      gql`
+        query($payload: CrossChainBridgeRouteBuildTransactionRouteArgs!) {
+          result: callCrossChainBridgeTransaction(payload: $payload) {
+            userTxType
+            txType
+            txData
+            txTarget
+            chainId
+            value
+            approvalData {
+              minimumApprovalAmount
+              approvalTokenAddress
+              allowanceTarget
+              owner
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: CrossChainBridgeBuildTXResponse,
+        },
+        variables: {
+          payload: { payload: dto },
+        },
+      },
+    );
+    return result;
+  }
+
+  async getCrossChainBridgeTransaction<T = any, P = any>(payload: P): Promise<T> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.mutate<{
+      result: {
+        data: any;
+      };
+    }>(
+      gql`
+        mutation($chainId: Int, $sender: String!, $payload: JSONObject) {
+          result: getCrossChainBridgeTransaction(payload: $payload) {
+            data
+          }
+        }
+      `,
+      {
+        variables: {
+          payload,
+        },
+      },
+    );
+
+    return result.data;
   }
 }
