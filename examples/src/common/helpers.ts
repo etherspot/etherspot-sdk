@@ -1,25 +1,7 @@
 import { ContractNames, getContractAddress } from '@etherspot/contracts';
-import { BigNumber,FixedNumber, BigNumber as EthersBigNumber,  providers, utils, Wallet } from 'ethers';
+import { BigNumber, providers, utils, Wallet, ContractFactory, Contract } from 'ethers';
+import fs from 'fs';
 import { NetworkNames } from '../../../src';
-// import {
-//   Sdk as EtherspotSdk,
-//   // NetworkNames,
-//   Account as EtherspotAccount,
-//   Accounts as EtherspotAccounts,
-//   EnvNames,
-//   ENSNode,
-//   ENSNodeStates,
-//   GatewaySubmittedBatch,
-//   Notification as EtherspotNotification,
-//   IncreaseP2PPaymentChannelAmountDto,
-//   NotificationTypes,
-//   GatewayTransactionStates,
-//   Transaction as EtherspotTransaction,
-//   Currencies as EtherspotCurrencies,
-//   AccountStates,
-// } from 'etherspot';
-
-
 import {
   LOCAL_A_PROVIDER_ENDPOINT,
   LOCAL_A_PROVIDER_CHAIN_ID,
@@ -39,10 +21,6 @@ const localAWallet = new Wallet(LOCAL_A_FAUCET_PRIVATE_KEY, localAProvider);
 const localBProvider = new providers.JsonRpcProvider(LOCAL_B_PROVIDER_ENDPOINT);
 const localBWallet = new Wallet(LOCAL_B_FAUCET_PRIVATE_KEY, localBProvider);
 
-
-export const fromEthersBigNumber = (value: EthersBigNumber, decimals: number): EthersBigNumber  => {
-  return BigNumber.from(utils.formatUnits(value, decimals));
-};
 
 function getProvider(networkName: NetworkNames = NetworkNames.LocalA): providers.JsonRpcProvider {
   let result: providers.JsonRpcProvider = null;

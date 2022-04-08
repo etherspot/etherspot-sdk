@@ -1,7 +1,6 @@
 import { BigNumber, Wallet, constants } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
 import { logger, topUpAccount, randomWallet, randomAddress, mapTransactionsToTransactionPayload, mapToEthereumTransactions } from './common';
-import { EtherspotService } from './common/services/etherspot';
 import { CHAIN } from './common/specs';
 
 async function main(): Promise<void> {
@@ -32,7 +31,6 @@ async function main(): Promise<void> {
   // );
 
 
-  const etherspotService = new EtherspotService();
   await sdk.computeContractAccount();
   await sdkMainnet.computeContractAccount();
 
