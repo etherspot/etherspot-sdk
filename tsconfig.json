@@ -6,7 +6,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true,
     "target": "es2017",
     "sourceMap": false,
     "baseUrl": "./",
