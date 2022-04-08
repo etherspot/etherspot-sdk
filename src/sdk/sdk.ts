@@ -1,4 +1,5 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, Wallet, Contract as EthersContract } from 'ethers';
+import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
@@ -46,6 +47,7 @@ import {
   GetAccountBalancesDto,
   GetAccountDto,
   GetAccountMembersDto,
+  GetCrossChainBridgeRouteDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
   GetExchangeOffersDto,
@@ -94,10 +96,18 @@ import {
   ReserveENSNameDto as ValidateENSNameDto,
   GetNftListDto,
   IsEligibleForAirdropDto,
+  GetCrossChainBridgeTokenListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
-import { ExchangeOffer, ExchangeService } from './exchange';
+import {
+  CrossChainBridgeSupportedChain,
+  CrossChainBridgeToken,
+  CrossChainBridgeRoute,
+  ExchangeOffer,
+  ExchangeService,
+  CrossChainBridgeBuildTXResponse,
+} from './exchange';
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -133,7 +143,6 @@ import { Session, SessionService } from './session';
 import { Transactions, Transaction, TransactionsService, NftList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
-import { exit } from 'process';
 
 /**
  * Sdk
@@ -387,7 +396,7 @@ export class Sdk {
     });
 
     await this.require();
-    
+
     const { gatewayService } = this.services;
 
     return gatewayService.batchGatewayTransactionRequest({
@@ -1291,6 +1300,22 @@ export class Sdk {
     );
   }
 
+  getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    return this.services.exchangeService.getCrossChainBridgeSupportedChains();
+  }
+
+  getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
+    return this.services.exchangeService.getCrossChainBridgeTokenList(dto);
+  }
+
+  findCrossChainBridgeRoutes(dto: GetCrossChainBridgeRouteDto): Promise<CrossChainBridgeRoute[]> {
+    return this.services.exchangeService.findCrossChainBridgeRoutes(dto);
+  }
+
+  buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
+    return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
+  }
+
   // p2p payments
 
   /**
@@ -1364,14 +1389,20 @@ export class Sdk {
 
     await this.require({
       session: true,
+      currentProject: true,
     });
 
-    const { p2pPaymentsService } = this.services;
+    const { accountService, p2pPaymentsService, projectService } = this.services;
+
+    const now = new Date();
+    const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    const saltDate = todayUTC.toISOString().slice(0, 10).replace(/-/g, '');
 
     return p2pPaymentsService.increaseP2PPaymentChannelAmount(
       recipient, //
       token,
       BigNumber.from(value),
+      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`
     );
   }
 
@@ -2029,6 +2060,68 @@ export class Sdk {
     return this.services.faucetService.topUpPaymentDepositAccount();
   }
 
+  async topUp(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.accountAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
+  }
+
+  async topUpP2P(value: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const wallet: Partial<Wallet> = this.services.walletService.walletProvider;
+    if (!wallet) throw new Exception('The provider is missing');
+    const nonce = await wallet.getTransactionCount();
+    const account = this.state.p2pPaymentDepositAddress;
+    const response = await wallet.sendTransaction({
+      to: account,
+      value: utils.parseEther(value),
+      nonce,
+    });
+    await response.wait();
+  }
+
+  async topUpToken(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+    const account = this.state.accountAddress;
+    await this.transferTokens(account, value, contractAddress);
+  }
+
+  async topUpTokenP2P(value: string, contractAddress: string): Promise<void> {
+    if (!this.services.accountService.isContractAccount())
+      await this.computeContractAccount({
+        sync: false,
+      });
+
+    const account = this.state.p2pPaymentDepositAddress;
+    await this.transferTokens(account, value, contractAddress);
+  }
+
+  private async transferTokens(account: string, value: string, contractAddress: string): Promise<void> {
+    const provider = this.services.walletService.walletProvider as any;
+    const abi = getContractAbi(ContractNames.ERC20Token);
+    if (!provider) throw new Exception(`The provider is missing`);
+    const contract = new EthersContract(contractAddress, abi, provider);
+    const tx = await contract.transfer(account, value);
+    await tx.wait();
+  }
+
   /**
    * registers contract
    * @param name
@@ -2079,8 +2172,15 @@ export class Sdk {
       throw new Exception('Require contract account');
     }
 
-    if (options.currentProject && !projectService.currentProject) {
-      throw new Exception('Require project');
+    if (options.currentProject) {
+      if (!projectService.currentProject) {
+        throw new Exception('Require project');
+      }
+
+      const isProjectValid = await projectService.isProjectValid();
+      if (!isProjectValid) {
+        throw new Exception('Invalid project key');
+      }
     }
   }
 
