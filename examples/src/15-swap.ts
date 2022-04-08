@@ -79,12 +79,12 @@ async function main(): Promise<void> {
 
   const transactionPaylod = await mapTransactionsToTransactionPayload("ethereum", offerTransactions);
   logger.log('transaction request', transactionPaylod);
-  await etherspotService.init(sdk);
-  const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
+  // await etherspotService.init(sdk);
+  // const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
 
-  const { hash } = submittedBatch;
+  // const { hash } = submittedBatch;
 
-  console.log(hash);
+  // console.log(hash);
   
 
 }
