@@ -20,13 +20,6 @@ async function main(): Promise<void> {
     networkName: NetworkNames.LocalA,
   });
 
-  // logger.log(
-  //   'owner wallet batch #1',
-  //   await sdk.batchAddAccountOwner({
-  //     owner: wallet.address,
-  //   }),
-  // );
-
   await sdk.computeContractAccount();
   await sdkMainnet.computeContractAccount();
 
@@ -70,12 +63,9 @@ async function main(): Promise<void> {
 
   const transactionPaylod = await mapTransactionsToTransactionPayload('ethereum', offerTransactions);
   logger.log('transaction request', transactionPaylod);
-  // await etherspotService.init(sdk);
-  // const submittedBatch = await etherspotService.sendTransaction(transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
 
-  // const { hash } = submittedBatch;
+  // TODO submittedBatch transactionPaylod, fromAccountAddress, CHAIN.XDAI, false);
 
-  // console.log(hash);
 }
 
 main()
