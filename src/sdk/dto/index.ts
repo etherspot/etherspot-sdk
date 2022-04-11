@@ -29,6 +29,7 @@ export * from './get-gateway-submitted-batch.dto';
 export * from './get-gateway-supported-token.dto';
 export * from './get-nft-list.dto';
 export * from './get-p2p-payment-channel.dto';
+export * from './get-p2p-payment-channels-admin.dto';
 export * from './get-p2p-payment-channels.dto';
 export * from './get-p2p-payment-deposits.dto';
 export * from './get-payment-hub-bridge.dto';

@@ -28,6 +28,8 @@ export class P2PPaymentChannel {
   @TransformBigNumber()
   committedAmount: BigNumber;
 
+  projectKey: string;
+
   @Type(() => Date)
   createdAt: Date;
 
