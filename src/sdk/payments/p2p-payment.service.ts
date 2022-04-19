@@ -3,6 +3,7 @@ import { BigNumber } from 'ethers';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Exception, prepareAddress, Service, TransactionRequest, UniqueSubject, ValidationException } from '../common';
+import { GetP2PPaymentChannelsAdminDto } from '../dto';
 import {
   P2PPaymentChannel,
   P2PPaymentChannelPayments,
@@ -178,6 +179,84 @@ export class P2PPaymentService extends Service {
           senderOrRecipient,
           page: page || 1,
           ...filters,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto): Promise<P2PPaymentChannels> {
+    const { sender, recipient, token, uncommittedOnly, page } = dto;
+    const { apiService, projectService, walletService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: P2PPaymentChannels;
+    }>(
+      gql`
+        query(
+          $chainId: Int
+          $adminAddress: String!
+          $projectKey: String!
+          $sender: String
+          $recipient: String
+          $token: String
+          $uncommittedOnly: Boolean
+          $limit: Int
+          $page: Int
+        ) {
+          result: p2pPaymentChannelsAdmin(
+            chainId: $chainId
+            adminAddress: $adminAddress
+            projectKey: $projectKey
+            sender: $sender
+            recipient: $recipient
+            token: $token
+            uncommittedOnly: $uncommittedOnly
+            limit: $limit
+            page: $page
+          ) {
+            items {
+              hash
+              latestPayment {
+                blockNumber
+                guardianSignature
+                senderSignature
+                state
+                totalAmount
+                updatedAt
+                value
+              }
+              sender
+              recipient
+              token
+              uid
+              state
+              endangered
+              totalAmount
+              committedAmount
+              projectKey
+              createdAt
+              updatedAt
+            }
+            nextPage
+            currentPage
+          }
+        }
+      `,
+      {
+        models: {
+          result: P2PPaymentChannels,
+        },
+        variables: {
+          adminAddress: walletService.walletAddress,
+          projectKey: projectService.currentProject.key,
+          sender,
+          recipient,
+          token,
+          uncommittedOnly,
+          limit: 100,
+          page: page || 1,
         },
       },
     );

@@ -97,6 +97,7 @@ import {
   GetNftListDto,
   IsEligibleForAirdropDto,
   GetCrossChainBridgeTokenListDto,
+  GetP2PPaymentChannelsAdminDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -1376,6 +1377,28 @@ export class Sdk {
       page || 1,
     );
   }
+
+    /**
+   * gets p2p payment channels admin
+   * @param dto
+   * @return Promise<P2PPaymentChannels>
+   */
+     async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto = {}): Promise<P2PPaymentChannels> {
+      const validatedDto = await validateDto(dto, GetP2PPaymentChannelsAdminDto, {
+        addressKeys: ['sender', 'recipient', 'token'],
+      });
+
+      await this.require({
+        wallet: true,
+        currentProject: true,
+      });
+
+      const { p2pPaymentsService } = this.services;
+
+      return p2pPaymentsService.getP2PPaymentChannelsAdmin(
+        validatedDto,
+      );
+    }
 
   /**
    * increases p2p payment channel amount
