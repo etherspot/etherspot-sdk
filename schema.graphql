@@ -831,6 +831,10 @@ enum NetworkNames {
   Ropsten
   Sokol
   Xdai
+  OptimismKovan
+  Optimism
+  ArbitrumTest
+  Arbitrum
 }
 
 enum NotificationTypes {
