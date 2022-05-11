@@ -13,7 +13,7 @@ export class GetP2PPaymentChannelsAdminDto extends PaginationDto {
 
   @IsOptional()
   @IsAddress()
-  token?: string = null;
+  token?: null | string = undefined;
 
   @IsOptional()
   @IsBoolean()
