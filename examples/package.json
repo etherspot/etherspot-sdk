@@ -21,6 +21,5 @@
     "13-transactions": "../node_modules/.bin/ts-node ./src/13-transactions",
     "14-delayed-transactions": "../node_modules/.bin/ts-node ./src/14-delayed-transactions",
     "15-topup-fuctions": "../node_modules/.bin/ts-node ./src/15-topup-fuctions"
-  },
-  "dependencies": {}
+  }
 }
