@@ -442,6 +442,24 @@ export class Sdk {
   }
 
   /**
+   * estimate gateway batch on a given chain
+   * @param dto 
+   * @returns 
+   */
+   async estimateGatewayBatchForChain(dto: EstimateGatewayBatchDto = {}, chainId: Number): Promise<GatewayBatch> {
+      const { feeToken } = await validateDto(dto, EstimateGatewayBatchDto, {
+        addressKeys: ['feeToken'],
+      });
+
+      await this.require({
+        session: true,
+        contractAccount: true,
+      });
+
+      return this.services.gatewayService.estimateGatewayBatchForChain(chainId, feeToken);
+   }
+
+  /**
    * estimates stateless account transactions
    * @param dto
    * @return Promise<GatewayBatch>
@@ -491,6 +509,27 @@ export class Sdk {
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
       () => gatewayService.submitGatewayBatch(),
+    );
+  }
+
+  /**
+   * submits gateway batch
+   * @param dto
+   * @return Promise<GatewaySubmittedBatch>
+   */
+   async submitGatewayBatchForChain(dto: CustomProjectMetadataDto = {},chainId: Number): Promise<GatewaySubmittedBatch> {
+    const { customProjectMetadata } = await validateDto(dto, CustomProjectMetadataDto);
+
+    await this.require({
+      session: true,
+      contractAccount: true,
+    });
+
+    const { gatewayService, projectService } = this.services;
+
+    return projectService.withCustomProjectMetadata(
+      customProjectMetadata, //
+      () => gatewayService.submitGatewayBatchForChain(chainId),
     );
   }
 

@@ -445,6 +445,83 @@ export class GatewayService extends Service {
     return this.gatewayBatch;
   }
 
+  async estimateGatewayBatchForChain(chainId: Number, feeToken: string, statelessBatch?: GatewayBatch): Promise<GatewayBatch> {
+    if (!this.gatewayBatch && !statelessBatch) {
+      throw new Exception('Can not estimate empty batch');
+    }
+
+    const { to, data } = this.extractToAndData(statelessBatch);
+    const nonce = uniqueNonce();
+
+    const { accountService, apiService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { estimation } = await apiService.mutate<{
+      estimation: GatewayEstimatedBatch;
+    }>(
+      gql`
+        mutation(
+          $chainId: Int
+          $account: String!
+          $nonce: Int!
+          $to: [String!]!
+          $data: [String!]!
+          $feeToken: String
+        ) {
+          estimation: estimateGatewayBatch(
+            chainId: $chainId
+            account: $account
+            nonce: $nonce
+            to: $to
+            data: $data
+            feeToken: $feeToken
+          ) {
+            feeAmount
+            feeTokenReceiver
+            estimatedGas
+            estimatedGasPrice
+            signature
+            createdAt
+            expiredAt
+          }
+        }
+      `,
+      {
+        models: {
+          estimation: GatewayEstimatedBatch,
+        },
+        variables: {
+          chainId,
+          account,
+          nonce,
+          to,
+          data,
+          feeToken,
+        },
+      },
+    );
+
+    if (statelessBatch) {
+      return {
+        ...statelessBatch,
+        estimation,
+      };
+    }
+
+    this.estimationOptions = {
+      nonce,
+      feeToken,
+    };
+
+    this.gatewayBatch$.next({
+      ...this.gatewayBatch,
+      estimation,
+    });
+
+    return this.gatewayBatch;
+  }
+
   async estimateGatewayKnownOp(op: GatewayKnownOps, feeToken: string = null): Promise<GatewayEstimatedKnownOp> {
     const { accountService, apiService } = this.services;
 
@@ -593,6 +670,145 @@ export class GatewayService extends Service {
           result: GatewaySubmittedBatch,
         },
         variables: {
+          account,
+          nonce,
+          to,
+          data,
+          feeToken,
+          feeAmount,
+          senderSignature,
+          estimatedGas,
+          estimatedGasPrice,
+          estimationExpiredAt,
+          estimationSignature,
+        },
+      },
+    );
+
+    if (!statelessBatch) {
+      this.clearGatewayBatch();
+    }
+
+    return result;
+  }
+
+  async submitGatewayBatchForChain(chainId: Number, statelessBatch?: GatewayBatch): Promise<GatewaySubmittedBatch> {
+    if (!this.gatewayBatch && !statelessBatch) {
+      throw new Exception('Can not submit empty batch');
+    }
+
+    const { estimation } = statelessBatch || this.gatewayBatch;
+
+    if (!estimation || estimation.expiredAt.getTime() < estimation.createdAt.getTime()) {
+      throw new Exception('Can not submit not estimated batch');
+    }
+
+    const { to, data } = this.extractToAndData(statelessBatch);
+    const {
+      feeTokenReceiver,
+      feeAmount,
+      estimatedGas,
+      estimatedGasPrice,
+      expiredAt: estimationExpiredAt,
+      signature: estimationSignature,
+    } = estimation;
+
+    const { nonce, feeToken } = this.estimationOptions;
+
+    const { accountService, walletService, apiService } = this.services;
+    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
+
+    const account = accountService.accountAddress;
+
+    let feeTransactionRequest: TransactionRequest;
+
+    if (feeToken) {
+      const { data } = erc20TokenContract.encodeTransfer(feeTokenReceiver, feeAmount);
+
+      feeTransactionRequest = personalAccountRegistryContract.encodeExecuteAccountTransaction(
+        account,
+        feeToken,
+        0,
+        data,
+      );
+    } else {
+      feeTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, feeAmount);
+    }
+
+    const messageHash = gatewayContract.hashDelegatedBatch(
+      account,
+      nonce,
+      [...to, feeTransactionRequest.to],
+      [...data, feeTransactionRequest.data],
+    );
+    const senderSignature = await walletService.signMessage(messageHash);
+
+    const { result } = await apiService.mutate<{
+      result: GatewaySubmittedBatch;
+    }>(
+      gql`
+        mutation(
+          $chainId: Int
+          $account: String!
+          $nonce: Int!
+          $to: [String!]!
+          $data: [String!]!
+          $feeToken: String
+          $feeAmount: BigNumber!
+          $senderSignature: String!
+          $estimatedGas: Int!
+          $estimatedGasPrice: BigNumber!
+          $estimationExpiredAt: DateTime!
+          $estimationSignature: String!
+        ) {
+          result: submitGatewayBatch(
+            chainId: $chainId
+            account: $account
+            nonce: $nonce
+            to: $to
+            data: $data
+            feeToken: $feeToken
+            feeAmount: $feeAmount
+            senderSignature: $senderSignature
+            estimatedGas: $estimatedGas
+            estimatedGasPrice: $estimatedGasPrice
+            estimationExpiredAt: $estimationExpiredAt
+            estimationSignature: $estimationSignature
+          ) {
+            transaction {
+              hash
+              state
+              sender
+              gasPrice
+              gasUsed
+              totalCost
+              createdAt
+              updatedAt
+            }
+            hash
+            state
+            account
+            nonce
+            to
+            data
+            senderSignature
+            estimatedGas
+            estimatedGasPrice
+            feeToken
+            feeAmount
+            feeData
+            delayedUntil
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      {
+        models: {
+          result: GatewaySubmittedBatch,
+        },
+        variables: {
+          chainId,
           account,
           nonce,
           to,

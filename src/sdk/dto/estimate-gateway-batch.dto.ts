@@ -5,4 +5,7 @@ export class EstimateGatewayBatchDto {
   @IsOptional()
   @IsAddress()
   feeToken?: string = null;
+
+  @IsOptional()
+  destChainId?: Number;
 }
