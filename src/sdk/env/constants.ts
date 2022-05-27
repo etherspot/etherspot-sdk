@@ -47,7 +47,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Fuji,
         NetworkNames.OptimismKovan,
         NetworkNames.ArbitrumTest,
-        NetworkNames.MoonbaseAlpha,
+        NetworkNames.Moonbase,
         NetworkNames.Etherspot,
       ],
     },
