@@ -50,6 +50,7 @@ import {
   GetCrossChainBridgeRouteDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
+  GetExchangeCrossChainQuoteDto,
   GetExchangeOffersDto,
   GetGatewaySubmittedBatchDto,
   GetGatewaySubmittedBatchDto as GetGatewayTransactionDto,
@@ -108,7 +109,9 @@ import {
   ExchangeOffer,
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
+  CrossChainQuote
 } from './exchange';
+
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -1316,6 +1319,31 @@ export class Sdk {
   buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
+    /**
+   * gets cross chain quote
+   * @param dto
+   * @return Promise<CrossChainQuote>
+   */
+     async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
+      const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeCrossChainQuoteDto, {
+        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+      });
+  
+      await this.require({
+        session: true,
+      });
+
+      let {chainId}  = this.services.networkService;
+      chainId = fromChainId ? fromChainId : chainId;
+
+      return this.services.exchangeService.getCrossChainQuote(
+        fromTokenAddress,
+        toTokenAddress,
+        chainId,
+        toChainId,
+        BigNumber.from(fromAmount)
+      );
+    }
 
   // p2p payments
 

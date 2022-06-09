@@ -9,6 +9,7 @@
 *.launch
 .settings/
 *.sublime-workspace
+*.code-workspace
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -29,3 +30,6 @@ bak
 docs
 demo
 test.js
+
+# .env file
+.env
