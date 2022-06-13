@@ -86,6 +86,15 @@ export class ExchangeService extends Service {
             toChainId: $toChainId
           ) {
             id
+            action {
+              fromAmount
+              fromToken {
+                address
+              } 
+            }
+            estimate {
+              approvalAddress
+            }
             transactionRequest {
               data
               to
