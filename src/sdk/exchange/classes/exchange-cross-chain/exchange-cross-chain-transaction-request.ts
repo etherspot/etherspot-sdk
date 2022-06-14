@@ -1,6 +1,4 @@
 import { BigNumber } from 'ethers';
-import { Type } from 'class-transformer';
-import { TransformBigNumber } from '../../../common';
 
 
 export class CrossChainTransactionRequest{
