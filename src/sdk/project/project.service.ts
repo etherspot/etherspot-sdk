@@ -40,7 +40,7 @@ export class ProjectService extends Service {
     const project = await this.getProject(this.currentProject.key);
 
     if (!project) {
-      return false
+      return false;
     }
 
     return true;

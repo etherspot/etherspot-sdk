@@ -11,7 +11,7 @@ import {
   CrossChainBridgeRoute,
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
-  CrossChainQuote
+  CrossChainQuote,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -61,7 +61,7 @@ export class ExchangeService extends Service {
     toTokenAddress: string,
     fromChainId: number,
     toChainId: number,
-    fromAmount: BigNumber
+    fromAmount: BigNumber,
   ): Promise<CrossChainQuote> {
     const { apiService, accountService } = this.services;
 
@@ -71,12 +71,14 @@ export class ExchangeService extends Service {
       result: CrossChainQuote;
     }>(
       gql`
-      query($account: String!
-        $fromTokenAddress: String!
-        $toTokenAddress: String!
-        $fromAmount: BigNumber!
-        $fromChainId: Int
-        $toChainId: Int) {
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+        ) {
           result: getCrossChainQuote(
             account: $account
             fromTokenAddress: $fromTokenAddress
@@ -90,7 +92,7 @@ export class ExchangeService extends Service {
               fromAmount
               fromToken {
                 address
-              } 
+              }
             }
             estimate {
               approvalAddress
@@ -114,7 +116,7 @@ export class ExchangeService extends Service {
           toTokenAddress,
           fromChainId,
           toChainId,
-          fromAmount
+          fromAmount,
         },
         models: {
           result: CrossChainQuote,
@@ -123,7 +125,6 @@ export class ExchangeService extends Service {
     );
 
     return result ? result : null;
-
   }
 
   async getExchangeOffers(

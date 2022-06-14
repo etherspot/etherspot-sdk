@@ -1,7 +1,6 @@
 import { BigNumber } from 'ethers';
 
-
-export class CrossChainTransactionRequest{
+export class CrossChainTransactionRequest {
   data: string;
 
   to: string;

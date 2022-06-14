@@ -67,11 +67,11 @@ export interface Action {
   slippage: number;
 }
 export class CrossChainQuote {
-  id:string;
-  
-  action:Action
+  id: string;
 
-  estimate: Estimate
+  action: Action;
+
+  estimate: Estimate;
 
   @Type(() => CrossChainTransactionRequest)
   transactionRequest: CrossChainTransactionRequest;

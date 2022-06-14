@@ -1,12 +1,9 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
 import { IsInt, IsPositive } from 'class-validator';
-import { IsAddress, IsBigNumberish }  from './validators';
+import { IsAddress, IsBigNumberish } from './validators';
 
-
-
-export class GetExchangeCrossChainQuoteDto  {
-
+export class GetExchangeCrossChainQuoteDto {
   @IsAddress()
   fromTokenAddress: string;
 

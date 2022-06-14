@@ -109,7 +109,7 @@ import {
   ExchangeOffer,
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
-  CrossChainQuote
+  CrossChainQuote,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -402,7 +402,7 @@ export class Sdk {
     await this.require();
 
     const { gatewayService } = this.services;
-    console.log('gatewayService.batchGatewayTransactionRequest')
+    console.log('gatewayService.batchGatewayTransactionRequest');
     return gatewayService.batchGatewayTransactionRequest({
       to,
       data,
@@ -965,7 +965,7 @@ export class Sdk {
    */
   async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<GatewayBatch> {
     console.log('batchExecuteAccountTransaction');
-    console.log(dto)
+    console.log(dto);
     const transactionRequest = await this.encodeExecuteAccountTransaction(dto);
     console.log('batchExecuteAccountTransaction result');
     console.log(transactionRequest);
@@ -1324,31 +1324,35 @@ export class Sdk {
   buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
-    /**
+  /**
    * gets cross chain quote
    * @param dto
    * @return Promise<CrossChainQuote>
    */
-     async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
-      const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeCrossChainQuoteDto, {
+  async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
+      dto,
+      GetExchangeCrossChainQuoteDto,
+      {
         addressKeys: ['fromTokenAddress', 'toTokenAddress'],
-      });
-  
-      await this.require({
-        session: true,
-      });
+      },
+    );
 
-      let {chainId}  = this.services.networkService;
-      chainId = fromChainId ? fromChainId : chainId;
+    await this.require({
+      session: true,
+    });
 
-      return this.services.exchangeService.getCrossChainQuote(
-        fromTokenAddress,
-        toTokenAddress,
-        chainId,
-        toChainId,
-        BigNumber.from(fromAmount)
-      );
-    }
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId;
+
+    return this.services.exchangeService.getCrossChainQuote(
+      fromTokenAddress,
+      toTokenAddress,
+      chainId,
+      toChainId,
+      BigNumber.from(fromAmount),
+    );
+  }
 
   // p2p payments
 
@@ -1411,27 +1415,25 @@ export class Sdk {
     );
   }
 
-    /**
+  /**
    * gets p2p payment channels admin
    * @param dto
    * @return Promise<P2PPaymentChannels>
    */
-     async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto = {}): Promise<P2PPaymentChannels> {
-      const validatedDto = await validateDto(dto, GetP2PPaymentChannelsAdminDto, {
-        addressKeys: ['sender', 'recipient', 'token'],
-      });
+  async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto = {}): Promise<P2PPaymentChannels> {
+    const validatedDto = await validateDto(dto, GetP2PPaymentChannelsAdminDto, {
+      addressKeys: ['sender', 'recipient', 'token'],
+    });
 
-      await this.require({
-        wallet: true,
-        currentProject: true,
-      });
+    await this.require({
+      wallet: true,
+      currentProject: true,
+    });
 
-      const { p2pPaymentsService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-      return p2pPaymentsService.getP2PPaymentChannelsAdmin(
-        validatedDto,
-      );
-    }
+    return p2pPaymentsService.getP2PPaymentChannelsAdmin(validatedDto);
+  }
 
   /**
    * increases p2p payment channel amount
@@ -1458,7 +1460,7 @@ export class Sdk {
       recipient, //
       token,
       BigNumber.from(value),
-      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`
+      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`,
     );
   }
 
