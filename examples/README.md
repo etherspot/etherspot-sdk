@@ -5,6 +5,7 @@ These examples show how to combine the sdk calls to perform common functions.
 ## Prerequisites
 
 * Start [local infra](https://github.com/etherspot/etherspot-infra) 
+* Rename or copy .env.dev to .env for add private keys 
 
 ## Usage
 
@@ -27,3 +28,4 @@ $ npm run <example name> # eg. 01-session
 * [exchange](./src/12-exchange.ts) -- get exchange service swap offers
 * [transactions](./src/13-transactions.ts) -- get smart account transactions
 * [delayed transactions](./src/14-delayed-transactions.ts) -- allow to automatically delay account transactions
+* [external contracts](./src/16-cross-chain-quote.ts) -- execute cross chain transaction

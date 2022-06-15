@@ -11,7 +11,9 @@ import {
   CrossChainBridgeRoute,
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
+  CrossChainQuote,
 } from './classes';
+
 import { PaginatedTokens } from '../assets';
 import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
 
@@ -52,6 +54,77 @@ export class ExchangeService extends Service {
     );
 
     return result;
+  }
+
+  async getCrossChainQuote(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+  ): Promise<CrossChainQuote> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: CrossChainQuote;
+    }>(
+      gql`
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+        ) {
+          result: getCrossChainQuote(
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+          ) {
+            id
+            action {
+              fromAmount
+              fromToken {
+                address
+              }
+            }
+            estimate {
+              approvalAddress
+            }
+            transactionRequest {
+              data
+              to
+              value
+              from
+              chainId
+              gasLimit
+              gasPrice
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+        },
+        models: {
+          result: CrossChainQuote,
+        },
+      },
+    );
+
+    return result ? result : null;
   }
 
   async getExchangeOffers(

@@ -50,6 +50,7 @@ import {
   GetCrossChainBridgeRouteDto,
   GetENSNodeDto,
   GetENSRootNodeDto,
+  GetExchangeCrossChainQuoteDto,
   GetExchangeOffersDto,
   GetGatewaySubmittedBatchDto,
   GetGatewaySubmittedBatchDto as GetGatewayTransactionDto,
@@ -108,7 +109,9 @@ import {
   ExchangeOffer,
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
+  CrossChainQuote,
 } from './exchange';
+
 import { FaucetService } from './faucet';
 import {
   GatewayBatch,
@@ -399,7 +402,6 @@ export class Sdk {
     await this.require();
 
     const { gatewayService } = this.services;
-
     return gatewayService.batchGatewayTransactionRequest({
       to,
       data,
@@ -961,7 +963,8 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<GatewayBatch> {
-    return this.batchGatewayTransactionRequest(await this.encodeExecuteAccountTransaction(dto));
+    const transactionRequest = await this.encodeExecuteAccountTransaction(dto);
+    return this.batchGatewayTransactionRequest(transactionRequest);
   }
 
   // ens
@@ -1316,6 +1319,35 @@ export class Sdk {
   buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
+  /**
+   * gets cross chain quote
+   * @param dto
+   * @return Promise<CrossChainQuote>
+   */
+  async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
+      dto,
+      GetExchangeCrossChainQuoteDto,
+      {
+        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+      },
+    );
+
+    await this.require({
+      session: true,
+    });
+
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId;
+
+    return this.services.exchangeService.getCrossChainQuote(
+      fromTokenAddress,
+      toTokenAddress,
+      chainId,
+      toChainId,
+      BigNumber.from(fromAmount),
+    );
+  }
 
   // p2p payments
 
@@ -1378,27 +1410,25 @@ export class Sdk {
     );
   }
 
-    /**
+  /**
    * gets p2p payment channels admin
    * @param dto
    * @return Promise<P2PPaymentChannels>
    */
-     async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto = {}): Promise<P2PPaymentChannels> {
-      const validatedDto = await validateDto(dto, GetP2PPaymentChannelsAdminDto, {
-        addressKeys: ['sender', 'recipient', 'token'],
-      });
+  async getP2PPaymentChannelsAdmin(dto: GetP2PPaymentChannelsAdminDto = {}): Promise<P2PPaymentChannels> {
+    const validatedDto = await validateDto(dto, GetP2PPaymentChannelsAdminDto, {
+      addressKeys: ['sender', 'recipient', 'token'],
+    });
 
-      await this.require({
-        wallet: true,
-        currentProject: true,
-      });
+    await this.require({
+      wallet: true,
+      currentProject: true,
+    });
 
-      const { p2pPaymentsService } = this.services;
+    const { p2pPaymentsService } = this.services;
 
-      return p2pPaymentsService.getP2PPaymentChannelsAdmin(
-        validatedDto,
-      );
-    }
+    return p2pPaymentsService.getP2PPaymentChannelsAdmin(validatedDto);
+  }
 
   /**
    * increases p2p payment channel amount
@@ -1425,7 +1455,7 @@ export class Sdk {
       recipient, //
       token,
       BigNumber.from(value),
-      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`
+      `${accountService.accountAddress}${projectService.currentProject.key}${token}${saltDate}`,
     );
   }
 
