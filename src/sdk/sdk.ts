@@ -402,7 +402,6 @@ export class Sdk {
     await this.require();
 
     const { gatewayService } = this.services;
-    console.log('gatewayService.batchGatewayTransactionRequest');
     return gatewayService.batchGatewayTransactionRequest({
       to,
       data,
@@ -964,11 +963,7 @@ export class Sdk {
    * @return Promise<GatewayBatch>
    */
   async batchExecuteAccountTransaction(dto: ExecuteAccountTransactionDto): Promise<GatewayBatch> {
-    console.log('batchExecuteAccountTransaction');
-    console.log(dto);
     const transactionRequest = await this.encodeExecuteAccountTransaction(dto);
-    console.log('batchExecuteAccountTransaction result');
-    console.log(transactionRequest);
     return this.batchGatewayTransactionRequest(transactionRequest);
   }
 
