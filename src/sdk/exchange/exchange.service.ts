@@ -12,6 +12,7 @@ import {
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
+  MultiChainQuote
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -120,6 +121,69 @@ export class ExchangeService extends Service {
         },
         models: {
           result: CrossChainQuote,
+        },
+      },
+    );
+
+    return result ? result : null;
+  }
+
+  async getMultiChainQuotes(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+  ): Promise<MultiChainQuote> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: MultiChainQuote;
+    }>(
+      gql`
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+        ) {
+          result: getMultiChainQuotes(
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+          ) {
+            approvalData {
+              approvalAddress
+              amount
+            }
+            transaction {
+              data
+              to
+              value
+              from
+              chainId
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+        },
+        models: {
+          result: MultiChainQuote,
         },
       },
     );
