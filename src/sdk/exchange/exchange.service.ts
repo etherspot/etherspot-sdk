@@ -12,7 +12,7 @@ import {
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
-  MultiChainQuotes
+  MultiChainQuotes,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';

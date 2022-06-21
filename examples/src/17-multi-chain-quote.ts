@@ -59,8 +59,6 @@ async function main(): Promise<void> {
 
   console.log('Quote');
   console.log(quotes);
-
- 
 }
 
 main()

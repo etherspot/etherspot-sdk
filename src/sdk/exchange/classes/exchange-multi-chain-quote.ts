@@ -1,4 +1,4 @@
-interface  ITranscation {
+interface ITranscation {
   data: string;
   to: string;
   value: string;
@@ -6,8 +6,7 @@ interface  ITranscation {
   chainId: number;
 }
 
-
-interface  IApprovalData {
+interface IApprovalData {
   approvalAddress: string;
   amount: string;
 }
@@ -18,7 +17,6 @@ export class MultiChainQuote {
   transaction: ITranscation;
 }
 
-
 export class MultiChainQuotes {
-  items:MultiChainQuote[];
+  items: MultiChainQuote[];
 }

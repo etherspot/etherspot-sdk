@@ -110,7 +110,7 @@ import {
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
-  MultiChainQuotes
+  MultiChainQuotes,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1352,10 +1352,10 @@ export class Sdk {
   }
 
   /**
-  * gets multi chain quotes
-  * @param dto
-  * @return Promise<MutliChainQuotes>
-  */
+   * gets multi chain quotes
+   * @param dto
+   * @return Promise<MutliChainQuotes>
+   */
   async getMultiChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<MultiChainQuotes> {
     const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
       dto,
@@ -1606,23 +1606,23 @@ export class Sdk {
 
     return deposit
       ? paymentRegistryContract.encodeCommitPaymentChannelAndDeposit(
-        sender,
-        token,
-        uid,
-        blockNumber,
-        totalAmount,
-        senderSignature,
-        guardianSignature,
-      )
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        )
       : paymentRegistryContract.encodeCommitPaymentChannelAndWithdraw(
-        sender,
-        token,
-        uid,
-        blockNumber,
-        totalAmount,
-        senderSignature,
-        guardianSignature,
-      );
+          sender,
+          token,
+          uid,
+          blockNumber,
+          totalAmount,
+          senderSignature,
+          guardianSignature,
+        );
   }
 
   // p2p payments (batch)
