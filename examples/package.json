@@ -21,9 +21,11 @@
     "13-transactions": "../node_modules/.bin/ts-node ./src/13-transactions",
     "14-delayed-transactions": "../node_modules/.bin/ts-node ./src/14-delayed-transactions",
     "15-topup-fuctions": "../node_modules/.bin/ts-node ./src/15-topup-fuctions",
-    "16-cross-chain-quote": "../node_modules/.bin/ts-node ./src/16-cross-chain-quote.ts"
+    "16-cross-chain-quote": "../node_modules/.bin/ts-node ./src/16-cross-chain-quote.ts",
+    "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts"
   },
   "dependencies": {
-    "dotenv": "^16.0.1"
+    "dotenv": "^16.0.1",
+    "@superfluid-finance/sdk-core": "0.4.2"
   }
 }
