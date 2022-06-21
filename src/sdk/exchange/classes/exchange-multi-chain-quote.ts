@@ -13,6 +13,12 @@ interface  IApprovalData {
 }
 
 export class MultiChainQuote {
+  provider: string;
   approvalData: IApprovalData | null;
   transaction: ITranscation;
+}
+
+
+export class MultiChainQuotes {
+  items:MultiChainQuote[];
 }

@@ -110,7 +110,7 @@ import {
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
-  MultiChainQuote
+  MultiChainQuotes
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1356,7 +1356,7 @@ export class Sdk {
   * @param dto
   * @return Promise<MutliChainQuotes>
   */
-  async getMultiChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<MultiChainQuote> {
+  async getMultiChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<MultiChainQuotes> {
     const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
       dto,
       GetExchangeCrossChainQuoteDto,
