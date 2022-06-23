@@ -172,6 +172,44 @@ export class ExchangeService extends Service {
                 from
                 chainId
               }
+              estimate {
+                approvalAddress
+                fromAmount
+                toAmount
+                gasCosts {
+                  limit
+                  amountUSD
+                  token {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                }
+                data {
+                  fromToken {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                  toToken {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                  toTokenAmount
+                  estimatedGas
+                  totalFee
+                }
+              }
             }
           }
         }
