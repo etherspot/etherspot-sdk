@@ -207,7 +207,6 @@ export class ExchangeService extends Service {
                   }
                   toTokenAmount
                   estimatedGas
-                  totalFee
                 }
               }
             }
