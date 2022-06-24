@@ -12,7 +12,7 @@ import {
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
-  MultiChainQuotes,
+  BridgingQuotes,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -134,13 +134,13 @@ export class ExchangeService extends Service {
     fromChainId: number,
     toChainId: number,
     fromAmount: BigNumber,
-  ): Promise<MultiChainQuotes> {
+  ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
 
     const { result } = await apiService.query<{
-      result: MultiChainQuotes;
+      result: BridgingQuotes;
     }>(
       gql`
         query(
@@ -223,7 +223,7 @@ export class ExchangeService extends Service {
           fromAmount,
         },
         models: {
-          result: MultiChainQuotes,
+          result: BridgingQuotes,
         },
       },
     );

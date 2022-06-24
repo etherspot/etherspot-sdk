@@ -1,6 +1,6 @@
 import { BigNumberish, utils } from 'ethers';
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
-import { EnvNames, NetworkNames, Sdk, NETWORK_NAME_TO_CHAIN_ID, MultiChainQuotes } from '../../src';
+import { EnvNames, NetworkNames, Sdk, NETWORK_NAME_TO_CHAIN_ID, BridgingQuotes } from '../../src';
 import { logger } from './common';
 import * as dotenv from 'dotenv';
 import { TransactionRequest } from '@ethersproject/abstract-provider';
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     fromAmount: fromAmount,
   };
   console.log(qouteRequestPayload);
-  const quotes: MultiChainQuotes = await sdk.getMultiChainQuotes(qouteRequestPayload);
+  const quotes: BridgingQuotes = await sdk.getMultiChainQuotes(qouteRequestPayload);
 
   console.log('Quote');
   console.log(quotes);

@@ -17,6 +17,6 @@ export class MultiChainQuote {
   transaction: ITranscation;
 }
 
-export class MultiChainQuotes {
+export class BridgingQuotes {
   items: MultiChainQuote[];
 }
