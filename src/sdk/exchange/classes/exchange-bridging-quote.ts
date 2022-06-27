@@ -11,12 +11,12 @@ interface IApprovalData {
   amount: string;
 }
 
-export class MultiChainQuote {
+export class BridgingQuote {
   provider: string;
   approvalData: IApprovalData | null;
   transaction: ITranscation;
 }
 
 export class BridgingQuotes {
-  items: MultiChainQuote[];
+  items: BridgingQuote[];
 }
