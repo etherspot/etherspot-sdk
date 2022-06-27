@@ -29,3 +29,4 @@ $ npm run <example name> # eg. 01-session
 * [transactions](./src/13-transactions.ts) -- get smart account transactions
 * [delayed transactions](./src/14-delayed-transactions.ts) -- allow to automatically delay account transactions
 * [external contracts](./src/16-cross-chain-quote.ts) -- execute cross chain transaction
+* [SuperFluids Create Stream](./src/17-superFluids-createStream.ts) -- create stream of superTokens
