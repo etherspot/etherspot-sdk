@@ -12,6 +12,7 @@ import {
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
+  BridgingQuotes,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -120,6 +121,109 @@ export class ExchangeService extends Service {
         },
         models: {
           result: CrossChainQuote,
+        },
+      },
+    );
+
+    return result ? result : null;
+  }
+
+  async getMultiChainQuotes(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+  ): Promise<BridgingQuotes> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: BridgingQuotes;
+    }>(
+      gql`
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+        ) {
+          result: getMultiChainQuotes(
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+          ) {
+            items {
+              provider
+              approvalData {
+                approvalAddress
+                amount
+              }
+              transaction {
+                data
+                to
+                value
+                from
+                chainId
+              }
+              estimate {
+                approvalAddress
+                fromAmount
+                toAmount
+                gasCosts {
+                  limit
+                  amountUSD
+                  token {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                }
+                data {
+                  fromToken {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                  toToken {
+                    address
+                    symbol
+                    decimals
+                    logoURI
+                    chainId
+                    name
+                  }
+                  toTokenAmount
+                  estimatedGas
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+        },
+        models: {
+          result: BridgingQuotes,
         },
       },
     );

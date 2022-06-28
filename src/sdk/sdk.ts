@@ -110,6 +110,7 @@ import {
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
+  BridgingQuotes,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1319,6 +1320,7 @@ export class Sdk {
   buildCrossChainBridgeTransaction(dto: CrossChainBridgeRoute): Promise<CrossChainBridgeBuildTXResponse> {
     return this.services.exchangeService.buildCrossChainBridgeTransaction(dto);
   }
+
   /**
    * gets cross chain quote
    * @param dto
@@ -1341,6 +1343,36 @@ export class Sdk {
     chainId = fromChainId ? fromChainId : chainId;
 
     return this.services.exchangeService.getCrossChainQuote(
+      fromTokenAddress,
+      toTokenAddress,
+      chainId,
+      toChainId,
+      BigNumber.from(fromAmount),
+    );
+  }
+
+  /**
+   * gets multi chain quotes
+   * @param dto
+   * @return Promise<MutliChainQuotes>
+   */
+  async getMultiChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<BridgingQuotes> {
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
+      dto,
+      GetExchangeCrossChainQuoteDto,
+      {
+        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+      },
+    );
+
+    await this.require({
+      session: true,
+    });
+
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId;
+
+    return this.services.exchangeService.getMultiChainQuotes(
       fromTokenAddress,
       toTokenAddress,
       chainId,
