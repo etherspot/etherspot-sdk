@@ -6,4 +6,7 @@ export class AccountBalance {
 
   @TransformBigNumber()
   balance: BigNumber;
+
+  @TransformBigNumber()
+  superBalance: BigNumber;
 }
