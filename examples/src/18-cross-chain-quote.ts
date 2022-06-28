@@ -47,18 +47,53 @@ async function main(): Promise<void> {
 
   // xDai USDC has 6 decimals
   const fromAmount = utils.parseEther('0.000000000001'); // 0.1 USDC
-  const qouteRequestPayload = {
+  const quoteRequestPayload = {
     fromChainId: fromChainId,
     toChainId: toChainId,
     fromTokenAddress: fromTokenAddress,
     toTokenAddress: toTokenAddress,
     fromAmount: fromAmount,
   };
-  console.log(qouteRequestPayload);
-  const quotes: BridgingQuotes = await sdk.getMultiChainQuotes(qouteRequestPayload);
+  console.log(quoteRequestPayload);
+  const quotes: BridgingQuotes = await sdk.getMultiChainQuotes(quoteRequestPayload);
 
-  console.log('Quote');
+  console.log('Quotes');
   console.log(quotes);
+
+  if(quotes.items.length > 0 ) {
+  // Select the first quote
+  const quote = quotes.items[0];
+  const tokenAddres = quote.estimate.data.fromToken.address;
+  const approvalAddress = quote.estimate.approvalAddress;
+  const amount = quote.estimate.data.fromTokenAmount;
+
+  // Build the approval transaction request
+  const abi = getContractAbi(ContractNames.ERC20Token);
+  const erc20Contract = sdk.registerContract<ERC20Contract>('erc20Contract', abi, tokenAddres);
+  const approvalTransactionRequest: TransactionRequest = erc20Contract.encodeApprove(approvalAddress, amount);
+  logger.log('Approval transaction request', approvalTransactionRequest);
+
+  // Batch the approval transaction
+  logger.log(
+    'gateway batch approval transaction',
+    await sdk.batchExecuteAccountTransaction({
+      to: approvalTransactionRequest.to,
+      data: approvalTransactionRequest.data,
+      value: approvalTransactionRequest.value,
+    }),
+  );
+
+  // Batch the cross chain transaction
+  const { to, value, data }: TransactionRequest = quote.transaction;
+  logger.log(
+    'gateway batch transfer token transaction',
+    await sdk.batchExecuteAccountTransaction({ to, data: data, value }),
+  );
+
+  // Estimate and submit the transactions to the Gateway
+  logger.log('estimated batch', await sdk.estimateGatewayBatch());
+  logger.log('submitted batch', await sdk.submitGatewayBatch());
+  }
 }
 
 main()

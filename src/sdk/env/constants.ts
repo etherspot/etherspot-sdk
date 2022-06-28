@@ -10,8 +10,10 @@ export enum EnvNames {
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
   [EnvNames.MainNets]: {
     apiOptions: {
-      host: 'etherspot.pillarproject.io',
-      useSsl: true,
+      // host: 'etherspot.pillarproject.io',
+      // useSsl: true,
+      host: 'localhost',
+      port: 4000,
     },
     networkOptions: {
       supportedNetworkNames: [
