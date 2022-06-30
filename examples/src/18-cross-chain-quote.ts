@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     fromAmount: fromAmount,
   };
   console.log(quoteRequestPayload);
-  const quotes: BridgingQuotes = await sdk.getMultiChainQuotes(quoteRequestPayload);
+  const quotes: BridgingQuotes = await sdk.getCrossChainQuotes(quoteRequestPayload);
 
   console.log('Quotes');
   console.log(quotes);

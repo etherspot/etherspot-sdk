@@ -128,7 +128,7 @@ export class ExchangeService extends Service {
     return result ? result : null;
   }
 
-  async getMultiChainQuotes(
+  async getCrossChainQuotes(
     fromTokenAddress: string,
     toTokenAddress: string,
     fromChainId: number,
@@ -151,7 +151,7 @@ export class ExchangeService extends Service {
           $fromChainId: Int
           $toChainId: Int
         ) {
-          result: getMultiChainQuotes(
+          result: getCrossChainQuotes(
             account: $account
             fromTokenAddress: $fromTokenAddress
             toTokenAddress: $toTokenAddress
