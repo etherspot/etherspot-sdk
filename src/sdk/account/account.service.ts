@@ -244,6 +244,7 @@ export class AccountService extends Service {
             items {
               token
               balance
+              superBalance
             }
           }
         }
