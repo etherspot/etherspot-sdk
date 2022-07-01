@@ -1356,7 +1356,7 @@ export class Sdk {
    * @param dto
    * @return Promise<MutliChainQuotes>
    */
-  async getMultiChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<BridgingQuotes> {
+  async getCrossChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<BridgingQuotes> {
     const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
       dto,
       GetExchangeCrossChainQuoteDto,
@@ -1372,7 +1372,7 @@ export class Sdk {
     let { chainId } = this.services.networkService;
     chainId = fromChainId ? fromChainId : chainId;
 
-    return this.services.exchangeService.getMultiChainQuotes(
+    return this.services.exchangeService.getCrossChainQuotes(
       fromTokenAddress,
       toTokenAddress,
       chainId,

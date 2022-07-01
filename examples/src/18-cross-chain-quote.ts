@@ -38,12 +38,12 @@ async function main(): Promise<void> {
   logger.log('synced contract account member', state.accountMember);
 
   const XdaiUSDC = '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'; // Xdai - USDC
-  const BnbDai = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'; // Matic - Dai
+  const MaticUSDC = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'; // Matic - USDC
 
   const fromChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Xdai];
   const toChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Matic];
   const fromTokenAddress: string = XdaiUSDC;
-  const toTokenAddress: string = BnbDai;
+  const toTokenAddress: string = MaticUSDC;
 
   // xDai USDC has 6 decimals
   const fromAmount = utils.parseEther('0.000000000001'); // 0.1 USDC
@@ -55,7 +55,7 @@ async function main(): Promise<void> {
     fromAmount: fromAmount,
   };
   console.log(quoteRequestPayload);
-  const quotes: BridgingQuotes = await sdk.getMultiChainQuotes(quoteRequestPayload);
+  const quotes: BridgingQuotes = await sdk.getCrossChainQuotes(quoteRequestPayload);
 
   console.log('Quotes');
   console.log(quotes);
