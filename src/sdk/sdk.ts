@@ -99,6 +99,7 @@ import {
   IsEligibleForAirdropDto,
   GetCrossChainBridgeTokenListDto,
   GetP2PPaymentChannelsAdminDto,
+  CreateStreamTransactionPayloadDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -145,7 +146,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -2121,6 +2122,36 @@ export class Sdk {
     return this.services.transactionsService.getNftList(
       this.prepareAccountAddress(account), //
     );
+  }
+
+  /**
+   * returns transaction payload for creating stream of supertoken
+   * @param dto 
+   * @return Promise<StreamTransactionPayload>
+   */
+
+  async createStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
+    const { tokenAddress, receiver, amount, account } = await validateDto(
+      dto,
+      CreateStreamTransactionPayloadDto,
+      {
+        addressKeys: ['tokenAddress', 'receiver', 'account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.createStreamTransactionPayload(
+      this.prepareAccountAddress(account),
+      receiver,
+      BigNumber.from(amount),
+      tokenAddress
+    );
+
   }
 
   // utils
