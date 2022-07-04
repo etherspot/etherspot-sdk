@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { BigNumber } from "ethers";
 import { NetworkNames, Sdk, EnvNames } from "../../src";
 import { logger } from "./common";
 
@@ -17,11 +17,17 @@ async function main(): Promise<void> {
 
         await sdk.computeContractAccount();
 
+        /*
+        * Make sure that the amount is not too low for the estimate to fail.
+        * If Estimation fails, you will receive all parameters as null
+        */
         const txnData = await sdk.createStreamTransactionPayload({
             tokenAddress: superTokenAddress,
             receiver: receiverAddress,
-            amount: utils.parseEther('0.1')
+            amount: BigNumber.from("1000000000000"), // amount in wei
         })
+
+        logger.log('Transaction Data: ', txnData);
         if (!txnData.error && txnData.data && txnData.to) {
             // Submit the Transaction data using Etherspot SDK
             await sdk.clearGatewayBatch();
