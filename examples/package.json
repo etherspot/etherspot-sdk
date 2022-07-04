@@ -26,6 +26,6 @@
     "18-cross-chain-quote": "../node_modules/.bin/ts-node ./src/18-cross-chain-quote.ts"
   },
   "dependencies": {
-    "dotenv": "^16.0.1"
+    "dotenv": "16.0.1"
   }
 }
