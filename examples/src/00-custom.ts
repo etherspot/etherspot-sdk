@@ -18,8 +18,7 @@ fromTokenAddress=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
 &singleTxOnly=true
  */
 
-
-// TODO This route is not supported by Etherspot libs/core/src/socket/socket.service.ts Line 262
+  // TODO This route is not supported by Etherspot libs/core/src/socket/socket.service.ts Line 262
   const routes = await sdk.findCrossChainBridgeRoutes({
     fromTokenAddress: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     fromChainId: 56,
@@ -30,10 +29,9 @@ fromTokenAddress=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
     disableSwapping: false,
   });
 
- 
   const callDataPayload = await sdk.buildCrossChainBridgeTransaction(routes[0]);
   console.log(callDataPayload);
-  
+
   // TODO contract call with the cross chain payload
   //  const tx = await signer.sendTransaction({
   //   to: apiReturnData.result.tx.to,
