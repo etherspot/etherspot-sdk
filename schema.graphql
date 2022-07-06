@@ -838,6 +838,8 @@ enum NetworkNames {
   Arbitrum
   Moonbeam
   Moonbase
+  Fuse
+  FuseSparknet
   Celo
   CeloTest
 }
