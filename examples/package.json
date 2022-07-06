@@ -26,7 +26,6 @@
     "18-cross-chain-quote": "../node_modules/.bin/ts-node ./src/18-cross-chain-quote.ts"
   },
   "dependencies": {
-    "dotenv": "^16.0.1",
-    "@superfluid-finance/sdk-core": "0.4.2"
+    "dotenv": "16.0.1"
   }
 }

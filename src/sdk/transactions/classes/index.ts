@@ -10,3 +10,4 @@ export * from './transaction-data';
 export * from './transaction-log';
 export * from './transaction-log-decoded';
 export * from './transactions';
+export * from './stream-transaction-payload';

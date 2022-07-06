@@ -67,3 +67,4 @@ export * from './update-project.dto';
 export * from './utils';
 export * from './withdraw-p2p-payment-deposit.dto';
 export * from './get-exchange-cross-chain-quote.dto';
+export * from './create-stream-payload.dto';

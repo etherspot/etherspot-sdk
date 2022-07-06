@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client/core';
+import { BigNumber } from 'ethers';
 import { Service } from '../common';
-import { NftList, Transaction, Transactions } from './classes';
+import { NftList, StreamTransactionPayload, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -138,6 +139,41 @@ export class TransactionsService extends Service {
       },
     );
 
+    return result;
+  }
+
+  async createStreamTransactionPayload(
+    account: string,
+    receiver: string,
+    amount: BigNumber,
+    tokenAddress: string,
+    ): Promise<StreamTransactionPayload> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: StreamTransactionPayload;
+    }>(
+      gql`
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!) {
+          result: streamTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId) {
+            data
+            to
+            error
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          receiver,
+          amount,
+          tokenAddress
+        },
+        models: {
+          result: StreamTransactionPayload,
+        },
+      },
+    );
     return result;
   }
 }
