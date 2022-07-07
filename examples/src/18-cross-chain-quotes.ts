@@ -45,7 +45,7 @@ async function main(): Promise<void> {
   const toTokenAddress: string = XdaiUSDC;
 
   // MATIC USDC has 6 decimals
-  const fromAmount = utils.parseUnits('1', 6); // 1 USDC
+  const fromAmount = utils.parseUnits('1', 6); // 10 USDC
 
   /*
   * Optional parameter - serviceProvider
