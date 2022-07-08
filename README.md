@@ -62,6 +62,10 @@ async function main() {
 main().catch(console.error);
 ```
 
+## Notification of transactions
+
+notification of transactions is not available for fuse
+
 
 ## License
 
