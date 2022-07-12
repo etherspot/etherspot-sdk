@@ -1,7 +1,8 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt, IsOptional, IsPositive } from 'class-validator';
 import { IsAddress, IsBigNumberish } from './validators';
+import { CrossChainServiceProvider } from '..';
 
 export class GetExchangeCrossChainQuoteDto {
   @IsAddress()
@@ -22,4 +23,7 @@ export class GetExchangeCrossChainQuoteDto {
 
   @IsBigNumberish()
   fromAmount: BigNumber;
+
+  @IsOptional()
+  serviceProvider?: CrossChainServiceProvider;
 }

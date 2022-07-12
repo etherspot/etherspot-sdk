@@ -1360,7 +1360,7 @@ export class Sdk {
    * @return Promise<MutliChainQuotes>
    */
   async getCrossChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<BridgingQuotes> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, serviceProvider } = await validateDto(
       dto,
       GetExchangeCrossChainQuoteDto,
       {
@@ -1381,6 +1381,7 @@ export class Sdk {
       chainId,
       toChainId,
       BigNumber.from(fromAmount),
+      serviceProvider,
     );
   }
 
