@@ -1,8 +1,7 @@
 import { IsOptional } from 'class-validator';
-import { BigNumber } from 'ethers';
-import { IsAddress, IsBigNumberish } from './validators';
+import { IsAddress } from './validators';
 
-export class CreateStreamTransactionPayloadDto {
+export class DeleteStreamTransactionPayloadDto {
     @IsOptional()
     @IsAddress()
     account?: string = null;
@@ -13,10 +12,7 @@ export class CreateStreamTransactionPayloadDto {
     @IsAddress()
     tokenAddress: string;
 
-    @IsBigNumberish()
-    amount: BigNumber;
-
     @IsOptional()
-    userData?: string;
+    userData?: string = null;
 
 }

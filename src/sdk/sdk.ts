@@ -100,6 +100,8 @@ import {
   GetCrossChainBridgeTokenListDto,
   GetP2PPaymentChannelsAdminDto,
   CreateStreamTransactionPayloadDto,
+  DeleteStreamTransactionPayloadDto,
+  GetStreamListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -146,7 +148,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -2131,7 +2133,7 @@ export class Sdk {
    */
 
   async createStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
-    const { tokenAddress, receiver, amount, account } = await validateDto(
+    const { tokenAddress, receiver, amount, account, userData } = await validateDto(
       dto,
       CreateStreamTransactionPayloadDto,
       {
@@ -2149,7 +2151,78 @@ export class Sdk {
       this.prepareAccountAddress(account),
       receiver,
       BigNumber.from(amount),
-      tokenAddress
+      tokenAddress,
+      userData ? userData : "0x",
+    );
+
+  }
+
+  async deleteStreamTransactionPayload(dto: DeleteStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
+    const { tokenAddress, receiver, account, userData } = await validateDto(
+      dto,
+      DeleteStreamTransactionPayloadDto,
+      {
+        addressKeys: ['tokenAddress', 'receiver', 'account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.deleteStreamTransactionPayload(
+      this.prepareAccountAddress(account),
+      receiver,
+      tokenAddress,
+      userData,
+    );
+
+  }
+
+  async modifyStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
+    const { tokenAddress, receiver, amount, account, userData } = await validateDto(
+      dto,
+      CreateStreamTransactionPayloadDto,
+      {
+        addressKeys: ['tokenAddress', 'receiver', 'account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.modifyStreamTransactionPayload(
+      this.prepareAccountAddress(account),
+      receiver,
+      BigNumber.from(amount),
+      tokenAddress,
+      userData
+    );
+
+  }
+
+  async getStreamList(dto: GetStreamListDto = {}): Promise<StreamList> {
+    const { account } = await validateDto(
+      dto,
+      GetStreamListDto,
+      {
+        addressKeys: ['account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.getStreamList(
+      this.prepareAccountAddress(account),
     );
 
   }
