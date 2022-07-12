@@ -17,6 +17,7 @@ import {
 
 import { PaginatedTokens } from '../assets';
 import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
+import { CrossChainServiceProvider } from '.';
 
 export class ExchangeService extends Service {
   async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
@@ -134,6 +135,7 @@ export class ExchangeService extends Service {
     fromChainId: number,
     toChainId: number,
     fromAmount: BigNumber,
+    serviceProvider?: CrossChainServiceProvider,
   ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
@@ -150,6 +152,7 @@ export class ExchangeService extends Service {
           $fromAmount: BigNumber!
           $fromChainId: Int
           $toChainId: Int
+          $serviceProvider: CrossChainServiceProvider
         ) {
           result: getCrossChainQuotes(
             account: $account
@@ -158,6 +161,7 @@ export class ExchangeService extends Service {
             fromAmount: $fromAmount
             fromChainId: $fromChainId
             toChainId: $toChainId
+            serviceProvider: $serviceProvider
           ) {
             items {
               provider
@@ -221,6 +225,7 @@ export class ExchangeService extends Service {
           fromChainId,
           toChainId,
           fromAmount,
+          serviceProvider,
         },
         models: {
           result: BridgingQuotes,
