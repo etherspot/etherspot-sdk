@@ -1,6 +1,6 @@
 import { BigNumberish, utils } from 'ethers';
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
-import { EnvNames, NetworkNames, Sdk, NETWORK_NAME_TO_CHAIN_ID, BridgingQuotes } from '../../src';
+import { EnvNames, NetworkNames, Sdk, NETWORK_NAME_TO_CHAIN_ID, BridgingQuotes, CrossChainServiceProvider } from '../../src';
 import { logger } from './common';
 import * as dotenv from 'dotenv';
 import { TransactionRequest } from '@ethersproject/abstract-provider';
@@ -12,15 +12,14 @@ export interface ERC20Contract {
 }
 
 async function main(): Promise<void> {
-  if (!process.env.XDAI_PRIVATE_KEY) {
+  if (!process.env.MATIC_PRIVATE_KEY) {
     console.log('private key missing');
     return null;
   }
-  let privateKey = process.env.XDAI_PRIVATE_KEY;
+  const privateKey = process.env.XDAI_PRIVATE_KEY;
 
-  const sdk = new Sdk({ privateKey: privateKey }, { env: EnvNames.MainNets, networkName: NetworkNames.Xdai });
+  const sdk = new Sdk({ privateKey: privateKey }, { env: EnvNames.MainNets, networkName: NetworkNames.Matic });
 
-  const { wallet } = sdk.state;
   const { state } = sdk;
 
   logger.log('key account', state.account);
@@ -40,39 +39,47 @@ async function main(): Promise<void> {
   const XdaiUSDC = '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'; // Xdai - USDC
   const MaticUSDC = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'; // Matic - USDC
 
-  const fromChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Xdai];
-  const toChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Matic];
-  const fromTokenAddress: string = XdaiUSDC;
-  const toTokenAddress: string = MaticUSDC;
+  const fromChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Matic];
+  const toChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Xdai];
+  const fromTokenAddress: string = MaticUSDC;
+  const toTokenAddress: string = XdaiUSDC;
 
-  // xDai USDC has 6 decimals
-  const fromAmount = utils.parseEther('0.000000000001'); // 0.1 USDC
+  // MATIC USDC has 6 decimals
+  const fromAmount = utils.parseUnits('1', 6); // 10 USDC
+
+  /*
+  * Optional parameter - serviceProvider
+  * Will return quotes from all services provided if not specified
+  */
   const quoteRequestPayload = {
     fromChainId: fromChainId,
     toChainId: toChainId,
     fromTokenAddress: fromTokenAddress,
     toTokenAddress: toTokenAddress,
     fromAmount: fromAmount,
+    serviceProvider: CrossChainServiceProvider.LiFi, // Optional parameter
   };
   console.log(quoteRequestPayload);
   const quotes: BridgingQuotes = await sdk.getCrossChainQuotes(quoteRequestPayload);
 
   console.log('Quotes');
-  console.log(quotes);
+  logger.log('Quotes: ', quotes);
 
   if(quotes.items.length > 0 ) {
   // Select the first quote
   const quote = quotes.items[0];
+  logger.log('Quote Selected: ', quote);
+
   const tokenAddres = quote.estimate.data.fromToken.address;
-  const approvalAddress = quote.estimate.approvalAddress;
-  const amount = quote.estimate.data.fromTokenAmount;
+  const approvalAddress = quote.approvalData.approvalAddress;
+  const amount = quote.approvalData.amount;
 
   // Build the approval transaction request
   const abi = getContractAbi(ContractNames.ERC20Token);
   const erc20Contract = sdk.registerContract<ERC20Contract>('erc20Contract', abi, tokenAddres);
   const approvalTransactionRequest: TransactionRequest = erc20Contract.encodeApprove(approvalAddress, amount);
   logger.log('Approval transaction request', approvalTransactionRequest);
-
+  await sdk.clearGatewayBatch();
   // Batch the approval transaction
   logger.log(
     'gateway batch approval transaction',
@@ -90,8 +97,9 @@ async function main(): Promise<void> {
     await sdk.batchExecuteAccountTransaction({ to, data: data, value }),
   );
 
+  const estimatedGas = await sdk.estimateGatewayBatch();
   // Estimate and submit the transactions to the Gateway
-  logger.log('estimated batch', await sdk.estimateGatewayBatch());
+  logger.log('estimated batch', utils.formatEther(estimatedGas.estimation.feeAmount));
   logger.log('submitted batch', await sdk.submitGatewayBatch());
   }
 }

@@ -16,11 +16,10 @@ async function main(): Promise<void> {
     console.log('private key missing');
     return null;
   }
-  let privateKey = process.env.XDAI_PRIVATE_KEY;
+  const privateKey = process.env.XDAI_PRIVATE_KEY;
 
   const sdk = new Sdk({ privateKey: privateKey }, { env: EnvNames.MainNets, networkName: NetworkNames.Xdai });
 
-  const { wallet } = sdk.state;
   const { state } = sdk;
 
   logger.log('key account', state.account);
