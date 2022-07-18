@@ -1325,36 +1325,6 @@ export class Sdk {
   }
 
   /**
-   * gets cross chain quote
-   * @param dto
-   * @return Promise<CrossChainQuote>
-   */
-  async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
-      dto,
-      GetExchangeCrossChainQuoteDto,
-      {
-        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
-      },
-    );
-
-    await this.require({
-      session: true,
-    });
-
-    let { chainId } = this.services.networkService;
-    chainId = fromChainId ? fromChainId : chainId;
-
-    return this.services.exchangeService.getCrossChainQuote(
-      fromTokenAddress,
-      toTokenAddress,
-      chainId,
-      toChainId,
-      BigNumber.from(fromAmount),
-    );
-  }
-
-  /**
    * gets multi chain quotes
    * @param dto
    * @return Promise<MutliChainQuotes>
