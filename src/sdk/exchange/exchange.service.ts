@@ -11,7 +11,6 @@ import {
   CrossChainBridgeRoute,
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
-  CrossChainQuote,
   BridgingQuotes,
 } from './classes';
 

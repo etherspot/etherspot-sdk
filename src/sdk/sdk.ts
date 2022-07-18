@@ -112,7 +112,6 @@ import {
   ExchangeOffer,
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
-  CrossChainQuote,
   BridgingQuotes,
 } from './exchange';
 
