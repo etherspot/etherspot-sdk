@@ -24,7 +24,7 @@
     "16-cross-chain-quote": "../node_modules/.bin/ts-node ./src/16-cross-chain-quote.ts",
     "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts",
     "18-cross-chain-quote": "../node_modules/.bin/ts-node ./src/18-cross-chain-quote.ts",
-    "19-cross-chain-stream": "..\\node_modules\\.bin\\ts-node .\\src\\19-cross-chain-stream.ts"
+    "19-cross-chain-stream": "../node_modules/.bin/ts-node ./src/19-cross-chain-stream.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"

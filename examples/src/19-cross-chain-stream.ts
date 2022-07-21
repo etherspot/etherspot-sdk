@@ -120,7 +120,7 @@ class CrossChainStreamService {
       fromChainId: this.chainIds.from,
       toChainId: this.chainIds.to,
       fromAmount: this.amountToTransfer,
-      serviceProvider: CrossChainServiceProvider.Connext
+      serviceProvider: CrossChainServiceProvider.Connext,
     });
     const erc20 = this.getERC20Contract(
       this.fromChain,
@@ -273,9 +273,11 @@ class CrossChainStreamService {
 }
 
 async function main(): Promise<void> {
-  const SENDER_PRIVATE_KEY = "0x8e434e06c0af485f9fc217b03bcfee8a8d6db1cebc0640d707e831c4910b81b6";
+  const SENDER_PRIVATE_KEY = process.env.SENDER_PRIVATE_KEY;
   try {
+    // TEST ERC20 Token (Goerli)
     const fromToken = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b";
+    // TEST ERC20 Token (Rinkeby)
     const toToken = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9";
     const receiver = "0x7220A66Ed094F0C7c04e221ff5b436bD304776A0";
 
