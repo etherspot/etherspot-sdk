@@ -1,4 +1,4 @@
-import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { TransactionRequest } from '../../../common';
 import { ExternalContract } from "../external.contract";
 import { SuperTokenContractABI } from "./abi";
 

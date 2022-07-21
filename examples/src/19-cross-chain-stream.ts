@@ -11,16 +11,24 @@ import {
   addressesEqual,
   ExchangeOffer,
   ERC20TokenContract,
-  GatewaySubmittedBatch
+  GatewaySubmittedBatch,
+  CrossChainBridgeToken,
+  SuperTokenContract
 } from "../../src";
 import { logger } from "./common";
 
 class CrossChainStreamService {
   sdkIntances: { [network: string]: Sdk } = {};
   private initialized: boolean = false;
+  // canonical is a default token of a chain chosen by connext
   private canonicalToToken: string;
   private canonicalFromToken: string;
+  // amount to transfer to another chain
   private amountToTransfer: BigNumber;
+  // amount to stream (may be less after swaps and exchanges)
+  private amountToStream: BigNumber;
+  // super token wrapper
+  private superTokenAddress: string;
 
   constructor(
     private fromChain: NetworkNames,
@@ -35,6 +43,12 @@ class CrossChainStreamService {
     this.canonicalToToken = toToken;
   }
 
+  /**
+   * initializes sdk instances and checks if selected
+   * networks are supported by Connext
+   * @param privateKey private key
+   * @param options network options
+   */
   async init(privateKey: string, options: SdkOptions[]) {
     for (let option of options) {
       const { networkName } = option;
@@ -46,36 +60,37 @@ class CrossChainStreamService {
       serviceProvider: CrossChainServiceProvider.Connext
     });
     if (!supportedChains.find(
-        ({ chainId }) => chainId === this.chainIds.from
-      )
+      ({ chainId }) => chainId === this.chainIds.from
+    )
     ) {
       throw new Error("Origin chain not supported by bridge");
     }
     if (!supportedChains.find(
-        ({ chainId }) => chainId === this.chainIds.to)
-      ) {
+      ({ chainId }) => chainId === this.chainIds.to)
+    ) {
       throw new Error("Destination chain not supported by bridge");
     }
     this.initialized = true;
   }
 
+  /**
+   * Sends funds to the destination chain
+   * If the asset on the origin chain is not supported
+   * by Connext, then it swaps to canonical asset via available dex
+   * @returns submitted batch transaction hash
+   */
   async prepare(): Promise<GatewaySubmittedBatch> {
     if (!this.initialized) {
       throw new Error("Not inititalized");
     }
     const sdk = this.sdkIntances[this.fromChain];
-    const supportedTokens = await sdk.getCrossChainBridgeTokenList({
-      fromChainId: this.chainIds.from,
-      toChainId: this.chainIds.to,
-      direction: SocketTokenDirection.From,
-      serviceProvider: CrossChainServiceProvider.Connext,
-    });
+    const supportedTokens = await this.fetchSupportedTokens();
     const supportsFromToken = supportedTokens.find(
       token => addressesEqual(token.address, this.fromToken) &&
-      token.chainId === this.chainIds.from);
+        token.chainId === this.chainIds.from);
     const supportsToToken = supportedTokens.find(
       token => addressesEqual(token.address, this.toToken) &&
-      token.chainId === this.chainIds.to);
+        token.chainId === this.chainIds.to);
     if (this.disableSwap) {
       if (!supportsFromToken) {
         throw new Error("Origin token not supported by bridge");
@@ -85,7 +100,7 @@ class CrossChainStreamService {
       }
     }
     if (!supportsFromToken) {
-      const token = supportedTokens.find(token => 
+      const token = supportedTokens.find(token =>
         token.chainId === this.chainIds.from
       );
       if (!token) {
@@ -99,7 +114,7 @@ class CrossChainStreamService {
         this.amount
       );
     }
-    const { items: [ quote ]} = await sdk.getCrossChainQuotes({
+    const { items: [quote] } = await sdk.getCrossChainQuotes({
       fromTokenAddress: this.canonicalFromToken,
       toTokenAddress: this.toToken,
       fromChainId: this.chainIds.from,
@@ -120,16 +135,64 @@ class CrossChainStreamService {
     return await sdk.submitGatewayBatch();
   }
 
-  async createStream() {
-    // const superTokenAddress = await sdk.createSuperERC20Wrapper(
-    //   originalToken
-    // );
-    // const superTokenContract = new SuperTokenContract(superTokenAddress);
-    // const txRequest = superTokenContract.encodeUpgrade(amountToStream);
-    // this.batchExecuteAccountTransaction({
-    //   to: txRequest.to,
-    //   data: txRequest.data,
-    // });
+  /**
+   * Wraps token to a super token and starts streaming
+   * If the asset was swapped to a canonical by prepare()
+   * it is swapped back to the original asset via available dex
+   * @returns submitted batch transaction hash
+   */
+  async createStream(): Promise<GatewaySubmittedBatch> {
+    const sdk = this.sdkIntances[this.toChain];
+    const supportedTokens = await this.fetchSupportedTokens();
+    const supportsToToken = supportedTokens.find(
+      token => addressesEqual(token.address, this.toToken) &&
+        token.chainId === this.chainIds.to);
+    if (!supportsToToken) {
+      const token = supportedTokens.find(token =>
+        token.chainId === this.chainIds.to
+      );
+      if (!token) {
+        throw new Error("Canonical token not set");
+      }
+      this.canonicalToToken = token.address;
+    }
+    if (!addressesEqual(this.canonicalToToken, this.toToken)) {
+      this.amountToStream = await this.swapToken(
+        this.toChain,
+        this.canonicalToToken,
+        this.toToken,
+        this.amountToTransfer.mul(0.995)
+      );
+    }
+    const erc20TokenContract = this.getERC20Contract(
+      this.toChain,
+      this.toToken
+    );
+    if (!this.superTokenAddress) {
+      this.superTokenAddress = await sdk.createSuperERC20Wrapper(
+        this.toToken
+      );
+    }
+    const superTokenContract = new SuperTokenContract(
+      this.superTokenAddress
+    );
+    const approveReq = erc20TokenContract.encodeApprove(
+      this.superTokenAddress,
+      this.amountToStream
+    );
+    sdk.batchExecuteAccountTransaction(approveReq)
+    const upgradeReq = superTokenContract.encodeUpgrade(
+      this.amountToStream
+    );
+    sdk.batchExecuteAccountTransaction(upgradeReq);
+    const txnData = await sdk.createStreamTransactionPayload({
+      tokenAddress: this.superTokenAddress,
+      receiver: this.receiver,
+      amount: this.amountToStream, // amount in wei
+    });
+    await sdk.batchExecuteAccountTransaction(txnData);
+    await sdk.estimateGatewayBatch();
+    return await sdk.submitGatewayBatch();
   }
 
   async swapToken(
@@ -182,6 +245,16 @@ class CrossChainStreamService {
     return offer;
   }
 
+  private async fetchSupportedTokens(): Promise<CrossChainBridgeToken[]> {
+    const sdk = this.sdkIntances[this.chainIds.from];
+    return await sdk.getCrossChainBridgeTokenList({
+      fromChainId: this.chainIds.from,
+      toChainId: this.chainIds.to,
+      direction: SocketTokenDirection.From,
+      serviceProvider: CrossChainServiceProvider.Connext,
+    });
+  }
+
   private getERC20Contract(chainId: NetworkNames, address: string) {
     const sdk = this.sdkIntances[chainId];
     return sdk.registerContract<ERC20TokenContract>(
@@ -224,7 +297,6 @@ async function main(): Promise<void> {
     await crossChainStreamingService.prepare();
     // wait some time while connext is sending funds to destination chain
     await crossChainStreamingService.createStream();
-
   } catch (err) {
     logger.log("Caught Error: ", JSON.stringify(err, undefined, 2));
   }
