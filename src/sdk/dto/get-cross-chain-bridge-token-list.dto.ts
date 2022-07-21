@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsInt, IsOptional } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive } from 'class-validator';
 import { SocketTokenDirection, CrossChainServiceProvider } from '../exchange/constants';
 
 export class GetCrossChainBridgeTokenListDto {
@@ -6,10 +6,12 @@ export class GetCrossChainBridgeTokenListDto {
   direction: SocketTokenDirection;
 
   @IsInt()
+  @IsPositive()
   fromChainId: number;
 
   @IsInt()
-  toChainId?: number;
+  @IsPositive()
+  toChainId: number;
 
   @IsOptional()
   @IsBoolean()
