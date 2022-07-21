@@ -1,4 +1,4 @@
-import { BigNumber, utils, Wallet, Contract as EthersContract } from 'ethers';
+import { BigNumber, utils, Wallet, Contract as EthersContract, ethers } from 'ethers';
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
 import { BehaviorSubject, Subject } from 'rxjs';
 import {
@@ -26,6 +26,7 @@ import {
   GatewayContract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
+  SuperTokenContract,
 } from './contract';
 import {
   AddAccountOwnerDto,
@@ -100,6 +101,9 @@ import {
   GetCrossChainBridgeTokenListDto,
   GetP2PPaymentChannelsAdminDto,
   CreateStreamTransactionPayloadDto,
+  GetCrossChainBridgeSupportedChainsDto,
+  PrepareCrosschainStreamTransaction,
+  CreateCrosschainStreamTransaction,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -112,6 +116,8 @@ import {
   CrossChainBridgeBuildTXResponse,
   CrossChainQuote,
   BridgingQuotes,
+  CrossChainServiceProvider,
+  SocketTokenDirection,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -146,7 +152,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, PreparedCrossChainStream } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -1306,8 +1312,8 @@ export class Sdk {
     );
   }
 
-  getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
-    return this.services.exchangeService.getCrossChainBridgeSupportedChains();
+  getCrossChainBridgeSupportedChains(dto: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
+    return this.services.exchangeService.getCrossChainBridgeSupportedChains(dto);
   }
 
   getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
@@ -2152,7 +2158,25 @@ export class Sdk {
       BigNumber.from(amount),
       tokenAddress
     );
+  }
 
+  /**
+   * wraps erc20 token to super token
+   * @return Promise<string | null>
+   */
+  async createSuperERC20Wrapper(
+    underlyingToken: string,
+    underlyingDecimals?: number,
+    name?: string,
+    symbol?: string,
+  ): Promise<string | null> {
+    return this.services.transactionsService
+      .createSuperERC20Wrapper(
+        underlyingToken,
+        underlyingDecimals,
+        name,
+        symbol
+      );
   }
 
   // utils
