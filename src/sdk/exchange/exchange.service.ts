@@ -19,7 +19,7 @@ import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '..
 import { CrossChainServiceProvider } from '.';
 
 export class ExchangeService extends Service {
-  async getExchangeSupportedAssets(page: number = null, limit: number = null): Promise<PaginatedTokens> {
+  async getExchangeSupportedAssets(page: number = null, limit: number = null, ChainId: number): Promise<PaginatedTokens> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
@@ -28,8 +28,8 @@ export class ExchangeService extends Service {
       result: PaginatedTokens;
     }>(
       gql`
-        query($chainId: Int, $account: String!, $page: Int, $limit: Int) {
-          result: exchangeSupportedAssets(chainId: $chainId, account: $account, page: $page, limit: $limit) {
+        query($ChainId: Int, $account: String!, $page: Int, $limit: Int) {
+          result: exchangeSupportedAssets(chainId: $ChainId, account: $account, page: $page, limit: $limit) {
             items {
               address
               name
@@ -45,6 +45,7 @@ export class ExchangeService extends Service {
       {
         variables: {
           account,
+          ChainId,
           page: page || 1,
           limit: limit || 100,
         },
