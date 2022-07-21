@@ -102,6 +102,7 @@ import {
   CreateStreamTransactionPayloadDto,
   DeleteStreamTransactionPayloadDto,
   GetStreamListDto,
+  GetExchangeSupportedAssetsDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -1275,14 +1276,16 @@ export class Sdk {
    * @param dto
    * @return Promise<PaginatedTokens>
    */
-  async getExchangeSupportedAssets(dto: PaginationDto = {}): Promise<PaginatedTokens> {
-    const { page, limit } = await validateDto(dto, PaginationDto);
+  async getExchangeSupportedAssets(dto: GetExchangeSupportedAssetsDto = {}): Promise<PaginatedTokens> {
+    const { page, limit, chainId } = await validateDto(dto, GetExchangeSupportedAssetsDto);
 
     await this.require({
       session: true,
     });
 
-    return this.services.exchangeService.getExchangeSupportedAssets(page, limit);
+    const getChainId = chainId ? chainId : this.services.networkService.chainId;
+
+    return this.services.exchangeService.getExchangeSupportedAssets(page, limit, getChainId);
   }
 
   /**
