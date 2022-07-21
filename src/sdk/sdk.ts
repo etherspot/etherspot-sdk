@@ -102,8 +102,8 @@ import {
   GetP2PPaymentChannelsAdminDto,
   CreateStreamTransactionPayloadDto,
   GetCrossChainBridgeSupportedChainsDto,
-  PrepareCrosschainStreamTransaction,
-  CreateCrosschainStreamTransaction,
+  DeleteStreamTransactionPayloadDto,
+  GetStreamListDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -114,10 +114,7 @@ import {
   ExchangeOffer,
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
-  CrossChainQuote,
   BridgingQuotes,
-  CrossChainServiceProvider,
-  SocketTokenDirection,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -152,7 +149,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, PreparedCrossChainStream } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -1329,36 +1326,6 @@ export class Sdk {
   }
 
   /**
-   * gets cross chain quote
-   * @param dto
-   * @return Promise<CrossChainQuote>
-   */
-  async getCrossChainQuote(dto: GetExchangeCrossChainQuoteDto): Promise<CrossChainQuote> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(
-      dto,
-      GetExchangeCrossChainQuoteDto,
-      {
-        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
-      },
-    );
-
-    await this.require({
-      session: true,
-    });
-
-    let { chainId } = this.services.networkService;
-    chainId = fromChainId ? fromChainId : chainId;
-
-    return this.services.exchangeService.getCrossChainQuote(
-      fromTokenAddress,
-      toTokenAddress,
-      chainId,
-      toChainId,
-      BigNumber.from(fromAmount),
-    );
-  }
-
-  /**
    * gets multi chain quotes
    * @param dto
    * @return Promise<MutliChainQuotes>
@@ -2138,7 +2105,7 @@ export class Sdk {
    */
 
   async createStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
-    const { tokenAddress, receiver, amount, account } = await validateDto(
+    const { tokenAddress, receiver, amount, account, userData } = await validateDto(
       dto,
       CreateStreamTransactionPayloadDto,
       {
@@ -2156,7 +2123,78 @@ export class Sdk {
       this.prepareAccountAddress(account),
       receiver,
       BigNumber.from(amount),
-      tokenAddress
+      tokenAddress,
+      userData ? userData : "0x",
+    );
+
+  }
+
+  async deleteStreamTransactionPayload(dto: DeleteStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
+    const { tokenAddress, receiver, account, userData } = await validateDto(
+      dto,
+      DeleteStreamTransactionPayloadDto,
+      {
+        addressKeys: ['tokenAddress', 'receiver', 'account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.deleteStreamTransactionPayload(
+      this.prepareAccountAddress(account),
+      receiver,
+      tokenAddress,
+      userData,
+    );
+
+  }
+
+  async modifyStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
+    const { tokenAddress, receiver, amount, account, userData } = await validateDto(
+      dto,
+      CreateStreamTransactionPayloadDto,
+      {
+        addressKeys: ['tokenAddress', 'receiver', 'account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.modifyStreamTransactionPayload(
+      this.prepareAccountAddress(account),
+      receiver,
+      BigNumber.from(amount),
+      tokenAddress,
+      userData
+    );
+
+  }
+
+  async getStreamList(dto: GetStreamListDto = {}): Promise<StreamList> {
+    const { account } = await validateDto(
+      dto,
+      GetStreamListDto,
+      {
+        addressKeys: ['account'],
+      },
+    );
+
+    await this.require({
+      session: true,
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.transactionsService.getStreamList(
+      this.prepareAccountAddress(account),
     );
   }
 

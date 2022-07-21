@@ -7,6 +7,5 @@ export * from './cross-chain-bridge-token-list';
 export * from './cross-chain-bridge-token';
 export * from './exchange-offer';
 export * from './exchange-offers';
-export * from './exchange-cross-chain-quote';
 export * from './exchange-bridging-quote';
 export * from './exchange-router-address';

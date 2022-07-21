@@ -11,4 +11,4 @@ export * from './transaction-log';
 export * from './transaction-log-decoded';
 export * from './transactions';
 export * from './stream-transaction-payload';
-export * from './prepared-cross-chain-stream';
+export * from './streamList';
