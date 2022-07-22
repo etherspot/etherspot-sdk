@@ -748,8 +748,8 @@ export class Sdk {
    * @param dto
    * @return Promise<AccountBalances>
    */
-  async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
-    const { account, tokens } = await validateDto(dto, GetAccountBalancesDto, {
+   async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
+    const { account, tokens, chainId } = await validateDto(dto, GetAccountBalancesDto, {
       addressKeys: ['account', 'tokens'],
     });
 
@@ -757,9 +757,12 @@ export class Sdk {
       wallet: !account,
     });
 
+    const ChainId = chainId ? chainId : this.services.networkService.chainId;
+
     return this.services.accountService.getAccountBalances(
       this.prepareAccountAddress(account), //
       tokens,
+      ChainId
     );
   }
 
