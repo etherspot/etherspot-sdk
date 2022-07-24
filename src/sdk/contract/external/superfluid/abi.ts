@@ -1710,3 +1710,273 @@ export const SuperTokenContractABI = [
     "type": "function"
   }
 ];
+
+export const SuperTokenFactoryABI = [
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluid",
+        "name": "host",
+        "type": "address"
+      },
+      {
+        "internalType": "contract SuperTokenFactoryHelper",
+        "name": "helper",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "uuid",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "codeAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CodeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract ISuperToken",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "CustomSuperTokenCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract ISuperToken",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SuperTokenCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract ISuperToken",
+        "name": "tokenLogic",
+        "type": "address"
+      }
+    ],
+    "name": "SuperTokenLogicCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ERC20WithTokenInfo",
+        "name": "underlyingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "enum ISuperTokenFactory.Upgradability",
+        "name": "upgradability",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
+    "name": "createERC20Wrapper",
+    "outputs": [
+      {
+        "internalType": "contract ISuperToken",
+        "name": "superToken",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "underlyingToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "underlyingDecimals",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum ISuperTokenFactory.Upgradability",
+        "name": "upgradability",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "symbol",
+        "type": "string"
+      }
+    ],
+    "name": "createERC20Wrapper",
+    "outputs": [
+      {
+        "internalType": "contract ISuperToken",
+        "name": "superToken",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluid",
+        "name": "host",
+        "type": "address"
+      }
+    ],
+    "name": "createSuperTokenLogic",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "logic",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      
+    ],
+    "name": "getCodeAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "codeAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      
+    ],
+    "name": "getHost",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "host",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      
+    ],
+    "name": "getSuperTokenLogic",
+    "outputs": [
+      {
+        "internalType": "contract ISuperToken",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      
+    ],
+    "name": "initialize",
+    "outputs": [
+      
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "customSuperTokenProxy",
+        "type": "address"
+      }
+    ],
+    "name": "initializeCustomSuperToken",
+    "outputs": [
+      
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      
+    ],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAddress",
+        "type": "address"
+      }
+    ],
+    "name": "updateCode",
+    "outputs": [
+      
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];

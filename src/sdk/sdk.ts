@@ -2204,14 +2204,14 @@ export class Sdk {
    * wraps erc20 token to super token
    * @return Promise<string | null>
    */
-  async createSuperERC20Wrapper(
+  async createSuperERC20WrapperTransactionPayload(
     underlyingToken: string,
     underlyingDecimals?: number,
     name?: string,
     symbol?: string,
-  ): Promise<string | null> {
+  ): Promise<StreamTransactionPayload> {
     return this.services.transactionsService
-      .createSuperERC20Wrapper(
+      .createSuperERC20WrapperTransactionPayload(
         underlyingToken,
         underlyingDecimals,
         name,

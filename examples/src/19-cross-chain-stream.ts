@@ -1,5 +1,5 @@
 import { ContractNames, getContractAbi } from "@etherspot/contracts";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber, ethers, Wallet } from "ethers";
 import {
   NetworkNames,
   Sdk,
@@ -11,15 +11,57 @@ import {
   addressesEqual,
   ExchangeOffer,
   ERC20TokenContract,
-  GatewaySubmittedBatch,
   CrossChainBridgeToken,
-  SuperTokenContract
+  SuperTokenContract,
+  SuperTokenFactoryContract,
 } from "../../src";
 import { logger } from "./common";
 
+async function main(): Promise<void> {
+  const SENDER_PRIVATE_KEY = process.env.SENDER_PRIVATE_KEY;
+  const INFURA_PROJECT_ID = process.env.PROJECT_ID;
+
+  try {
+    // TEST ERC20 Token (Goerli)
+    const fromToken = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b";
+    // TEST ERC20 Token (Rinkeby)
+    const toToken = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9";
+    const receiver = "0xaA2e72E4f8a98626B5D41a9CF5dfd237fC1F70e4";
+
+    const goerliProvider = new ethers.providers.InfuraProvider("goerli", INFURA_PROJECT_ID);
+    const rinkebyProvider = new ethers.providers.InfuraProvider("rinkeby", INFURA_PROJECT_ID);
+    const goerliWallet = new Wallet(SENDER_PRIVATE_KEY, goerliProvider);
+    const rinkeyWallet = new Wallet(SENDER_PRIVATE_KEY, rinkebyProvider);
+    const crossChainStreamingService = new CrossChainStreamService(
+      NetworkNames.Goerli,
+      NetworkNames.Rinkeby,
+      fromToken,
+      toToken,
+      ethers.utils.parseEther("10"),
+      receiver
+    );
+    await crossChainStreamingService.init(
+      goerliWallet,
+      { networkName: NetworkNames.Goerli, env: EnvNames.TestNets },
+      rinkeyWallet,
+      { networkName: NetworkNames.Rinkeby, env: EnvNames.TestNets },
+    );
+    await crossChainStreamingService.prepare();
+
+    // -- wait some time while connext is sending funds to destination chain
+    // -- usually it takes 3-5 minutes in testnets
+    // await crossChainStreamingService.createStream();
+  } catch (err) {
+    logger.log("Caught Error: ", err);
+  }
+}
+
+main()
+  .catch(logger.error)
+  .finally(() => process.exit());
+
 class CrossChainStreamService {
   sdkIntances: { [network: string]: Sdk } = {};
-  private initialized: boolean = false;
   // canonical is a default token of a chain chosen by connext
   private canonicalToToken: string;
   private canonicalFromToken: string;
@@ -29,6 +71,8 @@ class CrossChainStreamService {
   private amountToStream: BigNumber;
   // super token wrapper
   private superTokenAddress: string;
+  private fromWallet: Wallet;
+  private toWallet: Wallet;
 
   constructor(
     private fromChain: NetworkNames,
@@ -46,13 +90,27 @@ class CrossChainStreamService {
   /**
    * initializes sdk instances and checks if selected
    * networks are supported by Connext
-   * @param privateKey private key
-   * @param options network options
+   * @param fromWallet wallet on origin chain
+   * @param fromNetwork origin chain options
+   * @param toWallet wallet on destination chain
+   * @param toNetwork destination chain options
    */
-  async init(privateKey: string, options: SdkOptions[]) {
-    for (let option of options) {
-      const { networkName } = option;
-      this.sdkIntances[networkName] = new Sdk(privateKey, option);
+  async init(
+    fromWallet: Wallet,
+    fromNetwork: SdkOptions,
+    toWallet: Wallet,
+    toNetwork: SdkOptions
+  ) {
+    this.fromWallet = fromWallet;
+    this.toWallet = toWallet;
+    {
+      const { networkName } = fromNetwork;
+      this.sdkIntances[networkName] = new Sdk(fromWallet, fromNetwork);
+      await this.sdkIntances[networkName].computeContractAccount();
+    }
+    {
+      const { networkName } = toNetwork;
+      this.sdkIntances[networkName] = new Sdk(toWallet, toNetwork);
       await this.sdkIntances[networkName].computeContractAccount();
     }
     const sdk = this.sdkIntances[this.fromChain];
@@ -70,19 +128,15 @@ class CrossChainStreamService {
     ) {
       throw new Error("Destination chain not supported by bridge");
     }
-    this.initialized = true;
   }
 
   /**
    * Sends funds to the destination chain
    * If the asset on the origin chain is not supported
    * by Connext, then it swaps to canonical asset via available dex
-   * @returns submitted batch transaction hash
+   * @returns batch transaction receipt
    */
-  async prepare(): Promise<GatewaySubmittedBatch> {
-    if (!this.initialized) {
-      throw new Error("Not inititalized");
-    }
+  async prepare(): Promise<ethers.providers.TransactionReceipt> {
     const sdk = this.sdkIntances[this.fromChain];
     const supportedTokens = await this.fetchSupportedTokens();
     const supportsFromToken = supportedTokens.find(
@@ -99,6 +153,7 @@ class CrossChainStreamService {
         throw new Error("Destination token not supported by bridge");
       }
     }
+    this.amountToTransfer = this.amount;
     if (!supportsFromToken) {
       const token = supportedTokens.find(token =>
         token.chainId === this.chainIds.from
@@ -125,14 +180,23 @@ class CrossChainStreamService {
     const erc20 = this.getERC20Contract(
       this.fromChain,
       this.canonicalFromToken
-    )
+    );
+    const sendTx = await this.fromWallet.sendTransaction(
+      erc20.encodeTransfer(
+        sdk.state.accountAddress,
+        this.amountToTransfer
+      )
+    );
+    await sendTx.wait()
     const approvalRequest = erc20.encodeApprove(
       quote.approvalData.approvalAddress,
       quote.approvalData.amount
     );
     await sdk.batchExecuteAccountTransaction(approvalRequest);
-    await sdk.estimateGatewayBatch();
-    return await sdk.submitGatewayBatch();
+    await sdk.batchExecuteAccountTransaction(quote.transaction);
+    const batch = await sdk.encodeGatewayBatch();
+    const response = await this.fromWallet.sendTransaction(batch);
+    return await response.wait();
   }
 
   /**
@@ -141,7 +205,7 @@ class CrossChainStreamService {
    * it is swapped back to the original asset via available dex
    * @returns submitted batch transaction hash
    */
-  async createStream(): Promise<GatewaySubmittedBatch> {
+  async createStream(): Promise<ethers.providers.TransactionReceipt> {
     const sdk = this.sdkIntances[this.toChain];
     const supportedTokens = await this.fetchSupportedTokens();
     const supportsToToken = supportedTokens.find(
@@ -169,10 +233,24 @@ class CrossChainStreamService {
       this.toToken
     );
     if (!this.superTokenAddress) {
-      this.superTokenAddress = await sdk.createSuperERC20Wrapper(
+      const tx = await sdk.createSuperERC20WrapperTransactionPayload(
         this.toToken
       );
+      await sdk.batchExecuteAccountTransaction(tx);
+      const txResponse = await this.toWallet.sendTransaction(
+        await sdk.encodeGatewayBatch()
+      );
+      const txReceipt = await txResponse.wait();
+      const factoryContract = new SuperTokenFactoryContract();
+      const factoryCreated = factoryContract
+        .parseLogs(txReceipt.logs)
+        .find(log => log && log.event === 'SuperTokenCreated');
+      if (!factoryCreated) {
+        return null;
+      }
+      this.superTokenAddress = factoryCreated.args[0];
     }
+    await sdk.clearGatewayBatch();
     const superTokenContract = new SuperTokenContract(
       this.superTokenAddress
     );
@@ -191,8 +269,9 @@ class CrossChainStreamService {
       amount: this.amountToStream, // amount in wei
     });
     await sdk.batchExecuteAccountTransaction(txnData);
-    await sdk.estimateGatewayBatch();
-    return await sdk.submitGatewayBatch();
+    const batch = await sdk.encodeGatewayBatch();
+    const response = await this.toWallet.sendTransaction(batch);
+    return await response.wait();
   }
 
   async swapToken(
@@ -246,7 +325,7 @@ class CrossChainStreamService {
   }
 
   private async fetchSupportedTokens(): Promise<CrossChainBridgeToken[]> {
-    const sdk = this.sdkIntances[this.chainIds.from];
+    const sdk = this.sdkIntances[this.fromChain];
     return await sdk.getCrossChainBridgeTokenList({
       fromChainId: this.chainIds.from,
       toChainId: this.chainIds.to,
@@ -271,39 +350,3 @@ class CrossChainStreamService {
     }
   }
 }
-
-async function main(): Promise<void> {
-  const SENDER_PRIVATE_KEY = process.env.SENDER_PRIVATE_KEY;
-  try {
-    // TEST ERC20 Token (Goerli)
-    const fromToken = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b";
-    // TEST ERC20 Token (Rinkeby)
-    const toToken = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9";
-    const receiver = "0x7220A66Ed094F0C7c04e221ff5b436bD304776A0";
-
-    const crossChainStreamingService = new CrossChainStreamService(
-      NetworkNames.Goerli,
-      NetworkNames.Rinkeby,
-      fromToken,
-      toToken,
-      ethers.utils.parseEther("100"),
-      receiver
-    );
-    await crossChainStreamingService.init(
-      SENDER_PRIVATE_KEY,
-      [
-        { networkName: NetworkNames.Rinkeby, env: EnvNames.TestNets },
-        { networkName: NetworkNames.Goerli, env: EnvNames.TestNets },
-      ],
-    );
-    await crossChainStreamingService.prepare();
-    // wait some time while connext is sending funds to destination chain
-    await crossChainStreamingService.createStream();
-  } catch (err) {
-    logger.log("Caught Error: ", JSON.stringify(err, undefined, 2));
-  }
-}
-
-main()
-  .catch(logger.error)
-  .finally(() => process.exit());
