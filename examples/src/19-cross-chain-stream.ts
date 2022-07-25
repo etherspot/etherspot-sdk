@@ -17,49 +17,6 @@ import {
 } from "../../src";
 import { logger } from "./common";
 
-async function main(): Promise<void> {
-  const SENDER_PRIVATE_KEY = process.env.SENDER_PRIVATE_KEY;
-  const INFURA_PROJECT_ID = process.env.PROJECT_ID;
-
-  try {
-    // TEST ERC20 Token (Goerli)
-    const fromToken = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b";
-    // TEST ERC20 Token (Rinkeby)
-    const toToken = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9";
-    const receiver = "0xaA2e72E4f8a98626B5D41a9CF5dfd237fC1F70e4";
-
-    const goerliProvider = new ethers.providers.InfuraProvider("goerli", INFURA_PROJECT_ID);
-    const rinkebyProvider = new ethers.providers.InfuraProvider("rinkeby", INFURA_PROJECT_ID);
-    const goerliWallet = new Wallet(SENDER_PRIVATE_KEY, goerliProvider);
-    const rinkeyWallet = new Wallet(SENDER_PRIVATE_KEY, rinkebyProvider);
-    const crossChainStreamingService = new CrossChainStreamService(
-      NetworkNames.Goerli,
-      NetworkNames.Rinkeby,
-      fromToken,
-      toToken,
-      ethers.utils.parseEther("10"),
-      receiver
-    );
-    await crossChainStreamingService.init(
-      goerliWallet,
-      { networkName: NetworkNames.Goerli, env: EnvNames.TestNets },
-      rinkeyWallet,
-      { networkName: NetworkNames.Rinkeby, env: EnvNames.TestNets },
-    );
-    await crossChainStreamingService.prepare();
-
-    // -- wait some time while connext is sending funds to destination chain
-    // -- usually it takes 3-5 minutes in testnets
-    // await crossChainStreamingService.createStream();
-  } catch (err) {
-    logger.log("Caught Error: ", err);
-  }
-}
-
-main()
-  .catch(logger.error)
-  .finally(() => process.exit());
-
 class CrossChainStreamService {
   sdkIntances: { [network: string]: Sdk } = {};
   // canonical is a default token of a chain chosen by connext
@@ -350,3 +307,46 @@ class CrossChainStreamService {
     }
   }
 }
+
+async function main(): Promise<void> {
+  const SENDER_PRIVATE_KEY = process.env.SENDER_PRIVATE_KEY;
+  const INFURA_PROJECT_ID = process.env.PROJECT_ID;
+
+  try {
+    // TEST ERC20 Token (Goerli)
+    const fromToken = "0x26FE8a8f86511d678d031a022E48FfF41c6a3e3b";
+    // TEST ERC20 Token (Rinkeby)
+    const toToken = "0x3FFc03F05D1869f493c7dbf913E636C6280e0ff9";
+    const receiver = "0xaA2e72E4f8a98626B5D41a9CF5dfd237fC1F70e4";
+
+    const goerliProvider = new ethers.providers.InfuraProvider("goerli", INFURA_PROJECT_ID);
+    const rinkebyProvider = new ethers.providers.InfuraProvider("rinkeby", INFURA_PROJECT_ID);
+    const goerliWallet = new Wallet(SENDER_PRIVATE_KEY, goerliProvider);
+    const rinkeyWallet = new Wallet(SENDER_PRIVATE_KEY, rinkebyProvider);
+    const crossChainStreamingService = new CrossChainStreamService(
+      NetworkNames.Goerli,
+      NetworkNames.Rinkeby,
+      fromToken,
+      toToken,
+      ethers.utils.parseEther("10"),
+      receiver
+    );
+    await crossChainStreamingService.init(
+      goerliWallet,
+      { networkName: NetworkNames.Goerli, env: EnvNames.TestNets },
+      rinkeyWallet,
+      { networkName: NetworkNames.Rinkeby, env: EnvNames.TestNets },
+    );
+    await crossChainStreamingService.prepare();
+
+    // -- wait some time while connext is sending funds to destination chain
+    // -- usually it takes 3-5 minutes in testnets
+    // await crossChainStreamingService.createStream();
+  } catch (err) {
+    logger.log("Caught Error: ", err);
+  }
+}
+
+main()
+  .catch(logger.error)
+  .finally(() => process.exit());
