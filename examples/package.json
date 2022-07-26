@@ -23,7 +23,7 @@
     "15-topup-fuctions": "../node_modules/.bin/ts-node ./src/15-topup-fuctions",
     "16-cross-chain-quote": "../node_modules/.bin/ts-node ./src/16-cross-chain-quote.ts",
     "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts",
-    "18-cross-chain-quote": "../node_modules/.bin/ts-node ./src/18-cross-chain-quote.ts"
+    "18-cross-chain-stream": "../node_modules/.bin/ts-node ./src/18-cross-chain-stream.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"
