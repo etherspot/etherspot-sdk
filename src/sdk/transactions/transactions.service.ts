@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { Service } from '../common';
-import { NftList, StreamTransactionPayload, Transaction, Transactions } from './classes';
+import { NftList, StreamList, StreamTransactionPayload, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -147,15 +147,16 @@ export class TransactionsService extends Service {
     receiver: string,
     amount: BigNumber,
     tokenAddress: string,
-    ): Promise<StreamTransactionPayload> {
+    userData: string,
+  ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!) {
-          result: streamTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId) {
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
+          result: streamTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
             data
             to
             error
@@ -167,7 +168,185 @@ export class TransactionsService extends Service {
           account,
           receiver,
           amount,
-          tokenAddress
+          tokenAddress,
+          userData,
+        },
+        models: {
+          result: StreamTransactionPayload,
+        },
+      },
+    );
+    return result;
+  }
+
+  async modifyStreamTransactionPayload(
+    account: string,
+    receiver: string,
+    amount: BigNumber,
+    tokenAddress: string,
+    userData?: string,
+  ): Promise<StreamTransactionPayload> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: StreamTransactionPayload;
+    }>(
+      gql`
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
+          result: modifyTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
+            data
+            to
+            error
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          receiver,
+          amount,
+          tokenAddress,
+          userData,
+        },
+        models: {
+          result: StreamTransactionPayload,
+        },
+      },
+    );
+    return result;
+  }
+
+  async deleteStreamTransactionPayload(
+    account: string,
+    receiver: string,
+    tokenAddress: string,
+    userData: string,
+  ): Promise<StreamTransactionPayload> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: StreamTransactionPayload;
+    }>(
+      gql`
+        query($account: String!, $receiver: String!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
+          result: deleteTransactionPayload(account: $account, receiver: $receiver, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
+            data
+            to
+            error
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          receiver,
+          tokenAddress,
+          userData,
+        },
+        models: {
+          result: StreamTransactionPayload,
+        },
+      },
+    );
+    return result;
+  }
+
+  async getStreamList(
+    account: string,
+  ): Promise<StreamList> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: StreamList;
+    }>(
+      gql`
+        query($account: String!, $chainId: Int!) {
+          result: streamList(account: $account, chainId: $chainId) {
+            items {
+              id
+              createdAtTimestamp
+              createdAtBlockNumber
+              updatedAtTimestamp
+              updatedAtBlockNumber
+              currentFlowRate
+              streamedUntilUpdatedAt
+              token {
+                id
+                createdAtTimestamp
+                createdAtBlockNumber
+                name
+                symbol
+                isListed
+                underlyingAddress
+              }
+              sender
+              receiver
+              flowUpdatedEvents {
+                id
+                blockNumber
+                timestamp
+                transactionHash
+                token
+                sender
+                receiver
+                flowRate
+                totalSenderFlowRate
+                totalReceiverFlowRate
+                userData
+                oldFlowRate
+                type
+                totalAmountStreamedUntilTimestamp
+              }
+            }
+            error
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+        },
+        models: {
+          result: StreamList,
+        },
+      },
+    );
+    return result;
+  }
+
+  async createSuperERC20WrapperTransactionPayload(
+    underlyingToken: string,
+    underlyingDecimals: number,
+    name: string,
+    symbol: string
+  ): Promise<StreamTransactionPayload> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: StreamTransactionPayload;
+    }>(
+      gql`
+        query($chainId: Int!, $underlyingToken: String!, $underlyingDecimals: Int, $name: String, $symbol: String) {
+          result: createSuperERC20WrapperTransactionPayload(
+            chainId: $chainId,
+            underlyingToken: $underlyingToken,
+            underlyingDecimals: $underlyingDecimals,
+            name: $name,
+            symbol: $symbol
+          ) {
+            error,
+            data,
+            to
+          }
+        }
+      `,
+      {
+        variables: {
+          chainId: this.services.networkService.chainId,
+          underlyingToken,
+          underlyingDecimals,
+          name,
+          symbol,
         },
         models: {
           result: StreamTransactionPayload,

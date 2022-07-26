@@ -5,13 +5,13 @@ export class GetCrossChainBridgeRouteDto {
   fromTokenAddress: string;
 
   @IsPositive()
-  fromChainId?: number;
+  fromChainId: number;
 
   @IsAddress()
   toTokenAddress: string;
 
   @IsPositive()
-  toChainId?: number;
+  toChainId: number;
 
   fromAmount: string;
 
