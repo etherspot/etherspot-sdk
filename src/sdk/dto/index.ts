@@ -68,7 +68,6 @@ export * from './utils';
 export * from './withdraw-p2p-payment-deposit.dto';
 export * from './get-exchange-cross-chain-quote.dto';
 export * from './create-stream-payload.dto';
-export * from './get-cross-chain-bridge-supported-chains.dto';
 export * from './delete-stream-payload.dto';
 export * from './get-stream-list.dto';
 export * from './get-exchange-supported-assets.dto';

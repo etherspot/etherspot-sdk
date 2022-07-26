@@ -12,12 +12,11 @@ import {
   CrossChainBridgeRoutes,
   CrossChainBridgeBuildTXResponse,
   BridgingQuotes,
-  ExchangeRouterAddress,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
-import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto, GetCrossChainBridgeSupportedChainsDto } from '../dto';
-import { CrossChainServiceProvider } from './constants';
+import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto } from '../dto';
+import { CrossChainServiceProvider } from '.';
 
 export class ExchangeService extends Service {
   async getExchangeSupportedAssets(page: number = null, limit: number = null, ChainId: number): Promise<PaginatedTokens> {
@@ -222,18 +221,15 @@ export class ExchangeService extends Service {
     return result ? result.items : null;
   }
 
-  async getCrossChainBridgeSupportedChains(dto: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
+  async getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
     const { apiService } = this.services;
-    const { serviceProvider } = dto;
 
     const { result } = await apiService.query<{
       result: CrossChainBridgeSupportedChains;
     }>(
       gql`
-        query($serviceProvider: CrossChainServiceProvider) {
-          result: crossChainBridgeSupportedChains(
-            serviceProvider: $serviceProvider
-          ) {
+        query {
+          result: crossChainBridgeSupportedChains {
             items {
               chainId
               name
@@ -256,9 +252,6 @@ export class ExchangeService extends Service {
         }
       `,
       {
-        variables: {
-          serviceProvider,
-        },
         models: {
           result: CrossChainBridgeSupportedChains,
         },
@@ -270,25 +263,18 @@ export class ExchangeService extends Service {
 
   async getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
     const { apiService } = this.services;
-    const { direction, fromChainId, toChainId, disableSwapping, serviceProvider } = dto;
+    const { direction, fromChainId, toChainId, disableSwapping } = dto;
 
     const { result } = await apiService.query<{
       result: CrossChainBridgeTokenList;
     }>(
       gql`
-        query(
-          $direction: SocketTokenDirection!,
-          $fromChainId: Int!,
-          $toChainId: Int!,
-          $disableSwapping: Boolean,
-          $serviceProvider: CrossChainServiceProvider
-        ) {
+        query($direction: SocketTokenDirection!, $fromChainId: Int!, $toChainId: Int!, $disableSwapping: Boolean) {
           result: crossChainBridgeTokenList(
             direction: $direction
             fromChainId: $fromChainId
             toChainId: $toChainId
-            disableSwapping: $disableSwapping,
-            serviceProvider: $serviceProvider
+            disableSwapping: $disableSwapping
           ) {
             items {
               name
@@ -307,7 +293,6 @@ export class ExchangeService extends Service {
           fromChainId,
           toChainId,
           disableSwapping,
-          serviceProvider,
         },
         models: {
           result: CrossChainBridgeTokenList,
@@ -504,26 +489,6 @@ export class ExchangeService extends Service {
           payload: { payload: dto },
         },
       },
-    );
-    return result;
-  }
-
-  async getExchangeRoutersAddress(dto: ExchangeRouterAddress): Promise<string[]> {
-    const { apiService } = this.services;
-    const { chainId } = dto;
-    const { result } = await apiService.query<{
-      result: string[]
-    }>(
-      gql`
-        query($chainId: number) {
-          result: getExchangeRoutersAddress(chainId: $chainId)
-        }
-      `,
-      {
-        variables: {
-          chainId,
-        },
-      }
     );
     return result;
   }

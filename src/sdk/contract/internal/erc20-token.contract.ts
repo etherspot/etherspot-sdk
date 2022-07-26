@@ -9,5 +9,4 @@ export class ERC20TokenContract extends InternalContract {
   }
 
   encodeTransfer?(to: string, value: BigNumberish): TransactionRequest;
-  encodeApprove?(spender: string, value: BigNumberish): TransactionRequest;
 }

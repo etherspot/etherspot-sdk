@@ -15,5 +15,4 @@ export enum SocketTokenDirection {
 export enum CrossChainServiceProvider {
   SocketV2 = 'SocketV2',
   LiFi = 'LiFi',
-  Connext = 'Connext',
 }

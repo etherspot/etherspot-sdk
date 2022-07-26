@@ -100,7 +100,6 @@ import {
   GetCrossChainBridgeTokenListDto,
   GetP2PPaymentChannelsAdminDto,
   CreateStreamTransactionPayloadDto,
-  GetCrossChainBridgeSupportedChainsDto,
   DeleteStreamTransactionPayloadDto,
   GetStreamListDto,
   GetExchangeSupportedAssetsDto,
@@ -1314,8 +1313,8 @@ export class Sdk {
     );
   }
 
-  getCrossChainBridgeSupportedChains(dto: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
-    return this.services.exchangeService.getCrossChainBridgeSupportedChains(dto);
+  getCrossChainBridgeSupportedChains(): Promise<CrossChainBridgeSupportedChain[]> {
+    return this.services.exchangeService.getCrossChainBridgeSupportedChains();
   }
 
   getCrossChainBridgeTokenList(dto: GetCrossChainBridgeTokenListDto): Promise<CrossChainBridgeToken[]> {
@@ -2201,25 +2200,7 @@ export class Sdk {
     return this.services.transactionsService.getStreamList(
       this.prepareAccountAddress(account),
     );
-  }
 
-  /**
-   * wraps erc20 token to super token
-   * @return Promise<string | null>
-   */
-  async createSuperERC20WrapperTransactionPayload(
-    underlyingToken: string,
-    underlyingDecimals?: number,
-    name?: string,
-    symbol?: string,
-  ): Promise<StreamTransactionPayload> {
-    return this.services.transactionsService
-      .createSuperERC20WrapperTransactionPayload(
-        underlyingToken,
-        underlyingDecimals,
-        name,
-        symbol
-      );
   }
 
   // utils

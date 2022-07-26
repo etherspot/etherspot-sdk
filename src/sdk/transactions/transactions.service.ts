@@ -314,45 +314,4 @@ export class TransactionsService extends Service {
     return result;
   }
 
-  async createSuperERC20WrapperTransactionPayload(
-    underlyingToken: string,
-    underlyingDecimals: number,
-    name: string,
-    symbol: string
-  ): Promise<StreamTransactionPayload> {
-    const { apiService } = this.services;
-
-    const { result } = await apiService.query<{
-      result: StreamTransactionPayload;
-    }>(
-      gql`
-        query($chainId: Int!, $underlyingToken: String!, $underlyingDecimals: Int, $name: String, $symbol: String) {
-          result: createSuperERC20WrapperTransactionPayload(
-            chainId: $chainId,
-            underlyingToken: $underlyingToken,
-            underlyingDecimals: $underlyingDecimals,
-            name: $name,
-            symbol: $symbol
-          ) {
-            error,
-            data,
-            to
-          }
-        }
-      `,
-      {
-        variables: {
-          chainId: this.services.networkService.chainId,
-          underlyingToken,
-          underlyingDecimals,
-          name,
-          symbol,
-        },
-        models: {
-          result: StreamTransactionPayload,
-        },
-      },
-    );
-    return result;
-  }
 }
