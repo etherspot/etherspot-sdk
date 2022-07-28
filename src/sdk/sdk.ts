@@ -1314,7 +1314,7 @@ export class Sdk {
     );
   }
 
-  getCrossChainBridgeSupportedChains(dto: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
+  getCrossChainBridgeSupportedChains(dto?: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
     return this.services.exchangeService.getCrossChainBridgeSupportedChains(dto);
   }
 

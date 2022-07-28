@@ -224,7 +224,7 @@ export class ExchangeService extends Service {
 
   async getCrossChainBridgeSupportedChains(dto?: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
     const { apiService } = this.services;
-    const { serviceProvider } = dto;
+    const serviceProvider = dto?.serviceProvider;
 
     const { result } = await apiService.query<{
       result: CrossChainBridgeSupportedChains;

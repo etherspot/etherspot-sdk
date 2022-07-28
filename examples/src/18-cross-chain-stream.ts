@@ -373,13 +373,13 @@ async function main(): Promise<void> {
   const SENDER_PRIVATE_KEY = '';
   const GOERLI_ALCHEMY_KEY = '';
   const MUMBAI_ALCHEMY_KEY = '';
+  const RECEIVER_ADDRESS = '';
 
   try {
     // TEST ERC20 Token (Goerli)
     const fromToken = "0x0000000000000000000000000000000000000000";
     // TEST ERC20 Token (Mumbai)
     const toToken = "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa";
-    const receiver = "0xaA2e72E4f8a98626B5D41a9CF5dfd237fC1F70e4";
 
     const fromProvider = new ethers.providers.InfuraProvider(5, GOERLI_ALCHEMY_KEY);
     const toProvider = new ethers.providers.AlchemyProvider(80001, MUMBAI_ALCHEMY_KEY);
@@ -391,7 +391,7 @@ async function main(): Promise<void> {
       fromToken,
       toToken,
       ethers.utils.parseEther("0.001"),
-      receiver,
+      RECEIVER_ADDRESS,
       ethers.BigNumber.from("1000"),
       CrossChainServiceProvider.LiFi,
       true
@@ -408,7 +408,7 @@ async function main(): Promise<void> {
     // -- usually it takes 3-5 minutes in testnets
     // await crossChainStreamingService.createStream();
   } catch (err) {
-    console.error("Caught Error: ", JSON.stringify(err, undefined, 2));
+    console.error("Caught Error: ", err);
   }
 }
 
