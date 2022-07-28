@@ -156,7 +156,7 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: boolean) {
           result: streamTransactionPayload(
             account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
           ) {
@@ -189,7 +189,7 @@ export class TransactionsService extends Service {
     amount: BigNumber,
     tokenAddress: string,
     userData?: string,
-    skipBalanceCheck?: Boolean,
+    skipBalanceCheck?: boolean,
   ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
