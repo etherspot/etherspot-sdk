@@ -148,6 +148,7 @@ export class TransactionsService extends Service {
     amount: BigNumber,
     tokenAddress: string,
     userData: string,
+    skipBalanceCheck: boolean
   ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
@@ -155,8 +156,10 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
-          result: streamTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
+          result: streamTransactionPayload(
+            account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
+          ) {
             data
             to
             error
@@ -170,6 +173,7 @@ export class TransactionsService extends Service {
           amount,
           tokenAddress,
           userData,
+          skipBalanceCheck,
         },
         models: {
           result: StreamTransactionPayload,
@@ -185,6 +189,7 @@ export class TransactionsService extends Service {
     amount: BigNumber,
     tokenAddress: string,
     userData?: string,
+    skipBalanceCheck?: Boolean,
   ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
@@ -192,8 +197,10 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
-          result: modifyTransactionPayload(account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
+          result: modifyTransactionPayload(
+            account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
+          ) {
             data
             to
             error
@@ -207,6 +214,7 @@ export class TransactionsService extends Service {
           amount,
           tokenAddress,
           userData,
+          skipBalanceCheck,
         },
         models: {
           result: StreamTransactionPayload,

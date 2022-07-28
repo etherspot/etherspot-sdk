@@ -19,4 +19,6 @@ export class CreateStreamTransactionPayloadDto {
     @IsOptional()
     userData?: string;
 
+    @IsOptional()
+    skipBalanceCheck?: boolean;
 }

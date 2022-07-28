@@ -2110,7 +2110,7 @@ export class Sdk {
    */
 
   async createStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
-    const { tokenAddress, receiver, amount, account, userData } = await validateDto(
+    const { tokenAddress, receiver, amount, account, userData, skipBalanceCheck } = await validateDto(
       dto,
       CreateStreamTransactionPayloadDto,
       {
@@ -2130,6 +2130,7 @@ export class Sdk {
       BigNumber.from(amount),
       tokenAddress,
       userData ? userData : "0x",
+      skipBalanceCheck,
     );
 
   }
