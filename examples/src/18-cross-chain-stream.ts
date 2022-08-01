@@ -63,7 +63,6 @@ class CrossChainStreamService {
     toWallet: Wallet,
     toNetwork: SdkOptions
   ) {
-    console.log("Initializing...");
     this.fromWallet = fromWallet;
     this.toWallet = toWallet;
     {
@@ -77,23 +76,19 @@ class CrossChainStreamService {
       await this.sdkIntances[networkName].computeContractAccount();
     }
     const sdk = this.sdkIntances[this.fromChain];
-    console.log("Checking supported chains...");
     const supportedChains = await sdk.getCrossChainBridgeSupportedChains({
       serviceProvider: this.serviceProvider
     });
     if (!supportedChains.find(
       ({ chainId }) => chainId === this.chainIds.from)
     ) {
-      console.log("Origin chain is not supported by bridge");
       throw new Error("Chain not supported");
     }
     if (!supportedChains.find(
       ({ chainId }) => chainId === this.chainIds.to)
     ) {
-      console.log("Destination chain is not supported by bridge");
       throw new Error("Chain not supported");
     }
-    console.log("Crosschain streaming service initialized");
   }
 
   /**
@@ -103,12 +98,8 @@ class CrossChainStreamService {
    * @returns batch transaction receipt
    */
   async prepare(): Promise<ethers.providers.TransactionReceipt> {
-    console.log("Preparing: Fetching supported tokens...");
     const sdk = this.sdkIntances[this.fromChain];
     const supportedTokens = await this.fetchSupportedTokens();
-    console.log(this.chainIds.from, supportedTokens.find(
-      token => addressesEqual(token.address, this.fromToken) &&
-        token.chainId === this.chainIds.from));
     const supportsFromToken = supportedTokens.find(
       token => addressesEqual(token.address, this.fromToken) &&
         token.chainId === this.chainIds.from);
@@ -150,13 +141,11 @@ class CrossChainStreamService {
       fromAmount: this.amountToTransfer,
       serviceProvider: this.serviceProvider,
     });
-    logger.log("Got crosschain quote:", { quote });
     const erc20 = this.getERC20Contract(
       this.fromChain,
       this.canonicalFromToken
     );
 
-    console.log("Sending tokens to account...");
     if (!addressesEqual(
       this.canonicalFromToken,
       ethers.constants.AddressZero)
@@ -168,14 +157,12 @@ class CrossChainStreamService {
         )
       );
       await sendTx.wait();
-      console.log('Sent');
     } else {
       const sendTx = await this.fromWallet.sendTransaction({
         to: sdk.state.account.address,
         value: this.amountToTransfer
       });
       await sendTx.wait();
-      console.log('Sent');
     }
     if (quote.approvalData) {
       const approvalRequest = erc20.encodeApprove(
@@ -184,13 +171,10 @@ class CrossChainStreamService {
       );
       await sdk.batchExecuteAccountTransaction(approvalRequest);
     } else {
-      console.log('No need for approval. Sending native asset?');
     }
     await sdk.batchExecuteAccountTransaction(quote.transaction);
     const batch = await sdk.encodeGatewayBatch();
-    console.log("Sending tokens to another chain...");
     const response = await this.fromWallet.sendTransaction(batch);
-    console.log("Sent. Wait until you receive funds and start streaming");
     return await response.wait();
   }
 
@@ -201,9 +185,7 @@ class CrossChainStreamService {
    * @returns submitted batch transaction hash
    */
   async createStream(): Promise<ethers.providers.TransactionReceipt> {
-    console.log("Creating stream...");
     const sdk = this.sdkIntances[this.toChain];
-    console.log("Fething supported tokens...");
     const supportedTokens = await this.fetchSupportedTokens();
     const supportsToToken = supportedTokens.find(
       token => addressesEqual(token.address, this.toToken) &&
@@ -257,25 +239,15 @@ class CrossChainStreamService {
     const superTokenContract = new SuperTokenContract(
       this.superTokenAddress
     );
-    console.log("Approving for upgrade...")
     const approveReq = erc20TokenContract.encodeApprove(
       this.superTokenAddress,
       this.amountToStream
     );
     await sdk.batchExecuteAccountTransaction(approveReq)
-    console.log("Upgrading to super token...")
     const upgradeReq = superTokenContract.encodeUpgrade(
       this.amountToStream
     );
     await sdk.batchExecuteAccountTransaction(upgradeReq);
-    // {
-    //   const batch = await sdk.encodeGatewayBatch();
-    //   console.log("Sending batch transaction");
-    //   const response = await this.toWallet.sendTransaction(batch);
-    //   console.log("Batch transaction sent");
-    //   await response.wait();
-    // }
-    console.log("Starting stream...")
     const txnData = await sdk.createStreamTransactionPayload({
       tokenAddress: this.superTokenAddress,
       receiver: this.receiver,
@@ -283,13 +255,9 @@ class CrossChainStreamService {
       skipBalanceCheck: true,
     });
     await sdk.batchExecuteAccountTransaction(txnData);
-    {
-      const batch = await sdk.encodeGatewayBatch();
-      console.log("Sending batch transaction");
-      const response = await this.toWallet.sendTransaction(batch);
-      console.log("Batch transaction sent");
-      return await response.wait();
-    }
+    const batch = await sdk.encodeGatewayBatch();
+    const response = await this.toWallet.sendTransaction(batch);
+    return await response.wait();
   }
 
   async swapToken(
@@ -396,17 +364,22 @@ async function main(): Promise<void> {
       CrossChainServiceProvider.LiFi,
       true
     );
+    console.log("Initializing...");
     await crossChainStreamingService.init(
       fromWallet,
       { networkName: NetworkNames.Goerli, env: EnvNames.TestNets },
       toWallet,
       { networkName: NetworkNames.Mumbai, env: EnvNames.TestNets },
     );
+    console.log("Preparing...");
     await crossChainStreamingService.prepare();
+    console.log("Prepared for streaming. Wait for some time while bridge is sending funds to destination chain and start streaming");
 
     // -- wait some time while connext is sending funds to destination chain
     // -- usually it takes 3-5 minutes in testnets
+    // console.log("Creating stream...");
     // await crossChainStreamingService.createStream();
+    // console.log("Done.");
   } catch (err) {
     console.error("Caught Error: ", err);
   }
