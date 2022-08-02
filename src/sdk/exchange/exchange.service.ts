@@ -222,9 +222,9 @@ export class ExchangeService extends Service {
     return result ? result.items : null;
   }
 
-  async getCrossChainBridgeSupportedChains(dto: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
+  async getCrossChainBridgeSupportedChains(dto?: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
     const { apiService } = this.services;
-    const { serviceProvider } = dto;
+    const serviceProvider = dto?.serviceProvider;
 
     const { result } = await apiService.query<{
       result: CrossChainBridgeSupportedChains;

@@ -15,4 +15,6 @@ export class DeleteStreamTransactionPayloadDto {
     @IsOptional()
     userData?: string = null;
 
+    @IsOptional()
+    skipBalanceCheck?: boolean;
 }

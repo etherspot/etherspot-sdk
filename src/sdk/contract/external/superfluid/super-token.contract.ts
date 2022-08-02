@@ -7,7 +7,7 @@ export class SuperTokenContract extends ExternalContract {
   constructor(
     address: string
   ) {
-    super('SuperTOkenContract', SuperTokenContractABI)
+    super('SuperTokenContract', SuperTokenContractABI)
     this._address = address;
   }
 
