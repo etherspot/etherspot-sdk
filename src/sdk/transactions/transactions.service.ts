@@ -156,7 +156,7 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: boolean) {
+        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
           result: streamTransactionPayload(
             account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
           ) {
