@@ -16,4 +16,5 @@ export enum CrossChainServiceProvider {
   SocketV2 = 'SocketV2',
   LiFi = 'LiFi',
   Connext = 'Connext',
+  Hop = 'Hop',
 }
