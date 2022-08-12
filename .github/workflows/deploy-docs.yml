@@ -19,12 +19,12 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-add - <<< "${{ secrets.SSH_KEY_DOCS }}"
+          ssh-add - <<< "${{ secrets.SSH_MACHINE_KEY_DOCS }}"
 
       - name: Setup git
         run: |
-          git config --global user.email "admin@etherspot.dev"
-          git config --global user.name "ETHERspot"
+          git config --global user.email "infrastructure@pillarproject.io"
+          git config --global user.name "EtherspotBOT"
 
       - name: Checkout
         uses: actions/checkout@v2
