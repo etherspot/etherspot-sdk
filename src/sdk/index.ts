@@ -17,6 +17,7 @@ export * from './network';
 export * from './notification';
 export * from './payments';
 export * from './project';
+export * from './rates';
 export * from './session';
 export * from './state';
 export * from './transactions';

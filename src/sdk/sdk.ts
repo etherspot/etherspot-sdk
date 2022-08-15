@@ -104,6 +104,7 @@ import {
   DeleteStreamTransactionPayloadDto,
   GetStreamListDto,
   GetExchangeSupportedAssetsDto,
+  FetchExchangeRatesDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -148,8 +149,16 @@ import {
   PaymentHubService,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
+import { Rates } from './rates';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList } from './transactions';
+import {
+  Transactions,
+  Transaction,
+  TransactionsService,
+  NftList,
+  StreamTransactionPayload,
+  StreamList,
+} from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -749,7 +758,7 @@ export class Sdk {
    * @param dto
    * @return Promise<AccountBalances>
    */
-   async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
+  async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
     const { account, tokens, chainId } = await validateDto(dto, GetAccountBalancesDto, {
       addressKeys: ['account', 'tokens'],
     });
@@ -763,7 +772,7 @@ export class Sdk {
     return this.services.accountService.getAccountBalances(
       this.prepareAccountAddress(account), //
       tokens,
-      ChainId
+      ChainId,
     );
   }
 
@@ -1314,7 +1323,9 @@ export class Sdk {
     );
   }
 
-  getCrossChainBridgeSupportedChains(dto?: GetCrossChainBridgeSupportedChainsDto): Promise<CrossChainBridgeSupportedChain[]> {
+  getCrossChainBridgeSupportedChains(
+    dto?: GetCrossChainBridgeSupportedChainsDto,
+  ): Promise<CrossChainBridgeSupportedChain[]> {
     return this.services.exchangeService.getCrossChainBridgeSupportedChains(dto);
   }
 
@@ -2105,7 +2116,7 @@ export class Sdk {
 
   /**
    * returns transaction payload for creating stream of supertoken
-   * @param dto 
+   * @param dto
    * @return Promise<StreamTransactionPayload>
    */
 
@@ -2129,20 +2140,15 @@ export class Sdk {
       receiver,
       BigNumber.from(amount),
       tokenAddress,
-      userData ? userData : "0x",
+      userData ? userData : '0x',
       skipBalanceCheck,
     );
-
   }
 
   async deleteStreamTransactionPayload(dto: DeleteStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
-    const { tokenAddress, receiver, account, userData } = await validateDto(
-      dto,
-      DeleteStreamTransactionPayloadDto,
-      {
-        addressKeys: ['tokenAddress', 'receiver', 'account'],
-      },
-    );
+    const { tokenAddress, receiver, account, userData } = await validateDto(dto, DeleteStreamTransactionPayloadDto, {
+      addressKeys: ['tokenAddress', 'receiver', 'account'],
+    });
 
     await this.require({
       session: true,
@@ -2156,7 +2162,6 @@ export class Sdk {
       tokenAddress,
       userData,
     );
-
   }
 
   async modifyStreamTransactionPayload(dto: CreateStreamTransactionPayloadDto): Promise<StreamTransactionPayload> {
@@ -2179,19 +2184,14 @@ export class Sdk {
       receiver,
       BigNumber.from(amount),
       tokenAddress,
-      userData
+      userData,
     );
-
   }
 
   async getStreamList(dto: GetStreamListDto = {}): Promise<StreamList> {
-    const { account } = await validateDto(
-      dto,
-      GetStreamListDto,
-      {
-        addressKeys: ['account'],
-      },
-    );
+    const { account } = await validateDto(dto, GetStreamListDto, {
+      addressKeys: ['account'],
+    });
 
     await this.require({
       session: true,
@@ -2199,9 +2199,7 @@ export class Sdk {
       contractAccount: true,
     });
 
-    return this.services.transactionsService.getStreamList(
-      this.prepareAccountAddress(account),
-    );
+    return this.services.transactionsService.getStreamList(this.prepareAccountAddress(account));
   }
 
   /**
@@ -2214,13 +2212,12 @@ export class Sdk {
     name?: string,
     symbol?: string,
   ): Promise<StreamTransactionPayload> {
-    return this.services.transactionsService
-      .createSuperERC20WrapperTransactionPayload(
-        underlyingToken,
-        underlyingDecimals,
-        name,
-        symbol
-      );
+    return this.services.transactionsService.createSuperERC20WrapperTransactionPayload(
+      underlyingToken,
+      underlyingDecimals,
+      name,
+      symbol,
+    );
   }
 
   // utils
@@ -2392,5 +2389,12 @@ export class Sdk {
     }
 
     return result;
+  }
+
+  async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<Rates> {
+    const { tokenList, chainId } = dto;
+    if (tokenList.length == 0) throw new Exception(`There are no tokens provided`);
+
+    return await this.services.ratesService.fetchExchangeRates(tokenList, chainId);
   }
 }

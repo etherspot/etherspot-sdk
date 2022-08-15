@@ -15,6 +15,7 @@ import { SessionService } from './session';
 import { TransactionsService } from './transactions';
 import { StateService } from './state';
 import { WalletService } from './wallet';
+import { RatesService } from './rates/rates.service';
 import {
   ContractService,
   ENSControllerContract,
@@ -54,6 +55,7 @@ export class Context {
       p2pPaymentsService: P2PPaymentService;
       paymentHubService: PaymentHubService;
       projectService: ProjectService;
+      ratesService: RatesService;
       sessionService: SessionService;
       transactionsService: TransactionsService;
       stateService: StateService;
