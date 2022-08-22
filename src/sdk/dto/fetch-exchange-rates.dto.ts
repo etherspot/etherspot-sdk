@@ -1,5 +1,4 @@
 import { IsAddress } from './validators';
-import { Type } from 'class-transformer';
 import { ArrayNotEmpty, IsInt, IsPositive } from 'class-validator';
 
 export class FetchExchangeRatesDto {
@@ -11,6 +10,5 @@ export class FetchExchangeRatesDto {
 
   @IsInt()
   @IsPositive()
-  @Type(() => Number)
   chainId: number;
 }

@@ -1,25 +1,20 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { Rates } from './classes';
+import { RateData } from './classes';
 
 export class RatesService extends Service {
-  async fetchExchangeRates(tokenList: string[], chainId: number): Promise<Rates> {
+  async fetchExchangeRates(tokenList: string[], chainId: number): Promise<RateData> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
-      result: Rates;
+      result: RateData;
     }>(
       gql`
-        query(
-          $tokenList: String[]
-          $chainId: Int
-        ) {
-          result: fetchExchangeRates(
-            tokenList: $tokenList
-            chainId: $chainId
-            
-          ) {
-            items {
+        query($tokenList: [String!]!, $chainId: Int!) {
+          result: fetchExchangeRates(tokenList: $tokenList, chainId: $chainId) {
+            errored
+            error
+            results {
               address
               eth
               eur
@@ -35,11 +30,11 @@ export class RatesService extends Service {
           chainId,
         },
         models: {
-          result: Rates,
+          result: RateData,
         },
       },
     );
 
-    return result ? result : null;
+    return result;
   }
 }

@@ -149,7 +149,7 @@ import {
   PaymentHubService,
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
-import { Rates } from './rates';
+import { RateData, RatesService } from './rates';
 import { Session, SessionService } from './session';
 import {
   Transactions,
@@ -244,6 +244,7 @@ export class Sdk {
         storage: stateStorage,
       }),
       contractService: new ContractService(),
+      ratesService: new RatesService(),
     };
 
     this.context = new Context(this.internalContracts, this.services);
@@ -2391,10 +2392,8 @@ export class Sdk {
     return result;
   }
 
-  async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<Rates> {
+  async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokenList, chainId } = dto;
-    if (tokenList.length == 0) throw new Exception(`There are no tokens provided`);
-
     return await this.services.ratesService.fetchExchangeRates(tokenList, chainId);
   }
 }
