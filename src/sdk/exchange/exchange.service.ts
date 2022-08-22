@@ -170,6 +170,7 @@ export class ExchangeService extends Service {
     fromTokenAddress: string,
     toTokenAddress: string,
     fromAmount: BigNumber,
+    fromChainId: number,
   ): Promise<ExchangeOffer[]> {
     const { apiService, accountService } = this.services;
 
@@ -180,14 +181,14 @@ export class ExchangeService extends Service {
     }>(
       gql`
         query(
-          $chainId: Int
+          $fromChainId: Int!
           $account: String!
           $fromTokenAddress: String!
           $toTokenAddress: String!
           $fromAmount: BigNumber!
         ) {
           result: exchangeOffers(
-            chainId: $chainId
+            chainId: $fromChainId
             account: $account
             fromTokenAddress: $fromTokenAddress
             toTokenAddress: $toTokenAddress
@@ -208,6 +209,7 @@ export class ExchangeService extends Service {
       `,
       {
         variables: {
+          fromChainId,
           account,
           fromTokenAddress,
           toTokenAddress,
