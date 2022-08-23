@@ -12,6 +12,7 @@ async function main(): Promise<void> {
 
   const wallet = randomWallet();
   const sdk = new Sdk(wallet, { env: EnvNames.LocalNets, networkName: NetworkNames.Mainnet });
+  await sdk.computeContractAccount();
 
   const requestPayload = {
     tokenList: TOKEN_LIST,
