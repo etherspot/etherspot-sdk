@@ -2223,6 +2223,25 @@ export class Sdk {
       );
   }
 
+  /**
+   * searchs for existing super erc20 wrapper on chain
+   * @return Promise<string | null>
+   */
+   async findSuperERC20WrapperOnChain(
+    underlyingToken: string,
+    underlyingDecimals?: number,
+    name?: string,
+    symbol?: string,
+  ): Promise<string> {
+    return this.services.transactionsService
+      .findSuperERC20WrapperOnChain(
+        underlyingToken,
+        underlyingDecimals,
+        name,
+        symbol
+      );
+  }
+
   // utils
 
   /**

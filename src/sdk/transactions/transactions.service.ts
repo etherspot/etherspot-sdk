@@ -363,4 +363,39 @@ export class TransactionsService extends Service {
     );
     return result;
   }
+
+  async findSuperERC20WrapperOnChain(
+    underlyingToken: string,
+    underlyingDecimals: number,
+    name: string,
+    symbol: string
+  ): Promise<string> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: string;
+    }>(
+      gql`
+        query($chainId: Int!, $underlyingToken: String!, $underlyingDecimals: Int, $name: String, $symbol: String) {
+          result: findSuperERC20WrapperOnChain(
+            chainId: $chainId,
+            underlyingToken: $underlyingToken,
+            underlyingDecimals: $underlyingDecimals,
+            name: $name,
+            symbol: $symbol
+          )
+        }
+      `,
+      {
+        variables: {
+          chainId: this.services.networkService.chainId,
+          underlyingToken,
+          underlyingDecimals,
+          name,
+          symbol,
+        },
+      },
+    );
+    return result;
+  }
 }
