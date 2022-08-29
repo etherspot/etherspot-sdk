@@ -1298,7 +1298,7 @@ export class Sdk {
    * @return Promise<ExchangeOffer[]>
    */
   async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
-    const { fromTokenAddress, toTokenAddress, fromAmount } = await validateDto(dto, GetExchangeOffersDto, {
+    const { fromTokenAddress, toTokenAddress, fromAmount, fromChainId } = await validateDto(dto, GetExchangeOffersDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
 
@@ -1307,10 +1307,14 @@ export class Sdk {
       contractAccount: true,
     });
 
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId; 
+
     return this.services.exchangeService.getExchangeOffers(
       fromTokenAddress, //
       toTokenAddress,
       BigNumber.from(fromAmount),
+      chainId,
     );
   }
 
