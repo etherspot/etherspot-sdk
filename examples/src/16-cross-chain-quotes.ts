@@ -1,13 +1,6 @@
 import { BigNumberish, utils } from 'ethers';
 import { ContractNames, getContractAbi } from '@etherspot/contracts';
-import {
-  EnvNames,
-  NetworkNames,
-  Sdk,
-  NETWORK_NAME_TO_CHAIN_ID,
-  BridgingQuotes,
-  CrossChainServiceProvider,
-} from '../../src';
+import { EnvNames, NetworkNames, Sdk, NETWORK_NAME_TO_CHAIN_ID, BridgingQuotes, CrossChainServiceProvider } from '../../src';
 import { logger } from './common';
 import * as dotenv from 'dotenv';
 import { TransactionRequest } from '@ethersproject/abstract-provider';
@@ -55,9 +48,9 @@ async function main(): Promise<void> {
   const fromAmount = utils.parseUnits('1', 6); // 10 USDC
 
   /*
-   * Optional parameter - serviceProvider
-   * Will return quotes from all services provided if not specified
-   */
+  * Optional parameter - serviceProvider
+  * Will return quotes from all services provided if not specified
+  */
   const quoteRequestPayload = {
     fromChainId: fromChainId,
     toChainId: toChainId,
@@ -72,42 +65,42 @@ async function main(): Promise<void> {
   console.log('Quotes');
   logger.log('Quotes: ', quotes);
 
-  if (quotes.items.length > 0) {
-    // Select the first quote
-    const quote = quotes.items[0];
-    logger.log('Quote Selected: ', quote);
+  if(quotes.items.length > 0 ) {
+  // Select the first quote
+  const quote = quotes.items[0];
+  logger.log('Quote Selected: ', quote);
 
-    const tokenAddres = quote.estimate.data.fromToken.address;
-    const approvalAddress = quote.approvalData.approvalAddress;
-    const amount = quote.approvalData.amount;
+  const tokenAddres = quote.estimate.data.fromToken.address;
+  const approvalAddress = quote.approvalData.approvalAddress;
+  const amount = quote.approvalData.amount;
 
-    // Build the approval transaction request
-    const abi = getContractAbi(ContractNames.ERC20Token);
-    const erc20Contract = sdk.registerContract<ERC20Contract>('erc20Contract', abi, tokenAddres);
-    const approvalTransactionRequest: TransactionRequest = erc20Contract.encodeApprove(approvalAddress, amount);
-    logger.log('Approval transaction request', approvalTransactionRequest);
-    await sdk.clearGatewayBatch();
-    // Batch the approval transaction
-    logger.log(
-      'gateway batch approval transaction',
-      await sdk.batchExecuteAccountTransaction({
-        to: approvalTransactionRequest.to,
-        data: approvalTransactionRequest.data,
-        value: approvalTransactionRequest.value,
-      }),
-    );
+  // Build the approval transaction request
+  const abi = getContractAbi(ContractNames.ERC20Token);
+  const erc20Contract = sdk.registerContract<ERC20Contract>('erc20Contract', abi, tokenAddres);
+  const approvalTransactionRequest: TransactionRequest = erc20Contract.encodeApprove(approvalAddress, amount);
+  logger.log('Approval transaction request', approvalTransactionRequest);
+  await sdk.clearGatewayBatch();
+  // Batch the approval transaction
+  logger.log(
+    'gateway batch approval transaction',
+    await sdk.batchExecuteAccountTransaction({
+      to: approvalTransactionRequest.to,
+      data: approvalTransactionRequest.data,
+      value: approvalTransactionRequest.value,
+    }),
+  );
 
-    // Batch the cross chain transaction
-    const { to, value, data }: TransactionRequest = quote.transaction;
-    logger.log(
-      'gateway batch transfer token transaction',
-      await sdk.batchExecuteAccountTransaction({ to, data: data, value }),
-    );
+  // Batch the cross chain transaction
+  const { to, value, data }: TransactionRequest = quote.transaction;
+  logger.log(
+    'gateway batch transfer token transaction',
+    await sdk.batchExecuteAccountTransaction({ to, data: data, value }),
+  );
 
-    const estimatedGas = await sdk.estimateGatewayBatch();
-    // Estimate and submit the transactions to the Gateway
-    logger.log('estimated batch', utils.formatEther(estimatedGas.estimation.feeAmount));
-    logger.log('submitted batch', await sdk.submitGatewayBatch());
+  const estimatedGas = await sdk.estimateGatewayBatch();
+  // Estimate and submit the transactions to the Gateway
+  logger.log('estimated batch', utils.formatEther(estimatedGas.estimation.feeAmount));
+  logger.log('submitted batch', await sdk.submitGatewayBatch());
   }
 }
 
