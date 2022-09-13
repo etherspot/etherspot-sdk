@@ -149,7 +149,7 @@ import {
 } from './payments';
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList } from './transactions';
+import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList, KnownContract } from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -2233,6 +2233,7 @@ export class Sdk {
    */
    async findSuperERC20WrapperOnChain(
     underlyingToken: string,
+    chainId?: number,
     underlyingDecimals?: number,
     name?: string,
     symbol?: string,
@@ -2240,10 +2241,35 @@ export class Sdk {
     return this.services.transactionsService
       .findSuperERC20WrapperOnChain(
         underlyingToken,
+        chainId,
         underlyingDecimals,
         name,
         symbol
       );
+  }
+
+  /**
+   * register super token wrapper
+   * @return Promise<KnownContract | null>
+   */
+  async registerERC20WrapperToken(
+    wrapperAddress: string,
+    chainId?: number
+  ): Promise<KnownContract | null> {
+    return this.services.transactionsService
+      .registerERC20WrapperToken(
+        wrapperAddress,
+        chainId
+      );
+  }
+
+  /**
+   * get all registered super token wrappers
+   * @return Promise<KnownContracts>
+   */
+  async getRegisteredERC20WrapperTokens() {
+    return this.services.transactionsService
+      .getRegisteredERC20WrapperTokens();
   }
 
   // utils

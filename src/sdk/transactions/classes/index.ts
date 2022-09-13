@@ -12,3 +12,5 @@ export * from './transaction-log-decoded';
 export * from './transactions';
 export * from './stream-transaction-payload';
 export * from './streamList';
+export * from './known-contract';
+export * from './known-contracts';
