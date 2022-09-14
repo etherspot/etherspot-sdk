@@ -2393,7 +2393,7 @@ export class Sdk {
   }
 
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
-    const { tokenList, chainId } = dto;
-    return await this.services.ratesService.fetchExchangeRates(tokenList, chainId);
+    const { tokens, chainId } = dto;
+    return await this.services.ratesService.fetchExchangeRates(tokens, chainId);
   }
 }

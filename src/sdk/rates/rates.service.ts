@@ -3,18 +3,18 @@ import { Service } from '../common';
 import { RateData } from './classes';
 
 export class RatesService extends Service {
-  async fetchExchangeRates(tokenList: string[], chainId: number): Promise<RateData> {
+  async fetchExchangeRates(tokens: string[], chainId: number): Promise<RateData> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: RateData;
     }>(
       gql`
-        query($tokenList: [String!]!, $chainId: Int!) {
-          result: fetchExchangeRates(tokenList: $tokenList, chainId: $chainId) {
+        query($tokens: [String!]!, $chainId: Int!) {
+          result: fetchExchangeRates(tokens: $tokens, chainId: $chainId) {
             errored
             error
-            results {
+            items {
               address
               eth
               eur
@@ -26,7 +26,7 @@ export class RatesService extends Service {
       `,
       {
         variables: {
-          tokenList,
+          tokens,
           chainId,
         },
         models: {

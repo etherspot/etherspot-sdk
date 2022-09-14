@@ -15,7 +15,7 @@ async function main(): Promise<void> {
   await sdk.computeContractAccount();
 
   const requestPayload = {
-    tokenList: TOKEN_LIST,
+    tokens: TOKEN_LIST,
     chainId: ETH_CHAIN_ID,
   };
   console.log(requestPayload);

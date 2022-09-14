@@ -6,7 +6,7 @@ export class FetchExchangeRatesDto {
     each: true,
   })
   @ArrayNotEmpty()
-  tokenList: Array<string>;
+  tokens: Array<string>;
 
   @IsInt()
   @IsPositive()
