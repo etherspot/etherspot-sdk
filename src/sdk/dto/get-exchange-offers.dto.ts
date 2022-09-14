@@ -1,3 +1,4 @@
+import { IsOptional } from 'class-validator';
 import { BigNumberish } from 'ethers';
 import { IsAddress, IsBigNumberish } from './validators';
 
@@ -12,4 +13,7 @@ export class GetExchangeOffersDto {
     positive: true,
   })
   fromAmount: BigNumberish;
+
+  @IsOptional()
+  fromChainId?: number;
 }
