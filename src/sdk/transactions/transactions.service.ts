@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { Service } from '../common';
-import { NftList, StreamList, StreamTransactionPayload, Transaction, Transactions } from './classes';
+import { KnownContract, KnownContracts, NftList, StreamList, StreamTransactionPayload, Transaction, Transactions } from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -361,6 +361,123 @@ export class TransactionsService extends Service {
         },
       },
     );
+    return result;
+  }
+
+  async findSuperERC20WrapperOnChain(
+    underlyingToken: string,
+    chainId: number,
+    underlyingDecimals: number,
+    name: string,
+    symbol: string
+  ): Promise<string> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: string;
+    }>(
+      gql`
+        query(
+          $chainId: Int!,
+          $underlyingToken: String!,
+          $underlyingDecimals: Int,
+          $name: String,
+          $symbol: String
+        ) {
+          result: findSuperERC20WrapperOnChain(
+            chainId: $chainId,
+            underlyingToken: $underlyingToken,
+            underlyingDecimals: $underlyingDecimals,
+            name: $name,
+            symbol: $symbol
+          )
+        }
+      `,
+      {
+        variables: {
+          chainId: chainId || this.services.networkService.chainId,
+          underlyingToken,
+          underlyingDecimals,
+          name,
+          symbol,
+        },
+      },
+    );
+    return result;
+  }
+
+  async registerERC20WrapperToken(
+    wrapperAddress: string,
+    chainId?: number
+  ): Promise<KnownContract | null> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: KnownContract;
+    }>(
+      gql`
+        query($chainId: Int!, $wrapperAddress: String!) {
+          result: registerERC20WrapperToken(
+            chainId: $chainId,
+            wrapperAddress: $wrapperAddress,
+          ) {
+            id,
+            chainId,
+            contractName,
+            contractSymbol,
+            contractAddress,
+            tokenType,
+            nftVersion,
+            decimals,
+            underlyingToken
+          }
+        }
+      `,
+      {
+        variables: {
+          chainId: chainId || this.services.networkService.chainId,
+          wrapperAddress,
+        },
+        models: {
+          result: KnownContract
+        }
+      },
+    );
+
+    return result;
+  }
+
+  async getRegisteredERC20WrapperTokens(): Promise<KnownContracts> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: KnownContracts;
+    }>(
+      gql`
+        query {
+          result: getRegisteredERC20WrapperTokens {
+            chains,
+            items {
+              id,
+              chainId,
+              contractName,
+              contractSymbol,
+              contractAddress,
+              tokenType,
+              nftVersion,
+              decimals,
+              underlyingToken
+            }
+          }
+        }
+      `,
+      {
+        models: {
+          result: KnownContracts
+        }
+      },
+    );
+
     return result;
   }
 }
