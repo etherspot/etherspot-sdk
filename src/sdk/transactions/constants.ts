@@ -20,4 +20,5 @@ export enum TokenTypes {
   Erc721 = 'Erc721',
   Erc1155 = 'Erc1155',
   Native = 'Native',
+  WrappedSupertoken = 'WrappedSupertoken',
 }
