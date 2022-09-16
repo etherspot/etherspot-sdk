@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   const ETH_CHAIN_ID = 1;
 
   const wallet = randomWallet();
-  const sdk = new Sdk(wallet, { env: EnvNames.LocalNets, networkName: NetworkNames.Mainnet });
+  const sdk = new Sdk(wallet, { env: EnvNames.MainNets, networkName: NetworkNames.Mainnet });
   await sdk.computeContractAccount();
 
   const requestPayload = {
