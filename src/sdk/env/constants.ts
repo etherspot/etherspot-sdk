@@ -5,6 +5,7 @@ export enum EnvNames {
   MainNets = 'mainnets',
   TestNets = 'testnets',
   LocalNets = 'localnets',
+  MainNetsTest = 'mainnetstest'
 }
 
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
@@ -71,4 +72,15 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       ],
     },
   },
+  [EnvNames.MainNetsTest]: {
+    apiOptions: {
+      host: 'qa-etherspot.pillarproject.io',
+      useSsl: true,
+    },
+    networkOptions: {
+      supportedNetworkNames: [
+        NetworkNames.Matic,
+      ],
+    },
+  }
 };
