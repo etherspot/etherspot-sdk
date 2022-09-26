@@ -18,16 +18,16 @@ export enum CrossChainServiceProvider {
   Connext = 'Connext',
 }
 
-export enum LiFiBridges {
-  Across = 'across',
-  Arbitrum = 'arbitrum',
-  Avalanche = 'avalanche',
-  CBridge = 'cbridge',
-  Connext = 'connext',
-  Hop = 'hop',
-  Hyphen = 'hyphen',
-  Multichain = 'multichain',
-  Optimism = 'optimism',
-  Polygon = 'polygon',
-  Stargate = 'stargate'
+export enum LiFiBridge {
+  across = 'across',
+  arbitrum = 'arbitrum',
+  avalanche = 'avalanche',
+  cbridge = 'cbridge',
+  connext = 'connext',
+  hop = 'hop',
+  hyphen = 'hyphen',
+  multichain = 'multichain',
+  optimism = 'optimism',
+  polygon = 'polygon',
+  stargate = 'stargate'
 }
