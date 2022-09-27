@@ -73,3 +73,5 @@ export * from './delete-stream-payload.dto';
 export * from './get-stream-list.dto';
 export * from './get-exchange-supported-assets.dto';
 export * from './fetch-exchange-rates.dto';
+export * from './advance-routes-lifi.dto';
+export * from './get-step-transactions-lifi.dto';
