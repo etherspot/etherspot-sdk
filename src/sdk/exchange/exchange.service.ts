@@ -229,7 +229,6 @@ export class ExchangeService extends Service {
 
     try {
       data = JSON.parse(result['data']);
-      // console.log(data);
     } catch (err) {
       console.log(err)
     }

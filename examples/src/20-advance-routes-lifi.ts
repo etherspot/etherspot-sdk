@@ -10,7 +10,7 @@ async function main(): Promise<void> {
     return null;
   }
   
-  const sdk = new Sdk({ privateKey: process.env.WALLET_PRIVATE_KEY}, { env: EnvNames.LocalNets, networkName: NetworkNames.Matic });
+  const sdk = new Sdk({ privateKey: process.env.WALLET_PRIVATE_KEY }, { env: EnvNames.MainNets, networkName: NetworkNames.Bsc });
 
   const { state } = sdk;
 
@@ -26,10 +26,10 @@ async function main(): Promise<void> {
   logger.log('synced contract account', state.account);
   logger.log('synced contract account member', state.accountMember);
 
-  const fromChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Matic];
-  const toChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Optimism];
+  const fromChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Bsc];
+  const toChainId: number = NETWORK_NAME_TO_CHAIN_ID[NetworkNames.Matic];
   
-  const fromAmount = utils.parseUnits('1', 18);
+  const fromAmount = utils.parseUnits('1', 18); //1 Bsc
 
   
   const quoteRequestPayload = {
@@ -44,19 +44,21 @@ async function main(): Promise<void> {
 
   logger.log('Quotes: ', quotes.items);
 
-  const quote = quotes.items[0]; // Selected the first route
-  const transactions = await sdk.getStepTransaction({route: quote});
-  logger.log('transactions: ', transactions)
+  if (quotes.items.length > 0) {
+    const quote = quotes.items[0]; // Selected the first route
+    const transactions = await sdk.getStepTransaction({route: quote});
+    logger.log('transactions: ', transactions)
 
-  for (const transaction of transactions.items) {
-    await sdk.batchExecuteAccountTransaction({
-      to: transaction.to,
-      data: transaction.data,
-      value: transaction.value,
-    });
+    for (const transaction of transactions.items) {
+        await sdk.batchExecuteAccountTransaction({
+        to: transaction.to,
+        data: transaction.data,
+        value: transaction.value,
+        });
+    }
+    logger.log('estimate: ', await sdk.estimateGatewayBatch());
+    logger.log('submit gateway transaction: ', await sdk.submitGatewayBatch());
   }
-  logger.log('estimate: ', await sdk.estimateGatewayBatch());
-  logger.log('submit gateway transaction: ', await sdk.submitGatewayBatch());
 
 }
 

@@ -1395,7 +1395,7 @@ export class Sdk {
       BigNumber.from(fromAmount),
       toAddress,
     );
-    console.log('Advance Routes: ', data);
+
     return data;
   }
 
