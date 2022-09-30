@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers';
 import { gql } from '@apollo/client/core';
+import { Route } from '@lifi/sdk';
 import { Service } from '../common';
 import {
   ExchangeOffers,
@@ -13,6 +14,9 @@ import {
   CrossChainBridgeBuildTXResponse,
   BridgingQuotes,
   ExchangeRouterAddress,
+  StepTransaction,
+  StepTransactions,
+  AdvanceRoutesLiFi,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -168,6 +172,113 @@ export class ExchangeService extends Service {
     );
 
     return result ? result : null;
+  }
+
+  async getAdvanceRoutesLiFi(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+    toAddress?: string,
+  ): Promise<AdvanceRoutesLiFi> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    let data = null;
+
+    const { result } = await apiService.query<{
+      result: string;
+    }>(
+      gql`
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+          $toAddress: String
+        ) {
+          result: getAdvanceRoutesLiFi(
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            toAddress: $toAddress
+          ) {
+            data
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+          toAddress,
+        },
+      },
+    );
+
+    try {
+      data = JSON.parse(result['data']);
+    } catch (err) {
+      console.log(err)
+    }
+    return data;
+  }
+
+  async getStepTransaction(selectedRoute: Route): Promise<StepTransactions> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    let transactions = [];
+    try {
+      const route = JSON.stringify(selectedRoute);
+
+    const { result } = await apiService.query<{
+      result: StepTransaction[];
+    }>(
+      gql`
+        query(
+          $route: String!,
+          $account: String!,
+        ) {
+          result: getStepTransactions(
+            route: $route,
+            account: $account,
+          ) {
+              to
+              gasLimit
+              gasPrice
+              data
+              value
+              chainId
+              type
+          }
+        }`,
+        {
+          variables: {
+            route,
+            account,
+          },
+        }
+      );
+      transactions = result;
+    } catch (err) {
+      console.log(err);
+    }
+    return {
+      items: transactions
+    };
   }
 
   async getExchangeOffers(

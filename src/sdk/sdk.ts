@@ -105,6 +105,8 @@ import {
   GetStreamListDto,
   GetExchangeSupportedAssetsDto,
   FetchExchangeRatesDto,
+  GetAdvanceRoutesLiFiDto,
+  GetStepTransactionsLiFiDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -116,6 +118,8 @@ import {
   ExchangeService,
   CrossChainBridgeBuildTXResponse,
   BridgingQuotes,
+  AdvanceRoutesLiFi,
+  StepTransactions,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1369,6 +1373,34 @@ export class Sdk {
       serviceProvider,
       lifiBridges
     );
+  }
+
+  async getAdvanceRoutesLiFi(dto: GetAdvanceRoutesLiFiDto): Promise<AdvanceRoutesLiFi> {
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, toAddress } = await validateDto(
+      dto,
+      GetAdvanceRoutesLiFiDto,
+      {
+        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+      },
+    );
+
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId;
+
+    const data = await this.services.exchangeService.getAdvanceRoutesLiFi(
+      fromTokenAddress,
+      toTokenAddress,
+      chainId,
+      toChainId,
+      BigNumber.from(fromAmount),
+      toAddress,
+    );
+
+    return data;
+  }
+
+  async getStepTransaction(dto: GetStepTransactionsLiFiDto): Promise<StepTransactions> {
+    return this.services.exchangeService.getStepTransaction(dto.route);
   }
 
   // p2p payments
