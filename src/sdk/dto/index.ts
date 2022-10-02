@@ -73,3 +73,4 @@ export * from './delete-stream-payload.dto';
 export * from './get-stream-list.dto';
 export * from './get-exchange-supported-assets.dto';
 export * from './fetch-exchange-rates.dto';
+export * from './name-resolution-node.dto';
