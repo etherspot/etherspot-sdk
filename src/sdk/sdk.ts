@@ -105,6 +105,7 @@ import {
   GetStreamListDto,
   GetExchangeSupportedAssetsDto,
   FetchExchangeRatesDto,
+  NameResolutionNodeDto
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -131,6 +132,7 @@ import {
   GatewayTransaction,
 } from './gateway';
 import { SdkOptions } from './interfaces';
+import { NameResolutionsNodes ,NameResolutionNode, NameResolutionNodeStates, NameResolutionRootNode, NameResolutionService, parseResolutionName } from './name-resolution';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -225,6 +227,7 @@ export class Sdk {
       exchangeService: new ExchangeService(),
       faucetService: new FaucetService(),
       gatewayService: new GatewayService(),
+      nameResolutionService: new NameResolutionService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2PPaymentService(),
       paymentHubService: new PaymentHubService(),
@@ -2437,5 +2440,45 @@ export class Sdk {
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokens, chainId } = dto;
     return await this.services.ratesService.fetchExchangeRates(tokens, chainId);
+  }
+
+  private async validateResolveName(
+    options: {
+      network?: number;
+      name?: string;
+    } = {},
+  ): Promise<void> {
+    options = {
+      ...options,
+    };
+
+    const { networkService } = this.services;
+
+    if (options.network && !networkService.chainId) {
+      throw new Exception('Unknown network');
+    }
+
+    if (options.name) {
+      throw new Exception('Require name');
+    }
+  }
+  
+  /**
+   * resolves Name
+   * @param dto
+   * @return Promise<NameResolutionsNodes>
+   */
+  async resolveName(
+    dto: NameResolutionNodeDto = {
+      name: '',
+    },
+  ): Promise<NameResolutionsNodes> {
+    const { chainId, name } = await validateDto(dto, NameResolutionNodeDto);
+
+    await this.validateResolveName({ network: chainId, name });
+
+    const { nameResolutionService } = this.services;
+
+    return nameResolutionService.resolveName(chainId,name);
   }
 }
