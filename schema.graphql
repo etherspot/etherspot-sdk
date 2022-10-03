@@ -434,7 +434,7 @@ type NameResolutionSupportedZones {
 }
 
 type NameResolutionNode {
-  rootNode: NameResolutionRootNode;
+  rootNode: NameResolutionRootNode!;
   hash: String
   name: String
   label: String
@@ -446,6 +446,14 @@ type NameResolutionNode {
   updatedAt: DateTime!
   fioChainCode: String!
   fioTokenCode: String!
+}
+
+type NameResolutionRootNode {
+  hash: String!
+  name: String!
+  state: NameResolutionRootNodeStates!;
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type NativeCurrenciesItem {
