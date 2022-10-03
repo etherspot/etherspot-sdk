@@ -13,6 +13,7 @@ export * from './exchange';
 export * from './faucet';
 export * from './gateway';
 export * from './interfaces';
+export * from  './name-resolution';
 export * from './network';
 export * from './notification';
 export * from './payments';

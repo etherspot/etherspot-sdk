@@ -6,6 +6,7 @@ import { ENSService } from './ens';
 import { ExchangeService } from './exchange';
 import { FaucetService } from './faucet';
 import { GatewayService } from './gateway';
+import { NameResolutionService } from './name-resolution';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { P2PPaymentService, PaymentHubService } from './payments';
@@ -50,6 +51,7 @@ export class Context {
       exchangeService: ExchangeService;
       faucetService: FaucetService;
       gatewayService: GatewayService;
+      nameResolutionService: NameResolutionService;
       networkService: NetworkService;
       notificationService: NotificationService;
       p2pPaymentsService: P2PPaymentService;
