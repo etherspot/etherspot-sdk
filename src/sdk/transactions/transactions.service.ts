@@ -1,7 +1,15 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber } from 'ethers';
 import { Service } from '../common';
-import { KnownContract, KnownContracts, NftList, StreamList, StreamTransactionPayload, Transaction, Transactions } from './classes';
+import {
+  KnownContract,
+  KnownContracts,
+  NftList,
+  StreamList,
+  StreamTransactionPayload,
+  Transaction,
+  Transactions,
+} from './classes';
 
 export class TransactionsService extends Service {
   async getTransaction(hash: string): Promise<Transaction> {
@@ -124,6 +132,7 @@ export class TransactionsService extends Service {
                 name
                 amount
                 image
+                ipfsGateway
               }
             }
           }
@@ -148,7 +157,7 @@ export class TransactionsService extends Service {
     amount: BigNumber,
     tokenAddress: string,
     userData: string,
-    skipBalanceCheck: boolean
+    skipBalanceCheck: boolean,
   ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
@@ -156,9 +165,23 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
+        query(
+          $account: String!
+          $receiver: String!
+          $amount: BigNumber!
+          $tokenAddress: String!
+          $chainId: Int!
+          $userData: String
+          $skipBalanceCheck: Boolean
+        ) {
           result: streamTransactionPayload(
-            account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
+            account: $account
+            receiver: $receiver
+            amount: $amount
+            tokenAddress: $tokenAddress
+            chainId: $chainId
+            userData: $userData
+            skipBalanceCheck: $skipBalanceCheck
           ) {
             data
             to
@@ -197,9 +220,23 @@ export class TransactionsService extends Service {
       result: StreamTransactionPayload;
     }>(
       gql`
-        query($account: String!, $receiver: String!, $amount: BigNumber!, $tokenAddress: String!, $chainId: Int!, $userData: String, $skipBalanceCheck: Boolean) {
+        query(
+          $account: String!
+          $receiver: String!
+          $amount: BigNumber!
+          $tokenAddress: String!
+          $chainId: Int!
+          $userData: String
+          $skipBalanceCheck: Boolean
+        ) {
           result: modifyTransactionPayload(
-            account: $account, receiver: $receiver, amount: $amount, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData, skipBalanceCheck: $skipBalanceCheck
+            account: $account
+            receiver: $receiver
+            amount: $amount
+            tokenAddress: $tokenAddress
+            chainId: $chainId
+            userData: $userData
+            skipBalanceCheck: $skipBalanceCheck
           ) {
             data
             to
@@ -237,7 +274,13 @@ export class TransactionsService extends Service {
     }>(
       gql`
         query($account: String!, $receiver: String!, $tokenAddress: String!, $chainId: Int!, $userData: String) {
-          result: deleteTransactionPayload(account: $account, receiver: $receiver, tokenAddress: $tokenAddress, chainId: $chainId, userData: $userData) {
+          result: deleteTransactionPayload(
+            account: $account
+            receiver: $receiver
+            tokenAddress: $tokenAddress
+            chainId: $chainId
+            userData: $userData
+          ) {
             data
             to
             error
@@ -259,9 +302,7 @@ export class TransactionsService extends Service {
     return result;
   }
 
-  async getStreamList(
-    account: string,
-  ): Promise<StreamList> {
+  async getStreamList(account: string): Promise<StreamList> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -326,7 +367,7 @@ export class TransactionsService extends Service {
     underlyingToken: string,
     underlyingDecimals: number,
     name: string,
-    symbol: string
+    symbol: string,
   ): Promise<StreamTransactionPayload> {
     const { apiService } = this.services;
 
@@ -336,14 +377,14 @@ export class TransactionsService extends Service {
       gql`
         query($chainId: Int!, $underlyingToken: String!, $underlyingDecimals: Int, $name: String, $symbol: String) {
           result: createSuperERC20WrapperTransactionPayload(
-            chainId: $chainId,
-            underlyingToken: $underlyingToken,
-            underlyingDecimals: $underlyingDecimals,
-            name: $name,
+            chainId: $chainId
+            underlyingToken: $underlyingToken
+            underlyingDecimals: $underlyingDecimals
+            name: $name
             symbol: $symbol
           ) {
-            error,
-            data,
+            error
+            data
             to
           }
         }
@@ -369,7 +410,7 @@ export class TransactionsService extends Service {
     chainId: number,
     underlyingDecimals: number,
     name: string,
-    symbol: string
+    symbol: string,
   ): Promise<string> {
     const { apiService } = this.services;
 
@@ -377,18 +418,12 @@ export class TransactionsService extends Service {
       result: string;
     }>(
       gql`
-        query(
-          $chainId: Int!,
-          $underlyingToken: String!,
-          $underlyingDecimals: Int,
-          $name: String,
-          $symbol: String
-        ) {
+        query($chainId: Int!, $underlyingToken: String!, $underlyingDecimals: Int, $name: String, $symbol: String) {
           result: findSuperERC20WrapperOnChain(
-            chainId: $chainId,
-            underlyingToken: $underlyingToken,
-            underlyingDecimals: $underlyingDecimals,
-            name: $name,
+            chainId: $chainId
+            underlyingToken: $underlyingToken
+            underlyingDecimals: $underlyingDecimals
+            name: $name
             symbol: $symbol
           )
         }
@@ -406,10 +441,7 @@ export class TransactionsService extends Service {
     return result;
   }
 
-  async registerERC20WrapperToken(
-    wrapperAddress: string,
-    chainId?: number
-  ): Promise<KnownContract | null> {
+  async registerERC20WrapperToken(wrapperAddress: string, chainId?: number): Promise<KnownContract | null> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
@@ -417,18 +449,15 @@ export class TransactionsService extends Service {
     }>(
       gql`
         query($chainId: Int!, $wrapperAddress: String!) {
-          result: registerERC20WrapperToken(
-            chainId: $chainId,
-            wrapperAddress: $wrapperAddress,
-          ) {
-            id,
-            chainId,
-            contractName,
-            contractSymbol,
-            contractAddress,
-            tokenType,
-            nftVersion,
-            decimals,
+          result: registerERC20WrapperToken(chainId: $chainId, wrapperAddress: $wrapperAddress) {
+            id
+            chainId
+            contractName
+            contractSymbol
+            contractAddress
+            tokenType
+            nftVersion
+            decimals
             underlyingToken
           }
         }
@@ -439,8 +468,8 @@ export class TransactionsService extends Service {
           wrapperAddress,
         },
         models: {
-          result: KnownContract
-        }
+          result: KnownContract,
+        },
       },
     );
 
@@ -456,16 +485,16 @@ export class TransactionsService extends Service {
       gql`
         query {
           result: getRegisteredERC20WrapperTokens {
-            chains,
+            chains
             items {
-              id,
-              chainId,
-              contractName,
-              contractSymbol,
-              contractAddress,
-              tokenType,
-              nftVersion,
-              decimals,
+              id
+              chainId
+              contractName
+              contractSymbol
+              contractAddress
+              tokenType
+              nftVersion
+              decimals
               underlyingToken
             }
           }
@@ -473,8 +502,8 @@ export class TransactionsService extends Service {
       `,
       {
         models: {
-          result: KnownContracts
-        }
+          result: KnownContracts,
+        },
       },
     );
 
