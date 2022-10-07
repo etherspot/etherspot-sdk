@@ -51,8 +51,8 @@ async function main(): Promise<void> {
   logger.log(
     'resolve name of fio domain',
     await sdk.resolveName({
-      chainId: 137, // ChainId must be mapped with entered domain name and it is supported by the platform too.
-      name: 'purse@alice', // This is just sample name. Please pass the correct domain with chaindID
+      chainId: 137, // ChainId must be mapped with an entered domain name and it is supported by the platform too.
+      name: 'purse@alice', // This is just a sample name. Please pass the correct domain with chaindID
     }),
   );
 }
