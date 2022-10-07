@@ -10,7 +10,7 @@ export class NameResolutionService extends Service {
       result: NameResolutionsNodes;
     }>(
       gql`
-        query($chainId: Int, $name: String) {
+        query($chainId: Int, $name: String!) {
           result: resolveName(chainId: $chainId, name: $name) {
             results {
               ens {

@@ -136,7 +136,7 @@ import {
   GatewayTransaction,
 } from './gateway';
 import { SdkOptions } from './interfaces';
-import { NameResolutionsNodes ,NameResolutionNode, NameResolutionNodeStates, NameResolutionRootNode, NameResolutionService, parseResolutionName } from './name-resolution';
+import { NameResolutionsNodes ,NameResolutionService } from './name-resolution';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -2484,14 +2484,14 @@ export class Sdk {
     options = {
       ...options,
     };
-
+    
     const { networkService } = this.services;
 
     if (options.network && !networkService.chainId) {
       throw new Exception('Unknown network');
     }
 
-    if (options.name) {
+    if (!options.name) {
       throw new Exception('Require name');
     }
   }
@@ -2508,7 +2508,7 @@ export class Sdk {
   ): Promise<NameResolutionsNodes> {
     const { chainId, name } = await validateDto(dto, NameResolutionNodeDto);
 
-    await this.validateResolveName({ network: chainId, name });
+    await this.validateResolveName({ network: chainId, name:name });
 
     const { nameResolutionService } = this.services;
 

@@ -79,7 +79,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Matic,
+        NetworkNames.Matic
       ],
     },
   }
