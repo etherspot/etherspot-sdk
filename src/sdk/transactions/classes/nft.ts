@@ -8,4 +8,6 @@ export class Nft extends BaseClass<Nft> {
   amount: number;
 
   image: string;
+
+  ipfsGateway: string;
 }
