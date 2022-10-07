@@ -14,7 +14,7 @@ export class NetworkService extends Service {
 
   constructor(private options: NetworkOptions, defaultNetworkName?: NetworkNames) {
     super();
-
+    
     const { supportedNetworkNames } = options;
 
     this.supportedNetworks = supportedNetworkNames
