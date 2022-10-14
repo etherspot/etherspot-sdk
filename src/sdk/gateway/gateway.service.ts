@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { utils } from 'ethers';
+import { constants, utils } from 'ethers';
 import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
@@ -501,7 +501,16 @@ export class GatewayService extends Service {
     const { nonce, feeToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
+    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract, gatewayV2Contract } = this.internalContracts;
+
+    try {
+    
+    const guardedTxContent = personalAccountRegistryContract.encodeIsAccountDeployed(gatewayContract.address);
+    const guardedTx = gatewayV2Contract.encodeSendBatchFromAccountGuarded(
+      gatewayContract.address,
+      [guardedTxContent.to],
+      [guardedTxContent.data]
+    );
 
     const account = accountService.accountAddress;
 
@@ -523,9 +532,10 @@ export class GatewayService extends Service {
     const messageHash = gatewayContract.hashDelegatedBatch(
       account,
       nonce,
-      [...to, feeTransactionRequest.to],
-      [...data, feeTransactionRequest.data],
+      [guardedTx.to, ...to, feeTransactionRequest.to],
+      [guardedTx.data, ...data, feeTransactionRequest.data],
     );
+
     const senderSignature = await walletService.signMessage(messageHash);
 
     const { result } = await apiService.mutate<{
@@ -613,6 +623,9 @@ export class GatewayService extends Service {
     }
 
     return result;
+  } catch(err) {
+    console.log(err);
+  }
   }
 
   async cancelGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {

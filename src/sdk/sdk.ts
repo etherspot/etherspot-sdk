@@ -24,6 +24,7 @@ import {
   ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
+  GatewayV2Contract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contract';
@@ -211,6 +212,7 @@ export class Sdk {
       gatewayContract: new GatewayContract(),
       paymentRegistryContract: new PaymentRegistryContract(),
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
+      gatewayV2Contract: new GatewayV2Contract(),
     };
 
     this.services = {

@@ -22,6 +22,7 @@ import {
   ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
+  GatewayV2Contract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contract';
@@ -39,6 +40,7 @@ export class Context {
       gatewayContract: GatewayContract;
       paymentRegistryContract: PaymentRegistryContract;
       personalAccountRegistryContract: PersonalAccountRegistryContract;
+      gatewayV2Contract: GatewayV2Contract,
     },
     readonly services: {
       accountService: AccountService;
