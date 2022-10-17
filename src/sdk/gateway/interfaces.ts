@@ -6,4 +6,5 @@ export interface GatewayBatch {
     data: string;
   }[];
   estimation: GatewayEstimatedBatch;
+  guarded?: boolean;
 }

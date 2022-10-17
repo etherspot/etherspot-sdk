@@ -482,7 +482,7 @@ export class GatewayService extends Service {
       throw new Exception('Can not submit empty batch');
     }
 
-    const { estimation } = statelessBatch || this.gatewayBatch;
+    const { estimation } = statelessBatch?.estimation ? statelessBatch : this.gatewayBatch;
 
     if (!estimation || estimation.expiredAt.getTime() < estimation.createdAt.getTime()) {
       throw new Exception('Can not submit not estimated batch');
@@ -501,16 +501,12 @@ export class GatewayService extends Service {
     const { nonce, feeToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract, gatewayV2Contract } = this.internalContracts;
-
-    try {
-    
-    const guardedTxContent = personalAccountRegistryContract.encodeIsAccountDeployed(gatewayContract.address);
-    const guardedTx = gatewayV2Contract.encodeSendBatchFromAccountGuarded(
-      gatewayContract.address,
-      [guardedTxContent.to],
-      [guardedTxContent.data]
-    );
+    const {
+      gatewayContract,
+      personalAccountRegistryContract,
+      erc20TokenContract,
+      gatewayV2Contract,
+    } = this.internalContracts;
 
     const account = accountService.accountAddress;
 
@@ -529,12 +525,19 @@ export class GatewayService extends Service {
       feeTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, feeAmount);
     }
 
-    const messageHash = gatewayContract.hashDelegatedBatch(
-      account,
-      nonce,
-      [guardedTx.to, ...to, feeTransactionRequest.to],
-      [guardedTx.data, ...data, feeTransactionRequest.data],
-    );
+    let guardedTx: TransactionRequest = null;
+    if (statelessBatch.guarded) {
+      const guardedTxContent = personalAccountRegistryContract.encodeIsAccountDeployed(gatewayContract.address);
+      guardedTx = gatewayV2Contract.encodeSendBatchFromAccountGuarded(
+        gatewayContract.address,
+        [guardedTxContent.to],
+        [guardedTxContent.data],
+      );
+    }
+
+    const destinations = [guardedTx && guardedTx.to, ...to, feeTransactionRequest.to].filter((addr) => !!addr);
+    const datas = [guardedTx && guardedTx.data, ...data, feeTransactionRequest.data].filter((data) => !!data);
+    const messageHash = gatewayContract.hashDelegatedBatch(account, nonce, destinations, datas);
 
     const senderSignature = await walletService.signMessage(messageHash);
 
@@ -555,6 +558,7 @@ export class GatewayService extends Service {
           $estimatedGasPrice: BigNumber!
           $estimationExpiredAt: DateTime!
           $estimationSignature: String!
+          $guarded: Boolean,
         ) {
           result: submitGatewayBatch(
             chainId: $chainId
@@ -569,6 +573,7 @@ export class GatewayService extends Service {
             estimatedGasPrice: $estimatedGasPrice
             estimationExpiredAt: $estimationExpiredAt
             estimationSignature: $estimationSignature
+            guarded: $guarded
           ) {
             transaction {
               hash
@@ -614,18 +619,16 @@ export class GatewayService extends Service {
           estimatedGasPrice,
           estimationExpiredAt,
           estimationSignature,
+          guarded: statelessBatch.guarded,
         },
       },
     );
 
-    if (!statelessBatch) {
+    if (!statelessBatch || (!statelessBatch.requests && !statelessBatch.estimation)) {
       this.clearGatewayBatch();
     }
 
     return result;
-  } catch(err) {
-    console.log(err);
-  }
   }
 
   async cancelGatewayBatch(hash: string): Promise<GatewaySubmittedBatch> {
@@ -745,7 +748,7 @@ export class GatewayService extends Service {
   }
 
   private extractToAndData(statelessBatch?: GatewayBatch): { to: string[]; data: string[] } {
-    return (statelessBatch || this.gatewayBatch).requests.reduce(
+    return (statelessBatch?.requests ? statelessBatch : this.gatewayBatch).requests.reduce(
       (result, { to, data }) => {
         result.to.push(to);
         result.data.push(data);

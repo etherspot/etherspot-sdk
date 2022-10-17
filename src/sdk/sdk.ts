@@ -506,7 +506,11 @@ export class Sdk {
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => gatewayService.submitGatewayBatch(),
+      () => gatewayService.submitGatewayBatch({
+        requests: null,
+        estimation: null,
+        guarded: dto.guarded
+      }),
     );
   }
 
