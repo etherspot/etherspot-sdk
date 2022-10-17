@@ -24,7 +24,8 @@
     "16-cross-chain-quotes": "../node_modules/.bin/ts-node ./src/16-cross-chain-quotes.ts",
     "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts",
     "18-cross-chain-stream": "../node_modules/.bin/ts-node ./src/18-cross-chain-stream.ts",
-    "21-exchange-rates": "../node_modules/.bin/ts-node ./src/21-exchange-rates.ts"
+    "21-exchange-rates": "../node_modules/.bin/ts-node ./src/21-exchange-rates.ts",
+    "22-name-resolution": "../node_modules/.bin/ts-node ./src/22-name-resolution.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"

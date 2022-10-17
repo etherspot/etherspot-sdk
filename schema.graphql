@@ -421,6 +421,41 @@ type NativeCurrencies {
   items: [NativeCurrenciesItem!]!
 }
 
+type NameResolutionsNodes {
+  results: [NameResolutionSupportedZones!]!
+  failed: Boolean
+  message: String
+}
+
+type NameResolutionSupportedZones {
+  unstoppabledomains: [NameResolutionNode!]!
+  ens: [NameResolutionNode!]!
+  fio: [NameResolutionNode!]!
+}
+
+type NameResolutionNode {
+  rootNode: NameResolutionRootNode!;
+  hash: String
+  name: String
+  label: String
+  address: String
+  state: NameResolutionNodeStates!
+  zone: NameResolutionNodeZones!
+  guardianSignature: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  fioChainCode: String!
+  fioTokenCode: String!
+}
+
+type NameResolutionRootNode {
+  hash: String!
+  name: String!
+  state: NameResolutionRootNodeStates!;
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type NativeCurrenciesItem {
   chainId: Float!
   decimals: Float!
@@ -669,6 +704,7 @@ type Query {
   gatewayTransaction(chainId: Int, hash: String!): GatewayTransaction
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
+  resolveName(chainId: Int, name: String!): NameResolutionsNodes
   nativeCurrencies: NativeCurrencies!
   nftList(account: String!, chainId: Int): NftList!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
@@ -961,6 +997,24 @@ enum GatewayTransactionStates {
   Reverted
   Sending
   Sent
+}
+
+enum NameResolutionNodeStates {
+  Reserved
+  Claimed
+}
+
+enum NameResolutionNodeZones {
+  ENS
+  UNS
+  ZNS
+  FIO
+}
+
+enum NameResolutionRootNodeStates {
+  Submitted
+  Verified
+  Released
 }
 
 enum NetworkNames {
