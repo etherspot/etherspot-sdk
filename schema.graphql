@@ -1026,18 +1026,14 @@ enum NetworkNames {
   Fantom
   FantomTest
   Goerli
-  Kovan
   LocalA
   LocalB
   LocalH
   Mainnet
   Matic
   Mumbai
-  Rinkeby
-  Ropsten
   Sokol
   Xdai
-  OptimismKovan
   Optimism
   ArbitrumTest
   Arbitrum
