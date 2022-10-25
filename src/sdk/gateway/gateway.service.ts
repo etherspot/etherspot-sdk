@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { constants, utils } from 'ethers';
+import { utils } from 'ethers';
 import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
