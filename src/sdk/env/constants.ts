@@ -52,7 +52,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.CeloTest,
         NetworkNames.FuseSparknet,
         NetworkNames.ArbitrumNitro,
-        NetworkNames.NeonTest,
+        NetworkNames.NeonDevnet,
         NetworkNames.Etherspot,
       ],
     },
