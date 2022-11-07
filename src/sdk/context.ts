@@ -6,6 +6,7 @@ import { ENSService } from './ens';
 import { ExchangeService } from './exchange';
 import { FaucetService } from './faucet';
 import { GatewayService } from './gateway';
+import { NameResolutionService } from './name-resolution';
 import { NetworkService } from './network';
 import { NotificationService } from './notification';
 import { P2PPaymentService, PaymentHubService } from './payments';
@@ -22,6 +23,7 @@ import {
   ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
+  GatewayV2Contract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contract';
@@ -39,6 +41,7 @@ export class Context {
       gatewayContract: GatewayContract;
       paymentRegistryContract: PaymentRegistryContract;
       personalAccountRegistryContract: PersonalAccountRegistryContract;
+      gatewayV2Contract: GatewayV2Contract,
     },
     readonly services: {
       accountService: AccountService;
@@ -50,6 +53,7 @@ export class Context {
       exchangeService: ExchangeService;
       faucetService: FaucetService;
       gatewayService: GatewayService;
+      nameResolutionService: NameResolutionService;
       networkService: NetworkService;
       notificationService: NotificationService;
       p2pPaymentsService: P2PPaymentService;

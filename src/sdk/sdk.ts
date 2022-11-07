@@ -24,6 +24,7 @@ import {
   ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
+  GatewayV2Contract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contract';
@@ -107,6 +108,7 @@ import {
   FetchExchangeRatesDto,
   GetAdvanceRoutesLiFiDto,
   GetStepTransactionsLiFiDto,
+  NameResolutionNodeDto
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -135,6 +137,7 @@ import {
   GatewayTransaction,
 } from './gateway';
 import { SdkOptions } from './interfaces';
+import { NameResolutionsNodes ,NameResolutionService } from './name-resolution';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -211,6 +214,7 @@ export class Sdk {
       gatewayContract: new GatewayContract(),
       paymentRegistryContract: new PaymentRegistryContract(),
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
+      gatewayV2Contract: new GatewayV2Contract(),
     };
 
     this.services = {
@@ -229,6 +233,7 @@ export class Sdk {
       exchangeService: new ExchangeService(),
       faucetService: new FaucetService(),
       gatewayService: new GatewayService(),
+      nameResolutionService: new NameResolutionService(),
       notificationService: new NotificationService(),
       p2pPaymentsService: new P2PPaymentService(),
       paymentHubService: new PaymentHubService(),
@@ -504,7 +509,11 @@ export class Sdk {
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => gatewayService.submitGatewayBatch(),
+      () => gatewayService.submitGatewayBatch({
+        requests: null,
+        estimation: null,
+        guarded: dto.guarded
+      }),
     );
   }
 
@@ -2470,5 +2479,45 @@ export class Sdk {
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokens, chainId } = dto;
     return await this.services.ratesService.fetchExchangeRates(tokens, chainId);
+  }
+
+  private async validateResolveName(
+    options: {
+      network?: number;
+      name?: string;
+    } = {},
+  ): Promise<void> {
+    options = {
+      ...options,
+    };
+    
+    const { networkService } = this.services;
+
+    if (options.network && !networkService.chainId) {
+      throw new Exception('Unknown network');
+    }
+
+    if (!options.name) {
+      throw new Exception('Require name');
+    }
+  }
+  
+  /**
+   * resolves Name
+   * @param dto
+   * @return Promise<NameResolutionsNodes>
+   */
+  async resolveName(
+    dto: NameResolutionNodeDto = {
+      name: '',
+    },
+  ): Promise<NameResolutionsNodes> {
+    const { chainId, name } = await validateDto(dto, NameResolutionNodeDto);
+
+    await this.validateResolveName({ network: chainId, name:name });
+
+    const { nameResolutionService } = this.services;
+
+    return nameResolutionService.resolveName(chainId,name);
   }
 }

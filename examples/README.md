@@ -30,3 +30,4 @@ $ npm run <example name> # eg. 01-session
 * [delayed transactions](./src/14-delayed-transactions.ts) -- allow to automatically delay account transactions
 * [external contracts](./src/16-cross-chain-quote.ts) -- execute cross chain transaction
 * [SuperFluids Create Stream](./src/17-superFluids-createStream.ts) -- create stream of superTokens
+* [name resolution](./src/22-name-resolution.ts) -- resolve domain name of ENS, Unstoppable Domains and FIO protocol

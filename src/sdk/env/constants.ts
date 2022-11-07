@@ -39,17 +39,13 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Ropsten,
-        NetworkNames.Rinkeby,
         NetworkNames.Goerli,
-        NetworkNames.Kovan,
         NetworkNames.Sokol,
         NetworkNames.BscTest,
         NetworkNames.FantomTest,
         NetworkNames.Mumbai,
         NetworkNames.AuroraTest,
         NetworkNames.Fuji,
-        NetworkNames.OptimismKovan,
         NetworkNames.ArbitrumTest,
         NetworkNames.Moonbase,
         NetworkNames.CeloTest,
@@ -79,7 +75,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Matic,
+        NetworkNames.Matic
       ],
     },
   }
