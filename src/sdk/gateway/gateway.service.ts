@@ -497,7 +497,7 @@ export class GatewayService extends Service {
       expiredAt: estimationExpiredAt,
       signature: estimationSignature,
     } = estimation;
-    const guarded = statelessBatch.guarded !== false; // guarded by default if not explicitly disabled
+    const guarded = statelessBatch.guarded !== false; // guarded unless explicitly disabled
 
     const { nonce, feeToken } = this.estimationOptions;
 
