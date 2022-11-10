@@ -5,7 +5,7 @@ export enum EnvNames {
   MainNets = 'mainnets',
   TestNets = 'testnets',
   LocalNets = 'localnets',
-  MainNetsTest = 'mainnetstest'
+  MainNetsTest = 'mainnetstest',
 }
 
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
@@ -29,6 +29,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Celo,
         NetworkNames.Fuse,
         NetworkNames.ArbitrumNova,
+        NetworkNames.Neon,
       ],
     },
   },
@@ -51,6 +52,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.CeloTest,
         NetworkNames.FuseSparknet,
         NetworkNames.ArbitrumNitro,
+        NetworkNames.NeonDevnet,
         NetworkNames.Etherspot,
       ],
     },
@@ -74,9 +76,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [
-        NetworkNames.Matic
-      ],
+      supportedNetworkNames: [NetworkNames.Matic],
     },
-  }
+  },
 };
