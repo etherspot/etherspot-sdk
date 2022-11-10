@@ -1,4 +1,5 @@
 import { NotificationTypes } from './constants';
+import { GatewayTransaction } from '../gateway';
 
 export interface BaseNotification<T = any, P = any> {
   type: T;
@@ -34,6 +35,17 @@ export type GatewayBatchNotification = BaseNotification<
     hash: string;
   }
 >;
+
+export type GatewayResubmittedNotification = BaseNotification<
+  NotificationTypes.GatewayBatchResubmitted,
+  {
+    hash: string;
+    oldTransaction: {
+      id: number,
+    },
+    newTransaction: GatewayTransaction,
+  }
+>
 
 export type P2PPaymentChannelNotification = BaseNotification<
   NotificationTypes.P2PPaymentChannelCreated | NotificationTypes.P2PPaymentChannelUpdated,
