@@ -1,10 +1,6 @@
 {
   "name": "etherspot",
-<<<<<<< HEAD
-  "version": "1.38.3",
-=======
   "version": "1.39.0",
->>>>>>> 9aa3b4c1fb275697d320f514c9659df6f81a385e
   "description": "Etherspot SDK",
   "keywords": [
     "ether",
