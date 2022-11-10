@@ -1,4 +1,4 @@
-import { IsOptional, IsPositive } from 'class-validator';
+import { IsOptional, IsPositive, IsString } from 'class-validator';
 import { IsAddress } from './validators';
 
 export class GetAccountBalancesDto {
@@ -15,4 +15,8 @@ export class GetAccountBalancesDto {
   @IsOptional()
   @IsPositive()
   chainId?: number;
+
+  @IsOptional()
+  @IsString()
+  provider?: string = null;
 }
