@@ -1,6 +1,6 @@
 import { Wallet } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
-import { logger, topUpAccount, getBalance, randomAddress } from './common';
+import { logger, getBalance } from './common';
 
 async function main(): Promise<void> {
   const wallet = Wallet.createRandom();
