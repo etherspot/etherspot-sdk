@@ -29,7 +29,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Celo,
         NetworkNames.Fuse,
         NetworkNames.ArbitrumNova,
-        NetworkNames.Neon,
+        // NetworkNames.Neon,
       ],
     },
   },
