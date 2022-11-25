@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsPositive } from 'class-validator';
 import { IsAddress, IsBigNumberish } from './validators';
 
 export class GetAdvanceRoutesLiFiDto {
@@ -26,4 +26,8 @@ export class GetAdvanceRoutesLiFiDto {
   @IsOptional()
   @IsAddress()
   toAddress?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  allowSwitchChain?: boolean;
 }

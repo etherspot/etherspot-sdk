@@ -108,7 +108,8 @@ import {
   FetchExchangeRatesDto,
   GetAdvanceRoutesLiFiDto,
   GetStepTransactionsLiFiDto,
-  NameResolutionNodeDto
+  NameResolutionNodeDto,
+  GetLiFiStatusDto
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -122,6 +123,7 @@ import {
   BridgingQuotes,
   AdvanceRoutesLiFi,
   StepTransactions,
+  LiFiStatus,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1386,7 +1388,7 @@ export class Sdk {
   }
 
   async getAdvanceRoutesLiFi(dto: GetAdvanceRoutesLiFiDto): Promise<AdvanceRoutesLiFi> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, toAddress } = await validateDto(
+    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, toAddress, allowSwitchChain } = await validateDto(
       dto,
       GetAdvanceRoutesLiFiDto,
       {
@@ -1404,6 +1406,7 @@ export class Sdk {
       toChainId,
       BigNumber.from(fromAmount),
       toAddress,
+      allowSwitchChain,
     );
 
     return data;
@@ -1411,6 +1414,11 @@ export class Sdk {
 
   async getStepTransaction(dto: GetStepTransactionsLiFiDto): Promise<StepTransactions> {
     return this.services.exchangeService.getStepTransaction(dto.route);
+  }
+
+  async getLiFiStatus(dto: GetLiFiStatusDto): Promise<LiFiStatus> {
+    const { fromChainId, toChainId, txnHash, bridge } = dto;
+    return this.services.exchangeService.getLiFiStatus(fromChainId, toChainId, txnHash, bridge);
   }
 
   // p2p payments

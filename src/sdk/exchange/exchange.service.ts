@@ -17,6 +17,7 @@ import {
   StepTransaction,
   StepTransactions,
   AdvanceRoutesLiFi,
+  LiFiStatus,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -181,6 +182,7 @@ export class ExchangeService extends Service {
     toChainId: number,
     fromAmount: BigNumber,
     toAddress?: string,
+    allowSwitchChain?: boolean,
   ): Promise<AdvanceRoutesLiFi> {
     const { apiService, accountService } = this.services;
 
@@ -200,6 +202,7 @@ export class ExchangeService extends Service {
           $fromChainId: Int
           $toChainId: Int
           $toAddress: String
+          $allowSwitchChain: Boolean
         ) {
           result: getAdvanceRoutesLiFi(
             account: $account
@@ -209,6 +212,7 @@ export class ExchangeService extends Service {
             fromChainId: $fromChainId
             toChainId: $toChainId
             toAddress: $toAddress
+            allowSwitchChain: $allowSwitchChain
           ) {
             data
           }
@@ -223,6 +227,7 @@ export class ExchangeService extends Service {
           toChainId,
           fromAmount,
           toAddress,
+          allowSwitchChain,
         },
       },
     );
@@ -244,17 +249,17 @@ export class ExchangeService extends Service {
     try {
       const route = JSON.stringify(selectedRoute);
 
-    const { result } = await apiService.query<{
-      result: StepTransaction[];
-    }>(
-      gql`
+      const { result } = await apiService.query<{
+        result: StepTransaction[];
+      }>(
+        gql`
         query(
-          $route: String!,
-          $account: String!,
+          $route: String!
+          $account: String!
         ) {
           result: getStepTransactions(
-            route: $route,
-            account: $account,
+            route: $route
+            account: $account
           ) {
               to
               gasLimit
@@ -279,6 +284,46 @@ export class ExchangeService extends Service {
     return {
       items: transactions
     };
+  }
+
+  async getLiFiStatus(fromChainId: number, toChainId: number, txnHash: string, bridge?: string): Promise<LiFiStatus> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: LiFiStatus;
+    }>(
+      gql`
+        query(
+          $fromChainId: Int!
+          $toChainId: Int!
+          $txnHash: String!
+          $bridge: String
+        ) {
+          result: getLiFiStatus(
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            txnHash: $txnHash
+            bridge: $bridge
+          ) {
+            status
+            bridgeExplorerLink
+            subStatus
+            subStatusMsg
+            sendingTxnHash
+            receivingTxnHash
+          }
+        }`,
+      {
+        variables: {
+          fromChainId,
+          toChainId,
+          txnHash,
+          bridge
+        },
+      }
+    );
+
+    return result;
   }
 
   async getExchangeOffers(
