@@ -11,3 +11,5 @@ export * from './account-proofs';
 export * from './account-settings';
 export * from './account-total-balances';
 export * from './accounts';
+export * from './account-investment';
+export * from './account-investments';

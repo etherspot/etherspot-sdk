@@ -4,6 +4,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
   AccountBalances,
+  AccountInvestments,
   AccountMembers,
   Accounts,
   AccountService,
@@ -109,7 +110,8 @@ import {
   GetAdvanceRoutesLiFiDto,
   GetStepTransactionsLiFiDto,
   NameResolutionNodeDto,
-  GetLiFiStatusDto
+  GetLiFiStatusDto,
+  GetAccountInvestmentsDto
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -782,6 +784,29 @@ export class Sdk {
       this.prepareAccountAddress(account), //
       tokens,
       ChainId,
+      provider
+    );
+  }
+
+  /**
+   * gets account investments
+   * @param dto
+   * @return Promise<AccountInvestments>
+   */
+  async getAccountInvestments(dto: GetAccountInvestmentsDto = {}): Promise<AccountInvestments> {
+    const { account, apps, chainId, provider } = await validateDto(dto, GetAccountInvestmentsDto, {
+      addressKeys: ['account', 'apps'],
+    });
+
+    await this.require({
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.accountService.getAccountInvestments(
+      this.prepareAccountAddress(account), //
+      chainId || this.services.networkService.chainId,
+      apps,
       provider
     );
   }
