@@ -77,3 +77,4 @@ export * from './advance-routes-lifi.dto';
 export * from './get-step-transactions-lifi.dto';
 export * from './name-resolution-node.dto';
 export * from './get-LiFi-status.dto';
+export * from './get-account-investments.dto';

@@ -6,6 +6,7 @@ import {
   Account,
   AccountBalances,
   AccountDashboard,
+  AccountInvestments,
   AccountMember,
   AccountMembers,
   Accounts,
@@ -258,6 +259,41 @@ export class AccountService extends Service {
         },
         models: {
           result: AccountBalances,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getAccountInvestments(account: string, chainId?: number, apps?: string[], provider?: string): Promise<AccountInvestments> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: AccountInvestments;
+    }>(
+      gql`
+        query($chainId: Int!, $account: String!, $apps: [String!], $provider: String) {
+          result: accountInvestments(chainId: $chainId, account: $account, apps: $apps, provider: $provider) {
+            items {
+              name
+              network
+              position
+              balance
+              logoURI
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          chainId,
+          apps,
+          provider
+        },
+        models: {
+          result: AccountInvestments,
         },
       },
     );

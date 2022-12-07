@@ -25,7 +25,8 @@
     "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts",
     "18-cross-chain-stream": "../node_modules/.bin/ts-node ./src/18-cross-chain-stream.ts",
     "21-exchange-rates": "../node_modules/.bin/ts-node ./src/21-exchange-rates.ts",
-    "22-name-resolution": "../node_modules/.bin/ts-node ./src/22-name-resolution.ts"
+    "22-name-resolution": "../node_modules/.bin/ts-node ./src/22-name-resolution.ts",
+    "24-account-investments": "../node_modules/.bin/ts-node ./src/24-account-investments.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"

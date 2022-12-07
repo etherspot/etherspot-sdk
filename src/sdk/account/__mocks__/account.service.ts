@@ -17,6 +17,7 @@ const mocked = {
   getAccount: jest.fn(),
   getAccountBalances: jest.fn(),
   getAccountMembers: jest.fn(),
+  getAccountInvestments: jest.fn(),
 };
 
 Object.defineProperty(mocked, 'account', {
