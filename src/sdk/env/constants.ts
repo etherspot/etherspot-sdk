@@ -68,7 +68,6 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.LocalA, //
         NetworkNames.LocalB,
         NetworkNames.LocalH,
-        NetworkNames.Mumbai
       ],
     },
   },
