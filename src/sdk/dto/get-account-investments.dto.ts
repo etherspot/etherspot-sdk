@@ -5,7 +5,8 @@ export class GetAccountInvestmentsDto {
   @IsOptional()
   @IsAddress()
   account?: string = null;
-
+  
+  @IsOptional()
   @IsPositive()
   chainId?: number;
   
