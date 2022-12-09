@@ -266,15 +266,15 @@ export class AccountService extends Service {
     return result;
   }
 
-  async getAccountInvestments(account: string, chainId?: number, apps?: string[], provider?: string): Promise<AccountInvestments> {
+  async getAccountInvestments(account: string, ChainId?: number, apps?: string[], provider?: string): Promise<AccountInvestments> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: AccountInvestments;
     }>(
       gql`
-        query($chainId: Int!, $account: String!, $apps: [String!], $provider: String) {
-          result: accountInvestments(chainId: $chainId, account: $account, apps: $apps, provider: $provider) {
+        query($ChainId: Int!, $account: String!, $apps: [String!], $provider: String) {
+          result: accountInvestments(chainId: $ChainId, account: $account, apps: $apps, provider: $provider) {
             items {
               name
               network
@@ -288,7 +288,7 @@ export class AccountService extends Service {
       {
         variables: {
           account,
-          chainId,
+          ChainId,
           apps,
           provider
         },
