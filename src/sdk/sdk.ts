@@ -2512,7 +2512,23 @@ export class Sdk {
 
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokens, chainId } = dto;
-    return await this.services.ratesService.fetchExchangeRates(tokens, chainId);
+    let data: RateData, promises = [];
+    let list = [...Array(Math.ceil(tokens.length / 50))].map(_ => tokens.splice(0, 50));
+
+    list.forEach(listItem => {
+      promises.push(this.services.ratesService.fetchExchangeRates(listItem, chainId));
+    });
+
+    await (Promise as any).allSettled(promises).
+      then((response) => response?.forEach((result) => {
+        !data ?
+          data = result.value ? result.value : {}
+          :
+          data.results = result.value ? [...data.results, ...result?.value?.items] : [...data.results];
+
+      }));
+      
+    return data;
   }
 
   private async validateResolveName(
