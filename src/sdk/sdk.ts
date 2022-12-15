@@ -2520,27 +2520,31 @@ export class Sdk {
 
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokens, chainId } = dto;
-    let data: RateData,
-      promises = [];
+    let data: RateData;
+    const promises = [];
 
     //Create a batch of 50
-    let list = [...Array(Math.ceil(tokens.length / 50))].map((_) => tokens.splice(0, 50));
-    list.forEach((listItem) => {
-      promises.push(this.services.ratesService.fetchExchangeRates(listItem, chainId));
+    const batches = [...Array(Math.ceil(tokens.length / 50))].map(() => tokens.splice(0, 50));
+    batches.forEach((batch) => {
+      promises.push(this.services.ratesService.fetchExchangeRates(batch, chainId));
     });
 
-    // Fetch result and merge the result
-    await (Promise as any).allSettled(promises).then((response) =>
-      response?.forEach((result) => {
-        !data
-          ? (data = result.value ? result.value : {})
-          : (data.items = result.value ? [...data.items, ...result?.value?.items] : [...data.items]);
-      }),
-    );
+    // Fetch succeded results and merge
+    await(Promise as any)
+      .allSettled(promises)
+      .then((response) =>
+        response?.forEach((result) => {
+          if (result?.status !== 'rejected') {
+            !data
+              ? (data = result.value ? result.value : {})
+              : (data.items = result.value ? [...data.items, ...result?.value?.items] : [...data.items]);
+          }
+        }),
+      );
 
     //Return Unique tokens
     data.items = data?.items.length ? [...new Map(data?.items?.map(item => [item['address'], item])).values()] : [];
-
+    
     return data;
   }
 
