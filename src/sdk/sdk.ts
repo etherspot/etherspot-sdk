@@ -2534,17 +2534,18 @@ export class Sdk {
       .allSettled(promises)
       .then((response) =>
         response?.forEach((result) => {
-          if (result?.status !== 'rejected') {
+          console.log("result", result);
+          if (result?.status === 'fulfilled') {
             !data
               ? (data = result.value ? result.value : {})
-              : (data.items = result.value ? [...data.items, ...result?.value?.items] : [...data.items]);
+              : (data.items = result?.value?.items ? [...data.items, ...result.value.items] : [...data.items]);
           }
         }),
       );
 
     //Return Unique tokens
-    data.items = data?.items.length ? [...new Map(data?.items?.map(item => [item['address'], item])).values()] : [];
-    
+    data.items = data?.items.length ? [...new Map(data.items.map(item => [item['address'], item])).values()] : [];
+
     return data;
   }
 
