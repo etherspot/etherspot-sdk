@@ -2544,7 +2544,7 @@ export class Sdk {
       );
 
     //Return Unique tokens
-    if(data?.items.length) {
+    if(data && data.items && data.items.length) {
       data.error = ''
       data.errored = false
       data.items = [...new Map(data.items.map(item => [item['address'], item])).values()];
