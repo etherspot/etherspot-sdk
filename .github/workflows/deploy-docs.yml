@@ -32,7 +32,7 @@ jobs:
       - name: Setup node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 12.x
 
       - name: Determine npm cache directory
         id: npm-cache
