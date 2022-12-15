@@ -2534,7 +2534,6 @@ export class Sdk {
       .allSettled(promises)
       .then((response) =>
         response?.forEach((result) => {
-          console.log("result", result);
           if (result?.status === 'fulfilled') {
             !data
               ? (data = result.value ? result.value : {})
