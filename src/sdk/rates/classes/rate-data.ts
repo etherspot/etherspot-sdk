@@ -7,5 +7,5 @@ export class RateData {
   error: string;
 
   @Type(() => RateInfo)
-  results: Array<RateInfo>;
+  items: Array<RateInfo>;
 }

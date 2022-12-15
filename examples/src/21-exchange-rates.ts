@@ -18,12 +18,13 @@ async function main(): Promise<void> {
     tokens: TOKEN_LIST,
     chainId: ETH_CHAIN_ID,
   };
+
   console.log(requestPayload);
 
   const rates: RateData = await sdk.fetchExchangeRates(requestPayload);
 
   console.log('Rates');
-  console.log('Rates: ', rates);
+  console.log(rates);
 }
 
 main()
