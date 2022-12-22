@@ -37,7 +37,8 @@
     "docs:build": "typedoc ./src",
     "postdocs:build": "cp -r ./.github-pages/files/* ./docs && date > ./docs/.nojekyll",
     "docs:serve": "serve ./docs",
-    "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/docs.etherspot.dev.git"
+    "docs:deploy": "gh-pages -d ./docs -b master -r git@github.com:etherspot/docs.etherspot.dev.git",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@apollo/client": "3.4.0",
@@ -75,7 +76,8 @@
     "ts-node": "8.10.2",
     "typedoc": "0.17.4",
     "typescript": "3.9.3",
-    "ws": "7.4.6"
+    "ws": "7.4.6",
+    "husky": "^8.0.0"
   },
   "peerDependencies": {
     "ethers": "^5.6.8",
