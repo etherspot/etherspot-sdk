@@ -71,7 +71,8 @@ export class ExchangeService extends Service {
     toChainId: number,
     fromAmount: BigNumber,
     serviceProvider?: CrossChainServiceProvider,
-    lifiBridges?: LiFiBridge[]
+    lifiBridges?: LiFiBridge[],
+    toAddress?: string,
   ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
@@ -89,7 +90,8 @@ export class ExchangeService extends Service {
           $fromChainId: Int
           $toChainId: Int
           $serviceProvider: CrossChainServiceProvider
-          $lifiBridges: [LiFiBridge!]
+          $lifiBridges: [LiFiBridge!],
+          $toAddress: String
         ) {
           result: getCrossChainQuotes(
             account: $account
@@ -99,7 +101,8 @@ export class ExchangeService extends Service {
             fromChainId: $fromChainId
             toChainId: $toChainId
             serviceProvider: $serviceProvider
-            lifiBridges: $lifiBridges
+            lifiBridges: $lifiBridges,
+            toAddress: $toAddress,
           ) {
             items {
               provider
@@ -164,7 +167,8 @@ export class ExchangeService extends Service {
           toChainId,
           fromAmount,
           serviceProvider,
-          lifiBridges
+          lifiBridges,
+          toAddress
         },
         models: {
           result: BridgingQuotes,
