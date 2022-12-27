@@ -1403,6 +1403,7 @@ export class Sdk {
       fromAmount,
       serviceProvider,
       lifiBridges,
+      toAddress,
     } = await validateDto(dto, GetExchangeCrossChainQuoteDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
@@ -1422,6 +1423,7 @@ export class Sdk {
       BigNumber.from(fromAmount),
       serviceProvider,
       lifiBridges,
+      toAddress,
     );
   }
 
