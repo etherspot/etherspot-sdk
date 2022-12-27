@@ -151,6 +151,7 @@ export class ExchangeService extends Service {
                   estimatedGas
                 }
               }
+              LiFiBridgeUsed
             }
           }
         }
