@@ -1,10 +1,9 @@
 name: Check if package version is updated
 
 on:
-  push:
-  # pull_request:
-  #   branches:
-  #     - master
+  pull_request:
+    branches:
+      - master
 jobs:
   start:
     runs-on: ubuntu-latest
@@ -14,3 +13,4 @@ jobs:
         uses: del-systems/check-if-version-bumped@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          
