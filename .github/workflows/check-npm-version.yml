@@ -8,9 +8,11 @@ jobs:
   start:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if version has been updated
-        id: check
-        uses: del-systems/check-if-version-bumped@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          
+      - name: Check package version
+        id: cpv
+        uses: PostHog/check-package-version@v2
+      - name: Echo output
+        run: |
+          echo "Committed version: ${{ steps.cpv.outputs.committed-version }}"
+          echo "Published version: ${{ steps.cpv.outputs.published-version }}"
+          echo "Is new version: ${{ steps.cpv.outputs.is-new-version }}"
