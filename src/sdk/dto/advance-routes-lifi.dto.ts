@@ -28,6 +28,10 @@ export class GetAdvanceRoutesLiFiDto {
   toAddress?: string;
 
   @IsOptional()
+  @IsAddress()
+  fromAddress?: string;
+
+  @IsOptional()
   @IsBoolean()
   allowSwitchChain?: boolean;
 }

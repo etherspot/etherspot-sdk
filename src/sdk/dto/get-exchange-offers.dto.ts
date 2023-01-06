@@ -16,4 +16,13 @@ export class GetExchangeOffersDto {
 
   @IsOptional()
   fromChainId?: number;
+
+  @IsOptional()
+  @IsAddress()
+  toAddress?: string;
+
+  @IsOptional()
+  @IsAddress()
+  fromAddress?: string;
+
 }
