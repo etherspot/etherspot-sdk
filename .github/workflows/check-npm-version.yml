@@ -12,5 +12,5 @@ jobs:
       - name: Check if version has been updated
         id: check
         uses: del-systems/check-if-version-bumped@v1
-         with:
+        with:
           token: ${{ secrets.GITHUB_TOKEN }}
