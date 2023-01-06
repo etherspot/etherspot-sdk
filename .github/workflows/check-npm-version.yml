@@ -22,4 +22,4 @@ jobs:
         run: 'echo "Yayy!! Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
       - name: Log when unchanged
         if: steps.check.outputs.changed == 'false'
-        run: core.setFailed('No version change :/ Please update version in package.json!')
+        run: echo "No version change :/ Please update version in package.json!" && exit 1
