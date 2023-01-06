@@ -9,8 +9,8 @@ jobs:
   start:
     runs-on: ubuntu-latest
     steps:
-      - name: Check dir
-        run: ls -la
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Check if version has been updated
         id: check
         uses: EndBug/version-check@v2
