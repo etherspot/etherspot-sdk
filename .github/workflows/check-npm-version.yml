@@ -9,11 +9,14 @@ jobs:
   start:
     runs-on: ubuntu-latest
     steps:
+      - name: Check dir
+        run: ls -la
       - name: Check if version has been updated
         id: check
         uses: EndBug/version-check@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          file-name: ./package.json
       - name: Log when changed
         if: steps.check.outputs.changed == 'true'
         run: 'echo "Yayy!! Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
