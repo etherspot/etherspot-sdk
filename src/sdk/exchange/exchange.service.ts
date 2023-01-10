@@ -17,6 +17,7 @@ import {
   StepTransaction,
   StepTransactions,
   AdvanceRoutesLiFi,
+  LiFiStatus,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -70,7 +71,9 @@ export class ExchangeService extends Service {
     toChainId: number,
     fromAmount: BigNumber,
     serviceProvider?: CrossChainServiceProvider,
-    lifiBridges?: LiFiBridge[]
+    lifiBridges?: LiFiBridge[],
+    toAddress?: string,
+    fromAddress?: string,
   ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
@@ -89,6 +92,8 @@ export class ExchangeService extends Service {
           $toChainId: Int
           $serviceProvider: CrossChainServiceProvider
           $lifiBridges: [LiFiBridge!]
+          $toAddress: String
+          $fromAddress: String
         ) {
           result: getCrossChainQuotes(
             account: $account
@@ -99,6 +104,8 @@ export class ExchangeService extends Service {
             toChainId: $toChainId
             serviceProvider: $serviceProvider
             lifiBridges: $lifiBridges
+            toAddress: $toAddress
+            fromAddress: $fromAddress
           ) {
             items {
               provider
@@ -150,6 +157,7 @@ export class ExchangeService extends Service {
                   estimatedGas
                 }
               }
+              LiFiBridgeUsed
             }
           }
         }
@@ -163,7 +171,9 @@ export class ExchangeService extends Service {
           toChainId,
           fromAmount,
           serviceProvider,
-          lifiBridges
+          lifiBridges,
+          toAddress,
+          fromAddress,
         },
         models: {
           result: BridgingQuotes,
@@ -181,6 +191,8 @@ export class ExchangeService extends Service {
     toChainId: number,
     fromAmount: BigNumber,
     toAddress?: string,
+    allowSwitchChain?: boolean,
+    fromAddress?: string,
   ): Promise<AdvanceRoutesLiFi> {
     const { apiService, accountService } = this.services;
 
@@ -200,6 +212,8 @@ export class ExchangeService extends Service {
           $fromChainId: Int
           $toChainId: Int
           $toAddress: String
+          $allowSwitchChain: Boolean
+          $fromAddress: String
         ) {
           result: getAdvanceRoutesLiFi(
             account: $account
@@ -209,6 +223,8 @@ export class ExchangeService extends Service {
             fromChainId: $fromChainId
             toChainId: $toChainId
             toAddress: $toAddress
+            allowSwitchChain: $allowSwitchChain
+            fromAddress: $fromAddress
           ) {
             data
           }
@@ -223,6 +239,8 @@ export class ExchangeService extends Service {
           toChainId,
           fromAmount,
           toAddress,
+          allowSwitchChain,
+          fromAddress,
         },
       },
     );
@@ -244,17 +262,17 @@ export class ExchangeService extends Service {
     try {
       const route = JSON.stringify(selectedRoute);
 
-    const { result } = await apiService.query<{
-      result: StepTransaction[];
-    }>(
-      gql`
+      const { result } = await apiService.query<{
+        result: StepTransaction[];
+      }>(
+        gql`
         query(
-          $route: String!,
-          $account: String!,
+          $route: String!
+          $account: String!
         ) {
           result: getStepTransactions(
-            route: $route,
-            account: $account,
+            route: $route
+            account: $account
           ) {
               to
               gasLimit
@@ -281,15 +299,59 @@ export class ExchangeService extends Service {
     };
   }
 
+  async getLiFiStatus(fromChainId: number, toChainId: number, txnHash: string, bridge?: string): Promise<LiFiStatus> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: LiFiStatus;
+    }>(
+      gql`
+        query(
+          $fromChainId: Int!
+          $toChainId: Int!
+          $txnHash: String!
+          $bridge: String
+        ) {
+          result: getLiFiStatus(
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            txnHash: $txnHash
+            bridge: $bridge
+          ) {
+            status
+            bridgeExplorerLink
+            subStatus
+            subStatusMsg
+            sendingTxnHash
+            receivingTxnHash
+          }
+        }`,
+      {
+        variables: {
+          fromChainId,
+          toChainId,
+          txnHash,
+          bridge
+        },
+      }
+    );
+
+    return result;
+  }
+
   async getExchangeOffers(
     fromTokenAddress: string,
     toTokenAddress: string,
     fromAmount: BigNumber,
     fromChainId: number,
+    toAddress?: string,
+    fromAddress?: string,
   ): Promise<ExchangeOffer[]> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
+
+    if (!toAddress) toAddress = accountService.accountAddress;
 
     const { result } = await apiService.query<{
       result: ExchangeOffers;
@@ -301,6 +363,8 @@ export class ExchangeService extends Service {
           $fromTokenAddress: String!
           $toTokenAddress: String!
           $fromAmount: BigNumber!
+          $toAddress: String
+          $fromAddress: String
         ) {
           result: exchangeOffers(
             chainId: $fromChainId
@@ -308,6 +372,8 @@ export class ExchangeService extends Service {
             fromTokenAddress: $fromTokenAddress
             toTokenAddress: $toTokenAddress
             fromAmount: $fromAmount
+            toAddress: $toAddress
+            fromAddress: $fromAddress
           ) {
             items {
               provider
@@ -329,6 +395,8 @@ export class ExchangeService extends Service {
           fromTokenAddress,
           toTokenAddress,
           fromAmount,
+          toAddress,
+          fromAddress,
         },
         models: {
           result: ExchangeOffers,

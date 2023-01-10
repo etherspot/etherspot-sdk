@@ -4,6 +4,7 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import {
   Account,
   AccountBalances,
+  AccountInvestments,
   AccountMembers,
   Accounts,
   AccountService,
@@ -24,6 +25,7 @@ import {
   ENSReverseRegistrarContract,
   ERC20TokenContract,
   GatewayContract,
+  GatewayV2Contract,
   PaymentRegistryContract,
   PersonalAccountRegistryContract,
 } from './contract';
@@ -107,7 +109,9 @@ import {
   FetchExchangeRatesDto,
   GetAdvanceRoutesLiFiDto,
   GetStepTransactionsLiFiDto,
-  NameResolutionNodeDto
+  NameResolutionNodeDto,
+  GetLiFiStatusDto,
+  GetAccountInvestmentsDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -121,6 +125,7 @@ import {
   BridgingQuotes,
   AdvanceRoutesLiFi,
   StepTransactions,
+  LiFiStatus,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -136,7 +141,7 @@ import {
   GatewayTransaction,
 } from './gateway';
 import { SdkOptions } from './interfaces';
-import { NameResolutionsNodes ,NameResolutionService } from './name-resolution';
+import { NameResolutionsNodes, NameResolutionService } from './name-resolution';
 import { Network, NetworkNames, NetworkService } from './network';
 import { Notification, NotificationService } from './notification';
 import {
@@ -157,7 +162,15 @@ import {
 import { CurrentProject, Project, Projects, ProjectService } from './project';
 import { RateData, RatesService } from './rates';
 import { Session, SessionService } from './session';
-import { Transactions, Transaction, TransactionsService, NftList, StreamTransactionPayload, StreamList, KnownContract } from './transactions';
+import {
+  Transactions,
+  Transaction,
+  TransactionsService,
+  NftList,
+  StreamTransactionPayload,
+  StreamList,
+  KnownContract,
+} from './transactions';
 import { State, StateService } from './state';
 import { WalletService, isWalletProvider, WalletProviderLike } from './wallet';
 
@@ -213,6 +226,7 @@ export class Sdk {
       gatewayContract: new GatewayContract(),
       paymentRegistryContract: new PaymentRegistryContract(),
       personalAccountRegistryContract: new PersonalAccountRegistryContract(),
+      gatewayV2Contract: new GatewayV2Contract(),
     };
 
     this.services = {
@@ -507,7 +521,12 @@ export class Sdk {
 
     return projectService.withCustomProjectMetadata(
       customProjectMetadata, //
-      () => gatewayService.submitGatewayBatch(),
+      () =>
+        gatewayService.submitGatewayBatch({
+          requests: null,
+          estimation: null,
+          guarded: dto.guarded,
+        }),
     );
   }
 
@@ -760,7 +779,7 @@ export class Sdk {
    * @return Promise<AccountBalances>
    */
   async getAccountBalances(dto: GetAccountBalancesDto = {}): Promise<AccountBalances> {
-    const { account, tokens, chainId } = await validateDto(dto, GetAccountBalancesDto, {
+    const { account, tokens, chainId, provider } = await validateDto(dto, GetAccountBalancesDto, {
       addressKeys: ['account', 'tokens'],
     });
 
@@ -774,6 +793,30 @@ export class Sdk {
       this.prepareAccountAddress(account), //
       tokens,
       ChainId,
+      provider,
+    );
+  }
+
+  /**
+   * gets account investments
+   * @param dto
+   * @return Promise<AccountInvestments>
+   */
+  async getAccountInvestments(dto: GetAccountInvestmentsDto = {}): Promise<AccountInvestments> {
+    const { account, apps, chainId, provider } = await validateDto(dto, GetAccountInvestmentsDto, {
+      addressKeys: ['account', 'apps'],
+    });
+
+    await this.require({
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.accountService.getAccountInvestments(
+      this.prepareAccountAddress(account), //
+      chainId || this.services.networkService.chainId,
+      apps,
+      provider,
     );
   }
 
@@ -1308,7 +1351,7 @@ export class Sdk {
    * @return Promise<ExchangeOffer[]>
    */
   async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
-    const { fromTokenAddress, toTokenAddress, fromAmount, fromChainId } = await validateDto(dto, GetExchangeOffersDto, {
+    const { fromTokenAddress, toTokenAddress, fromAmount, fromChainId, toAddress, fromAddress } = await validateDto(dto, GetExchangeOffersDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
 
@@ -1318,13 +1361,15 @@ export class Sdk {
     });
 
     let { chainId } = this.services.networkService;
-    chainId = fromChainId ? fromChainId : chainId; 
+    chainId = fromChainId ? fromChainId : chainId;
 
     return this.services.exchangeService.getExchangeOffers(
       fromTokenAddress, //
       toTokenAddress,
       BigNumber.from(fromAmount),
       chainId,
+      toAddress,
+      fromAddress,
     );
   }
 
@@ -1352,13 +1397,19 @@ export class Sdk {
    * @return Promise<MutliChainQuotes>
    */
   async getCrossChainQuotes(dto: GetExchangeCrossChainQuoteDto): Promise<BridgingQuotes> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, serviceProvider, lifiBridges } = await validateDto(
-      dto,
-      GetExchangeCrossChainQuoteDto,
-      {
-        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
-      },
-    );
+    const {
+      fromChainId,
+      toChainId,
+      fromTokenAddress,
+      toTokenAddress,
+      fromAmount,
+      serviceProvider,
+      lifiBridges,
+      toAddress,
+      fromAddress,
+    } = await validateDto(dto, GetExchangeCrossChainQuoteDto, {
+      addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+    });
 
     await this.require({
       session: true,
@@ -1374,18 +1425,25 @@ export class Sdk {
       toChainId,
       BigNumber.from(fromAmount),
       serviceProvider,
-      lifiBridges
+      lifiBridges,
+      toAddress,
+      fromAddress,
     );
   }
 
   async getAdvanceRoutesLiFi(dto: GetAdvanceRoutesLiFiDto): Promise<AdvanceRoutesLiFi> {
-    const { fromChainId, toChainId, fromTokenAddress, toTokenAddress, fromAmount, toAddress } = await validateDto(
-      dto,
-      GetAdvanceRoutesLiFiDto,
-      {
-        addressKeys: ['fromTokenAddress', 'toTokenAddress'],
-      },
-    );
+    const {
+      fromChainId,
+      toChainId,
+      fromTokenAddress,
+      toTokenAddress,
+      fromAmount,
+      toAddress,
+      allowSwitchChain,
+      fromAddress,
+    } = await validateDto(dto, GetAdvanceRoutesLiFiDto, {
+      addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+    });
 
     let { chainId } = this.services.networkService;
     chainId = fromChainId ? fromChainId : chainId;
@@ -1397,6 +1455,8 @@ export class Sdk {
       toChainId,
       BigNumber.from(fromAmount),
       toAddress,
+      allowSwitchChain,
+      fromAddress,
     );
 
     return data;
@@ -1404,6 +1464,11 @@ export class Sdk {
 
   async getStepTransaction(dto: GetStepTransactionsLiFiDto): Promise<StepTransactions> {
     return this.services.exchangeService.getStepTransaction(dto.route);
+  }
+
+  async getLiFiStatus(dto: GetLiFiStatusDto): Promise<LiFiStatus> {
+    const { fromChainId, toChainId, txnHash, bridge } = dto;
+    return this.services.exchangeService.getLiFiStatus(fromChainId, toChainId, txnHash, bridge);
   }
 
   // p2p payments
@@ -2258,36 +2323,28 @@ export class Sdk {
    * searchs for existing super erc20 wrapper on chain
    * @return Promise<string | null>
    */
-   async findSuperERC20WrapperOnChain(
+  async findSuperERC20WrapperOnChain(
     underlyingToken: string,
     chainId?: number,
     underlyingDecimals?: number,
     name?: string,
     symbol?: string,
   ): Promise<string> {
-    return this.services.transactionsService
-      .findSuperERC20WrapperOnChain(
-        underlyingToken,
-        chainId,
-        underlyingDecimals,
-        name,
-        symbol
-      );
+    return this.services.transactionsService.findSuperERC20WrapperOnChain(
+      underlyingToken,
+      chainId,
+      underlyingDecimals,
+      name,
+      symbol,
+    );
   }
 
   /**
    * register super token wrapper
    * @return Promise<KnownContract | null>
    */
-  async registerERC20WrapperToken(
-    wrapperAddress: string,
-    chainId?: number
-  ): Promise<KnownContract | null> {
-    return this.services.transactionsService
-      .registerERC20WrapperToken(
-        wrapperAddress,
-        chainId
-      );
+  async registerERC20WrapperToken(wrapperAddress: string, chainId?: number): Promise<KnownContract | null> {
+    return this.services.transactionsService.registerERC20WrapperToken(wrapperAddress, chainId);
   }
 
   /**
@@ -2295,8 +2352,7 @@ export class Sdk {
    * @return Promise<KnownContracts>
    */
   async getRegisteredERC20WrapperTokens() {
-    return this.services.transactionsService
-      .getRegisteredERC20WrapperTokens();
+    return this.services.transactionsService.getRegisteredERC20WrapperTokens();
   }
 
   // utils
@@ -2472,7 +2528,38 @@ export class Sdk {
 
   async fetchExchangeRates(dto: FetchExchangeRatesDto): Promise<RateData> {
     const { tokens, chainId } = dto;
-    return await this.services.ratesService.fetchExchangeRates(tokens, chainId);
+    let data: RateData;
+    const promises = [];
+
+    //Create a batch of 50
+    const batches = [...Array(Math.ceil(tokens.length / 50))].map(() => tokens.splice(0, 50));
+    batches.forEach((batch) => {
+      promises.push(this.services.ratesService.fetchExchangeRates(batch, chainId));
+    });
+
+    // Fetch succeded results and merge
+    await(Promise as any)
+      .allSettled(promises)
+      .then((response) =>
+        response?.forEach((result) => {
+          if (result?.status === 'fulfilled') {
+            !data
+              ? (data = result.value ? result.value : {})
+              : (data.items = result?.value?.items ? [...data.items, ...result.value.items] : [...data.items]);
+          }
+        }),
+      );
+
+    //Return Unique tokens
+    if(data && data.items && data.items.length) {
+      data.error = ''
+      data.errored = false
+      data.items = [...new Map(data.items.map(item => [item['address'], item])).values()];
+    } else {
+      data.items = [];
+    }
+
+    return data;
   }
 
   private async validateResolveName(
@@ -2484,7 +2571,7 @@ export class Sdk {
     options = {
       ...options,
     };
-    
+
     const { networkService } = this.services;
 
     if (options.network && !networkService.chainId) {
@@ -2495,7 +2582,7 @@ export class Sdk {
       throw new Exception('Require name');
     }
   }
-  
+
   /**
    * resolves Name
    * @param dto
@@ -2508,10 +2595,10 @@ export class Sdk {
   ): Promise<NameResolutionsNodes> {
     const { chainId, name } = await validateDto(dto, NameResolutionNodeDto);
 
-    await this.validateResolveName({ network: chainId, name:name });
+    await this.validateResolveName({ network: chainId, name: name });
 
     const { nameResolutionService } = this.services;
 
-    return nameResolutionService.resolveName(chainId,name);
+    return nameResolutionService.resolveName(chainId, name);
   }
 }

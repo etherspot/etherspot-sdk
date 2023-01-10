@@ -5,7 +5,7 @@ export enum EnvNames {
   MainNets = 'mainnets',
   TestNets = 'testnets',
   LocalNets = 'localnets',
-  MainNetsTest = 'mainnetstest'
+  MainNetsTest = 'mainnetstest',
 }
 
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
@@ -29,6 +29,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Celo,
         NetworkNames.Fuse,
         NetworkNames.ArbitrumNova,
+        // NetworkNames.Neon,
       ],
     },
   },
@@ -39,22 +40,20 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Ropsten,
-        NetworkNames.Rinkeby,
         NetworkNames.Goerli,
-        NetworkNames.Kovan,
         NetworkNames.Sokol,
         NetworkNames.BscTest,
         NetworkNames.FantomTest,
         NetworkNames.Mumbai,
         NetworkNames.AuroraTest,
         NetworkNames.Fuji,
-        NetworkNames.OptimismKovan,
         NetworkNames.ArbitrumTest,
         NetworkNames.Moonbase,
         NetworkNames.CeloTest,
         NetworkNames.FuseSparknet,
         NetworkNames.ArbitrumNitro,
+        NetworkNames.NeonDevnet,
+        NetworkNames.OptimismGoerli,
         NetworkNames.Etherspot,
       ],
     },
@@ -79,8 +78,9 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Matic
+        NetworkNames.Matic,
+        NetworkNames.Bsc,
       ],
     },
-  }
+  },
 };

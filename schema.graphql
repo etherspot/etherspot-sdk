@@ -28,6 +28,18 @@ type AccountBalances {
   items: [AccountBalance!]!
 }
 
+type AccountInvestment {
+  name: String
+  network: String
+  balance: BigNumber!
+  position: Int!
+  logoURI: String!
+}
+
+type AccountInvestments {
+  items: [AccountInvestment!]!
+}
+
 type AccountDashboardChange {
   balance: Float!
   netChange: Float!
@@ -655,7 +667,8 @@ type ProjectResponse {
 
 type Query {
   account(account: String!, chainId: Int): Account
-  accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
+  accountBalances(account: String!, chainId: Int, tokens: [String!] = [], provider: String!): AccountBalances!
+  accountInvestments(account: String!, chainId: Int, apps: [String!] = [], provider: String!) : AccountInvestments!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accountSettings(account: String!, chainId: Int): AccountSettings
@@ -1026,18 +1039,14 @@ enum NetworkNames {
   Fantom
   FantomTest
   Goerli
-  Kovan
   LocalA
   LocalB
   LocalH
   Mainnet
   Matic
   Mumbai
-  Rinkeby
-  Ropsten
   Sokol
   Xdai
-  OptimismKovan
   Optimism
   ArbitrumTest
   Arbitrum

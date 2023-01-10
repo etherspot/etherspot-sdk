@@ -6,6 +6,7 @@ export enum NotificationTypes {
   ENSNodeUpdated = 'ENSNodeUpdated',
   GatewayBatchCreated = 'GatewayBatchCreated',
   GatewayBatchUpdated = 'GatewayBatchUpdated',
+  GatewayBatchResubmitted = 'GatewayBatchResubmitted',
   P2PPaymentChannelCreated = 'P2PPaymentChannelCreated',
   P2PPaymentChannelUpdated = 'P2PPaymentChannelUpdated',
   P2PPaymentDepositCreated = 'P2PPaymentDepositCreated',

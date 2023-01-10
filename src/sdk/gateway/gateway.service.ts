@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client/core';
-import { utils } from 'ethers';
+import { utils, constants } from 'ethers';
 import { Exception, Service, TransactionRequest, UniqueSubject } from '../common';
 import {
   GatewayEstimatedBatch,
@@ -482,7 +482,7 @@ export class GatewayService extends Service {
       throw new Exception('Can not submit empty batch');
     }
 
-    const { estimation } = statelessBatch || this.gatewayBatch;
+    const { estimation } = statelessBatch?.estimation ? statelessBatch : this.gatewayBatch;
 
     if (!estimation || estimation.expiredAt.getTime() < estimation.createdAt.getTime()) {
       throw new Exception('Can not submit not estimated batch');
@@ -497,11 +497,16 @@ export class GatewayService extends Service {
       expiredAt: estimationExpiredAt,
       signature: estimationSignature,
     } = estimation;
+    const guarded = statelessBatch.guarded !== false; // guarded unless explicitly disabled
 
     const { nonce, feeToken } = this.estimationOptions;
 
     const { accountService, walletService, apiService } = this.services;
-    const { gatewayContract, personalAccountRegistryContract, erc20TokenContract } = this.internalContracts;
+    const {
+      gatewayContract,
+      personalAccountRegistryContract,
+      erc20TokenContract,
+    } = this.internalContracts;
 
     const account = accountService.accountAddress;
 
@@ -519,13 +524,19 @@ export class GatewayService extends Service {
     } else {
       feeTransactionRequest = personalAccountRegistryContract.encodeRefundAccountCall(account, null, feeAmount);
     }
+    const destinations = [...to, feeTransactionRequest.to];
+    const datas = [...data, feeTransactionRequest.data];
 
-    const messageHash = gatewayContract.hashDelegatedBatch(
-      account,
-      nonce,
-      [...to, feeTransactionRequest.to],
-      [...data, feeTransactionRequest.data],
-    );
+    if (guarded) {
+      const guardedTx = this.guardedTransactionRequest();
+      if (guardedTx) {
+        destinations.unshift(guardedTx.to);
+        datas.unshift(guardedTx.data);
+      }
+    }
+
+    const messageHash = gatewayContract.hashDelegatedBatch(account, nonce, destinations, datas);
+
     const senderSignature = await walletService.signMessage(messageHash);
 
     const { result } = await apiService.mutate<{
@@ -545,6 +556,7 @@ export class GatewayService extends Service {
           $estimatedGasPrice: BigNumber!
           $estimationExpiredAt: DateTime!
           $estimationSignature: String!
+          $guarded: Boolean,
         ) {
           result: submitGatewayBatch(
             chainId: $chainId
@@ -559,6 +571,7 @@ export class GatewayService extends Service {
             estimatedGasPrice: $estimatedGasPrice
             estimationExpiredAt: $estimationExpiredAt
             estimationSignature: $estimationSignature
+            guarded: $guarded
           ) {
             transaction {
               hash
@@ -604,11 +617,12 @@ export class GatewayService extends Service {
           estimatedGasPrice,
           estimationExpiredAt,
           estimationSignature,
+          guarded,
         },
       },
     );
 
-    if (!statelessBatch) {
+    if (!statelessBatch || (!statelessBatch.requests && !statelessBatch.estimation)) {
       this.clearGatewayBatch();
     }
 
@@ -732,7 +746,7 @@ export class GatewayService extends Service {
   }
 
   private extractToAndData(statelessBatch?: GatewayBatch): { to: string[]; data: string[] } {
-    return (statelessBatch || this.gatewayBatch).requests.reduce(
+    return (statelessBatch?.requests ? statelessBatch : this.gatewayBatch).requests.reduce(
       (result, { to, data }) => {
         result.to.push(to);
         result.data.push(data);
@@ -743,5 +757,27 @@ export class GatewayService extends Service {
         data: [],
       },
     );
+  }
+
+  private guardedTransactionRequest(): TransactionRequest | null {
+    const {
+      gatewayContract,
+      personalAccountRegistryContract,
+      gatewayV2Contract,
+    } = this.internalContracts;
+
+    if (
+      gatewayV2Contract.address &&
+      gatewayV2Contract.address !== constants.AddressZero
+    ) {
+      const guardedTxContent = personalAccountRegistryContract.encodeIsAccountDeployed(gatewayContract.address);
+      return gatewayV2Contract.encodeSendBatchFromAccountGuarded(
+        gatewayContract.address,
+        [guardedTxContent.to],
+        [guardedTxContent.data],
+      );
+    }
+
+    return null;
   }
 }

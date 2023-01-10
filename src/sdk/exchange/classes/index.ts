@@ -11,3 +11,4 @@ export * from './exchange-bridging-quote';
 export * from './exchange-router-address';
 export * from './step-transactions-lifi';
 export * from './advance-routes-lifi';
+export * from './lifi-status';

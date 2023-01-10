@@ -23,6 +23,19 @@ export class PersonalAccountRegistryContract extends InternalContract {
     data: BytesLike,
   ): TransactionRequest;
 
+  encodeIsAccountDeployed(
+    account: string
+  ): TransactionRequest {
+    const data = this.interface.encodeFunctionData(
+      'isAccountDeployed',
+      [account]
+    );
+    return {
+      to: this.address,
+      data
+    }
+  };
+
   computeAccountAddress(saltOwner: string): string {
     let result: string = null;
 

@@ -28,5 +28,13 @@ export class GetExchangeCrossChainQuoteDto {
   serviceProvider?: CrossChainServiceProvider;
 
   @IsOptional()
+  @IsAddress()
+  toAddress?: string;
+
+  @IsOptional()
+  @IsAddress()
+  fromAddress?: string;
+
+  @IsOptional()
   lifiBridges?: LiFiBridge[];
 }
