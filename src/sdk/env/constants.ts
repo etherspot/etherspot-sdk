@@ -47,7 +47,6 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Mumbai,
         NetworkNames.AuroraTest,
         NetworkNames.Fuji,
-        NetworkNames.ArbitrumTest,
         NetworkNames.Moonbase,
         NetworkNames.CeloTest,
         NetworkNames.FuseSparknet,
@@ -77,10 +76,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [
-        NetworkNames.Matic,
-        NetworkNames.Bsc,
-      ],
+      supportedNetworkNames: [NetworkNames.Matic, NetworkNames.Bsc],
     },
   },
 };
