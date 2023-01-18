@@ -13,3 +13,4 @@ export * from './account-total-balances';
 export * from './accounts';
 export * from './account-investment';
 export * from './account-investments';
+export * from './account-investment-positions-info';
