@@ -2,8 +2,6 @@ import { BigNumber } from 'ethers';
 import { TransformBigNumber } from '../../common';
 
 export class AccountInvestmentPositionsInfo {
-    label: string;
-
     @TransformBigNumber()
     balance: BigNumber;
 

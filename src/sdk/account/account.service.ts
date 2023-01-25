@@ -282,7 +282,6 @@ export class AccountService extends Service {
               balance
               logoURI
               positionsInfo {
-                label
                 balance
                 tokens
                 price
