@@ -281,6 +281,14 @@ export class AccountService extends Service {
               position
               balance
               logoURI
+              positionsInfo {
+                balance
+                tokens
+                price
+                metaType
+                name
+                logoURI
+              }
             }
           }
         }

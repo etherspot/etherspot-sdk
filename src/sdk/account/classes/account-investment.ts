@@ -1,5 +1,7 @@
+import { Type } from 'class-transformer'
 import { BigNumber } from 'ethers';
 import { TransformBigNumber } from '../../common';
+import { AccountInvestmentPositionsInfo } from './account-investment-positions-info';
 
 export class AccountInvestment {
   name: string;
@@ -12,4 +14,7 @@ export class AccountInvestment {
   position: number;
 
   logoURI: string;
+
+  @Type(() => AccountInvestmentPositionsInfo)
+  positionsInfo?: [AccountInvestmentPositionsInfo[]]
 }
