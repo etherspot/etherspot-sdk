@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsPositive } from 'class-validator';
 import { IsAddress, IsBigNumberish } from './validators';
 import { CrossChainServiceProvider, LiFiBridge } from '..';
 
@@ -37,4 +37,8 @@ export class GetExchangeCrossChainQuoteDto {
 
   @IsOptional()
   lifiBridges?: LiFiBridge[];
+
+  @IsOptional()
+  @IsBoolean()
+  showZeroUsd?: boolean;
 }
