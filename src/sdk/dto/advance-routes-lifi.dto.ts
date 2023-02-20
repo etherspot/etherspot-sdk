@@ -34,4 +34,8 @@ export class GetAdvanceRoutesLiFiDto {
   @IsOptional()
   @IsBoolean()
   allowSwitchChain?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  showZeroUsd?: boolean;
 }

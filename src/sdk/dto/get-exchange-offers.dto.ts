@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional } from 'class-validator';
 import { BigNumberish } from 'ethers';
 import { IsAddress, IsBigNumberish } from './validators';
 
@@ -24,5 +24,9 @@ export class GetExchangeOffersDto {
   @IsOptional()
   @IsAddress()
   fromAddress?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  showZeroUsd?: boolean;
 
 }

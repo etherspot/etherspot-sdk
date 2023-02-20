@@ -74,6 +74,7 @@ export class ExchangeService extends Service {
     lifiBridges?: LiFiBridge[],
     toAddress?: string,
     fromAddress?: string,
+    showZeroUsd?: boolean,
   ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
@@ -94,6 +95,7 @@ export class ExchangeService extends Service {
           $lifiBridges: [LiFiBridge!]
           $toAddress: String
           $fromAddress: String
+          $showZeroUsd: Boolean
         ) {
           result: getCrossChainQuotes(
             account: $account
@@ -106,6 +108,7 @@ export class ExchangeService extends Service {
             lifiBridges: $lifiBridges
             toAddress: $toAddress
             fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
           ) {
             items {
               provider
@@ -174,6 +177,7 @@ export class ExchangeService extends Service {
           lifiBridges,
           toAddress,
           fromAddress,
+          showZeroUsd,
         },
         models: {
           result: BridgingQuotes,
@@ -193,6 +197,7 @@ export class ExchangeService extends Service {
     toAddress?: string,
     allowSwitchChain?: boolean,
     fromAddress?: string,
+    showZeroUsd?: boolean,
   ): Promise<AdvanceRoutesLiFi> {
     const { apiService, accountService } = this.services;
 
@@ -214,6 +219,7 @@ export class ExchangeService extends Service {
           $toAddress: String
           $allowSwitchChain: Boolean
           $fromAddress: String
+          $showZeroUsd: Boolean
         ) {
           result: getAdvanceRoutesLiFi(
             account: $account
@@ -225,6 +231,7 @@ export class ExchangeService extends Service {
             toAddress: $toAddress
             allowSwitchChain: $allowSwitchChain
             fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
           ) {
             data
           }
@@ -241,6 +248,7 @@ export class ExchangeService extends Service {
           toAddress,
           allowSwitchChain,
           fromAddress,
+          showZeroUsd,
         },
       },
     );
@@ -346,6 +354,7 @@ export class ExchangeService extends Service {
     fromChainId: number,
     toAddress?: string,
     fromAddress?: string,
+    showZeroUsd?: boolean,
   ): Promise<ExchangeOffer[]> {
     const { apiService, accountService } = this.services;
 
@@ -365,6 +374,7 @@ export class ExchangeService extends Service {
           $fromAmount: BigNumber!
           $toAddress: String
           $fromAddress: String
+          $showZeroUsd: Boolean
         ) {
           result: exchangeOffers(
             chainId: $fromChainId
@@ -374,6 +384,7 @@ export class ExchangeService extends Service {
             fromAmount: $fromAmount
             toAddress: $toAddress
             fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
           ) {
             items {
               provider
@@ -397,6 +408,7 @@ export class ExchangeService extends Service {
           fromAmount,
           toAddress,
           fromAddress,
+          showZeroUsd,
         },
         models: {
           result: ExchangeOffers,

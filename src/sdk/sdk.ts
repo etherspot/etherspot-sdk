@@ -1351,7 +1351,7 @@ export class Sdk {
    * @return Promise<ExchangeOffer[]>
    */
   async getExchangeOffers(dto: GetExchangeOffersDto): Promise<ExchangeOffer[]> {
-    const { fromTokenAddress, toTokenAddress, fromAmount, fromChainId, toAddress, fromAddress } = await validateDto(dto, GetExchangeOffersDto, {
+    const { fromTokenAddress, toTokenAddress, fromAmount, fromChainId, toAddress, fromAddress, showZeroUsd } = await validateDto(dto, GetExchangeOffersDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
 
@@ -1370,6 +1370,7 @@ export class Sdk {
       chainId,
       toAddress,
       fromAddress,
+      showZeroUsd,
     );
   }
 
@@ -1407,6 +1408,7 @@ export class Sdk {
       lifiBridges,
       toAddress,
       fromAddress,
+      showZeroUsd,
     } = await validateDto(dto, GetExchangeCrossChainQuoteDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
@@ -1428,6 +1430,7 @@ export class Sdk {
       lifiBridges,
       toAddress,
       fromAddress,
+      showZeroUsd,
     );
   }
 
@@ -1441,6 +1444,7 @@ export class Sdk {
       toAddress,
       allowSwitchChain,
       fromAddress,
+      showZeroUsd,
     } = await validateDto(dto, GetAdvanceRoutesLiFiDto, {
       addressKeys: ['fromTokenAddress', 'toTokenAddress'],
     });
@@ -1457,6 +1461,7 @@ export class Sdk {
       toAddress,
       allowSwitchChain,
       fromAddress,
+      showZeroUsd,
     );
 
     return data;
