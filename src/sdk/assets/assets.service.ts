@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client/core';
 import { Service } from '../common';
-import { TokenList, TokenLists, TokenListToken } from './classes';
+import { HistoricalTokenPrices, MarketDetails, NumberOfTransactions, PoolsActivities, TokenDetails, TokenList, TokenLists, TokenListToken, TradingHistories } from './classes';
 import { NativeCurrencies } from './classes/native-currencies';
 import { NativeCurrenciesItem } from './classes/native-currencies-item';
 
@@ -148,6 +148,247 @@ export class AssetsService extends Service {
         variables: {
           token,
           name,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getTokenDetails(tokenAddress: string, chainId: number, provider?: string): Promise<TokenDetails> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: TokenDetails;
+    }>(
+      gql`
+      query($chainId: Int, $tokenAddress: String!, $provider: String) {
+        result: tokenDetails(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+          tokenAddress
+          usdPrice
+          liquidityUSD
+          tradingVolume
+        }
+      }
+    `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider
+        },
+        models: {
+          result: TokenDetails,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getHistoricalTokenPrice(tokenAddress: string, chainId: number, provider?: string, timePeriod?: string)
+    : Promise<HistoricalTokenPrices> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: HistoricalTokenPrices;
+    }>(
+      gql`
+      query($chainId: Int, $tokenAddress: String!, $provider: String, $timePeriod: String) {
+        result: historicalTokenPrice(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, timePeriod: $timePeriod) {
+          items {
+            tokenAddress
+            usdPrice
+            timestamp
+          }
+        }
+      }
+    `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider,
+          timePeriod,
+        },
+        models: {
+          result: HistoricalTokenPrices,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getPoolsActivity(tokenAddress: string, chainId: number, provider?: string, page?: number, type?: string)
+    : Promise<PoolsActivities> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: PoolsActivities;
+    }>(
+      gql`
+    query($chainId: Int, $tokenAddress: String!, $provider: String, $page: Int, $type: String) {
+      result: poolsActivity(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, page: $page, type: $type) {
+        items {
+          amm
+          transactionAddress
+          timestamp
+          amountUSD
+          transactionType
+          tokensIn {
+            symbol
+            amm
+            network
+            priceUSD
+            priceETH
+            amount
+          }
+          tokensOut {
+            symbol
+            amm
+            network
+            priceUSD
+            priceETH
+            amount
+          }
+        }
+      }
+    }
+  `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider,
+          page,
+          type,
+        },
+        models: {
+          result: PoolsActivities,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getNumberOfTransactions(tokenAddress: string, chainId: number, provider?: string)
+    : Promise<NumberOfTransactions> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: NumberOfTransactions;
+    }>(
+      gql`
+    query($chainId: Int, $tokenAddress: String!, $provider: String) {
+      result: numberOfTransactions(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+        totalTransactions
+      }
+    }
+  `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider,
+        },
+        models: {
+          result: NumberOfTransactions,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getTradingHistory(tokenAddress: string, chainId: number, provider?: string, page?: number)
+    : Promise<TradingHistories> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: TradingHistories;
+    }>(
+      gql`
+      query($chainId: Int, $tokenAddress: String!, $provider: String, $page: Int) {
+        result: tradingHistory(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, page: $page) {
+          items {
+            amm
+            transactionAddress
+            direction
+            timestamp
+            amountUSD
+            walletAddress
+            tokensIn {
+              symbol
+              amm
+              network
+              priceUSD
+              priceETH
+              amount
+            }
+            tokensOut {
+              symbol
+              amm
+              network
+              priceUSD
+              priceETH
+              amount
+            }
+          }
+      }
+    }
+    `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider,
+          page,
+        },
+        models: {
+          result: TradingHistories,
+        },
+      },
+    );
+
+    return result;
+  }
+
+  async getMarketDetails(tokenAddress: string, chainId: number, provider?: string)
+    : Promise<MarketDetails> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: MarketDetails;
+    }>(
+      gql`
+      query($chainId: Int, $tokenAddress: String!, $provider: String) {
+        result: marketDetails(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+          id
+          symbol
+          name
+          image
+          marketCap
+          allTimeHigh
+          allTimeLow
+          fullyDilutedValuation
+          priceChangePercentage1h
+          priceChangePercentage24h
+          priceChangePercentage7d
+          priceChangePercentage1m
+          priceChangePercentage1y
+        }
+      }
+    `,
+      {
+        variables: {
+          chainId,
+          tokenAddress,
+          provider,
+        },
+        models: {
+          result: MarketDetails,
         },
       },
     );

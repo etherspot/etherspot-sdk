@@ -13,7 +13,7 @@ import {
   AccountTypes,
 } from './account';
 import { ApiService } from './api';
-import { AssetsService, NativeCurrenciesItem, PaginatedTokens, TokenList, TokenListToken } from './assets';
+import { AssetsService, HistoricalTokenPrices, MarketDetails, NativeCurrenciesItem, NumberOfTransactions, PaginatedTokens, PoolsActivities, TokenDetails, TokenList, TokenListToken, TradingHistories } from './assets';
 import { BlockService } from './block';
 import { addressesEqual, ErrorSubject, Exception, TransactionRequest } from './common';
 import { Context } from './context';
@@ -112,6 +112,10 @@ import {
   NameResolutionNodeDto,
   GetLiFiStatusDto,
   GetAccountInvestmentsDto,
+  GetTokenDetailsDto,
+  GetHistoricalTokenPriceDto,
+  GetPoolsActivityDto,
+  GetTradingHistoryDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -2160,6 +2164,136 @@ export class Sdk {
     });
 
     return this.services.assetsService.isTokenOnTokenList(token, name);
+  }
+
+  /**
+   * gets token details
+   * @param dto
+   * @return Promise<TokenDetails>
+   */
+  async getTokenDetails(dto: GetTokenDetailsDto = {}): Promise<TokenDetails> {
+    const { tokenAddress, chainId, provider } = await validateDto(dto, GetTokenDetailsDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getTokenDetails(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+    );
+  }
+
+  /**
+   * gets historical token price
+   * @param dto
+   * @return Promise<HistoricalTokenPrices>
+   */
+  async getHistoricalTokenPrice(dto: GetHistoricalTokenPriceDto = {}): Promise<HistoricalTokenPrices> {
+    const { tokenAddress, chainId, provider, timePeriod } = await validateDto(dto, GetHistoricalTokenPriceDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getHistoricalTokenPrice(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+      timePeriod,
+    );
+  }
+
+  /**
+   * gets pools activity of token
+   * @param dto
+   * @return Promise<PoolsActivities>
+   */
+  async getPoolsActivity(dto: GetPoolsActivityDto = {}): Promise<PoolsActivities> {
+    const { tokenAddress, chainId, provider, page, type } = await validateDto(dto, GetPoolsActivityDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getPoolsActivity(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+      page,
+      type,
+    );
+  }
+
+  /**
+   * gets number df transactions of token
+   * @param dto
+   * @return Promise<NumberOfTransactions>
+   */
+  async getNumberOfTransactions(dto: GetTokenDetailsDto = {}): Promise<NumberOfTransactions> {
+    const { tokenAddress, chainId, provider } = await validateDto(dto, GetTokenDetailsDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getNumberOfTransactions(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+    );
+  }
+
+  /**
+   * gets trading history of token
+   * @param dto
+   * @return Promise<TradingHistories>
+   */
+  async getTradingHistory(dto: GetTradingHistoryDto = {}): Promise<TradingHistories> {
+    const { tokenAddress, chainId, provider, page } = await validateDto(dto, GetPoolsActivityDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getTradingHistory(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+      page,
+    );
+  }
+
+  /**
+   * gets market details of token
+   * @param dto
+   * @return Promise<MarketDetails>
+   */
+  async getMarketDetails(dto: GetTokenDetailsDto = {}): Promise<MarketDetails> {
+    const { tokenAddress, chainId, provider } = await validateDto(dto, GetTokenDetailsDto, {
+      addressKeys: ['tokenAddress'],
+    });
+
+    await this.require({
+      wallet: !tokenAddress,
+    });
+
+    return this.services.assetsService.getMarketDetails(
+      this.prepareAccountAddress(tokenAddress), //
+      chainId || this.services.networkService.chainId,
+      provider,
+    );
   }
 
   // transactions
