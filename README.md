@@ -12,7 +12,7 @@ Etherspot is a blockchain development framework for EVM-compatible chains that c
 
 With just one deposit you’re able to onboard your users to the entire multichain world.
 
-Developers can use the Buidler and Transaction kit tools to easily include Etherspot features into their dapps.
+Developers can use the Buidler and TransactionKit tools to easily include Etherspot features into their dapps.
 
 For more powerful but complex uses, developers can dive deeper into the SDK and explore a number of custom use cases.
 
@@ -22,7 +22,7 @@ More information at [etherspot.io](https://www.etherspot.io)
 
 * [Playground](https://try.etherspot.dev)
 * [Buidler](https://buidler.etherspot.io/)
-* [Transaction Kit](https://etherspot.io/transactionkit/)
+* [TransactionKit](https://etherspot.io/transactionkit/)
 * [Documentation](https://docs.etherspot.dev)
 * [Examples](https://github.com/etherspot/etherspot-sdk/tree/develop/examples)
 
