@@ -21,7 +21,7 @@ More information at [etherspot.io](https://www.etherspot.io)
 ## Resources
 
 * [Playground](https://try.etherspot.dev)
-* [Buidler](https://buidler.etherspot.io/)
+* [BUIDLer](https://buidler.etherspot.io/)
 * [TransactionKit](https://etherspot.io/transactionkit/)
 * [Documentation](https://docs.etherspot.dev)
 * [Examples](https://github.com/etherspot/etherspot-sdk/tree/develop/examples)
