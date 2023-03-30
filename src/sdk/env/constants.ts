@@ -41,7 +41,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     networkOptions: {
       supportedNetworkNames: [
         NetworkNames.Goerli,
-        NetworkNames.Sokol,
+        NetworkNames.Chiado,
         NetworkNames.BscTest,
         NetworkNames.FantomTest,
         NetworkNames.Mumbai,

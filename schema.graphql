@@ -1045,7 +1045,7 @@ enum NetworkNames {
   Mainnet
   Matic
   Mumbai
-  Sokol
+  Chiado
   Xdai
   Optimism
   ArbitrumTest
