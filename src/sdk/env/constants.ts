@@ -53,6 +53,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.ArbitrumNitro,
         NetworkNames.NeonDevnet,
         NetworkNames.OptimismGoerli,
+        NetworkNames.BaseGoerli,
         NetworkNames.Etherspot,
       ],
     },
