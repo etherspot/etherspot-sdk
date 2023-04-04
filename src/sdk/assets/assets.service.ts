@@ -155,15 +155,15 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getTokenDetails(tokenAddress: string, chainId: number, provider?: string): Promise<TokenDetails> {
+  async getTokenDetails(tokenAddress: string, ChainId: number, provider?: string): Promise<TokenDetails> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: TokenDetails;
     }>(
       gql`
-      query($chainId: Int, $tokenAddress: String!, $provider: String) {
-        result: tokenDetails(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+      query($ChainId: Int, $tokenAddress: String!, $provider: String) {
+        result: tokenDetails(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider) {
           tokenAddress
           usdPrice
           liquidityUSD
@@ -173,7 +173,7 @@ export class AssetsService extends Service {
     `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider
         },
@@ -186,7 +186,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getHistoricalTokenPrice(tokenAddress: string, chainId: number, provider?: string, timePeriod?: string)
+  async getHistoricalTokenPrice(tokenAddress: string, ChainId: number, provider?: string, timePeriod?: string)
     : Promise<HistoricalTokenPrices> {
     const { apiService } = this.services;
 
@@ -194,8 +194,8 @@ export class AssetsService extends Service {
       result: HistoricalTokenPrices;
     }>(
       gql`
-      query($chainId: Int, $tokenAddress: String!, $provider: String, $timePeriod: String) {
-        result: historicalTokenPrice(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, timePeriod: $timePeriod) {
+      query($ChainId: Int, $tokenAddress: String!, $provider: String, $timePeriod: String) {
+        result: historicalTokenPrice(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider, timePeriod: $timePeriod) {
           items {
             tokenAddress
             usdPrice
@@ -206,7 +206,7 @@ export class AssetsService extends Service {
     `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider,
           timePeriod,
@@ -220,7 +220,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getPoolsActivity(tokenAddress: string, chainId: number, provider?: string, page?: number, type?: string)
+  async getPoolsActivity(tokenAddress: string, ChainId: number, provider?: string, page?: number, type?: string)
     : Promise<PoolsActivities> {
     const { apiService } = this.services;
 
@@ -228,8 +228,8 @@ export class AssetsService extends Service {
       result: PoolsActivities;
     }>(
       gql`
-    query($chainId: Int, $tokenAddress: String!, $provider: String, $page: Int, $type: String) {
-      result: poolsActivity(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, page: $page, type: $type) {
+    query($ChainId: Int, $tokenAddress: String!, $provider: String, $page: Int, $type: String) {
+      result: poolsActivity(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider, page: $page, type: $type) {
         items {
           amm
           transactionAddress
@@ -258,7 +258,7 @@ export class AssetsService extends Service {
   `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider,
           page,
@@ -273,7 +273,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getNumberOfTransactions(tokenAddress: string, chainId: number, provider?: string)
+  async getNumberOfTransactions(tokenAddress: string, ChainId: number, provider?: string)
     : Promise<NumberOfTransactions> {
     const { apiService } = this.services;
 
@@ -281,15 +281,15 @@ export class AssetsService extends Service {
       result: NumberOfTransactions;
     }>(
       gql`
-    query($chainId: Int, $tokenAddress: String!, $provider: String) {
-      result: numberOfTransactions(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+    query($ChainId: Int, $tokenAddress: String!, $provider: String) {
+      result: numberOfTransactions(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider) {
         totalTransactions
       }
     }
   `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider,
         },
@@ -302,7 +302,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getTradingHistory(tokenAddress: string, chainId: number, provider?: string, page?: number)
+  async getTradingHistory(tokenAddress: string, ChainId: number, provider?: string, page?: number)
     : Promise<TradingHistories> {
     const { apiService } = this.services;
 
@@ -310,8 +310,8 @@ export class AssetsService extends Service {
       result: TradingHistories;
     }>(
       gql`
-      query($chainId: Int, $tokenAddress: String!, $provider: String, $page: Int) {
-        result: tradingHistory(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider, page: $page) {
+      query($ChainId: Int, $tokenAddress: String!, $provider: String, $page: Int) {
+        result: tradingHistory(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider, page: $page) {
           items {
             amm
             transactionAddress
@@ -341,7 +341,7 @@ export class AssetsService extends Service {
     `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider,
           page,
@@ -355,7 +355,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getMarketDetails(tokenAddress: string, chainId: number, provider?: string)
+  async getMarketDetails(tokenAddress: string, ChainId: number, provider?: string)
     : Promise<MarketDetails> {
     const { apiService } = this.services;
 
@@ -363,8 +363,8 @@ export class AssetsService extends Service {
       result: MarketDetails;
     }>(
       gql`
-      query($chainId: Int, $tokenAddress: String!, $provider: String) {
-        result: marketDetails(chainId: $chainId, tokenAddress: $tokenAddress, provider: $provider) {
+      query($ChainId: Int, $tokenAddress: String!, $provider: String) {
+        result: marketDetails(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider) {
           id
           symbol
           name
@@ -383,7 +383,7 @@ export class AssetsService extends Service {
     `,
       {
         variables: {
-          chainId,
+          ChainId,
           tokenAddress,
           provider,
         },
