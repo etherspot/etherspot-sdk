@@ -78,3 +78,7 @@ export * from './get-step-transactions-lifi.dto';
 export * from './name-resolution-node.dto';
 export * from './get-LiFi-status.dto';
 export * from './get-account-investments.dto';
+export * from './get-token-details.dto';
+export * from './get-historical-token-price.dto';
+export * from './get-pools-activity.dto';
+export * from './get-trading-history.dto';
