@@ -7,7 +7,7 @@ jobs:
   install:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:14.21.3
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -33,62 +33,62 @@ jobs:
   publish:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:14.21.3
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
     steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
-      - run:
-          name: Build Etherpot-SDK
-          command: npm run build
-      - run:
-          name: Publish package to npm
-          command: npm publish
+      # - checkout
+      # - restore_cache:
+      #     key: dependency-cache-{{ checksum "package.json" }}
+      # - run:
+      #     name: Authenticate with registry
+      #     command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
+      # - run:
+      #     name: Build Etherpot-SDK
+      #     command: npm run build
+      # - run:
+      #     name: Publish package to npm
+      #     command: npm publish
       - run:
           name: Announce Publish
           command: |
             chmod +x .circleci/announcePublish.sh
-            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
+            .circleci/announcePublish.sh "Etherspot SDK" "xx.xx.xx"
       - slack/status:
           fail_only: true
           failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
           only_for_branches: master
           webhook: "${SLACK_WEBHOOK_URL}"
-  publish-github-release:
-    docker:
-      - image: ardd97/ghr
-    steps:
-      - checkout
-      - run:
-          name: "Publish Release on GitHub"
-          command: |
-            PACKAGE_VERSION="$(jq .version package.json -r)"
-            echo $PACKAGE_VERSION
-            ghr -t "${GITHUB_TOKEN}" -u "${CIRCLE_PROJECT_USERNAME}" -r "${CIRCLE_PROJECT_REPONAME}" -c "${CIRCLE_SHA1}" "$PACKAGE_VERSION"
+  # publish-github-release:
+  #   docker:
+  #     - image: ardd97/ghr
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: "Publish Release on GitHub"
+  #         command: |
+  #           PACKAGE_VERSION="$(jq .version package.json -r)"
+  #           echo $PACKAGE_VERSION
+  #           ghr -t "${GITHUB_TOKEN}" -u "${CIRCLE_PROJECT_USERNAME}" -r "${CIRCLE_PROJECT_REPONAME}" -c "${CIRCLE_SHA1}" "$PACKAGE_VERSION"
 
 workflows:
   version: 2.1
   install_and_publish:
     jobs:
-      - install:
-          context: general-vars
+      # - install:
+      #     context: general-vars
       - publish:
           context: general-vars
-          requires:
-            - install
+          # requires:
+          #   - install
           filters:
             branches:
               only:
-                  - master
-      - publish-github-release:
-          context: general-vars
-          filters:
-            branches:
-              only:
-                  - master
+                  - chore/test_new_image
+      # - publish-github-release:
+      #     context: general-vars
+      #     filters:
+      #       branches:
+      #         only:
+      #             - master
