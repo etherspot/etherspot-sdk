@@ -38,7 +38,7 @@ jobs:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
     steps:
-      # - checkout
+      - checkout
       # - restore_cache:
       #     key: dependency-cache-{{ checksum "package.json" }}
       # - run:
