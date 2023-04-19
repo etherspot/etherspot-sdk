@@ -11,6 +11,7 @@ import {
   AccountSettings,
   AccountTotalBalances,
   AccountTypes,
+  NetCurveBalances,
 } from './account';
 import { ApiService } from './api';
 import { AssetsService, HistoricalTokenPrices, MarketDetails, NativeCurrenciesItem, NumberOfTransactions, PaginatedTokens, PoolsActivities, TokenDetails, TokenList, TokenListToken, TradingHistories } from './assets';
@@ -116,6 +117,7 @@ import {
   GetHistoricalTokenPriceDto,
   GetPoolsActivityDto,
   GetTradingHistoryDto,
+  GetAccount24HourNetCurveDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -821,6 +823,27 @@ export class Sdk {
       chainId || this.services.networkService.chainId,
       apps,
       provider,
+    );
+  }
+
+/**
+ * gets account 24 hour net curve data
+ * @param dto
+ * @return Promise<NetCurveBalances>
+ */
+  async getAccount24HourNetCurve(dto: GetAccount24HourNetCurveDto = {}): Promise<NetCurveBalances> {
+    const { account, chainId } = await validateDto(dto, GetAccount24HourNetCurveDto, {
+      addressKeys: ['account'],
+    });
+
+    await this.require({
+      wallet: !account,
+      contractAccount: true,
+    });
+
+    return this.services.accountService.getAccount24HourNetCurve(
+      this.prepareAccountAddress(account), //
+      chainId || this.services.networkService.chainId,
     );
   }
 
