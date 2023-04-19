@@ -2,7 +2,7 @@ import { EnvNames, NetworkNames, Sdk } from '../../src';
 import { logger } from './common';
 
 async function main(): Promise<void> {
-    const PRIVATE_KEY = '***REMOVED***'; //Privite key Example: get from metamask
+    const PRIVATE_KEY = ''; //Privite key Example: get from metamask
 
     const sdk = new Sdk(PRIVATE_KEY, { env: EnvNames.LocalNets, networkName: NetworkNames.LocalA });
 
