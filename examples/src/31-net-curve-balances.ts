@@ -26,7 +26,7 @@ async function main(): Promise<void> {
         'get market details of token',
         await sdk.getAccount24HourNetCurve({
             chainId: 56, //Linked chain id
-            account: '0x19396de329f9bf5553457956136273c153b62ae4',
+            account: '',
         })
     );
 }
