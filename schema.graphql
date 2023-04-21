@@ -717,6 +717,12 @@ type Query {
   gatewayTransaction(chainId: Int, hash: String!): GatewayTransaction
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
+  tokenDetails(chainId: Int, tokenAddress: String!, provider: String): TokenDetails!
+  historicalTokenPrice(chainId: Int, tokenAddress: String!, provider: String, timePeriod: String): HistoricalTokenPrices!
+  poolsActivity(chainId: Int, tokenAddress: String!, provider: String, page: Int, type: String): PoolsActivities!
+  numberOfTransactions(chainId: Int, tokenAddress: String!, provider: String): NumberOfTransactions!
+  tradingHistory(chainId: Int, tokenAddress: String!, provider: String, page: Int): TradingHistories!
+  marketDetails(chainId: Int, tokenAddress: String!, provider: String): MarketDetails!
   resolveName(chainId: Int, name: String!): NameResolutionsNodes
   nativeCurrencies: NativeCurrencies!
   nftList(account: String!, chainId: Int): NftList!
@@ -839,6 +845,81 @@ type TokenListToken {
   logoURI: String
   name: String
   symbol: String
+}
+
+type TokenDetails {
+  usdPrice: number!
+  tokenAddress: string!
+  liquidityUSD: number!
+  tradingVolume: number!
+}
+
+type HistoricalTokenPrice {
+  usdPrice: number!
+  tokenAddress: string!
+  timestamp: number!
+}
+
+type HistoricalTokenPrices {
+  items: [HistoricalTokenPrice!]!
+}
+
+type PoolsActivityTokensInOut {
+  symbol: string!
+  amm: string!
+  network: string!
+  priceUSD: number!
+  priceETH: number!
+  amount: number!
+}
+
+type PoolsActivity {
+  amm: string!
+  transactionAddress: string!
+  timestamp: number!
+  amountUSD: number!
+  transactionType: string!
+  tokensIn: [PoolsActivityTokensInOut!]!
+  tokensOut: [PoolsActivityTokensInOut!]!
+}
+
+type PoolsActivities {
+  items: [PoolsActivity!]!
+}
+
+type NumberOfTransactions {
+  totalTransactions: number!
+}
+
+type TradingHistory {
+  amm: string!
+  direction: string!
+  transactionAddress: string!
+  timestamp: number!
+  amountUSD: number!
+  walletAddress: string!
+  tokensIn: [PoolsActivityTokensInOut!]!
+  tokensOut: [PoolsActivityTokensInOut!]!
+}
+
+type TradingHistories {
+  items: [TradingHistory!]!
+}
+
+type MarketDetails {
+  id: string!
+  symbol: string!
+  name: string!
+  image?: string!
+  marketCap: number!
+  allTimeHigh?: number!
+  allTimeLow?: number!
+  fullyDilutedValuation: number!
+  priceChangePercentage1h: number!
+  priceChangePercentage24h: number!
+  priceChangePercentage7d: number!
+  priceChangePercentage1m: number!
+  priceChangePercentage1y?: number!
 }
 
 type TokenLists {
