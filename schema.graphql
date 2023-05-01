@@ -678,7 +678,7 @@ type Query {
   account(account: String!, chainId: Int): Account
   accountBalances(account: String!, chainId: Int, tokens: [String!] = [], provider: String!): AccountBalances!
   accountInvestments(account: String!, chainId: Int, apps: [String!] = [], provider: String!) : AccountInvestments!
-  netCurveBalances(account: String!, chainId: Int) : NetCurveBalances!
+  netCurveBalances(account: String!, chainIds: [Int!]) : NetCurveBalances!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accountSettings(account: String!, chainId: Int): AccountSettings

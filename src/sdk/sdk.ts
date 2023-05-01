@@ -826,24 +826,23 @@ export class Sdk {
     );
   }
 
-/**
- * gets account 24 hour net curve data
- * @param dto
- * @return Promise<NetCurveBalances>
- */
+  /**
+   * gets account 24 hour net curve data
+   * @param dto
+   * @return Promise<NetCurveBalances>
+   */
   async getAccount24HourNetCurve(dto: GetAccount24HourNetCurveDto = {}): Promise<NetCurveBalances> {
-    const { account, chainId } = await validateDto(dto, GetAccount24HourNetCurveDto, {
+    const { account, chainIds } = await validateDto(dto, GetAccount24HourNetCurveDto, {
       addressKeys: ['account'],
     });
 
     await this.require({
       wallet: !account,
-      contractAccount: true,
     });
 
     return this.services.accountService.getAccount24HourNetCurve(
       this.prepareAccountAddress(account), //
-      chainId || this.services.networkService.chainId,
+      chainIds,
     );
   }
 

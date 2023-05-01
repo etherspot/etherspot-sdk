@@ -1,36 +1,44 @@
+import { Wallet } from 'ethers';
 import { EnvNames, NetworkNames, Sdk } from '../../src';
 import { logger } from './common';
 
 async function main(): Promise<void> {
-    const PRIVATE_KEY = ''; //Privite key Example: get from metamask
+  const wallet = Wallet.createRandom();
 
-    const sdk = new Sdk(PRIVATE_KEY, { env: EnvNames.LocalNets, networkName: NetworkNames.LocalA });
+  logger.log('sender wallet', wallet.address);
 
-    const { state } = sdk;
+  const sdk = new Sdk(wallet, {
+    projectKey: 'testProject',
+    projectMetadata: 'test',
+    env: EnvNames.LocalNets,
+    networkName: NetworkNames.LocalA,
+  });
 
-    logger.log('key account', state.account);
+  const { state } = sdk;
 
-    logger.log(
-        'contract account',
-        await sdk.computeContractAccount({
-            sync: false,
-        }),
-    );
+  logger.log('key account', state.account);
 
-    await sdk.syncAccount();
+  logger.log(
+    'contract account',
+    await sdk.computeContractAccount({
+      sync: false,
+    }),
+  );
 
-    logger.log('synced contract account', state.account);
-    logger.log('synced contract account member', state.accountMember);
+  await sdk.syncAccount();
 
-    logger.log(
-        'get market details of token',
-        await sdk.getAccount24HourNetCurve({
-            chainId: 56, //Linked chain id
-            account: '',
-        })
-    );
+  logger.log('synced contract account', state.account);
+  logger.log('synced contract account member', state.accountMember);
+
+  logger.log(
+    'get market details of token',
+    await sdk.getAccount24HourNetCurve({
+      chainIds: [1], // Linked chain ids (optional)
+      account: '',
+    }),
+  );
 }
 
 main()
-    .catch(logger.error)
-    .finally(() => process.exit());
+  .catch(logger.error)
+  .finally(() => process.exit());

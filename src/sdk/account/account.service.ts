@@ -310,15 +310,15 @@ export class AccountService extends Service {
     return result;
   }
   
-  async getAccount24HourNetCurve(account: string, ChainId?: number): Promise<NetCurveBalances> {
+  async getAccount24HourNetCurve(account: string, chainIds?: number[]): Promise<NetCurveBalances> {
     const { apiService } = this.services;
 
     const { result } = await apiService.query<{
       result: NetCurveBalances;
     }>(
       gql`
-        query($ChainId: Int!, $account: String!) {
-          result: netCurveBalances(chainId: $ChainId, account: $account) {
+        query($chainIds: [Int!], $account: String!) {
+          result: netCurveBalances(chainIds: $chainIds, account: $account) {
             items {
               usdValue
               timestamp
@@ -329,7 +329,7 @@ export class AccountService extends Service {
       {
         variables: {
           account,
-          ChainId,
+          chainIds,
         },
         models: {
           result: NetCurveBalances,
