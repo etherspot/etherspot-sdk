@@ -14,3 +14,5 @@ export * from './accounts';
 export * from './account-investment';
 export * from './account-investments';
 export * from './account-investment-positions-info';
+export * from './net-curve-balance';
+export * from './net-curve-balances';

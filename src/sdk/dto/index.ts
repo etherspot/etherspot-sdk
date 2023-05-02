@@ -82,3 +82,4 @@ export * from './get-token-details.dto';
 export * from './get-historical-token-price.dto';
 export * from './get-pools-activity.dto';
 export * from './get-trading-history.dto';
+export * from './get-account-24hour-net-curve.dto';
