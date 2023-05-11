@@ -12,6 +12,7 @@ import {
   Accounts,
   AccountSettings,
   AccountTotalBalances,
+  NetCurveBalances,
 } from './classes';
 import { AccountMemberStates, AccountMemberTypes, AccountTypes, Currencies } from './constants';
 import { IsEligibleForAirdropDto, UpdateAccountSettingsDto } from '../dto';
@@ -302,6 +303,36 @@ export class AccountService extends Service {
         },
         models: {
           result: AccountInvestments,
+        },
+      },
+    );
+
+    return result;
+  }
+  
+  async getAccount24HourNetCurve(account: string, chainIds?: number[]): Promise<NetCurveBalances> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: NetCurveBalances;
+    }>(
+      gql`
+        query($chainIds: [Int!], $account: String!) {
+          result: netCurveBalances(chainIds: $chainIds, account: $account) {
+            items {
+              usdValue
+              timestamp
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          chainIds,
+        },
+        models: {
+          result: NetCurveBalances,
         },
       },
     );

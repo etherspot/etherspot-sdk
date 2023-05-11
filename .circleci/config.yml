@@ -7,7 +7,7 @@ jobs:
   install:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:14.21.3
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -33,7 +33,7 @@ jobs:
   publish:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:14.21.3
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD

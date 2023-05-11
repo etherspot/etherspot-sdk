@@ -79,7 +79,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [NetworkNames.Matic, NetworkNames.Bsc, NetworkNames.Klaytn],
+      supportedNetworkNames: [NetworkNames.Matic, NetworkNames.Bsc, NetworkNames.Optimism, NetworkNames.Arbitrum, NetworkNames.Klaytn],
     },
   },
 };
