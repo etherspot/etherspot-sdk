@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.4.0",
-    "@etherspot/contracts": "1.9.7",
+    "@etherspot/contracts": "1.9.8",
     "@lifi/sdk": "1.6.4",
     "@nerdwallet/apollo-cache-policies": "1.2.1",
     "class-transformer": "0.4.0",

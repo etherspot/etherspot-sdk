@@ -72,6 +72,10 @@ main().catch(console.error);
 
 notification of transactions is not available for fuse
 
+## Transaction History on Klaytn
+
+History of transactions would be incomplete only on Klaytn Network due to lack of resources for fetching the required data
+
 
 ## License
 
