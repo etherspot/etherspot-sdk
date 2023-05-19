@@ -5,5 +5,11 @@ export class TokenDetails {
 
     liquidityUSD: number;
 
+    liquidityUSDChangePercentage24h: number;
+
     tradingVolume: number;
+
+    holders?: number;
+
+    supply?: number;
 }

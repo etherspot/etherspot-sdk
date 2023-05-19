@@ -861,7 +861,10 @@ type TokenDetails {
   usdPrice: number!
   tokenAddress: string!
   liquidityUSD: number!
+  liquidityUSDChangePercentage24h: number!
   tradingVolume: number!
+  holders?: number!
+  supply?: number!
 }
 
 type HistoricalTokenPrice {
