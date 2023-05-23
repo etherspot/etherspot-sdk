@@ -87,7 +87,6 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Optimism,
         NetworkNames.Arbitrum,
         NetworkNames.Klaytn,
-        NetworkNames.OKTC,
       ],
     },
   },
