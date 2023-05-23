@@ -31,6 +31,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.ArbitrumNova,
         // NetworkNames.Klaytn,
         // NetworkNames.Neon,
+        NetworkNames.OKTC,
       ],
     },
   },
@@ -56,6 +57,7 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.OptimismGoerli,
         NetworkNames.BaseGoerli,
         NetworkNames.KlaytnBaobab,
+        NetworkNames.OktcTest,
         NetworkNames.Etherspot,
       ],
     },
@@ -79,7 +81,14 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
       useSsl: true,
     },
     networkOptions: {
-      supportedNetworkNames: [NetworkNames.Matic, NetworkNames.Bsc, NetworkNames.Optimism, NetworkNames.Arbitrum, NetworkNames.Klaytn],
+      supportedNetworkNames: [
+        NetworkNames.Matic,
+        NetworkNames.Bsc,
+        NetworkNames.Optimism,
+        NetworkNames.Arbitrum,
+        NetworkNames.Klaytn,
+        NetworkNames.OKTC,
+      ],
     },
   },
 };
