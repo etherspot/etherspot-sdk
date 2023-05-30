@@ -48,8 +48,21 @@ jobs:
           name: Build Etherpot-SDK
           command: npm run build
       - run:
-          name: Publish package to npm
-          command: npm publish
+          name: Checkout e2e repo and run tests
+          command: |
+            cd ~
+            git clone https://github.com/etherspot/e2e-sdk.git
+            sed -i.bak "s/_private_key_/$PRIVATE_KEY/g" .env
+            mv package.json temp.json
+            jq -r '.dependencies.etherspot |= "file:/etherspot-sdk"' temp.json > package.json
+            rm temp.json
+            npm i
+            npm run test
+      # - run:
+      #     name: Publish package to npm
+      #     command: |
+      #       cd ~/etherspot-sdk
+      #       npm publish
       - run:
           name: Announce Publish
           command: |
