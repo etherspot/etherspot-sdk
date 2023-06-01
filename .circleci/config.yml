@@ -54,7 +54,7 @@ jobs:
             git clone https://github.com/etherspot/e2e-sdk.git
             sed -i.bak "s/_private_key_/$PRIVATE_KEY/g" .env
             mv package.json temp.json
-            jq -r '.dependencies.etherspot |= "file:/etherspot-sdk"' temp.json > package.json
+            jq -r '.dependencies.etherspot |= "file:~/etherspot-sdk/dist/index.js"' temp.json > package.json
             rm temp.json
             npm i
             npm run test
@@ -63,16 +63,16 @@ jobs:
       #     command: |
       #       cd ~/etherspot-sdk
       #       npm publish
-      - run:
-          name: Announce Publish
-          command: |
-            chmod +x .circleci/announcePublish.sh
-            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
-      - slack/status:
-          fail_only: true
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-          only_for_branches: master
-          webhook: "${SLACK_WEBHOOK_URL}"
+      # - run:
+      #     name: Announce Publish
+      #     command: |
+      #       chmod +x .circleci/announcePublish.sh
+      #       .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
+      # - slack/status:
+      #     fail_only: true
+      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+      #     only_for_branches: master
+      #     webhook: "${SLACK_WEBHOOK_URL}"
   publish-github-release:
     docker:
       - image: ardd97/ghr
