@@ -54,9 +54,9 @@ jobs:
             git clone https://github.com/etherspot/e2e-sdk.git
             cd e2e-sdk
             sed -i.bak "s/_private_key_/$PRIVATE_KEY/g" .env
-            mv package.json temp.json
-            jq -r '.dependencies.etherspot |= "file:~/etherspot-sdk/dist/index.js"' temp.json > package.json
-            rm temp.json
+            # mv package.json temp.json
+            # jq -r '.dependencies.etherspot |= "file:~/etherspot-sdk/dist/index.js"' temp.json > package.json
+            # rm temp.json
             npm i
             npm run test-mainnet-sendtoken-xdai
       # - run:
