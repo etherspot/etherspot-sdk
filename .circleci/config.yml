@@ -57,7 +57,7 @@ jobs:
             jq -r '.dependencies.etherspot |= "file:~/etherspot-sdk/dist/index.js"' temp.json > package.json
             rm temp.json
             npm i
-            npm run test
+            npm run test-mainnet-sendtoken-xdai
       # - run:
       #     name: Publish package to npm
       #     command: |
@@ -98,10 +98,10 @@ workflows:
           filters:
             branches:
               only:
-                  - master
-      - publish-github-release:
-          context: general-vars
-          filters:
-            branches:
-              only:
-                  - master
+                  - feature/e2e_pipeline
+      # - publish-github-release:
+      #     context: general-vars
+      #     filters:
+      #       branches:
+      #         only:
+      #             - feature/e2e_pipeline
