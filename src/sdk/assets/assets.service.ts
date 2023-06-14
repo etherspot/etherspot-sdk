@@ -167,6 +167,9 @@ export class AssetsService extends Service {
           tokenAddress
           usdPrice
           liquidityUSD
+          liquidityUSDChangePercentage24h
+          supply
+          holders
           priceChangePercentage24h
           tradingVolume
           tradingVolumeChangePercentage
