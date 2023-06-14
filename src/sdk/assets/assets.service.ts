@@ -167,7 +167,9 @@ export class AssetsService extends Service {
           tokenAddress
           usdPrice
           liquidityUSD
+          priceChangePercentage24h
           tradingVolume
+          tradingVolumeChangePercentage
         }
       }
     `,
@@ -355,7 +357,7 @@ export class AssetsService extends Service {
     return result;
   }
 
-  async getMarketDetails(tokenAddress: string, ChainId: number, provider?: string)
+  async getMarketDetails(tokenAddress: string, ChainId: number, provider?: string, timePeriod?: string)
     : Promise<MarketDetails> {
     const { apiService } = this.services;
 
@@ -363,15 +365,17 @@ export class AssetsService extends Service {
       result: MarketDetails;
     }>(
       gql`
-      query($ChainId: Int, $tokenAddress: String!, $provider: String) {
-        result: marketDetails(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider) {
+      query($ChainId: Int, $tokenAddress: String!, $provider: String, $timePeriod: String) {
+        result: marketDetails(chainId: $ChainId, tokenAddress: $tokenAddress, provider: $provider, timePeriod: $timePeriod) {
           id
           symbol
           name
           image
           marketCap
           allTimeHigh
+          allTimeHighTimestamp
           allTimeLow
+          allTimeLowTimestamp
           fullyDilutedValuation
           priceChangePercentage1h
           priceChangePercentage24h
@@ -386,6 +390,7 @@ export class AssetsService extends Service {
           ChainId,
           tokenAddress,
           provider,
+          timePeriod,
         },
         models: {
           result: MarketDetails,
