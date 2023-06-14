@@ -732,7 +732,7 @@ type Query {
   poolsActivity(chainId: Int, tokenAddress: String!, provider: String, page: Int, type: String): PoolsActivities!
   numberOfTransactions(chainId: Int, tokenAddress: String!, provider: String): NumberOfTransactions!
   tradingHistory(chainId: Int, tokenAddress: String!, provider: String, page: Int): TradingHistories!
-  marketDetails(chainId: Int, tokenAddress: String!, provider: String): MarketDetails!
+  marketDetails(chainId: Int, tokenAddress: String!, provider: String, timePeriod: String!): MarketDetails!
   resolveName(chainId: Int, name: String!): NameResolutionsNodes
   nativeCurrencies: NativeCurrencies!
   nftList(account: String!, chainId: Int): NftList!
@@ -862,9 +862,11 @@ type TokenDetails {
   tokenAddress: string!
   liquidityUSD: number!
   liquidityUSDChangePercentage24h: number!
-  tradingVolume: number!
   holders?: number!
   supply?: number!
+  priceChangePercentage24h: number!
+  tradingVolume: number!
+  tradingVolumeChangePercentage: number!
 }
 
 type HistoricalTokenPrice {
@@ -926,7 +928,9 @@ type MarketDetails {
   image?: string!
   marketCap: number!
   allTimeHigh?: number!
+  allTimeHighTimestamp?: string!
   allTimeLow?: number!
+  allTimeLowTimestamp?: string!
   fullyDilutedValuation: number!
   priceChangePercentage1h: number!
   priceChangePercentage24h: number!

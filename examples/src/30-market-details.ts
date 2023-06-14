@@ -28,6 +28,7 @@ async function main(): Promise<void> {
             chainId: 1, //Linked chain id
             tokenAddress: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
             provider: '', //specific provider optional
+            timePeriod: '', // specific time period
         })
     );
 }
