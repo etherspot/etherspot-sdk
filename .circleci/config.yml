@@ -7,7 +7,7 @@ jobs:
   install:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: cimg/node:16.17.1
+      - image: cimg/node:18.16.1
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -33,7 +33,7 @@ jobs:
   publish:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: cimg/node:16.17.1
+      - image: cimg/node:18.16.1
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
