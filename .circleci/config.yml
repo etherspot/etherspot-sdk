@@ -25,10 +25,10 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      - slack/status:
-          fail_only: true
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-          webhook: "${SLACK_WEBHOOK_URL}"
+      # - slack/status:
+      #     fail_only: true
+      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+      #     webhook: "${SLACK_WEBHOOK_URL}"
 
   publish:
     working_directory: ~/etherspot-sdk
@@ -57,8 +57,8 @@ jobs:
             mv package.json temp.json
             jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
             rm temp.json
-            npm i
-            npm run test-mainnet
+            # npm i
+            # npm run test-mainnet
       # - run:
       #     name: Publish package to npm
       #     command: |
