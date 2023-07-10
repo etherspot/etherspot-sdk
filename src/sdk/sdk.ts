@@ -2255,7 +2255,7 @@ export class Sdk {
   }
 
   /**
-   * gets number df transactions of token
+   * gets number of transactions of token
    * @param dto
    * @return Promise<NumberOfTransactions>
    */
@@ -2302,8 +2302,8 @@ export class Sdk {
    * @param dto
    * @return Promise<MarketDetails>
    */
-  async getMarketDetails(dto: GetTokenDetailsDto = {}): Promise<MarketDetails> {
-    const { tokenAddress, chainId, provider } = await validateDto(dto, GetTokenDetailsDto, {
+  async getMarketDetails(dto: GetHistoricalTokenPriceDto = {}): Promise<MarketDetails> {
+    const { tokenAddress, chainId, provider, timePeriod } = await validateDto(dto, GetHistoricalTokenPriceDto, {
       addressKeys: ['tokenAddress'],
     });
 
@@ -2315,6 +2315,7 @@ export class Sdk {
       this.prepareAccountAddress(tokenAddress), //
       chainId || this.services.networkService.chainId,
       provider,
+      timePeriod,
     );
   }
 

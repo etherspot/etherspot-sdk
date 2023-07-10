@@ -11,7 +11,11 @@ export class MarketDetails {
 
     allTimeHigh?: number;
 
+    allTimeHighTimestamp?: string;
+
     allTimeLow?: number;
+
+    allTimeLowTimestamp?: string;
 
     fullyDilutedValuation: number;
 
