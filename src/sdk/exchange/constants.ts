@@ -15,7 +15,7 @@ export enum SocketTokenDirection {
 export enum CrossChainServiceProvider {
   SocketV2 = 'SocketV2',
   LiFi = 'LiFi',
-  Connext = 'Connext',
+  Etherspot = 'Connext',
 }
 
 export enum LiFiBridge {
@@ -29,5 +29,5 @@ export enum LiFiBridge {
   multichain = 'multichain',
   optimism = 'optimism',
   polygon = 'polygon',
-  stargate = 'stargate'
+  stargate = 'stargate',
 }
