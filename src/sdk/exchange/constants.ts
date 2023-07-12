@@ -17,4 +17,19 @@ export enum CrossChainServiceProvider {
   LiFi = 'LiFi',
   Connext = 'Connext',
   Stargate = 'Stargate',
+  Etherspot = 'Connext',
+}
+
+export enum LiFiBridge {
+  across = 'across',
+  arbitrum = 'arbitrum',
+  avalanche = 'avalanche',
+  cbridge = 'cbridge',
+  connext = 'connext',
+  hop = 'hop',
+  hyphen = 'hyphen',
+  multichain = 'multichain',
+  optimism = 'optimism',
+  polygon = 'polygon',
+  stargate = 'stargate',
 }

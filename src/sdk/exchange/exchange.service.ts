@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers';
 import { gql } from '@apollo/client/core';
+import { Route } from '@lifi/sdk';
 import { Service } from '../common';
 import {
   ExchangeOffers,
@@ -13,11 +14,15 @@ import {
   CrossChainBridgeBuildTXResponse,
   BridgingQuotes,
   ExchangeRouterAddress,
+  StepTransaction,
+  StepTransactions,
+  AdvanceRoutesLiFi,
+  LiFiStatus,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
 import { GetCrossChainBridgeTokenListDto, GetCrossChainBridgeRouteDto, GetCrossChainBridgeSupportedChainsDto } from '../dto';
-import { CrossChainServiceProvider } from './constants';
+import { CrossChainServiceProvider, LiFiBridge } from './constants';
 
 export class ExchangeService extends Service {
   async getExchangeSupportedAssets(page: number = null, limit: number = null, ChainId: number): Promise<PaginatedTokens> {
@@ -66,6 +71,10 @@ export class ExchangeService extends Service {
     toChainId: number,
     fromAmount: BigNumber,
     serviceProvider?: CrossChainServiceProvider,
+    lifiBridges?: LiFiBridge[],
+    toAddress?: string,
+    fromAddress?: string,
+    showZeroUsd?: boolean,
   ): Promise<BridgingQuotes> {
     const { apiService, accountService } = this.services;
 
@@ -83,6 +92,10 @@ export class ExchangeService extends Service {
           $fromChainId: Int
           $toChainId: Int
           $serviceProvider: CrossChainServiceProvider
+          $lifiBridges: [LiFiBridge!]
+          $toAddress: String
+          $fromAddress: String
+          $showZeroUsd: Boolean
         ) {
           result: getCrossChainQuotes(
             account: $account
@@ -92,6 +105,10 @@ export class ExchangeService extends Service {
             fromChainId: $fromChainId
             toChainId: $toChainId
             serviceProvider: $serviceProvider
+            lifiBridges: $lifiBridges
+            toAddress: $toAddress
+            fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
           ) {
             items {
               provider
@@ -143,6 +160,7 @@ export class ExchangeService extends Service {
                   estimatedGas
                 }
               }
+              LiFiBridgeUsed
             }
           }
         }
@@ -156,6 +174,10 @@ export class ExchangeService extends Service {
           toChainId,
           fromAmount,
           serviceProvider,
+          lifiBridges,
+          toAddress,
+          fromAddress,
+          showZeroUsd,
         },
         models: {
           result: BridgingQuotes,
@@ -166,32 +188,203 @@ export class ExchangeService extends Service {
     return result ? result : null;
   }
 
+  async getAdvanceRoutesLiFi(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+    toAddress?: string,
+    allowSwitchChain?: boolean,
+    fromAddress?: string,
+    showZeroUsd?: boolean,
+  ): Promise<AdvanceRoutesLiFi> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    let data = null;
+
+    const { result } = await apiService.query<{
+      result: string;
+    }>(
+      gql`
+        query(
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+          $toAddress: String
+          $allowSwitchChain: Boolean
+          $fromAddress: String
+          $showZeroUsd: Boolean
+        ) {
+          result: getAdvanceRoutesLiFi(
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            toAddress: $toAddress
+            allowSwitchChain: $allowSwitchChain
+            fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
+          ) {
+            data
+          }
+        }
+      `,
+      {
+        variables: {
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+          toAddress,
+          allowSwitchChain,
+          fromAddress,
+          showZeroUsd,
+        },
+      },
+    );
+
+    try {
+      data = JSON.parse(result['data']);
+    } catch (err) {
+      console.log(err)
+    }
+    return data;
+  }
+
+  async getStepTransaction(selectedRoute: Route): Promise<StepTransactions> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    let transactions = [];
+    try {
+      const route = JSON.stringify(selectedRoute);
+
+      const { result } = await apiService.query<{
+        result: StepTransaction[];
+      }>(
+        gql`
+        query(
+          $route: String!
+          $account: String!
+        ) {
+          result: getStepTransactions(
+            route: $route
+            account: $account
+          ) {
+              to
+              gasLimit
+              gasPrice
+              data
+              value
+              chainId
+              type
+          }
+        }`,
+        {
+          variables: {
+            route,
+            account,
+          },
+        }
+      );
+      transactions = result;
+    } catch (err) {
+      console.log(err);
+    }
+    return {
+      items: transactions
+    };
+  }
+
+  async getLiFiStatus(fromChainId: number, toChainId: number, txnHash: string, bridge?: string): Promise<LiFiStatus> {
+    const { apiService } = this.services;
+
+    const { result } = await apiService.query<{
+      result: LiFiStatus;
+    }>(
+      gql`
+        query(
+          $fromChainId: Int!
+          $toChainId: Int!
+          $txnHash: String!
+          $bridge: String
+        ) {
+          result: getLiFiStatus(
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            txnHash: $txnHash
+            bridge: $bridge
+          ) {
+            status
+            bridgeExplorerLink
+            subStatus
+            subStatusMsg
+            sendingTxnHash
+            receivingTxnHash
+          }
+        }`,
+      {
+        variables: {
+          fromChainId,
+          toChainId,
+          txnHash,
+          bridge
+        },
+      }
+    );
+
+    return result;
+  }
+
   async getExchangeOffers(
     fromTokenAddress: string,
     toTokenAddress: string,
     fromAmount: BigNumber,
+    fromChainId: number,
+    toAddress?: string,
+    fromAddress?: string,
+    showZeroUsd?: boolean,
   ): Promise<ExchangeOffer[]> {
     const { apiService, accountService } = this.services;
 
     const account = accountService.accountAddress;
+
+    if (!toAddress) toAddress = accountService.accountAddress;
 
     const { result } = await apiService.query<{
       result: ExchangeOffers;
     }>(
       gql`
         query(
-          $chainId: Int
+          $fromChainId: Int!
           $account: String!
           $fromTokenAddress: String!
           $toTokenAddress: String!
           $fromAmount: BigNumber!
+          $toAddress: String
+          $fromAddress: String
+          $showZeroUsd: Boolean
         ) {
           result: exchangeOffers(
-            chainId: $chainId
+            chainId: $fromChainId
             account: $account
             fromTokenAddress: $fromTokenAddress
             toTokenAddress: $toTokenAddress
             fromAmount: $fromAmount
+            toAddress: $toAddress
+            fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
           ) {
             items {
               provider
@@ -208,10 +401,14 @@ export class ExchangeService extends Service {
       `,
       {
         variables: {
+          fromChainId,
           account,
           fromTokenAddress,
           toTokenAddress,
           fromAmount,
+          toAddress,
+          fromAddress,
+          showZeroUsd,
         },
         models: {
           result: ExchangeOffers,

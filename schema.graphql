@@ -28,6 +28,27 @@ type AccountBalances {
   items: [AccountBalance!]!
 }
 
+type AccountInvestment {
+  name: String
+  network: String
+  balance: BigNumber!
+  position: Int!
+  logoURI: String!
+}
+
+type AccountInvestments {
+  items: [AccountInvestment!]!
+}
+
+type NetCurveBalance {
+  timestamp: number
+  usdValue: number
+}
+
+type NetCurveBalances {
+  items: [NetCurveBalance!]!
+}
+
 type AccountDashboardChange {
   balance: Float!
   netChange: Float!
@@ -307,39 +328,153 @@ type MovrRoute {
 }
 
 type Mutation {
-  activatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+  activatePaymentHubBridge(
+    acceptedChainId: Int!
+    acceptedToken: String
+    chainId: Int
+    hub: String!
+    token: String
+  ): PaymentHubBridge!
   callContract(chainId: Int, data: String!, to: String!): String!
   callProject(chainId: Int, payload: JSONObject, sender: String!): ProjectResponse!
   cancelGatewayBatch(account: String!, chainId: Int, hash: String!): GatewayBatch!
-  createPaymentHubPayment(chainId: Int, hub: String!, recipient: String!, sender: String!, token: String, value: BigNumber!): PaymentHubPayment!
+  createPaymentHubPayment(
+    chainId: Int
+    hub: String!
+    recipient: String!
+    sender: String!
+    token: String
+    value: BigNumber!
+  ): PaymentHubPayment!
   createSession(account: String!, chainId: Int, code: String!, fcmToken: String, signature: String!, ttl: Int): Session!
   createSessionCode(account: String!, chainId: Int): String!
-  deactivatePaymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge!
+  deactivatePaymentHubBridge(
+    acceptedChainId: Int!
+    acceptedToken: String
+    chainId: Int
+    hub: String!
+    token: String
+  ): PaymentHubBridge!
   destroySession(chainId: Int): Boolean!
-  estimateGatewayBatch(account: String!, chainId: Int, data: [String!]!, feeToken: String, nonce: Int!, refundToken: String, to: [String!]!): GatewayEstimatedBatch!
-  estimateGatewayKnownOp(account: String!, chainId: Int, feeToken: String, op: GatewayKnownOps!): GatewayEstimatedKnownOp!
+  estimateGatewayBatch(
+    account: String!
+    chainId: Int
+    data: [String!]!
+    feeToken: String
+    nonce: Int!
+    refundToken: String
+    to: [String!]!
+  ): GatewayEstimatedBatch!
+  estimateGatewayKnownOp(
+    account: String!
+    chainId: Int
+    feeToken: String
+    op: GatewayKnownOps!
+  ): GatewayEstimatedKnownOp!
   forceGatewayBatch(account: String!, chainId: Int, hash: String!): GatewayBatch!
-  p2pPaymentDepositWithdrawals(chainId: Int, limit: Int = 10, owner: String!, page: Int = 1, token: String): P2PPaymentDeposits!
+  p2pPaymentDepositWithdrawals(
+    chainId: Int
+    limit: Int = 10
+    owner: String!
+    page: Int = 1
+    token: String
+  ): P2PPaymentDeposits!
   reserveENSNode(address: String!, chainId: Int, name: String!): ENSNode!
   signP2PPaymentChannel(chainId: Int, hash: String!, senderSignature: String!): P2PPaymentChannel!
-  submitGatewayBatch(account: String!, chainId: Int, data: [String!]!, estimatedGas: Int!, estimatedGasPrice: BigNumber!, estimationExpiredAt: DateTime!, estimationSignature: String!, feeAmount: BigNumber, feeToken: String, nonce: Int!, refundAmount: BigNumber, refundToken: String, senderSignature: String!, to: [String!]!): GatewayBatch!
+  submitGatewayBatch(
+    account: String!
+    chainId: Int
+    data: [String!]!
+    estimatedGas: Int!
+    estimatedGasPrice: BigNumber!
+    estimationExpiredAt: DateTime!
+    estimationSignature: String!
+    feeAmount: BigNumber
+    feeToken: String
+    nonce: Int!
+    refundAmount: BigNumber
+    refundToken: String
+    senderSignature: String!
+    to: [String!]!
+  ): GatewayBatch!
   syncAccount(chainId: Int): Account!
   syncAccountMember(account: String!, chainId: Int): AccountMember!
   syncP2PPaymentDeposits(chainId: Int, owner: String!, tokens: [String!] = []): P2PPaymentDeposits!
   topUpAccount(account: String!, chainId: Int): String
   topUpPaymentDepositAccount(account: String!, chainId: Int): String
   touchSession(chainId: Int): Boolean!
-  transferPaymentHubDeposit(chainId: Int, hub: String!, sender: String!, targetChainId: Int!, targetHub: String, targetToken: String, token: String, value: BigNumber!): PaymentHubDeposit!
+  transferPaymentHubDeposit(
+    chainId: Int
+    hub: String!
+    sender: String!
+    targetChainId: Int!
+    targetHub: String
+    targetToken: String
+    token: String
+    value: BigNumber!
+  ): PaymentHubDeposit!
   updateAccountMetadata(account: String!, chainId: Int, email: String, phone: String): AccountMetadata!
   updateAccountSettings(account: String!, chainId: Int, delayTransactions: Int, fcmToken: String): AccountSettings!
-  updateP2PPaymentChannel(blockNumber: Int!, chainId: Int, recipient: String!, sender: String!, senderSignature: String!, token: String, totalAmount: BigNumber!, uid: String!): P2PPaymentChannel!
+  updateP2PPaymentChannel(
+    blockNumber: Int!
+    chainId: Int
+    recipient: String!
+    sender: String!
+    senderSignature: String!
+    token: String
+    totalAmount: BigNumber!
+    uid: String!
+  ): P2PPaymentChannel!
   updateP2PPaymentDeposit(chainId: Int, owner: String!, token: String, totalAmount: BigNumber): P2PPaymentDeposit
   updatePaymentHub(chainId: Int, hub: String!, liquidity: BigNumber!, token: String): PaymentHub!
-  updatePaymentHubDeposit(blockNumber: Int!, chainId: Int, hub: String!, sender: String!, senderSignature: String, token: String, totalAmount: BigNumber): PaymentHubDeposit!
+  updatePaymentHubDeposit(
+    blockNumber: Int!
+    chainId: Int
+    hub: String!
+    sender: String!
+    senderSignature: String
+    token: String
+    totalAmount: BigNumber
+  ): PaymentHubDeposit!
 }
 
 type NativeCurrencies {
   items: [NativeCurrenciesItem!]!
+}
+
+type NameResolutionsNodes {
+  results: [NameResolutionSupportedZones!]!
+  failed: Boolean
+  message: String
+}
+
+type NameResolutionSupportedZones {
+  unstoppabledomains: [NameResolutionNode!]!
+  ens: [NameResolutionNode!]!
+  fio: [NameResolutionNode!]!
+}
+
+type NameResolutionNode {
+  rootNode: NameResolutionRootNode!;
+  hash: String
+  name: String
+  label: String
+  address: String
+  state: NameResolutionNodeStates!
+  zone: NameResolutionNodeZones!
+  guardianSignature: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  fioChainCode: String!
+  fioTokenCode: String!
+}
+
+type NameResolutionRootNode {
+  hash: String!
+  name: String!
+  state: NameResolutionRootNodeStates!;
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type NativeCurrenciesItem {
@@ -541,14 +676,23 @@ type ProjectResponse {
 
 type Query {
   account(account: String!, chainId: Int): Account
-  accountBalances(account: String!, chainId: Int, tokens: [String!] = []): AccountBalances!
+  accountBalances(account: String!, chainId: Int, tokens: [String!] = [], provider: String!): AccountBalances!
+  accountInvestments(account: String!, chainId: Int, apps: [String!] = [], provider: String!) : AccountInvestments!
+  netCurveBalances(account: String!, chainIds: [Int!]) : NetCurveBalances!
   accountMember(account: String!, chainId: Int, member: String!): AccountMember
   accountMembers(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): AccountMembers!
   accountSettings(account: String!, chainId: Int): AccountSettings
   accountTokenList(account: String!, chainId: Int, name: String): TokenListPublic
   accountTotalBalances(account: String!, chainId: Int, currency: Currencies!): AccountTotalBalances
   accounts(chainId: Int, limit: Int = 10, page: Int = 1): Accounts!
-  altalixTransactionURL(address: String!, buyAmount: Float, buyCurrency: String!, chainId: Int, sellAmount: Float, sellCurrency: String!): String!
+  altalixTransactionURL(
+    address: String!
+    buyAmount: Float
+    buyCurrency: String!
+    chainId: Int
+    sellAmount: Float
+    sellCurrency: String!
+  ): String!
   blockStats(chainId: Int): BlockStats!
   defaultNetwork: Network!
   delayTransactionOptions: [Int!]!
@@ -558,9 +702,21 @@ type Query {
   ensNodeOwner(chainId: Int, name: String!): String
   ensRootNode(chainId: Int, name: String!): ENSRootNode
   ensRootNodes(chainId: Int): ENSRootNodes!
-  exchangeOffers(account: String!, chainId: Int, fromAmount: BigNumber!, fromTokenAddress: String!, toTokenAddress: String!): ExchangeOffers!
+  exchangeOffers(
+    account: String!
+    chainId: Int
+    fromAmount: BigNumber!
+    fromTokenAddress: String!
+    toTokenAddress: String!
+  ): ExchangeOffers!
   exchangeSupportedAssets(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): PaginatedTokens!
-  findBridgeRoutes(amount: BigNumber!, fromAsset: String!, fromChainId: Int!, toAsset: String!, toChainId: Int!): [MovrRoute!]!
+  findBridgeRoutes(
+    amount: BigNumber!
+    fromAsset: String!
+    fromChainId: Int!
+    toAsset: String!
+    toChainId: Int!
+  ): [MovrRoute!]!
   gatewayBatch(chainId: Int, hash: String!): GatewayBatch
   gatewayBatches(account: String!, chainId: Int, limit: Int = 10, page: Int = 1): GatewayBatches!
   gatewayGasInfo(chainId: Int): GatewayGasInfo!
@@ -571,18 +727,60 @@ type Query {
   gatewayTransaction(chainId: Int, hash: String!): GatewayTransaction
   getContractAbi(address: String!, chainId: Int): JSONObject
   isTokenOnTokenList(chainId: Int, name: String, token: String!): Boolean!
+  tokenDetails(chainId: Int, tokenAddress: String!, provider: String): TokenDetails!
+  historicalTokenPrice(chainId: Int, tokenAddress: String!, provider: String, timePeriod: String): HistoricalTokenPrices!
+  poolsActivity(chainId: Int, tokenAddress: String!, provider: String, page: Int, type: String): PoolsActivities!
+  numberOfTransactions(chainId: Int, tokenAddress: String!, provider: String): NumberOfTransactions!
+  tradingHistory(chainId: Int, tokenAddress: String!, provider: String, page: Int): TradingHistories!
+  marketDetails(chainId: Int, tokenAddress: String!, provider: String, timePeriod: String!): MarketDetails!
+  resolveName(chainId: Int, name: String!): NameResolutionsNodes
   nativeCurrencies: NativeCurrencies!
   nftList(account: String!, chainId: Int): NftList!
   p2pPaymentChannel(chainId: Int, hash: String!): P2PPaymentChannel
   p2pPaymentChannelPayments(chainId: Int, channel: String!, limit: Int = 10, page: Int = 1): P2PPaymentChannelPayments!
-  p2pPaymentChannels(chainId: Int, limit: Int = 10, page: Int = 1, senderOrRecipient: String!, token: String, uncommittedOnly: Boolean): P2PPaymentChannels!
+  p2pPaymentChannels(
+    chainId: Int
+    limit: Int = 10
+    page: Int = 1
+    senderOrRecipient: String!
+    token: String
+    uncommittedOnly: Boolean
+  ): P2PPaymentChannels!
   paymentHub(chainId: Int, hub: String!, token: String): PaymentHub
-  paymentHubBridge(acceptedChainId: Int!, acceptedToken: String, chainId: Int, hub: String!, token: String): PaymentHubBridge
-  paymentHubBridges(acceptedChainId: Int, chainId: Int, hub: String!, limit: Int = 10, page: Int = 1, token: String): PaymentHubBridges!
+  paymentHubBridge(
+    acceptedChainId: Int!
+    acceptedToken: String
+    chainId: Int
+    hub: String!
+    token: String
+  ): PaymentHubBridge
+  paymentHubBridges(
+    acceptedChainId: Int
+    chainId: Int
+    hub: String!
+    limit: Int = 10
+    page: Int = 1
+    token: String
+  ): PaymentHubBridges!
   paymentHubDeposit(chainId: Int, hub: String!, owner: String!, token: String): PaymentHubDeposit
-  paymentHubDeposits(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, tokens: [String!] = []): PaymentHubDeposits!
+  paymentHubDeposits(
+    chainId: Int
+    hub: String!
+    limit: Int = 10
+    owner: String!
+    page: Int = 1
+    tokens: [String!] = []
+  ): PaymentHubDeposits!
   paymentHubPayment(hash: String!): PaymentHubPayment
-  paymentHubPayments(chainId: Int, hub: String!, limit: Int = 10, owner: String!, page: Int = 1, senderOrRecipient: String, token: String): PaymentHubPayments!
+  paymentHubPayments(
+    chainId: Int
+    hub: String!
+    limit: Int = 10
+    owner: String!
+    page: Int = 1
+    senderOrRecipient: String
+    token: String
+  ): PaymentHubPayments!
   paymentHubs(chainId: Int, hub: String, limit: Int = 10, page: Int = 1, token: String): PaymentHubs
   project(chainId: Int, key: String!): ProjectPublic
   supportedBridges: SupportedBridges!
@@ -593,7 +791,25 @@ type Query {
   transactions(account: String!, chainId: Int, noCache: Boolean): Transactions!
   validateENSNode(address: String!, chainId: Int, name: String!): Boolean!
   wyreExchangeRates(chainId: Int): String!
-  wyreOrderReservation(amount: String!, chainId: Int, city: String, country: String, dest: String!, destCurrency: String!, email: String, failureRedirectUrl: String, firstName: String, lastName: String, lockFields: [String!]!, paymentMethod: String, phone: String, postalCode: String, redirectUrl: String, sourceCurrency: String!, state: String): String!
+  wyreOrderReservation(
+    amount: String!
+    chainId: Int
+    city: String
+    country: String
+    dest: String!
+    destCurrency: String!
+    email: String
+    failureRedirectUrl: String
+    firstName: String
+    lastName: String
+    lockFields: [String!]!
+    paymentMethod: String
+    phone: String
+    postalCode: String
+    redirectUrl: String
+    sourceCurrency: String!
+    state: String
+  ): String!
 }
 
 type SendTransaction {
@@ -639,6 +855,88 @@ type TokenListToken {
   logoURI: String
   name: String
   symbol: String
+}
+
+type TokenDetails {
+  usdPrice: number!
+  tokenAddress: string!
+  liquidityUSD: number!
+  liquidityUSDChangePercentage24h: number!
+  holders?: number!
+  supply?: number!
+  priceChangePercentage24h: number!
+  tradingVolume: number!
+  tradingVolumeChangePercentage: number!
+}
+
+type HistoricalTokenPrice {
+  usdPrice: number!
+  tokenAddress: string!
+  timestamp: number!
+}
+
+type HistoricalTokenPrices {
+  items: [HistoricalTokenPrice!]!
+}
+
+type PoolsActivityTokensInOut {
+  symbol: string!
+  amm: string!
+  network: string!
+  priceUSD: number!
+  priceETH: number!
+  amount: number!
+}
+
+type PoolsActivity {
+  amm: string!
+  transactionAddress: string!
+  timestamp: number!
+  amountUSD: number!
+  transactionType: string!
+  tokensIn: [PoolsActivityTokensInOut!]!
+  tokensOut: [PoolsActivityTokensInOut!]!
+}
+
+type PoolsActivities {
+  items: [PoolsActivity!]!
+}
+
+type NumberOfTransactions {
+  totalTransactions: number!
+}
+
+type TradingHistory {
+  amm: string!
+  direction: string!
+  transactionAddress: string!
+  timestamp: number!
+  amountUSD: number!
+  walletAddress: string!
+  tokensIn: [PoolsActivityTokensInOut!]!
+  tokensOut: [PoolsActivityTokensInOut!]!
+}
+
+type TradingHistories {
+  items: [TradingHistory!]!
+}
+
+type MarketDetails {
+  id: string!
+  symbol: string!
+  name: string!
+  image?: string!
+  marketCap: number!
+  allTimeHigh?: number!
+  allTimeHighTimestamp?: string!
+  allTimeLow?: number!
+  allTimeLowTimestamp?: string!
+  fullyDilutedValuation: number!
+  priceChangePercentage1h: number!
+  priceChangePercentage24h: number!
+  priceChangePercentage7d: number!
+  priceChangePercentage1m: number!
+  priceChangePercentage1y?: number!
 }
 
 type TokenLists {
@@ -812,6 +1110,24 @@ enum GatewayTransactionStates {
   Sent
 }
 
+enum NameResolutionNodeStates {
+  Reserved
+  Claimed
+}
+
+enum NameResolutionNodeZones {
+  ENS
+  UNS
+  ZNS
+  FIO
+}
+
+enum NameResolutionRootNodeStates {
+  Submitted
+  Verified
+  Released
+}
+
 enum NetworkNames {
   Aurora
   AuroraTest
@@ -821,18 +1137,14 @@ enum NetworkNames {
   Fantom
   FantomTest
   Goerli
-  Kovan
   LocalA
   LocalB
   LocalH
   Mainnet
   Matic
   Mumbai
-  Rinkeby
-  Ropsten
-  Sokol
+  Chiado
   Xdai
-  OptimismKovan
   Optimism
   ArbitrumTest
   Arbitrum
@@ -842,6 +1154,8 @@ enum NetworkNames {
   FuseSparknet
   Celo
   CeloTest
+  ArbitrumNova
+  ArbitrumNitro
 }
 
 enum NotificationTypes {
@@ -924,7 +1238,6 @@ enum TransactionStatuses {
   Pending
   Reverted
 }
-
 
 "A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
 scalar DateTime

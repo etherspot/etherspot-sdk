@@ -45,7 +45,8 @@ export class BridgingQuote {
   provider: string;
   approvalData: IApprovalData | null;
   transaction: ITranscation;
-  estimate: IEstimate
+  estimate: IEstimate;
+  LiFiBridgeUsed?: string | null;
 }
 
 export class BridgingQuotes {

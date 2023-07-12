@@ -21,9 +21,19 @@
     "13-transactions": "../node_modules/.bin/ts-node ./src/13-transactions",
     "14-delayed-transactions": "../node_modules/.bin/ts-node ./src/14-delayed-transactions",
     "15-topup-fuctions": "../node_modules/.bin/ts-node ./src/15-topup-fuctions",
-    "16-cross-chain-quote": "../node_modules/.bin/ts-node ./src/16-cross-chain-quote.ts",
+    "16-cross-chain-quotes": "../node_modules/.bin/ts-node ./src/16-cross-chain-quotes.ts",
     "17-superFluids-createStream": "../node_modules/.bin/ts-node ./src/17-superFluids-createStream.ts",
-    "18-cross-chain-stream": "../node_modules/.bin/ts-node ./src/18-cross-chain-stream.ts"
+    "18-cross-chain-stream": "../node_modules/.bin/ts-node ./src/18-cross-chain-stream.ts",
+    "21-exchange-rates": "../node_modules/.bin/ts-node ./src/21-exchange-rates.ts",
+    "22-name-resolution": "../node_modules/.bin/ts-node ./src/22-name-resolution.ts",
+    "24-account-investments": "../node_modules/.bin/ts-node ./src/24-account-investments.ts",
+    "25-token-details": "../node_modules/.bin/ts-node ./src/25-token-details.ts",
+    "26-historical-token-price" : "../node_modules/.bin/ts-node ./src/26-historical-token-price.ts",
+    "27-pools-activity" : "../node_modules/.bin/ts-node ./src/27-pools-activity.ts",
+    "28-number-of-transactions" : "../node_modules/.bin/ts-node ./src/28-number-of-transactions.ts",
+    "29-trading-history" : "../node_modules/.bin/ts-node ./src/29-trading-history.ts",
+    "30-market-details" : "../node_modules/.bin/ts-node ./src/30-market-details.ts",
+    "31-net-curve-balances" : "../node_modules/.bin/ts-node ./src/31-net-curve-balances.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"

@@ -5,6 +5,7 @@ export enum EnvNames {
   MainNets = 'mainnets',
   TestNets = 'testnets',
   LocalNets = 'localnets',
+  MainNetsTest = 'mainnetstest',
 }
 
 export const SUPPORTED_ENVS: { [key: string]: Env } = {
@@ -27,6 +28,10 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.Moonbeam,
         NetworkNames.Celo,
         NetworkNames.Fuse,
+        NetworkNames.ArbitrumNova,
+        NetworkNames.Klaytn,
+        // NetworkNames.Neon,
+        NetworkNames.OKTC,
       ],
     },
   },
@@ -37,21 +42,22 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
     },
     networkOptions: {
       supportedNetworkNames: [
-        NetworkNames.Ropsten,
-        NetworkNames.Rinkeby,
         NetworkNames.Goerli,
-        NetworkNames.Kovan,
-        NetworkNames.Sokol,
+        NetworkNames.Chiado,
         NetworkNames.BscTest,
         NetworkNames.FantomTest,
         NetworkNames.Mumbai,
         NetworkNames.AuroraTest,
         NetworkNames.Fuji,
-        NetworkNames.OptimismKovan,
-        NetworkNames.ArbitrumTest,
         NetworkNames.Moonbase,
         NetworkNames.CeloTest,
         NetworkNames.FuseSparknet,
+        NetworkNames.ArbitrumNitro,
+        NetworkNames.NeonDevnet,
+        NetworkNames.OptimismGoerli,
+        NetworkNames.BaseGoerli,
+        NetworkNames.KlaytnBaobab,
+        NetworkNames.OktcTest,
         NetworkNames.Etherspot,
       ],
     },
@@ -66,6 +72,21 @@ export const SUPPORTED_ENVS: { [key: string]: Env } = {
         NetworkNames.LocalA, //
         NetworkNames.LocalB,
         NetworkNames.LocalH,
+      ],
+    },
+  },
+  [EnvNames.MainNetsTest]: {
+    apiOptions: {
+      host: 'qa-etherspot.pillarproject.io',
+      useSsl: true,
+    },
+    networkOptions: {
+      supportedNetworkNames: [
+        NetworkNames.Matic,
+        NetworkNames.Bsc,
+        NetworkNames.Optimism,
+        NetworkNames.Arbitrum,
+        NetworkNames.Klaytn,
       ],
     },
   },
