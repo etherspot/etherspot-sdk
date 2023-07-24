@@ -12,3 +12,5 @@ export * from './exchange-router-address';
 export * from './step-transactions-lifi';
 export * from './advance-routes-lifi';
 export * from './lifi-status';
+export * from './advance-route';
+export * from './advance-routes';

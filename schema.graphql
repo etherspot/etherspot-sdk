@@ -733,6 +733,19 @@ type Query {
   numberOfTransactions(chainId: Int, tokenAddress: String!, provider: String): NumberOfTransactions!
   tradingHistory(chainId: Int, tokenAddress: String!, provider: String, page: Int): TradingHistories!
   marketDetails(chainId: Int, tokenAddress: String!, provider: String, timePeriod: String!): MarketDetails!
+  advanceRoutes(
+    serviceProvider: String
+    account: String!
+    fromTokenAddress: String!
+    toTokenAddress: String!
+    fromAmount: BigNumber!
+    fromChainId: Int!
+    toChainId: Int!
+    toAddress: String
+    allowSwitchChain: Boolean
+    fromAddress: String!
+    showZeroUsd: Boolean
+  ): AdvanceRoutes!
   resolveName(chainId: Int, name: String!): NameResolutionsNodes
   nativeCurrencies: NativeCurrencies!
   nftList(account: String!, chainId: Int): NftList!
@@ -937,6 +950,44 @@ type MarketDetails {
   priceChangePercentage7d: number!
   priceChangePercentage1m: number!
   priceChangePercentage1y?: number!
+}
+
+type FeesToken {
+  address: string!
+  symbol: string!
+  decimals: number
+  chain: string!
+}
+
+type FeesCost {
+  type: string!
+  token: FeesToken!
+  amount: BigNumber!
+  amountUSD: string
+}
+
+type AdvanceRouteToken {
+  address: string!
+  symbol: string!
+  decimals: number
+  name: string!
+}
+
+type AdvanceRoute {
+  provider: string!
+  fromToken: AdvanceRouteToken!
+  toToken: AdvanceRouteToken!
+  duration: number!
+  gasUSD: string!
+  tool: string!
+  amount: BigNumber!
+  amountUSD: string
+  feeCosts: [FeesCost!]!
+  gasCosts: [FeesCost!]!
+}
+
+type AdvanceRoutes {
+  items: [AdvanceRoute!]!
 }
 
 type TokenLists {

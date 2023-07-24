@@ -118,6 +118,7 @@ import {
   GetPoolsActivityDto,
   GetTradingHistoryDto,
   GetAccount24HourNetCurveDto,
+  GetAdvanceRoutesDto,
 } from './dto';
 import { ENSNode, ENSNodeStates, ENSRootNode, ENSService, parseENSName } from './ens';
 import { Env, EnvNames } from './env';
@@ -132,6 +133,7 @@ import {
   AdvanceRoutesLiFi,
   StepTransactions,
   LiFiStatus,
+  AdvanceRoutes,
 } from './exchange';
 
 import { FaucetService } from './faucet';
@@ -1491,6 +1493,44 @@ export class Sdk {
     );
 
     return data;
+  }
+
+  /**
+ * gets advance routes of multi chain
+ * @param dto
+ * @return Promise<AdvanceRoutes>
+ */
+  async advanceRoutes(dto: GetAdvanceRoutesDto): Promise<AdvanceRoutes> {
+    const {
+      serviceProvider,
+      fromChainId,
+      toChainId,
+      fromTokenAddress,
+      toTokenAddress,
+      fromAmount,
+      toAddress,
+      allowSwitchChain,
+      fromAddress,
+      showZeroUsd,
+    } = await validateDto(dto, GetAdvanceRoutesDto, {
+      addressKeys: ['fromTokenAddress', 'toTokenAddress'],
+    });
+
+    let { chainId } = this.services.networkService;
+    chainId = fromChainId ? fromChainId : chainId;
+
+    return this.services.exchangeService.getAdvanceRoutes(
+      fromTokenAddress,
+      toTokenAddress,
+      chainId,
+      toChainId,
+      BigNumber.from(fromAmount),
+      toAddress,
+      allowSwitchChain,
+      fromAddress,
+      showZeroUsd,
+      serviceProvider,
+    );
   }
 
   async getStepTransaction(dto: GetStepTransactionsLiFiDto): Promise<StepTransactions> {
