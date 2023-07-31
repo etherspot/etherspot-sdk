@@ -57,8 +57,8 @@ jobs:
             mv package.json temp.json
             jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
             rm temp.json
-            # npm i
-            # npm run test-mainnet
+            npm i
+            npm run test-mainnet
       # - run:
       #     name: Publish package to npm
       #     command: |
