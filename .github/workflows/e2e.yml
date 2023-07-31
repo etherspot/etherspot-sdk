@@ -1,0 +1,92 @@
+name: install_and_publish
+
+on:
+  push:
+    branches:
+      - feature/e2e_pipeline
+    
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ~/etherspot-sdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Authenticate with registry
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.ETHERSPOT_NPM_TOKEN }}" > ~/etherspot-sdk/.npmrc
+
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: dependency-cache-${{ hashFiles('package.json') }}
+          restore-keys: dependency-cache-*
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Save cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: dependency-cache-${{ hashFiles('package.json') }}
+          
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ~/etherspot-sdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: dependency-cache-${{ hashFiles('package.json') }}
+          restore-keys: dependency-cache-*
+      
+      - name: Authenticate with registry
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.ETHERSPOT_NPM_TOKEN }}" > ~/etherspot-sdk/.npmrc
+
+      - name: Build Etherpot-SDK
+        run: npm run build
+
+      - name: Checkout e2e repo and run tests
+        run: |
+          git clone https://github.com/etherspot/e2e-sdk.git
+          cd e2e-sdk
+          sed -i.bak "s/_private_key_/${{ secrets.PRIVATE_KEY }}/g" .env
+          mv package.json temp.json
+          jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
+          rm temp.json
+          npm i
+          # npm run test-mainnet  
+
+      - name: Install gh cli
+        run: |
+          sudo apt update
+          sudo apt install gh 
+          
+      - name: Get package version
+        run: |
+          PACKAGE_VERSION="$(jq .version package.json -r)"
+          echo $PACKAGE_VERSION
+          
+      - name: Publish release
+        run: |
+          ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${{ secrets.GITHUB_USERNAME }} -r ${{ github.repository }} -c ${{ github.sha }} $PACKAGE_VERSION
