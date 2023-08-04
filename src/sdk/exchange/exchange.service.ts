@@ -327,11 +327,9 @@ export class ExchangeService extends Service {
             bridge: $bridge
           ) {
             status
-            bridgeExplorerLink
             subStatus
             subStatusMsg
             sendingTxnHash
-            receivingTxnHash
           }
         }`,
       {
