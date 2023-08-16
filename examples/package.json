@@ -33,7 +33,8 @@
     "28-number-of-transactions" : "../node_modules/.bin/ts-node ./src/28-number-of-transactions.ts",
     "29-trading-history" : "../node_modules/.bin/ts-node ./src/29-trading-history.ts",
     "30-market-details" : "../node_modules/.bin/ts-node ./src/30-market-details.ts",
-    "31-net-curve-balances" : "../node_modules/.bin/ts-node ./src/31-net-curve-balances.ts"
+    "31-net-curve-balances" : "../node_modules/.bin/ts-node ./src/31-net-curve-balances.ts",
+    "32-advance-routes" : "../node_modules/.bin/ts-node ./src/32-advance-routes.ts"
   },
   "dependencies": {
     "dotenv": "16.0.1"

@@ -18,6 +18,7 @@ import {
   StepTransactions,
   AdvanceRoutesLiFi,
   LiFiStatus,
+  AdvanceRoutes,
 } from './classes';
 
 import { PaginatedTokens } from '../assets';
@@ -259,6 +260,120 @@ export class ExchangeService extends Service {
       console.log(err)
     }
     return data;
+  }
+
+  async getAdvanceRoutes(
+    fromTokenAddress: string,
+    toTokenAddress: string,
+    fromChainId: number,
+    toChainId: number,
+    fromAmount: BigNumber,
+    toAddress?: string,
+    allowSwitchChain?: boolean,
+    fromAddress?: string,
+    showZeroUsd?: boolean,
+    serviceProvider?: string,
+  ): Promise<AdvanceRoutes> {
+    const { apiService, accountService } = this.services;
+
+    const account = accountService.accountAddress;
+
+    const { result } = await apiService.query<{
+      result: AdvanceRoutes;
+    }>(
+      gql`
+        query(
+          $serviceProvider: String
+          $account: String!
+          $fromTokenAddress: String!
+          $toTokenAddress: String!
+          $fromAmount: BigNumber!
+          $fromChainId: Int
+          $toChainId: Int
+          $toAddress: String
+          $allowSwitchChain: Boolean
+          $fromAddress: String
+          $showZeroUsd: Boolean
+        ) {
+          result: advanceRoutes(
+            serviceProvider: $serviceProvider
+            account: $account
+            fromTokenAddress: $fromTokenAddress
+            toTokenAddress: $toTokenAddress
+            fromAmount: $fromAmount
+            fromChainId: $fromChainId
+            toChainId: $toChainId
+            toAddress: $toAddress
+            allowSwitchChain: $allowSwitchChain
+            fromAddress: $fromAddress
+            showZeroUsd: $showZeroUsd
+          ) {
+            items {
+              provider
+              tool
+              duration
+              amount
+              amountUSD
+              gasUSD
+              fromToken {
+                address
+                name
+                decimals
+                symbol
+              }
+              toToken {
+                address
+                name
+                decimals
+                symbol
+              }
+              feeCosts {
+                type
+                amount
+                amountUSD
+                token {
+                  address
+                  symbol
+                  decimals
+                  chain
+                }
+              }
+              gasCosts {
+                type
+                amount
+                amountUSD
+                token {
+                  address
+                  symbol
+                  decimals
+                  chain
+                }
+              }
+            }
+          }
+        }
+      `,
+      {
+        variables: {
+          serviceProvider,
+          account,
+          fromTokenAddress,
+          toTokenAddress,
+          fromChainId,
+          toChainId,
+          fromAmount,
+          toAddress,
+          allowSwitchChain,
+          fromAddress,
+          showZeroUsd,
+        },
+        models: {
+          result: AdvanceRoutes,
+        },
+      },
+    );
+
+    return result;
   }
 
   async getStepTransaction(selectedRoute: Route): Promise<StepTransactions> {
