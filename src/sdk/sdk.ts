@@ -203,11 +203,10 @@ export class Sdk {
   constructor(walletProvider: WalletProviderLike, optionsLike?: EnvNames | SdkOptions) {
     let options: SdkOptions = {};
 
+    let walletConnectProvider;
     if (isWalletConnectProvider(walletProvider)) {
-      walletProvider = new WalletConnect2WalletProvider(walletProvider as EthereumProvider);
-    }
-
-    if (!isWalletProvider(walletProvider)) {
+      walletConnectProvider = new WalletConnect2WalletProvider(walletProvider as EthereumProvider);
+    } else if (!isWalletProvider(walletProvider)) {
       throw new Exception('Invalid wallet provider');
     }
 
@@ -250,7 +249,7 @@ export class Sdk {
 
     this.services = {
       networkService: new NetworkService(networkOptions, networkName),
-      walletService: new WalletService(walletProvider, {
+      walletService: new WalletService(walletConnectProvider ?? walletProvider, {
         omitProviderNetworkCheck: omitWalletProviderNetworkCheck,
       }),
       sessionService: new SessionService({
