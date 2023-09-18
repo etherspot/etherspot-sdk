@@ -121,7 +121,7 @@ workflows:
           filters:
             branches:
               only:
-                  - master
+                  - feature/e2e_pipeline
       - publish-npm-package:
           context: general-vars
           requires:
@@ -129,7 +129,7 @@ workflows:
           filters:
             branches:
               only:
-                  - master
+                  - feature/e2e_pipeline
       - publish-github-release:
           context: general-vars
           requires:
@@ -137,4 +137,4 @@ workflows:
           filters:
             branches:
               only:
-                  - master
+                  - feature/e2e_pipeline
