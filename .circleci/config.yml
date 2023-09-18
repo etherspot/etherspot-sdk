@@ -25,12 +25,11 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      # - slack/status:
-      #     fail_only: true
-      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-      #     webhook: "${SLACK_WEBHOOK_URL}"
+      - slack/status:
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+          webhook: "${SLACK_WEBHOOK_URL}"
 
-  publish:
+  e2e-tests:
     working_directory: ~/etherspot-sdk
     docker:
       - image: cimg/node:18.16.1
@@ -49,6 +48,7 @@ jobs:
           command: npm run build
       - run:
           name: Checkout e2e repo and run tests
+          no_output_timeout: 60m
           command: |
             cd ~
             git clone https://github.com/etherspot/e2e-sdk.git
@@ -58,22 +58,46 @@ jobs:
             jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
             rm temp.json
             npm i
-            npm run test-mainnet
-      # - run:
-      #     name: Publish package to npm
-      #     command: |
-      #       cd ~/etherspot-sdk
-      #       npm publish
-      # - run:
-      #     name: Announce Publish
-      #     command: |
-      #       chmod +x .circleci/announcePublish.sh
-      #       .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
-      # - slack/status:
-      #     fail_only: true
-      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-      #     only_for_branches: master
-      #     webhook: "${SLACK_WEBHOOK_URL}"
+            touch ~/logs.txt
+            npm run test-mainnet |& tee ~/logs.txt
+            chmod 755 ~/logs.txt
+            cat ~/logs.txt
+            echo "export LOGS='$(cat ~/logs.txt)'" >> $BASH_ENV
+            echo $BASH_ENV
+            rm ~/logs.txt
+            source "$BASH_ENV"
+      - slack/status:
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job e2e tests failed! :circleci-fail:"
+          success_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Woohoh! The *$CIRCLE_JOB* job e2e tests completed successfully! :circleci-pass: \n\n $LOGS"
+          # only_for_branches: master
+          webhook: "${SLACK_WEBHOOK_URL}"
+  publish-npm-package:
+    working_directory: ~/etherspot-sdk
+    docker:
+      - image: cimg/node:18.16.1
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
+      - run:
+          name: Build Etherpot SDK
+          command: npm run build
+      - run:
+          name: Publish package to npm
+          command: |
+            cd ~/etherspot-sdk
+            npm publish
+      - run:
+          name: Announce Publish
+          command: |
+            chmod +x .circleci/announcePublish.sh
+            .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
   publish-github-release:
     docker:
       - image: ardd97/ghr
@@ -92,17 +116,25 @@ workflows:
     jobs:
       - install:
           context: general-vars
-      - publish:
+      - e2e-tests:
           context: general-vars
-          requires:
-            - install
           filters:
             branches:
               only:
-                  - feature/e2e_pipeline
-      # - publish-github-release:
-      #     context: general-vars
-      #     filters:
-      #       branches:
-      #         only:
-      #             - feature/e2e_pipeline
+                  - master
+      - publish-npm-package:
+          context: general-vars
+          requires:
+            - e2e-tests
+          filters:
+            branches:
+              only:
+                  - master
+      - publish-github-release:
+          context: general-vars
+          requires:
+            - e2e-tests
+          filters:
+            branches:
+              only:
+                  - master
