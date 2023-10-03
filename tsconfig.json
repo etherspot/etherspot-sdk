@@ -17,7 +17,8 @@
       "ES5",
       "es2015.collection",
       "es2015.iterable"
-    ]
+    ],
+    "skipLibCheck": true
   },
   "include": [
     "./examples/**/*.ts",
