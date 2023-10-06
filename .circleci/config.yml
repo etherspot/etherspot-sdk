@@ -25,9 +25,9 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      - slack/status:
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-          webhook: "${SLACK_WEBHOOK_URL}"
+      # - slack/status:
+      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+      #     webhook: "${SLACK_WEBHOOK_URL}"
 
   e2e-tests:
     working_directory: ~/etherspot-sdk
