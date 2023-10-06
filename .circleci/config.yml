@@ -66,9 +66,18 @@ jobs:
             echo $BASH_ENV
             rm ~/logs.txt
             source "$BASH_ENV"
+      - run:
+          name: Move test report
+          command: |
+            mv /home/circleci/e2e-sdk-prime/mochawesome-report /tmp/
+            chmod 777 -R /tmp/mochawesome-report
+          when: always    
+      - store_artifacts:
+          path: /tmp/mochawesome-report
+          when: always
       - slack/status:
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job e2e tests failed! :circleci-fail:"
-          success_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Woohoh! The *$CIRCLE_JOB* job e2e tests completed successfully! :circleci-pass: \n\n $LOGS"
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job e2e tests failed! :circleci-fail: \n\n Report URL: https://output.circle-artifacts.com/output/job/${CIRCLE_WORKFLOW_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/tmp/mochawesome-report/mochawesome.html"
+          success_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Woohoh! The *$CIRCLE_JOB* job e2e tests completed successfully! :circleci-pass: \n\n Report URL: https://output.circle-artifacts.com/output/job/${CIRCLE_WORKFLOW_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/tmp/mochawesome-report/mochawesome.html"
           # only_for_branches: master
           webhook: "${SLACK_WEBHOOK_URL}"
   publish-npm-package:
@@ -122,19 +131,19 @@ workflows:
             branches:
               only:
                   - feature/e2e_pipeline
-      - publish-npm-package:
-          context: general-vars
-          requires:
-            - e2e-tests
-          filters:
-            branches:
-              only:
-                  - feature/e2e_pipeline
-      - publish-github-release:
-          context: general-vars
-          requires:
-            - e2e-tests
-          filters:
-            branches:
-              only:
-                  - feature/e2e_pipeline
+      # - publish-npm-package:
+      #     context: general-vars
+      #     requires:
+      #       - e2e-tests
+      #     filters:
+      #       branches:
+      #         only:
+      #             - feature/e2e_pipeline
+      # - publish-github-release:
+      #     context: general-vars
+      #     requires:
+      #       - e2e-tests
+      #     filters:
+      #       branches:
+      #         only:
+      #             - feature/e2e_pipeline
