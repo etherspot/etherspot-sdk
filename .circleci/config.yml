@@ -130,20 +130,20 @@ workflows:
           filters:
             branches:
               only:
-                  - feature/e2e_pipeline
-      # - publish-npm-package:
-      #     context: general-vars
-      #     requires:
-      #       - e2e-tests
-      #     filters:
-      #       branches:
-      #         only:
-      #             - feature/e2e_pipeline
-      # - publish-github-release:
-      #     context: general-vars
-      #     requires:
-      #       - e2e-tests
-      #     filters:
-      #       branches:
-      #         only:
-      #             - feature/e2e_pipeline
+                  - master
+      - publish-npm-package:
+          context: general-vars
+          requires:
+            - e2e-tests
+          filters:
+            branches:
+              only:
+                  - master
+      - publish-github-release:
+          context: general-vars
+          requires:
+            - publish-npm-package
+          filters:
+            branches:
+              only:
+                  - master
