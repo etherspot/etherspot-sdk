@@ -7,7 +7,7 @@ jobs:
   install:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: cimg/node:14.21.3
+      - image: cimg/node:18.16.1
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -25,15 +25,14 @@ jobs:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
-      - slack/status:
-          fail_only: true
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-          webhook: "${SLACK_WEBHOOK_URL}"
+      # - slack/status:
+      #     failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
+      #     webhook: "${SLACK_WEBHOOK_URL}"
 
-  publish:
+  e2e-tests:
     working_directory: ~/etherspot-sdk
     docker:
-      - image: cimg/node:14.21.3
+      - image: cimg/node:18.16.1
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -48,18 +47,66 @@ jobs:
           name: Build Etherpot-SDK
           command: npm run build
       - run:
+          name: Checkout e2e repo and run tests
+          no_output_timeout: 60m
+          command: |
+            cd ~
+            git clone https://github.com/etherspot/e2e-sdk.git
+            cd e2e-sdk
+            sed -i.bak "s/_private_key_/$PRIVATE_KEY/g" .env
+            mv package.json temp.json
+            jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
+            rm temp.json
+            npm i
+            touch ~/logs.txt
+            npm run test-mainnet |& tee ~/logs.txt
+            chmod 755 ~/logs.txt
+            cat ~/logs.txt
+            echo "export LOGS='$(cat ~/logs.txt)'" >> $BASH_ENV
+            echo $BASH_ENV
+            rm ~/logs.txt
+            source "$BASH_ENV"
+      - run:
+          name: Move test report
+          command: |
+            mv /home/circleci/e2e-sdk-prime/mochawesome-report /tmp/
+            chmod 777 -R /tmp/mochawesome-report
+          when: always    
+      - store_artifacts:
+          path: /tmp/mochawesome-report
+          when: always
+      - slack/status:
+          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job e2e tests failed! :circleci-fail: \n\n Report URL: https://output.circle-artifacts.com/output/job/${CIRCLE_WORKFLOW_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/tmp/mochawesome-report/mochawesome.html"
+          success_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Woohoh! The *$CIRCLE_JOB* job e2e tests completed successfully! :circleci-pass: \n\n Report URL: https://output.circle-artifacts.com/output/job/${CIRCLE_WORKFLOW_JOB_ID}/artifacts/${CIRCLE_NODE_INDEX}/tmp/mochawesome-report/mochawesome.html"
+          # only_for_branches: master
+          webhook: "${SLACK_WEBHOOK_URL}"
+  publish-npm-package:
+    working_directory: ~/etherspot-sdk
+    docker:
+      - image: cimg/node:18.16.1
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$ETHERSPOT_NPM_TOKEN" > ~/etherspot-sdk/.npmrc
+      - run:
+          name: Build Etherpot SDK
+          command: npm run build
+      - run:
           name: Publish package to npm
-          command: npm publish
+          command: |
+            cd ~/etherspot-sdk
+            npm publish
       - run:
           name: Announce Publish
           command: |
             chmod +x .circleci/announcePublish.sh
             .circleci/announcePublish.sh "Etherspot SDK" "$(node -e "console.log(require('./package.json').version)")"
-      - slack/status:
-          fail_only: true
-          failure_message: "Triggered by: *${CIRCLE_USERNAME}* \n\n Ooops! The *$CIRCLE_JOB* job has failed! :circleci-fail:"
-          only_for_branches: master
-          webhook: "${SLACK_WEBHOOK_URL}"
   publish-github-release:
     docker:
       - image: ardd97/ghr
@@ -78,16 +125,24 @@ workflows:
     jobs:
       - install:
           context: general-vars
-      - publish:
+      - e2e-tests:
+          context: general-vars
+          filters:
+            branches:
+              only:
+                  - master
+      - publish-npm-package:
           context: general-vars
           requires:
-            - install
+            - e2e-tests
           filters:
             branches:
               only:
                   - master
       - publish-github-release:
           context: general-vars
+          requires:
+            - publish-npm-package
           filters:
             branches:
               only:
