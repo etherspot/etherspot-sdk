@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Move test report
           command: |
-            mv /home/circleci/e2e-sdk-prime/mochawesome-report /tmp/
+            mv /home/circleci/e2e-sdk/mochawesome-report /tmp/
             chmod 777 -R /tmp/mochawesome-report
           when: always    
       - store_artifacts:
