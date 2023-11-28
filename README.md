@@ -1,5 +1,14 @@
 # Etherspot SDK
 
+## **Deprecation Notice (PLEASE READ)**
+
+This is the **OLD** version of the Etherspot SDK. It is pre 4337 and not being worked on anymore.
+
+Please refer to the links below and use Etherspot Prime going forward:
+- [Etherspot Prime Github Repo](https://github.com/etherspot/etherspot-prime-sdk)
+- [Etherspot Prime Documentation](https://etherspot.fyi/introduction)
+
+-----------------
 [![NPM version][npm-image]][npm-url]
 ![MIT licensed][license-image]
 
