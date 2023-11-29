@@ -1,5 +1,20 @@
 # Etherspot SDK
 
+## **Deprecation Notice (PLEASE READ)**
+
+>[!WARNING]
+>This is the **OLD** version of the Etherspot SDK. 
+
+ERC4337 is the new standard for [Account Abstraction on Ethereum.](https://www.erc4337.io/) 
+Any Account Abstraction development done on EVM based networks going forward should be done using this standard.
+
+This SDK is pre 4337 and **not** being updated anymore. 
+
+Please refer to the links below and use Etherspot Prime going forward:
+- [Etherspot Prime Github Repo](https://github.com/etherspot/etherspot-prime-sdk)
+- [Etherspot Prime Documentation](https://etherspot.fyi/introduction)
+
+-----------------
 [![NPM version][npm-image]][npm-url]
 ![MIT licensed][license-image]
 
