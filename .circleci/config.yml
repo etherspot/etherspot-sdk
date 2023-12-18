@@ -58,14 +58,7 @@ jobs:
             jq -r '.dependencies.etherspot |= "file:../etherspot-sdk"' temp.json > package.json
             rm temp.json
             npm i
-            touch ~/logs.txt
-            npm run test-mainnet |& tee ~/logs.txt
-            chmod 755 ~/logs.txt
-            cat ~/logs.txt
-            echo "export LOGS='$(cat ~/logs.txt)'" >> $BASH_ENV
-            echo $BASH_ENV
-            rm ~/logs.txt
-            source "$BASH_ENV"
+            npm run test-mainnet
       - run:
           name: Move test report
           command: |
